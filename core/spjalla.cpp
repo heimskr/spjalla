@@ -31,6 +31,12 @@ namespace spjalla {
 						if (il.args.size() != 1)
 							YIKES("/join expects one argument.");
 						join_command(serv, il.args[0]).send();
+					} else if (il.command == "quit") {
+						if (il.args.size() == 0) {
+							quit_command(serv).send();
+						} else {
+							quit_command(serv, il.body).send();
+						}
 					} else std::cerr << "Unknown command: /" << il.command << std::endl;
 				} catch (std::exception &err) {
 					YIKES(err.what());
