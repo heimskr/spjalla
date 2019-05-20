@@ -2,6 +2,7 @@
 #include <string>
 #include <thread>
 
+#include "core/debug.h"
 #include "core/irc.h"
 #include "core/server.h"
 #include "lib/ansi.h"
@@ -18,12 +19,9 @@ namespace spjalla {
 		while (std::getline(std::cin, in)) {
 			input_line il = input_line(in);
 
-			std::cout << std::string(il) << std::endl;
-			continue;
-
 			if (il.is_command()) {
 				if (il.command == "nick") {
-					if (il.body.empty()) std::cerr << "/nick expects one argument" << std::endl;
+					if (il.args.size() != 1) YIKES("/nick expects one argument.");
 				} else {
 					std::cerr << "Unknown command: /" << il.command << std::endl;
 				}
