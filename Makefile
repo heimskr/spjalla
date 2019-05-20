@@ -21,18 +21,21 @@ all: Makefile
 # Peter Miller, "Recursive Make Considered Harmful" (http://aegis.sourceforge.net/auug97.pdf)
 MODULES			:= pingpong/core pingpong/test pingpong/commands pingpong/messages pingpong/lib
 COMMONSRC		:=
-CFLAGS			+= -I. -Ipingpong
+CFLAGS			+= -I. -Ipingpong/include
 LIBS			:=
 SRC				:=
 include $(patsubst %,%/module.mk,$(MODULES))
 SRC				+= $(COMMONSRC)
-COMMONOBJ		:= $(patsubst %.cpp,%.o, $(filter %.cpp,$(COMMONSRC)))
-OBJ				:= $(patsubst %.cpp,%.o, $(filter %.cpp,$(SRC)))
+COMMONOBJ_PP	:= $(patsubst %.cpp,pingpong/%.o, $(filter %.cpp,$(COMMONSRC)))
+OBJ_PP			:= $(patsubst %.cpp,pingpong/%.o, $(filter %.cpp,$(SRC)))
 sinclude $(patsubst %,%/targets.mk,$(MODULES))
 
 include pingpong/conan.mk
 
-all: $(COMMONOBJ)
+all: $(COMMONOBJ_PP)
+
+what:
+	echo $(patsubst pingpong/%,%/%.o,$(MODULES))
 
 test: spjalla
 	./spjalla
@@ -44,7 +47,10 @@ grind: build/tests
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=yes ./build/tests
 
 clean:
-	rm -f spjalla *.o **/*.o
+	rm -f spjalla
+	rm -f **/*.o
+	rm -f *.o
+	$(MAKE) -C pingpong clean
 
 %.o: %.cpp
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
