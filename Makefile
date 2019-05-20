@@ -29,6 +29,8 @@ SRC				+= $(COMMONSRC)
 COMMONOBJ_PP	:= $(patsubst %.cpp,pingpong/%.o, $(filter %.cpp,$(COMMONSRC)))
 OBJ_PP			:= $(patsubst %.cpp,pingpong/%.o, $(filter %.cpp,$(SRC)))
 sinclude $(patsubst %,%/targets.mk,$(MODULES))
+SRC_PP			:= $(patsubst %,pingpong/%,$(SRC))
+SRC_ALL			:= $(SRC_PP)
 
 include pingpong/conan.mk
 
@@ -61,7 +63,7 @@ DEPFLAGS = -f $(DEPFILE) -s $(DEPTOKEN)
 
 depend:
 	@ echo $(DEPTOKEN) > $(DEPFILE)
-	makedepend $(DEPFLAGS) -- $(CC) -- $(SRC)
+	makedepend $(DEPFLAGS) -- $(CC) -- $(SRC_ALL)
 	@ rm $(DEPFILE).bak
 
 sinclude $(DEPFILE)
