@@ -38,9 +38,11 @@ include $(patsubst %,%/module.mk,$(MODULES))
 SRC				+= $(COMMONSRC)
 COMMONOBJ		:= $(patsubst %.cpp,%.o, $(filter %.cpp,$(COMMONSRC)))
 OBJ				:= $(patsubst %.cpp,%.o, $(filter %.cpp,$(SRC)))
-sinclude $(patsubst %,%/targets.mk,$(MODULES))
 
-SRC_ALL			= $(SRC_PP)
+OBJ_ALL			:= $(OBJ) $(OBJ_PP)
+SRC_ALL			:= $(SRC) $(SRC_PP)
+
+sinclude $(patsubst %,%/targets.mk,$(MODULES))
 
 include pingpong/conan.mk
 
