@@ -21,8 +21,8 @@ namespace spjalla {
 		while (std::getline(std::cin, in)) {
 			input_line il = input_line(in);
 
-			try {
-				if (il.is_command()) {
+			if (il.is_command()) {
+				try {
 					if (il.command == "nick") {
 						if (il.args.size() != 1)
 							YIKES("/nick expects one argument.");
@@ -32,9 +32,11 @@ namespace spjalla {
 							YIKES("/join expects one argument.");
 						join_command(serv, il.args[0]).send();
 					} else std::cerr << "Unknown command: /" << il.command << std::endl;
+				} catch (std::exception &err) {
+					YIKES(err.what());
 				}
-			} catch (std::exception &err) {
-				YIKES(err.what());
+			} else {
+
 			}
 		}
 	}
