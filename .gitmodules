@@ -1,6 +1,3 @@
 [submodule "formicine"]
 	path = formicine
 	url = https://github.com/kaitamkun/formicine
-[submodule "pingpong"]
-	path = pingpong
-	url = https://github.com/kaitamkun/pingpong
