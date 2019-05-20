@@ -49,9 +49,7 @@ grind: build/tests
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=yes ./build/tests
 
 clean:
-	rm -f spjalla
-	rm -f **/*.o
-	rm -f *.o
+	rm -f spjalla **/*.o *.o
 	$(MAKE) -C pingpong clean
 
 %.o: %.cpp
