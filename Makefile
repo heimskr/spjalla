@@ -22,7 +22,7 @@ all: Makefile
 # Peter Miller, "Recursive Make Considered Harmful" (http://aegis.sourceforge.net/auug97.pdf)
 MODULES			:= pingpong/core pingpong/test pingpong/commands pingpong/messages pingpong/lib
 COMMONSRC		:=
-CFLAGS			+= -I. -Ipingpong/include
+CFLAGS			+= -Iinclude -Ipingpong/include
 SRC				:=
 include $(patsubst %,%/module.mk,$(MODULES))
 SRC				+= $(COMMONSRC)
@@ -46,7 +46,7 @@ sinclude $(patsubst %,%/targets.mk,$(MODULES))
 
 include pingpong/conan.mk
 
-all: $(COMMONOBJ)
+all: $(COMMONOBJ) $(OUTPUT)
 
 test: $(OUTPUT)
 	./$(OUTPUT)

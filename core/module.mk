@@ -1,1 +1,1 @@
-SRC += core/spjalla.cpp
+SRC += core/spjalla.cpp core/input_line.cpp

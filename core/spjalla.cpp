@@ -5,7 +5,9 @@
 #include "core/irc.h"
 #include "core/server.h"
 #include "lib/ansi.h"
-#include "spjalla.h"
+
+#include "core/spjalla.h"
+#include "core/input_line.h"
 
 using namespace pingpong;
 using namespace spjalla;
@@ -13,8 +15,10 @@ using namespace spjalla;
 namespace spjalla {
 	void input_worker() {
 		std::string in;
-		while (std::cin >> in) {
-			
+		while (std::getline(std::cin, in)) {
+			std::cout << "(" << in << ")" << std::endl;
+			input_line il = input_line(in);
+			std::cout << std::string(il) << std::endl;
 		}
 	}
 }
