@@ -4,6 +4,7 @@ LDFLAGS			:=
 CC				 = $(COMPILER) $(CFLAGS) $(CHECKFLAGS)
 CHECKFLAGS		:=
 MKBUILD			:= mkdir -p build
+OUTPUT			:= build/spjalla
 
 CHECK			:= asan
 
@@ -22,7 +23,6 @@ all: Makefile
 MODULES			:= pingpong/core pingpong/test pingpong/commands pingpong/messages pingpong/lib
 COMMONSRC		:=
 CFLAGS			+= -I. -Ipingpong/include
-LIBS			:=
 SRC				:=
 include $(patsubst %,%/module.mk,$(MODULES))
 SRC				+= $(COMMONSRC)
@@ -30,26 +30,30 @@ COMMONOBJ_PP	:= $(patsubst %.cpp,pingpong/%.o, $(filter %.cpp,$(COMMONSRC)))
 OBJ_PP			:= $(patsubst %.cpp,pingpong/%.o, $(filter %.cpp,$(SRC)))
 sinclude $(patsubst %,%/targets.mk,$(MODULES))
 SRC_PP			:= $(patsubst %,pingpong/%,$(SRC))
-SRC_ALL			:= $(SRC_PP)
+
+MODULES			:= core
+COMMONSRC		:=
+SRC				:=
+include $(patsubst %,%/module.mk,$(MODULES))
+SRC				+= $(COMMONSRC)
+COMMONOBJ		:= $(patsubst %.cpp,%.o, $(filter %.cpp,$(COMMONSRC)))
+OBJ				:= $(patsubst %.cpp,%.o, $(filter %.cpp,$(SRC)))
+sinclude $(patsubst %,%/targets.mk,$(MODULES))
+
+SRC_ALL			= $(SRC_PP)
 
 include pingpong/conan.mk
 
-all: $(COMMONOBJ_PP)
+all: $(COMMONOBJ)
 
-what:
-	echo $(patsubst pingpong/%,%/%.o,$(MODULES))
+test: $(OUTPUT)
+	./$(OUTPUT)
 
-test: spjalla
-	./spjalla
-
-spjalla: core/main.cpp
-	$(CC) $^ -o $@ $(LDFLAGS) $(LDLIBS)
-
-grind: build/tests
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=yes ./build/tests
+grind: $(OUTPUT)
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=yes ./$(OUTPUT)
 
 clean:
-	rm -f spjalla **/*.o *.o
+	rm -f $(OUTPUT) **/*.o *.o
 	$(MAKE) -C pingpong clean
 
 %.o: %.cpp
