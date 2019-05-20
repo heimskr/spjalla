@@ -16,9 +16,18 @@ namespace spjalla {
 	void input_worker() {
 		std::string in;
 		while (std::getline(std::cin, in)) {
-			std::cout << "(" << in << ")" << std::endl;
 			input_line il = input_line(in);
+
 			std::cout << std::string(il) << std::endl;
+			continue;
+
+			if (il.is_command()) {
+				if (il.command == "nick") {
+					if (il.body.empty()) std::cerr << "/nick expects one argument" << std::endl;
+				} else {
+					std::cerr << "Unknown command: /" << il.command << std::endl;
+				}
+			}
 		}
 	}
 }

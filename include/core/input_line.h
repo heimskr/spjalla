@@ -2,15 +2,17 @@
 #define CORE_INPUT_LINE_H_
 
 #include <string>
+#include <vector>
 
 namespace spjalla {
 	class input_line {
 		private:
-			std::string command;
-			std::string body;
 			bool minimal = false; // Whether the command is "/".
 
 		public:
+			std::string command, body;
+			std::vector<std::string> args;
+
 			input_line(std::string command_, std::string body_): command(command_), body(body_) {}
 			input_line(std::string full);
 
