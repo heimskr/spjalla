@@ -15,20 +15,26 @@
 using namespace pingpong;
 using namespace spjalla;
 
-
 namespace spjalla {
 	void input_worker(server_ptr serv) {
 		std::string in;
 		while (std::getline(std::cin, in)) {
 			input_line il = input_line(in);
 
-			if (il.is_command()) {
-				if (il.command == "nick") {
-					if (il.args.size() != 1) YIKES("/nick expects one argument.");
-					nick_command(serv, il.args[0]).send();
-				} else {
-					std::cerr << "Unknown command: /" << il.command << std::endl;
+			try {
+				if (il.is_command()) {
+					if (il.command == "nick") {
+						if (il.args.size() != 1)
+							YIKES("/nick expects one argument.");
+						nick_command(serv, il.args[0]).send();
+					} else if (il.command == "join") {
+						if (il.args.size() != 1)
+							YIKES("/join expects one argument.");
+						join_command(serv, il.args[0]).send();
+					} else std::cerr << "Unknown command: /" << il.command << std::endl;
 				}
+			} catch (std::exception &err) {
+				YIKES(err.what());
 			}
 		}
 	}
