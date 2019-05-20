@@ -1,3 +1,6 @@
 [submodule "formicine"]
 	path = formicine
 	url = https://github.com/kaitamkun/formicine
+[submodule "pingpong"]
+	path = pingpong
+	url = git://github.com/kaitamkun/pingpong.git
