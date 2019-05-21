@@ -57,6 +57,7 @@ namespace spjalla {
 
 int main(int argc, char **argv) {
 	irc instance;
+	instance.init_messages();
 
 	string hostname;
 
