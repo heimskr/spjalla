@@ -37,6 +37,13 @@ namespace spjalla {
 						} else {
 							quit_command(serv, il.body).send();
 						}
+					} else if (il.command == "msg") {
+						if (il.args.size() < 2) {
+							YIKES("/msg expects at least two arguments.");
+						} else {
+							std::string text = il.body.substr(il.body.find_first_not_of(' ') + il.args[0].size() + 1);
+							msg_command(serv, il.args[0], text).send();
+						}
 					} else std::cerr << "Unknown command: /" << il.command << std::endl;
 				} catch (std::exception &err) {
 					YIKES(err.what());
