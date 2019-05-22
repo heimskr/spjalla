@@ -6,7 +6,6 @@ CC				 = $(COMPILER) $(CFLAGS) $(CHECKFLAGS)
 CHECKFLAGS		:=
 MKBUILD			:= mkdir -p build
 OUTPUT			:= build/spjalla
-
 CHECK			:= asan
 
 ifeq ($(CHECK), asan)
@@ -19,7 +18,6 @@ endif
 
 .PHONY: all test clean depend
 all: Makefile
-
 
 # Peter Miller, "Recursive Make Considered Harmful" (http://aegis.sourceforge.net/auug97.pdf)
 SRCDIR_PP		:= pingpong/src
@@ -78,6 +76,8 @@ DEPFLAGS = -f $(DEPFILE) -s $(DEPTOKEN)
 depend:
 	@ echo $(DEPTOKEN) > $(DEPFILE)
 	makedepend $(DEPFLAGS) -- $(CC) -- $(SRC_ALL) 2>/dev/null
-	@ rm $(DEPFILE).bak
+	@ sed -i .sed 's/^src\//build\//' $(DEPFILE)
+	@ sed -i .sed 's/^pingpong\/src\//pingpong\/build\//' $(DEPFILE)
+	@ rm $(DEPFILE).bak $(DEPFILE).sed
 
 sinclude $(DEPFILE)
