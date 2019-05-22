@@ -1,5 +1,5 @@
 COMPILER		:= clang++
-CFLAGS			:= -std=c++17 -g -O3 -Wall -Wextra -fdiagnostics-color=always
+CFLAGS			:= -std=c++17 -g -O3 -Wall -Wextra -fdiagnostics-color=always -Wno-unused-parameter
 CFLAGS_ORIG		:= $(CFLAGS)
 LDFLAGS			:=
 CC				 = $(COMPILER) $(CFLAGS) $(CHECKFLAGS)

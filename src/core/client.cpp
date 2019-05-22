@@ -8,8 +8,12 @@
 #include "core/irc.h"
 #include "core/server.h"
 #include "lib/ansi.h"
+#include "events/event.h"
+#include "events/message.h"
+#include "messages/numeric.h"
+#include "messages/ping.h"
 
-#include "core/spjalla.h"
+#include "core/client.h"
 #include "core/input_line.h"
 
 using namespace pingpong;
@@ -18,6 +22,7 @@ using namespace spjalla;
 namespace spjalla {
 	void client::input_worker(server_ptr serv) {
 		std::string in;
+
 		while (std::getline(std::cin, in)) {
 			input_line il = input_line(in);
 
@@ -53,19 +58,28 @@ namespace spjalla {
 			}
 		}
 	}
+
+	void client::add_listeners() {
+		events::listen<message_event>([&](auto *ev) {
+			if (!message::is<numeric_message>(ev->msg) && !message::is<ping_message>(ev->msg))
+				pp->dbgout() << std::string(*(ev->msg)) << "\n";
+		});
+	}
 }
 
 int main(int argc, char **argv) {
-	irc instance;
-	instance.init();
+	std::shared_ptr<irc> pp = irc::shared();
+	pp->init();
+	client instance(pp);
+	instance.add_listeners();
 
 	string hostname;
 
 	hostname = 1 < argc? argv[1] : "localhost";
-	server serv(instance, hostname);
+	server serv(pp, hostname);
 	serv.start();
 	serv.set_nick("pingpong");
-	std::thread input(&spjalla::client::input_worker, &serv);
+	std::thread input(&client::input_worker, &instance, &serv);
 	serv.server_thread->join();
 	input.join();
 }
