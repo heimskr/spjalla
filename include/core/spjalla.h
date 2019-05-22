@@ -4,7 +4,10 @@
 #include "core/defs.h"
 
 namespace spjalla {
-	void input_worker(pingpong::server_ptr serv);
+	class client {
+		public: 
+			static void input_worker(pingpong::server_ptr serv);
+	};
 }
 
 #endif

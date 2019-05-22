@@ -21,7 +21,7 @@ all: Makefile
 
 # Peter Miller, "Recursive Make Considered Harmful" (http://aegis.sourceforge.net/auug97.pdf)
 SRCDIR_PP		:= pingpong/src
-MODULES			:= core test commands messages lib
+MODULES			:= core test commands messages lib events
 CFLAGS			+= -Ipingpong/include
 COMMONSRC		:=
 SRC				:=
