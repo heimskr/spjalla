@@ -143,6 +143,15 @@ namespace spjalla {
 			else
 				std::cout << "Active channel: " << chan->name << "\n";
 		}}});
+		add({"info",  {0, 1, false, [&](sptr, line il) {
+			if (il.args.size() == 0) {
+				debug::print_all(*pp);
+				return;
+			}
+			
+			const std::string &first = il.first();
+			YIKES("Unknown option: " << first);
+		}}});
 	}
 
 	void client::start_input() {
@@ -180,7 +189,6 @@ int main(int argc, char **argv) {
 	hostname = 1 < argc? argv[1] : "localhost";
 	std::shared_ptr<server> sserv = std::make_shared<server>(pp, hostname);
 	server_ptr serv = sserv.get();
-	std::cout << "initial ptr for serv: " << serv << std::endl;
 	serv->start();
 	serv->set_nick("pingpong");
 	instance += serv;
