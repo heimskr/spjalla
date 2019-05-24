@@ -3,13 +3,14 @@
 #include <thread>
 
 #include "commands/all.h"
+#include "core/channel.h"
 #include "core/debug.h"
 #include "core/defs.h"
 #include "core/irc.h"
 #include "core/server.h"
-#include "lib/ansi.h"
 #include "events/event.h"
 #include "events/message.h"
+#include "lib/ansi.h"
 #include "messages/numeric.h"
 #include "messages/ping.h"
 
@@ -110,9 +111,16 @@ namespace spjalla {
 		}}});
 		add({"chans", {0, 0, [](sptr serv, line) {
 			std::cout << "Channels:";
-			for (const channel &chan: serv->channels)
-				std::cout << " " << std::string(chan);
+			for (auto [name, chan]: serv->channels)
+				std::cout << " " << name;
 			std::cout << "\n";
+		}}});
+		add({"chan",  {0, 0, [](sptr serv, line) {
+			channel_ptr chan = serv->active_channel;
+			if (chan == nullptr)
+				std::cout << "No active channel.\n";
+			else
+				std::cout << "Active channel: " << chan->name << "\n";
 		}}});
 	}
 }
