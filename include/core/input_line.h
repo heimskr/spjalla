@@ -17,6 +17,7 @@ namespace spjalla {
 			input_line(std::string full);
 
 			inline bool is_command() const { return minimal || !command.empty(); }
+			std::string first() const;
 			std::string rest() const;
 			operator std::string() const;
 	};

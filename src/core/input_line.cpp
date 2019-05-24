@@ -27,6 +27,10 @@ namespace spjalla {
 		}
 	}
 
+	std::string input_line::first() const {
+		return args[0];
+	}
+
 	std::string input_line::rest() const {
 		size_t offset = body.find_first_not_of(' ') + args[0].size() + 1;
 		if (body.size() < offset)

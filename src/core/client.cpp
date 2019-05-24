@@ -96,9 +96,15 @@ namespace spjalla {
 		add<nick_command>("nick");
 		add<join_command>("join");
 
-		add({"msg",   {2, -1, [](sptr serv, line il) { msg_command(serv, il.args[0], il.rest()).send(true);  }}});
-		add({"quote", {1, -1, [](sptr serv, line il) { serv->quote(il.body);                                 }}});
-		add({"part",  {1, -1, [](sptr serv, line il) { part_command(serv, il.args[0], il.rest()).send(true); }}});
+		add({"msg",   {2, -1, [](sptr serv, line il) { msg_command(serv, il.first(), il.rest()).send(true); }}});
+		add({"quote", {1, -1, [](sptr serv, line il) { serv->quote(il.body);                                }}});
+		add({"part",  {1, -1, [](sptr serv, line il) {
+			const std::string &chan = il.first();
+			if (!serv->has_channel(chan))
+				YIKES(chan << ": no such channel.");
+			else
+				part_command(serv, chan, il.rest()).send(true);
+		}}});
 		add({"quit",  {0, -1, [](sptr serv, line il) {
 			(il.args.size() == 0? quit_command(serv) : quit_command(serv, il.body)).send(true);
 		}}});
