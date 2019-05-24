@@ -25,13 +25,18 @@ namespace spjalla {
 		add(p);
 		return *this;
 	}
+	
+	client & client::operator+=(const server_ptr &ptr) {
+		*pp += ptr;
+		return *this;
+	}
 
 	void client::init() {
 		add_listeners();
 		add_handlers();
 	}
 
-	void client::input_worker(server_ptr serv) {
+	void client::input_worker() {
 		std::string in;
 
 		while (std::getline(std::cin, in)) {
@@ -39,7 +44,7 @@ namespace spjalla {
 
 			if (il.is_command()) {
 				try {
-					if (!handle_line(serv, il)) {
+					if (!handle_line(il)) {
 						std::cerr << "Unknown command: /" << il.command << std::endl;
 					}
 				} catch (std::exception &err) {
@@ -51,7 +56,7 @@ namespace spjalla {
 		}
 	}
 
-	bool client::handle_line(server_ptr serv, const input_line &il) {
+	bool client::handle_line(const input_line &il) {
 		const int nargs = static_cast<int>(il.args.size());
 		const std::string &name = il.command;
 
@@ -60,7 +65,7 @@ namespace spjalla {
 			return false;
 
 		for (auto it = range.first; it != range.second; ++it) {
-			auto [min, max, fn] = it->second;
+			auto [min, max, needs_serv, fn] = it->second;
 			if (max == 0 && nargs != 0) {
 				YIKES("/" << name << " doesn't accept any arguments.");
 			} else if (min == max && nargs != min) {
@@ -71,8 +76,10 @@ namespace spjalla {
 			} else if (max != -1 && max < nargs) {
 				YIKES("/" << name << " expects at most " << std::to_string(max) << " argument"
 				      << (min == 1? "." : "s."));
+			} else if (needs_serv && !pp->active_server) {
+				YIKES("No server is selected.");
 			} else {
-				fn(serv, il);
+				fn(pp->active_server, il);
 			}
 		}
 
@@ -94,34 +101,58 @@ namespace spjalla {
 		using sptr = pingpong::server_ptr;
 		using line = const input_line &;
 
-		add<nick_command>("nick");
 		add<join_command>("join");
 
-		add({"msg",   {2, -1, [](sptr serv, line il) { msg_command(serv, il.first(), il.rest()).send(true); }}});
-		add({"quote", {1, -1, [](sptr serv, line il) { serv->quote(il.body);                                }}});
-		add({"part",  {1, -1, [](sptr serv, line il) {
+		add({"nick",  {0,  1, true, [](sptr serv, line il) {
+			if (il.args.size() == 0)
+				std::cout << "Current nick: " << serv->get_nick() << "\n";
+			else
+				nick_command(serv, il.first()).send(true);
+		}}});
+		add({"msg",   {2, -1, true, [](sptr serv, line il) { msg_command(serv, il.first(), il.rest()).send(true); }}});
+		add({"quote", {1, -1, true, [](sptr serv, line il) { serv->quote(il.body);                                }}});
+		add({"part",  {1, -1, true, [](sptr serv, line il) {
 			const std::string &chan = il.first();
 			if (!serv->has_channel(chan))
 				YIKES(chan << ": no such channel.");
 			else
 				part_command(serv, chan, il.rest()).send(true);
 		}}});
-		add({"quit",  {0, -1, [](sptr serv, line il) {
-			(il.args.size() == 0? quit_command(serv) : quit_command(serv, il.body)).send(true);
+		add({"quit",  {0, -1, false, [&](sptr, line il) {
+			if (il.args.empty()) {
+				for (auto serv: pp->servers)
+					quit_command(serv).send(true);
+			} else {
+				for (auto serv: pp->servers)
+					quit_command(serv, il.body).send(true);
+			}
 		}}});
-		add({"chans", {0, 0, [](sptr serv, line) {
+		add({"chans", {0, 0, true, [](sptr serv, line) {
 			std::cout << "Channels:";
 			for (auto [name, chan]: serv->channels)
 				std::cout << " " << name;
 			std::cout << "\n";
 		}}});
-		add({"chan",  {0, 0, [](sptr serv, line) {
+		add({"chan",  {0, 0, true, [](sptr serv, line) {
 			channel_ptr chan = serv->active_channel;
 			if (chan == nullptr)
 				std::cout << "No active channel.\n";
 			else
 				std::cout << "Active channel: " << chan->name << "\n";
 		}}});
+	}
+
+	void client::start_input() {
+		input_thread = std::make_shared<std::thread>(&client::input_worker, this);
+	}
+
+	void client::join() {
+		if (input_thread)
+			input_thread->join();
+	}
+
+	server_ptr client::active_server() {
+		return pp->active_server;
 	}
 }
 
@@ -134,10 +165,13 @@ int main(int argc, char **argv) {
 	string hostname;
 
 	hostname = 1 < argc? argv[1] : "localhost";
-	server serv(pp, hostname);
-	serv.start();
-	serv.set_nick("pingpong");
-	std::thread input(&client::input_worker, &instance, &serv);
-	serv.server_thread->join();
-	input.join();
+	std::shared_ptr<server> sserv = std::make_shared<server>(pp, hostname);
+	server_ptr serv = sserv.get();
+	std::cout << "initial ptr for serv: " << serv << std::endl;
+	serv->start();
+	serv->set_nick("pingpong");
+	instance += serv;
+	instance.start_input();
+	serv->server_thread->join();
+	instance.join();
 }
