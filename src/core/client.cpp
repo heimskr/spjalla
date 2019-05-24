@@ -114,12 +114,18 @@ namespace spjalla {
 		}}});
 		add({"msg",   {2, -1, true, [](sptr serv, line il) { msg_command(serv, il.first(), il.rest()).send(true); }}});
 		add({"quote", {1, -1, true, [](sptr serv, line il) { serv->quote(il.body);                                }}});
-		add({"part",  {1, -1, true, [](sptr serv, line il) {
-			const std::string &chan = il.first();
-			if (!serv->has_channel(chan))
-				YIKES(chan << ": no such channel.");
-			else
-				part_command(serv, chan, il.rest()).send(true);
+		add({"part",  {0, -1, true, [](sptr serv, line il) {
+			if ((il.args.empty() || il.first()[0] != '#') && !serv->active_channel) {
+				std::cout << "No active channel.\n";
+			} else if (il.args.empty()) {
+				part_command(serv, serv->active_channel).send(true);
+			} else if (il.first()[0] != '#') {
+				part_command(serv, serv->active_channel, il.body).send(true);
+			} else if (channel_ptr cptr = serv->get_channel(il.first())) {
+				part_command(serv, cptr, il.rest()).send(true);
+			} else {
+				YIKES(il.first() << ": no such channel.");
+			}
 		}}});
 		add({"quit",  {0, -1, false, [&](sptr, line il) {
 			if (il.args.empty()) {
