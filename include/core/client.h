@@ -10,7 +10,7 @@ namespace spjalla {
 
 		public: 
 			client(std::shared_ptr<pingpong::irc> irc_): pp(irc_) {
-				// add_listeners();
+				add_listeners();
 			}
 
 			void input_worker(pingpong::server_ptr serv);

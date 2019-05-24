@@ -31,22 +31,22 @@ namespace spjalla {
 					if (il.command == "nick") {
 						if (il.args.size() != 1)
 							YIKES("/nick expects one argument.");
-						nick_command(serv, il.args[0]).send();
+						nick_command(serv, il.args[0]).send(true);
 					} else if (il.command == "join") {
 						if (il.args.size() != 1)
 							YIKES("/join expects one argument.");
-						join_command(serv, il.args[0]).send();
+						join_command(serv, il.args[0]).send(true);
 					} else if (il.command == "quit") {
 						if (il.args.size() == 0) {
 							quit_command(serv).send();
 						} else {
-							quit_command(serv, il.body).send();
+							quit_command(serv, il.body).send(true);
 						}
 					} else if (il.command == "msg") {
 						if (il.args.size() < 2) {
 							YIKES("/msg expects at least two arguments.");
 						} else {
-							msg_command(serv, il.args[0], il.rest()).send();
+							msg_command(serv, il.args[0], il.rest()).send(true);
 						}
 					} else if (il.command == "chans") {
 						std::cout << "Channels:";
@@ -58,7 +58,8 @@ namespace spjalla {
 					} else if (il.command == "part") {
 						if (il.args.size() < 1)
 							YIKES("/part expects at least one argument.");
-						part_command(serv, il.args[0], il.rest()).send();
+						else
+							part_command(serv, il.args[0], il.rest()).send(true);
 					} else std::cerr << "Unknown command: /" << il.command << std::endl;
 				} catch (std::exception &err) {
 					YIKES("Caught an exception (" << typeid(err).name() << "): " << err.what());
@@ -81,7 +82,6 @@ int main(int argc, char **argv) {
 	std::shared_ptr<irc> pp = irc::shared();
 	pp->init();
 	client instance(pp);
-	instance.add_listeners();
 
 	string hostname;
 
