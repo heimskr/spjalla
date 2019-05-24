@@ -50,8 +50,11 @@ namespace spjalla {
 				} catch (std::exception &err) {
 					YIKES("Caught an exception (" << typeid(err).name() << "): " << err.what());
 				}
+			} else if (channel_ptr chan = active_channel()) {
+				privmsg_command(*chan, in).send(true);
+				pp->dbgout() << "[" << *chan << "] <" << active_nick() << "> " << in << "\n";
 			} else {
-				
+				YIKES("No active channel.");
 			}
 		}
 	}
@@ -153,6 +156,16 @@ namespace spjalla {
 
 	server_ptr client::active_server() {
 		return pp->active_server;
+	}
+
+	channel_ptr client::active_channel() {
+		return pp->active_server? pp->active_server->active_channel : nullptr;
+	}
+
+	std::string client::active_nick() {
+		if (server_ptr serv = active_server())
+			return serv->get_nick();
+		return std::string();
 	}
 }
 

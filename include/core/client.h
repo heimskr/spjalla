@@ -95,6 +95,8 @@ namespace spjalla {
 			void add_handlers();
 
 			pingpong::server_ptr active_server();
+			pingpong::channel_ptr active_channel();
+			std::string active_nick();
 	};
 }
 
