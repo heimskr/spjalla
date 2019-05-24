@@ -1,3 +1,4 @@
+#include <iostream>
 #include "core/input_line.h"
 
 namespace spjalla {
@@ -24,6 +25,13 @@ namespace spjalla {
 		} else {
 			body = full;
 		}
+	}
+
+	std::string input_line::rest() const {
+		size_t offset = body.find_first_not_of(' ') + args[0].size() + 1;
+		if (body.size() < offset)
+			return "";
+		return body.substr(body.find_first_not_of(' ') + args[0].size() + 1);
 	}
 
 	input_line::operator std::string() const {

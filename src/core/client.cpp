@@ -46,22 +46,32 @@ namespace spjalla {
 						if (il.args.size() < 2) {
 							YIKES("/msg expects at least two arguments.");
 						} else {
-							std::string text = il.body.substr(il.body.find_first_not_of(' ') + il.args[0].size() + 1);
-							msg_command(serv, il.args[0], text).send();
+							msg_command(serv, il.args[0], il.rest()).send();
 						}
+					} else if (il.command == "chans") {
+						std::cout << "Channels:";
+						for (const channel &chan: serv->channels)
+							std::cout << " " << std::string(chan);
+						std::cout << "\n";
+					} else if (il.command == "quote") {
+						serv->quote(il.body);
+					} else if (il.command == "part") {
+						if (il.args.size() < 1)
+							YIKES("/part expects at least one argument.");
+						part_command(serv, il.args[0], il.rest()).send();
 					} else std::cerr << "Unknown command: /" << il.command << std::endl;
 				} catch (std::exception &err) {
-					YIKES(err.what());
+					YIKES("Caught an exception (" << typeid(err).name() << "): " << err.what());
 				}
 			} else {
-
+				
 			}
 		}
 	}
 
 	void client::add_listeners() {
 		events::listen<message_event>([&](auto *ev) {
-			if (!message::is<numeric_message>(ev->msg) && !message::is<ping_message>(ev->msg))
+			if (!ev->msg->template is<numeric_message>() && !ev->msg->template is<ping_message>())
 				pp->dbgout() << std::string(*(ev->msg)) << "\n";
 		});
 	}
