@@ -39,7 +39,7 @@ namespace spjalla {
 	void client::input_worker() {
 		std::string in;
 
-		while (std::getline(std::cin, in)) {
+		while (alive && std::getline(std::cin, in)) {
 			input_line il = input_line(in);
 
 			if (il.is_command()) {
@@ -135,6 +135,8 @@ namespace spjalla {
 				for (auto serv: pp->servers)
 					quit_command(serv, il.body).send(true);
 			}
+
+			stop();
 		}}});
 		add({"chans", {0, 0, true, [](sptr serv, line) {
 			std::cout << "Channels:";
@@ -181,6 +183,10 @@ namespace spjalla {
 		if (server_ptr serv = active_server())
 			return serv->get_nick();
 		return std::string();
+	}
+
+	void client::stop() {
+		alive = false;
 	}
 }
 

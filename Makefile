@@ -1,12 +1,12 @@
 COMPILER		:= clang++
-CFLAGS			:= -std=c++2a -g -O0 -Wall -Wextra -fdiagnostics-color=always
+CFLAGS			:= -std=c++2a -stdlib=libc++ -g -O0 -Wall -Wextra -fdiagnostics-color=always
 CFLAGS_ORIG		:= $(CFLAGS)
 LDFLAGS			:=
 CC				 = $(COMPILER) $(CFLAGS) $(CHECKFLAGS)
 CHECKFLAGS		:=
 MKBUILD			:= mkdir -p build
 OUTPUT			:= build/spjalla
-CHECK			:= asan
+CHECK			:= none
 
 ifeq ($(CHECK), asan)
 	CHECKFLAGS += -fsanitize=address -fno-common
@@ -60,10 +60,10 @@ build/%.o: src/%.cpp
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 test: $(OUTPUT)
-	./$(OUTPUT)
+	./$(OUTPUT) irchost
 
 grind: $(OUTPUT)
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=yes ./$(OUTPUT)
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=no ./$(OUTPUT) irchost
 
 clean:
 	rm -rf build

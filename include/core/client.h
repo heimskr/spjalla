@@ -23,6 +23,7 @@ namespace spjalla {
 			std::multimap<std::string, command_tuple> command_handlers;
 			std::shared_ptr<std::thread> input_thread;
 			std::mutex pp_mux;
+			bool alive = true;
 
 		public:
 			client(std::shared_ptr<pingpong::irc> irc_): pp(irc_) {}
@@ -70,6 +71,8 @@ namespace spjalla {
 			void start_input();
 
 			void join();
+
+			void stop();
 
 			/**
 			 * Reads input from the server socket in an infinite loop and handles data as it comes in.
