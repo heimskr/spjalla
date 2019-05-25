@@ -190,7 +190,7 @@ int main(int argc, char **argv) {
 	client instance(pp);
 	instance.init();
 
-	string hostname;
+	std::string hostname;
 
 	hostname = 1 < argc? argv[1] : "localhost";
 	std::shared_ptr<server> sserv = std::make_shared<server>(pp, hostname);
