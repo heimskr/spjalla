@@ -33,10 +33,11 @@ OBJ_PP			:= $(patsubst src/%.cpp,pingpong/build/%.o, $(filter %.cpp,$(SRC)))
 sinclude $(patsubst %,$(SRCDIR_PP)/%/targets.mk,$(MODULES))
 SRC_PP			:= $(patsubst %,pingpong/%,$(SRC))
 
-MODULES			:= core
+MODULES			:= core ui
 COMMONSRC		:=
 SRC				:=
 CFLAGS			+= -Iinclude
+LDFLAGS			+= -lncurses
 include $(patsubst %,src/%/module.mk,$(MODULES))
 SRC				+= $(COMMONSRC)
 COMMONOBJ		:= $(patsubst src/%.cpp,build/%.o, $(filter %.cpp,$(COMMONSRC))) $(COMMONOBJ_PP) 

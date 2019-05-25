@@ -2,6 +2,7 @@
 .dep
 formicine
 spjalla
+build
 
 conanbuildinfo.mak
 conanbuildinfo.txt
