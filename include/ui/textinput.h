@@ -5,12 +5,14 @@
 #include <functional>
 #include <string>
 
+#include "ui/defs.h"
+
 namespace spjalla {
 	class textinput {
 		using update_fn = std::function<void(const std::string &, int)>;
 
 		private:
-			std::string buffer;
+			std::string buffer, prefix;
 			size_t cursor;
 			update_fn on_update;
 			void update();

@@ -11,11 +11,6 @@
 #include "ui/textinput.h"
 
 namespace spjalla {
-	struct rect {
-		int x, y, w, h;
-		rect(int x_, int y_, int w_, int h_): x(x_), y(y_), w(w_), h(h_) {}
-	};
-
 	class ui {
 		private:
 			textinput input;
@@ -32,9 +27,7 @@ namespace spjalla {
 			rect get_input_rect();
 			static void handle_winch(int);
 
-
 		public:
-			enum side {left, right};
 			side users_side = left;
 			double users_width = 0.2;
 			size_t max_lines = 128;

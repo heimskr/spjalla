@@ -6,7 +6,7 @@
 #include <ncurses.h>
 
 #include "ui/ui.h"
-#include "ui/point.h"
+#include "ui/defs.h"
 
 namespace spjalla {
 	ui::ui() {
@@ -104,7 +104,6 @@ namespace spjalla {
 						input.insert(static_cast<char>(c));
 				}
 			}
-
 
 			cout << "\e[2K\e[G" << input.dbg_render() << " " << c << " " << keyname(c);
 			cout.flush();

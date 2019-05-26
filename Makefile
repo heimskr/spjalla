@@ -6,7 +6,7 @@ CC				 = $(COMPILER) $(CFLAGS) $(CHECKFLAGS)
 CHECKFLAGS		:=
 MKBUILD			:= mkdir -p build
 OUTPUT			:= build/spjalla
-CHECK			:= none
+CHECK			:= asan
 
 ifeq ($(CHECK), asan)
 	CHECKFLAGS += -fsanitize=address -fno-common
