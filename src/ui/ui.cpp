@@ -9,8 +9,23 @@
 #include "ui/point.h"
 
 namespace spjalla {
+	ui::ui() {
+		rect chat_rect  = get_chat_rect(),
+		     users_rect = get_users_rect(),
+		     input_rect = get_input_rect();
+		chat_window  = newwin(chat_rect.h,  chat_rect.w,  chat_rect.y,  chat_rect.y);
+		users_window = newwin(users_rect.h, users_rect.w, users_rect.y, users_rect.y);
+		input_window = newwin(input_rect.h, input_rect.w, input_rect.y, input_rect.y);
+		box(chat_window,  0, 0);
+		box(users_window, 0, 0);
+		box(input_window, 0, 0);
+	}
+
 	ui::~ui() {
 		endwin();
+		free(chat_window);
+		free(users_window);
+		free(input_window);
 	}
 
 	void ui::draw() {
@@ -36,36 +51,40 @@ namespace spjalla {
 	}
 
 	void ui::work_input() {
+		using std::cout, std::endl;
 		for (;;) {
 			int c = getch();
 
-			// if (c != -1) std::cout << c << "/" << static_cast<char>(c) << "\r" << std::endl; continue;
+			// if (c != -1) std::cout << c << "/" << static_cast<char>(c) << "\r" << std::endl; //continue;
+			// std::cout << " &[" << KEY_BACKSPACE << "]\r" << std::endl;
 
 			switch (c) {
 				case -1:
 					break;
-				case 22: // ^U
+				case 21: // ^U
 					input_buffer.clear();
 					cursor = 0;
 					render_input();
 					break;
+				case 127: // backspace
+				case KEY_BACKSPACE:
+					if (cursor > 0)
+						input_buffer.erase(--cursor, 1);
+
+					break;
+				case KEY_F(1):
+					std::cout << "[" << input_buffer << "]\r" << std::endl;
+					break;
 				case 258: break; // down
 				case 259: break; // up
 				case 260: // left
-					if (cursor > 0) cursor--;
+					if (cursor > 0)
+						cursor--;
 					break;
 				case 261: // right
-					if (cursor != input_buffer.size()) cursor++;
+					if (cursor != input_buffer.size())
+						cursor++;
 					break;
-				case 'k': {
-					int x = 666, y = 666;
-					getmaxyx(stdscr, x, y);
-					std::cout << "(" << x << ", " << y << ")";
-					std::cout << "; (" << COLS << ", " << LINES << ")";
-					// std::cout << "; (" << SCR_W << ", " << SCR_H << ")";
-					std::cout << "\r" << std::endl;
-					break;
-				}
 				case '\r':
 				case '\n':
 					process_input();
@@ -73,6 +92,11 @@ namespace spjalla {
 				default:
 					input_buffer.insert(cursor++, 1, static_cast<char>(c));
 			}
+
+			cout << "\e[2K\e[G[";
+			cout << input_buffer.substr(0, cursor) << "\e[2m|\e[0m" << input_buffer.substr(cursor);
+			cout << "] " << c;
+			cout.flush();
 		}
 	}
 
@@ -84,8 +108,6 @@ namespace spjalla {
 		std::string input = input_buffer;
 		input_buffer = "";
 		cursor = 0;
-		// input_buffer >> input;
-		// input_buffer.str("");
 		std::cout << "[" << input << "]\r" << std::endl;
 	}
 
@@ -93,5 +115,19 @@ namespace spjalla {
 		worker_draw->join();
 		worker_input->join();
 		endwin();
+	}
+
+	rect ui::get_chat_rect() {
+		int uwidth = static_cast<int>(COLS * users_width);
+		return {users_side == right? 0 : uwidth, 0, COLS - uwidth, LINES - get_input_rect().h};
+	}
+
+	rect ui::get_users_rect() {
+		int uwidth = static_cast<int>(COLS * users_width);
+		return {users_side == left? 0 : COLS - uwidth, 0, uwidth, LINES - get_input_rect().h};
+	}
+
+	rect ui::get_input_rect() {
+		return {0, LINES - 1, COLS, 1};
 	}
 }

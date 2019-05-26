@@ -1,6 +1,8 @@
 #ifndef UI_POINT_H_
 #define UI_POINT_H_
 
+#include <cstddef>
+
 namespace spjalla {
 	struct point {
 		size_t x, y;
