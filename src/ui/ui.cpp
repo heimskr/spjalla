@@ -56,46 +56,40 @@ namespace spjalla {
 			int c = getch();
 
 			// if (c != -1) std::cout << c << "/" << static_cast<char>(c) << "\r" << std::endl; //continue;
-			// std::cout << " &[" << KEY_BACKSPACE << "]\r" << std::endl;
 
 			switch (c) {
 				case -1:
 					break;
 				case 21: // ^U
-					input_buffer.clear();
-					cursor = 0;
-					render_input();
+					input.clear();
+					break;
+				case 23: // ^W
+					input.erase_word();
 					break;
 				case 127: // backspace
 				case KEY_BACKSPACE:
-					if (cursor > 0)
-						input_buffer.erase(--cursor, 1);
-
+					input.erase();
 					break;
 				case KEY_F(1):
-					std::cout << "[" << input_buffer << "]\r" << std::endl;
+					std::cout << "[" << input << "]\r" << std::endl;
 					break;
 				case 258: break; // down
 				case 259: break; // up
 				case 260: // left
-					if (cursor > 0)
-						cursor--;
+					input.left();
 					break;
 				case 261: // right
-					if (cursor != input_buffer.size())
-						cursor++;
+					input.right();
 					break;
 				case '\r':
 				case '\n':
 					process_input();
 					break;
 				default:
-					input_buffer.insert(cursor++, 1, static_cast<char>(c));
+					input.insert(static_cast<char>(c));
 			}
 
-			cout << "\e[2K\e[G[";
-			cout << input_buffer.substr(0, cursor) << "\e[2m|\e[0m" << input_buffer.substr(cursor);
-			cout << "] " << c;
+			cout << "\e[2K\e[G" << input.dbg_render() << " " << c;
 			cout.flush();
 		}
 	}
@@ -105,10 +99,11 @@ namespace spjalla {
 	}
 
 	void ui::process_input() {
-		std::string input = input_buffer;
-		input_buffer = "";
-		cursor = 0;
+		// std::string input = input_buffer;
+		// input_buffer = "";
+		// cursor = 0;
 		std::cout << "[" << input << "]\r" << std::endl;
+		input.clear();
 	}
 
 	void ui::join() {

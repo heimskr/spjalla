@@ -1,1 +1,1 @@
-COMMONSRC += src/ui/ui.cpp src/ui/logstream.cpp
+COMMONSRC += src/ui/ui.cpp src/ui/logstream.cpp src/ui/textinput.cpp

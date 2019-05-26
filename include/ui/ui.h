@@ -7,6 +7,8 @@
 
 #include <ncurses.h>
 
+#include "ui/textinput.h"
+
 namespace spjalla {
 	struct rect {
 		int x, y, w, h;
@@ -15,8 +17,7 @@ namespace spjalla {
 
 	class ui {
 		private:
-			std::string input_buffer;
-			size_t cursor = 0;
+			textinput input;
 			std::shared_ptr<std::thread> worker_draw, worker_input;
 			WINDOW *chat_window;
 			WINDOW *users_window;
