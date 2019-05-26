@@ -57,40 +57,58 @@ namespace spjalla {
 
 			// if (c != -1) std::cout << c << "/" << static_cast<char>(c) << "\r" << std::endl; //continue;
 
-			switch (c) {
-				case -1:
-					break;
-				case 21: // ^U
-					input.clear();
-					break;
-				case 23: // ^W
-					input.erase_word();
-					break;
-				case 127: // backspace
-				case KEY_BACKSPACE:
-					input.erase();
-					break;
-				case KEY_F(1):
-					std::cout << "[" << input << "]\r" << std::endl;
-					break;
-				case 258: break; // down
-				case 259: break; // up
-				case 260: // left
-					input.left();
-					break;
-				case 261: // right
-					input.right();
-					break;
-				case '\r':
-				case '\n':
-					process_input();
-					break;
-				default:
-					input.insert(static_cast<char>(c));
+			if (c == 27) { // ^[ (alt)
+				alt = true;
+				continue;
 			}
 
-			cout << "\e[2K\e[G" << input.dbg_render() << " " << c;
+			if (alt) {
+				switch (c) {
+					case 'b': // alt+left
+						input.prev_word();
+						break;
+					case 'f': // alt+right
+						input.next_word();
+						break;
+				}
+			} else {
+				switch (c) {
+					case -1:
+						break;
+					case 21: // ^U
+						input.clear();
+						break;
+					case 23: // ^W
+						input.erase_word();
+						break;
+					case 127: // backspace
+					case KEY_BACKSPACE:
+						input.erase();
+						break;
+					case KEY_F(1):
+						std::cout << "[" << input << "]\r" << std::endl;
+						break;
+					case 258: break; // down
+					case 259: break; // up
+					case 260: // left
+						input.left();
+						break;
+					case 261: // right
+						input.right();
+						break;
+					case '\r':
+					case '\n':
+						process_input();
+						break;
+					default:
+						input.insert(static_cast<char>(c));
+				}
+			}
+
+
+			cout << "\e[2K\e[G" << input.dbg_render() << " " << c << " " << keyname(c);
 			cout.flush();
+			alt = false;
 		}
 	}
 

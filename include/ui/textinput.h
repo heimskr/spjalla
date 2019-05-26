@@ -36,8 +36,11 @@ namespace spjalla {
 			void right();
 			void start();
 			void end();
+			void prev_word();
+			void next_word();
 			size_t size() const;
-			char get_char() const;
+			char prev_char() const;
+			char next_char() const;
 
 			std::string dbg_render() const;
 

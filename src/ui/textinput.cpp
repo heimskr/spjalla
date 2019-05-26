@@ -42,9 +42,9 @@ namespace spjalla {
 		if (cursor == 0)
 			return;
 		size_t to_erase = 0;
-		for (; get_char() == ' '; --cursor)
+		for (; prev_char() == ' '; --cursor)
 			to_erase++;
-		for (; get_char() != '\0' && get_char() != ' '; --cursor)
+		for (; prev_char() != '\0' && prev_char() != ' '; --cursor)
 			to_erase++;
 		buffer.erase(cursor, to_erase);
 		update();
@@ -95,12 +95,36 @@ namespace spjalla {
 		}
 	}
 
+	void textinput::prev_word() {
+		if (cursor == 0)
+			return;
+		size_t old_cursor = cursor;
+		for (; prev_char() == ' '; --cursor);
+		for (; prev_char() != '\0' && prev_char() != ' '; --cursor);
+		if (cursor != old_cursor)
+			update();
+	}
+
+	void textinput::next_word() {
+		// if (cursor == size())
+		// 	return;
+		size_t old_cursor = cursor;
+		for (; next_char() == ' '; ++cursor);
+		for (; next_char() != '\0' && next_char() != ' '; ++cursor);
+		if (cursor != old_cursor)
+			update();
+	}
+
 	size_t textinput::size() const {
 		return buffer.size();
 	}
 
-	char textinput::get_char() const {
-		return size() > 0 && cursor > 0? buffer[cursor - 1] : '\0';
+	char textinput::prev_char() const {
+		return cursor > 0? buffer[cursor - 1] : '\0';
+	}
+
+	char textinput::next_char() const {
+		return cursor < size()? buffer[cursor] : '\0';
 	}
 
 	std::string textinput::dbg_render() const {

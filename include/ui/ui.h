@@ -1,6 +1,7 @@
 #ifndef UI_UI_H_
 #define UI_UI_H_
 
+#include <deque>
 #include <memory>
 #include <sstream>
 #include <thread>
@@ -19,9 +20,8 @@ namespace spjalla {
 		private:
 			textinput input;
 			std::shared_ptr<std::thread> worker_draw, worker_input;
-			WINDOW *chat_window;
-			WINDOW *users_window;
-			WINDOW *input_window;
+			WINDOW *chat_window, *users_window, *input_window;
+			bool alt = false;
 
 			void work_draw();
 			void work_input();
@@ -32,10 +32,12 @@ namespace spjalla {
 			rect get_input_rect();
 			static void handle_winch(int);
 
+
 		public:
 			enum side {left, right};
 			side users_side = left;
 			double users_width = 0.2;
+			size_t max_lines = 128;
 
 			ui();
 			~ui();
