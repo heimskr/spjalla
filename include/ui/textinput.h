@@ -31,11 +31,12 @@ namespace spjalla {
 			void erase_word();
 			void erase();
 			std::string get_text() const;
+			void set_text(const std::string &);
 			void left();
 			void right();
 			void start();
 			void end();
-			size_t length() const;
+			size_t size() const;
 			char get_char() const;
 
 			std::string dbg_render() const;

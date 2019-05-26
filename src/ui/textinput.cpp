@@ -14,6 +14,13 @@ namespace spjalla {
 		on_update = fn;
 	}
 
+	void textinput::move_to(size_t new_cursor) {
+		if (new_cursor <= size() && new_cursor != cursor) {
+			cursor = new_cursor;
+			update();
+		}
+	}
+
 	void textinput::insert(const std::string &str) {
 		buffer.insert(cursor, str);
 		cursor += str.size();
@@ -50,6 +57,16 @@ namespace spjalla {
 		}
 	}
 
+	std::string textinput::get_text() const {
+		return buffer;
+	}
+
+	void textinput::set_text(const std::string &str) {
+		buffer = str;
+		cursor = str.size();
+		update();
+	}
+
 	void textinput::left() {
 		if (cursor > 0) {
 			--cursor;
@@ -64,12 +81,26 @@ namespace spjalla {
 		}
 	}
 
-	size_t textinput::length() const {
-		return buffer.length();
+	void textinput::start() {
+		if (cursor != 0) {
+			cursor = 0;
+			update();
+		}
+	}
+
+	void textinput::end() {
+		if (cursor != size()) {
+			cursor = size();
+			update();
+		}
+	}
+
+	size_t textinput::size() const {
+		return buffer.size();
 	}
 
 	char textinput::get_char() const {
-		return length() > 0 && cursor > 0? buffer[cursor - 1] : '\0';
+		return size() > 0 && cursor > 0? buffer[cursor - 1] : '\0';
 	}
 
 	std::string textinput::dbg_render() const {
