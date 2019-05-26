@@ -1,1 +1,1 @@
-COMMONSRC += src/ui/ui.cpp
+COMMONSRC += src/ui/ui.cpp src/ui/logstream.cpp

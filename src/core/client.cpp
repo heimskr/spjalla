@@ -16,6 +16,7 @@
 
 #include "core/client.h"
 #include "core/input_line.h"
+#include "ui/ui.h"
 
 using namespace pingpong;
 using namespace spjalla;
@@ -37,26 +38,26 @@ namespace spjalla {
 	}
 
 	void client::input_worker() {
-		std::string in;
+		// std::string in;
 
-		while (alive && std::getline(std::cin, in)) {
-			input_line il = input_line(in);
+		// while (alive && std::getline(std::cin, in)) {
+		// 	input_line il = input_line(in);
 
-			if (il.is_command()) {
-				try {
-					if (!handle_line(il)) {
-						std::cerr << "Unknown command: /" << il.command << std::endl;
-					}
-				} catch (std::exception &err) {
-					YIKES("Caught an exception (" << typeid(err).name() << "): " << err.what());
-				}
-			} else if (channel_ptr chan = active_channel()) {
-				privmsg_command(*chan, in).send(true);
-				pp->dbgout() << "[" << *chan << "] <" << active_nick() << "> " << in << "\n";
-			} else {
-				YIKES("No active channel.");
-			}
-		}
+		// 	if (il.is_command()) {
+		// 		try {
+		// 			if (!handle_line(il)) {
+		// 				std::cerr << "Unknown command: /" << il.command << "\r\n";
+		// 			}
+		// 		} catch (std::exception &err) {
+		// 			YIKES("Caught an exception (" << typeid(err).name() << "): " << err.what());
+		// 		}
+		// 	} else if (channel_ptr chan = active_channel()) {
+		// 		privmsg_command(*chan, in).send(true);
+		// 		pp->dbgout() << "[" << *chan << "] <" << active_nick() << "> " << in << "\r\n";
+		// 	} else {
+		// 		YIKES("No active channel.");
+		// 	}
+		// }
 	}
 
 	bool client::handle_line(const input_line &il) {
@@ -96,7 +97,7 @@ namespace spjalla {
 	void client::add_listeners() {
 		events::listen<message_event>([&](auto *ev) {
 			if (!ev->msg->template is<numeric_message>() && !ev->msg->template is<ping_message>())
-				pp->dbgout() << std::string(*(ev->msg)) << "\n";
+				pp->dbgout() << std::string(*(ev->msg)) << "\r\n";
 		});
 	}
 
@@ -108,7 +109,7 @@ namespace spjalla {
 
 		add({"nick",  {0,  1, true, [](sptr serv, line il) {
 			if (il.args.size() == 0)
-				std::cout << "Current nick: " << serv->get_nick() << "\n";
+				std::cout << "Current nick: " << serv->get_nick() << "\r\n";
 			else
 				nick_command(serv, il.first()).send(true);
 		}}});
@@ -116,7 +117,7 @@ namespace spjalla {
 		add({"quote", {1, -1, true, [](sptr serv, line il) { serv->quote(il.body);                                }}});
 		add({"part",  {0, -1, true, [](sptr serv, line il) {
 			if ((il.args.empty() || il.first()[0] != '#') && !serv->active_channel) {
-				std::cout << "No active channel.\n";
+				std::cout << "No active channel.\r\n";
 			} else if (il.args.empty()) {
 				part_command(serv, serv->active_channel).send(true);
 			} else if (il.first()[0] != '#') {
@@ -142,14 +143,14 @@ namespace spjalla {
 			std::cout << "Channels:";
 			for (auto [name, chan]: serv->channels)
 				std::cout << " " << name;
-			std::cout << "\n";
+			std::cout << "\r\n";
 		}}});
 		add({"chan",  {0, 0, true, [](sptr serv, line) {
 			channel_ptr chan = serv->active_channel;
 			if (chan == nullptr)
-				std::cout << "No active channel.\n";
+				std::cout << "No active channel.\r\n";
 			else
-				std::cout << "Active channel: " << chan->name << "\n";
+				std::cout << "Active channel: " << chan->name << "\r\n";
 		}}});
 		add({"info",  {0, 1, false, [&](sptr, line il) {
 			if (il.args.size() == 0) {
@@ -192,6 +193,9 @@ namespace spjalla {
 
 int main(int argc, char **argv) {
 	std::shared_ptr<irc> pp = irc::shared();
+
+	ui u;
+	u.start();
 	pp->init();
 	client instance(pp);
 	instance.init();
@@ -205,6 +209,7 @@ int main(int argc, char **argv) {
 	serv->set_nick("pingpong");
 	instance += serv;
 	instance.start_input();
-	serv->server_thread->join();
+	u.join();
+	serv->worker->join();
 	instance.join();
 }
