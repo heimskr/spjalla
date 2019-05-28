@@ -3,6 +3,7 @@
 #include <string>
 
 #include "ui/textinput.h"
+#include "unicode/uniset.h"
 
 namespace spjalla {
 	void textinput::update() {
@@ -28,9 +29,46 @@ namespace spjalla {
 	}
 
 	void textinput::insert(char ch) {
-		buffer.insert(cursor++, 1, ch);
-		update();
+		if (!unicode_buffer.empty()) {
+			unicode_buffer.push_back(ch);
+			// if (utf8::is_valid(unicode_buffer.begin(), unicode_buffer.end())) {
+			if (false) {
+				// The unicode buffer now contains a complete and valid codepoint, so we insert it into the buffer.
+				buffer.insert(cursor, unicode_buffer);
+				unicode_buffer.clear();
+				++cursor;
+				update();
+			} else if (unicode_buffer.size() == 4) {
+				// At this point, it seems there's just garbage in the buffer. Insert it.
+				buffer.insert(cursor, unicode_buffer);
+				unicode_buffer.clear();
+				cursor += 4;
+				update();
+			}
+		} else {
+			std::string str(1, ch);
+			// if (!is_incomplete(ch)) {
+			if (true) {
+				buffer.insert(cursor++, 1, ch);
+				update();
+			} else {
+				unicode_buffer.push_back(ch);
+			}
+		}
 	}
+
+	// bool textinput::is_incomplete(const std::string &str) {
+	// 	unsigned int cp = 0;
+	// 	for (size_t i = 0; i < str.size(); ++i)
+	// 		cp |= str[i] << (i << 3);
+	// 	return !utf8::internal::is_code_point_valid(cp);
+	// }
+
+	// bool textinput::is_incomplete(char ch) {
+	// 	std::string str(1, ch);
+	// 	auto it = str.begin();
+	// 	return utf8::internal::validate_next(it, str.end()) != 4;
+	// }
 
 	void textinput::clear() {
 		buffer.clear();

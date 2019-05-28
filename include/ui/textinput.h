@@ -16,8 +16,11 @@ namespace spjalla {
 			size_t cursor;
 			update_fn on_update;
 			void update();
+			// bool is_incomplete(const std::string &);
+			// bool is_incomplete(char);
 
 		public:
+			std::string unicode_buffer;
 			textinput(std::string buffer_, size_t cursor_): buffer(buffer_), cursor(cursor_) {}
 			textinput(std::string buffer_): textinput(buffer_, 0) {}
 			textinput(size_t cursor_): textinput("", cursor_) {}

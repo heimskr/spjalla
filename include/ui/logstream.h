@@ -7,10 +7,10 @@
 namespace spjalla {
 	class logstream {
 		private:
-			ui &parent;
+			// ui &parent;
 
 		public:
-			logstream(ui &ui_): parent(ui_) {}
+			// logstream(ui &ui_): parent(ui_) {}
 	};
 }
 

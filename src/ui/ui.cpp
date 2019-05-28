@@ -4,6 +4,7 @@
 
 #include <csignal>
 #include <ncurses.h>
+#include <uniset.h>
 
 #include "ui/ui.h"
 #include "ui/defs.h"
@@ -37,7 +38,7 @@ namespace spjalla {
 		noecho();
 		keypad(stdscr, true);
 		signal(SIGWINCH, &ui::handle_winch);
-		worker_draw = std::make_shared<std::thread>(&ui::work_draw, this);
+		worker_draw  = std::make_shared<std::thread>(&ui::work_draw,  this);
 		worker_input = std::make_shared<std::thread>(&ui::work_input, this);
 	}
 
@@ -105,7 +106,21 @@ namespace spjalla {
 				}
 			}
 
+			std::string str(1, c);
+
+			// std::string is_valid(
+
 			cout << "\e[2K\e[G" << input.dbg_render() << " " << c << " " << keyname(c);
+			// cout << " " << utf8::is_valid(str.begin(), str.end());
+			// cout << " <" << *utf8::find_invalid(str.begin(), str.end()) << ">";
+			// cout << " <" << utf8::internal::is_code_point_valid(static_cast<unsigned int>(c)) << ">";
+			// auto it = str.begin();
+			// auto uit = input.unicode_buffer.end();
+			// cout << " <" << utf8::internal::validate_next(it, str.end()) << ">";
+			// cout << " <" << utf8::internal::validate_next(uit, input.unicode_buffer.end()) << ">";
+			cout << " : ";
+			// cout << "UTF8_OK: " << utf8::internal::UTF8_OK << ", NOT_ENOUGH_ROOM: " << utf8::internal::NOT_ENOUGH_ROOM << ", INVALID_LEAD: " << utf8::internal::INVALID_LEAD << ", INCOMPLETE_SEQUENCE: " << utf8::internal::INCOMPLETE_SEQUENCE << ", OVERLONG_SEQUENCE: " << utf8::internal::OVERLONG_SEQUENCE << ", INVALID_CODE_POINT: " << utf8::internal::INVALID_CODE_POINT;
+			cout << "\r\n";
 			cout.flush();
 			alt = false;
 		}
