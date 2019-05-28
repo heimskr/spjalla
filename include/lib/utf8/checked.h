@@ -24,12 +24,12 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 */
 
+#ifndef LIB_UTF8_CHECKED_H_
+#define LIB_UTF8_CHECKED_H_
 
-#ifndef UTF8_FOR_CPP_CHECKED_H_
-#define UTF8_FOR_CPP_CHECKED_H_
+#include <stdexcept>
 
 #include "core.h"
-#include <stdexcept>
 
 namespace utf8 {
 	// Base for the exceptions that may be thrown from the library
@@ -248,14 +248,14 @@ namespace utf8 {
 	}
 
 	template <typename octet_iterator, typename u32bit_iterator>
-	octet_iterator utf32to8 (u32bit_iterator start, u32bit_iterator end, octet_iterator result) {
+	octet_iterator utf32to8(u32bit_iterator start, u32bit_iterator end, octet_iterator result) {
 		while (start != end)
 			result = utf8::append(*(start++), result);
 		return result;
 	}
 
 	template <typename octet_iterator, typename u32bit_iterator>
-	u32bit_iterator utf8to32 (octet_iterator start, octet_iterator end, u32bit_iterator result) {
+	u32bit_iterator utf8to32(octet_iterator start, octet_iterator end, u32bit_iterator result) {
 		while (start != end)
 			*result++ = utf8::next(start, end);
 		return result;
@@ -288,7 +288,7 @@ namespace utf8 {
 			bool operator==(const iterator &rhs) const {
 				if (range_start != rhs.range_start || range_end != rhs.range_end)
 					throw std::logic_error("Comparing utf-8 iterators defined with different ranges");
-				return (it == rhs.it);
+				return it == rhs.it;
 			}
 
 			bool operator!=(const iterator &rhs) const {
