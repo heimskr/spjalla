@@ -16,7 +16,7 @@ else
 	CHECKFLAGS +=
 endif
 
-.PHONY: all test clean depend save_unicode
+.PHONY: all test clean depend spotless
 all: Makefile
 
 # Peter Miller, "Recursive Make Considered Harmful" (http://aegis.sourceforge.net/auug97.pdf)
@@ -66,18 +66,22 @@ test: $(OUTPUT)
 grind: $(OUTPUT)
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=no ./$(OUTPUT) irchost
 
-clean: save_unicode
-	$(MAKE) -C pingpong clean
+clean:
+	@ tmpdir=".build.$$RANDOM"; mkdir "$$tmpdir";                                \
+	  if [ -e build/lib/unicode ]; then echo "Saving Unicode directory.";        \
+	      mv build/lib/unicode "$$tmpdir/unicode";  fi;                          \
+	  if [ -e pingpong/build ];    then echo "Saving pingpong directory.";       \
+	      mv pingpong/build    "$$tmpdir/pingpong"; fi;                          \
+	  rm -rf build;                                                              \
+	  if [ -e "$$tmpdir/unicode" ];  then echo "Restoring Unicode directory.";   \
+	      mkdir -p build/lib;      mv "$$tmpdir/unicode"  build/lib/unicode; fi; \
+	  if [ -e "$$tmpdir/pingpong" ]; then echo "Restoring pingpong directory.";  \
+	      mkdir -p pingpong/build; mv "$$tmpdir/pingpong" pingpong/build;    fi; \
+	  rm -rf "$$tmpdir";
 
-save_unicode:
-	@ if [ -e build/lib/unicode ]; then \
-	echo "Saving Unicode directory."; \
-	rand=".unicode.$$RANDOM"; \
-	mv build/lib/unicode $$rand; \
-	rm -rf build; \
-	mkdir -p build/lib; \
-	mv $$rand build/lib/unicode; \
-fi
+spotless:
+	$(MAKE) -C pingpong clean
+	rm -rf build $(DEPFILE)
 
 DEPFILE  = .dep
 DEPTOKEN = "\# MAKEDEPENDS"
