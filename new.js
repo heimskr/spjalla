@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 const fs = require("fs"),
+      path = require("path"),
       minimist = require("minimist");
 
 const yikes = (...a) => { console.error(...a); process.exit(1); };
@@ -16,33 +17,38 @@ const options = minimist(process.argv.slice(2), {
 		v: "visibility",
 		p: "preview",
 		m: "makevar",
-		h: "noheader"
+		h: "noheader",
+		b: "base",
+		u: "usebase",
+		f: "filename"
 	},
-	boolean: ["nosrc", "noclass", "preview", "noheader"],
+	boolean: ["nosrc", "noclass", "preview", "noheader", "usebase"],
 	default: {
 		nosrc: false,
 		noclass: false,
 		preview: false,
 		noheader: false,
+		usebase: false,
 		keyword: "class",
 		visibility: "public",
-		makevar: "COMMONSRC"
+		makevar: "COMMONSRC",
+		base: "spjalla",
 	}
 });
 
 let [name, type] = options._;
 if (!type) type = "auto";
-const {namespace, nosrc, inherit, keyword, noclass, visibility, preview, makevar, noheader} = options;
+let {namespace, nosrc, inherit, keyword, noclass, visibility, preview, makevar, noheader, base, usebase, filename} = options;
 
 const isBad = () => {
 	if (!name) return true;
-	for (const obj of [namespace, nosrc, inherit, keyword, noclass, visibility, preview, makevar, noheader])
+	for (const obj of [namespace, nosrc, inherit, keyword, noclass, visibility, preview, makevar, noheader, base, usebase, filename])
 		if (obj instanceof Array) return true;
 	return false;
 };
 
 if (isBad()) {
-	yikes("Usage: new.js <name> [type] [-n/--namespace] [-s/--nosrc] [-h/--noheader] [-c/--noclass] [-i/--inherit superclass] [-k/--keyword (struct|class)] [-v/--visibility inheritance visibility]");
+	yikes("Usage: new.js <name> [type] [-n/--namespace] [-s/--nosrc] [-h/--noheader] [-c/--noclass] [-i/--inherit superclass] [-k/--keyword (struct|class)] [-v/--visibility inheritance visibility] [-b/--base base namespace] [-u/--usebase] [-f/--filename alt. filename]");
 }
 
 if (!name.match(/^[\w_\d]+$/i)) {
@@ -54,9 +60,24 @@ let allDir, sourcename, headername, sourcetext, headertext;
 const sourcebase = "src", headerbase = "include";
 let sourcedirs = [], headerdirs = [];
 
-const defaultNamespace = "spjalla";
+
+let fullNamespace;
+if (!namespace) {
+	fullNamespace = namespace = base;
+} else if (namespace.indexOf(base + "::") == 0) {
+	const shorter = namespace.substr(base.length + 2);
+	fullNamespace = usebase? namespace : shorter;
+	namespace = shorter;
+} else if (usebase) {
+	fullNamespace = base + "::" + namespace;
+} else {
+	fullNamespace = namespace;
+}
+
+console.log({base, usebase, namespace, fullNamespace});
+
 const setDirs = (...a) => { sourcedirs = [...a]; headerdirs = [...a]; };
-const setNames = s => { sourcename = `${s}.cpp`; headername = `${s}.h`; };
+const setNames = s => { sourcename = `${filename || s}.cpp`; headername = `${filename || s}.h`; };
 const upper = () => name.toUpperCase();
 const sourceDir = () => `${sourcebase}/${sourcedirs.join("/")}`;
 const headerDir = () => `${headerbase}/${headerdirs.join("/")}`;
@@ -72,7 +93,7 @@ if (type == "core") {
 #ifndef CORE_${upper()}_H_
 #define CORE_${upper()}_H_
 
-namespace ${namespace || defaultNamespace} {
+namespace ${fullNamespace} {
 	
 }
 
@@ -82,7 +103,7 @@ namespace ${namespace || defaultNamespace} {
 	sourcetext = `
 #include "core/${name}.h"
 
-namespace ${namespace || defaultNamespace} {
+namespace ${fullNamespace} {
 
 }
 `.substr(1);
@@ -108,18 +129,18 @@ namespace ${namespace || defaultNamespace} {
 	sourcetext = `
 #include "${headerIncl()}"
 
-namespace ${namespace || defaultNamespace} {
+namespace ${fullNamespace} {
 	
 }
 `.substr(1);
 
-	const guard = [...headerdirs, name].join("_").toUpperCase() + "_H_";
+	const guard = [...headerdirs, filename || name].join("_").toUpperCase() + "_H_";
 
 	headertext = `
 #ifndef ${guard}
 #define ${guard}
 
-namespace ${namespace || defaultNamespace} {
+namespace ${fullNamespace} {
 	${noclass? "" : classDef}
 }
 
@@ -136,23 +157,23 @@ if (sourcetext && !nosrc)    write(sourcePath(), sourcetext);
 if (headertext && !noheader) write(headerPath(), headertext);
 
 if (allDir) {
-	const allText = read(`${headerbase}/${allDir}/all.h`);
+	const allText = read(`${headerbase}/${allDir}/all.h`, true);
 	if (allText.indexOf(`#include "${name}.h"`) == -1) {
 		write(`${headerbase}/${allDir}/all.h`, allText.replace(/(\n#endif)/, `#include "${name}.h"\n$1`));
 	}
 }
 
 function updateModule() {
-	let moduleText = read(`${sourceDir()}/module.mk`);
+	let moduleText = read(`${sourceDir()}/module.mk`, true);
 	if (moduleText.indexOf(sourcePath()) == -1) {
 		write(`${sourceDir()}/module.mk`, moduleText.replace(/\n*\s*$/, "\n") + `${makevar} += ${sourcePath()}\n`);
 	}
 }
 
-function read(path, safe=false) {
+function read(where, safe=false) {
 	if (safe) {
 		try {
-			return read(path, false);
+			return read(where, false);
 		} catch(e) {
 			if (typeof safe == "string") {
 				return `\x1b[2;31m${safe}\x1b[0m`;
@@ -161,12 +182,12 @@ function read(path, safe=false) {
 			}
 		}
 	} else {
-		return fs.readFileSync(path, "utf8");
+		return fs.readFileSync(where, "utf8");
 	}
 }
 
-function write(path, text) {
-	const old = read(path, true);
+function write(where, text) {
+	const old = read(where, true);
 	const maxLineLength = [...text.split(/\n+/), ...old.split(/\n+/)].reduce((a, b) => Math.max(a, b.length), 0);
 	const width = Math.max(52, maxLineLength) + 8;
 	const style = "\x1b[2m";
@@ -177,7 +198,7 @@ function write(path, text) {
 	let debugOut = `${padEnds}\n`;
 	if (preview) debugOut += " \x1b[31m✕\x1b[0m ";
 	debugOut += "\x1b[1;3" + (old? "3" : "2") + "m";
-	debugOut += path + reset + "\n";
+	debugOut += where + reset + "\n";
 	if (old) debugOut += [padMid, paddedOld, ""].join("\n");
 	debugOut += [padMid, paddedText, padEnds].join("\n");
 	let spl = debugOut.replace(/\t/g, "    ").split(/\n/);
@@ -195,6 +216,8 @@ function write(path, text) {
 		}
 	}
 	console.log(["", ...spl, ""].join("\n"));
-	if (!preview)
-		fs.writeFileSync(path, text);
+	if (!preview) {
+		fs.mkdirSync(path.dirname(where), {recursive: true});
+		fs.writeFileSync(where, text);
+	}
 }
