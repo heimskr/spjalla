@@ -20,7 +20,7 @@ namespace haunted::boxes {
 	class box_propo: public box {
 		public:
 			double ratio;
-			box_propo(double ratio_);
+			box_propo(const position &, double);
 
 			virtual int size_one() const override;
 			virtual int size_two() const override;

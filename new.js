@@ -15,13 +15,15 @@ const options = minimist(process.argv.slice(2), {
 		c: "noclass",
 		v: "visibility",
 		p: "preview",
-		m: "makevar"
+		m: "makevar",
+		h: "noheader"
 	},
-	boolean: ["nosrc", "noclass", "preview"],
+	boolean: ["nosrc", "noclass", "preview", "noheader"],
 	default: {
 		nosrc: false,
 		noclass: false,
 		preview: false,
+		noheader: false,
 		keyword: "class",
 		visibility: "public",
 		makevar: "COMMONSRC"
@@ -30,17 +32,17 @@ const options = minimist(process.argv.slice(2), {
 
 let [name, type] = options._;
 if (!type) type = "auto";
-const {namespace, nosrc, inherit, keyword, noclass, visibility, preview, makevar} = options;
+const {namespace, nosrc, inherit, keyword, noclass, visibility, preview, makevar, noheader} = options;
 
 const isBad = () => {
 	if (!name) return true;
-	for (const obj of [namespace, nosrc, inherit, keyword, noclass, visibility, preview, makevar])
+	for (const obj of [namespace, nosrc, inherit, keyword, noclass, visibility, preview, makevar, noheader])
 		if (obj instanceof Array) return true;
 	return false;
 };
 
 if (isBad()) {
-	yikes("Usage: new.js <name> [type] [-n/--namespace] [-s/--nosrc] [-c/--noclass] [-i/--inherit superclass] [-k/--keyword (struct|class)] [-v/--visibility inheritance visibility]");
+	yikes("Usage: new.js <name> [type] [-n/--namespace] [-s/--nosrc] [-h/--noheader] [-c/--noclass] [-i/--inherit superclass] [-k/--keyword (struct|class)] [-v/--visibility inheritance visibility]");
 }
 
 if (!name.match(/^[\w_\d]+$/i)) {
@@ -130,8 +132,8 @@ namespace ${namespace || defaultNamespace} {
 	yikes(`Expected "auto" | "core"`);
 }
 
-if (sourcetext && !nosrc) write(sourcePath(), sourcetext);
-if (headertext) write(headerPath(), headertext);
+if (sourcetext && !nosrc)    write(sourcePath(), sourcetext);
+if (headertext && !noheader) write(headerPath(), headertext);
 
 if (allDir) {
 	const allText = read(`${headerbase}/${allDir}/all.h`);

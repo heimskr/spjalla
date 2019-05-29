@@ -11,15 +11,15 @@ namespace haunted::boxes {
 	 */
 	class box: virtual public control {
 		protected:
-			int size;
-			box(int size_): size(size_) {}
+			box(const position &pos_): control(pos_) {}
 
 		public:
 			haunted::side side;
 
+			virtual int max_children() const override;
 			virtual int size_one() const;
 			virtual int size_two() const;
-			virtual void set_size(int);
+			virtual int get_size() const;
 	};
 }
 

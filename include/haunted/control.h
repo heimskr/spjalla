@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include "haunted/defs.h"
+
 namespace haunted {
 	/**
 	 * Represents a control.
@@ -16,8 +18,9 @@ namespace haunted {
 
 		public:
 			virtual ~control() = 0;
-			virtual ssize_t max_children() const;
-			virtual size_t   child_count() const;
+			virtual int max_children() const;
+			virtual int  child_count() const;
+			virtual void resize(const position &new_pos);
 	};
 }
 

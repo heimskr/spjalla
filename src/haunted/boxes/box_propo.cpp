@@ -3,7 +3,7 @@
 #include "haunted/boxes/box_propo.h"
 
 namespace haunted::boxes {
-	box_propo::box_propo(double ratio_): control(), ratio(ratio_) {
+	box_propo::box_propo(const position &pos_, double ratio_): control(pos_), ratio(ratio_) {
 		if (ratio_ < 0)
 			throw std::domain_error("Box ratio cannot be negative");
 	}
