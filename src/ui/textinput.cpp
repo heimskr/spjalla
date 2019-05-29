@@ -1,8 +1,3 @@
-#include <functional>
-#include <ostream>
-#include <string>
-#include <unordered_set>
-
 #include "ui/textinput.h"
 #include "lib/utf8.h"
 

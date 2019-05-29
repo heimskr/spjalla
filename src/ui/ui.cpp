@@ -5,7 +5,6 @@
 
 #include <csignal>
 #include <ncurses.h>
-#include <uniset.h>
 
 #include "ui/ui.h"
 #include "ui/defs.h"
