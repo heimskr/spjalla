@@ -5,19 +5,27 @@ const fs = require("fs"),
 const yikes = (...a) => { console.error(...a); process.exit(1); };
 
 const [,, ...args] = process.argv;
-if (args.length < 2 || !args[1]) {
-	yikes("Usage: new.js <name> [type] [-n/--namespace] [-s/--nosrc]");
-}
 
 const options = minimist(process.argv.slice(2), {
-	alias: {n: "namespace", s: "nosrc"},
-	boolean: ["nosrc"],
-	default: {namespace: "spjalla", nosrc: false}
+	alias: {n: "namespace", s: "nosrc", i: "inherit", k: "keyword", c: "noclass", v: "visibility", p: "preview"},
+	boolean: ["nosrc", "noclass", "preview"],
+	default: {nosrc: false, noclass: false, preview: true, keyword: "class", visibility: "public"}
 });
 
 let [name, type] = options._;
-if (!type) type = "core";
-const {namespace, nosrc} = options;
+if (!type) type = "auto";
+const {namespace, nosrc, inherit, keyword, noclass, visibility, preview} = options;
+
+const isBad = () => {
+	if (!name) return true;
+	for (const obj of [namespace, nosrc, inherit, keyword, noclass, visibility])
+		if (obj instanceof Array) return true;
+	return false;
+};
+
+if (isBad()) {
+	yikes("Usage: new.js <name> [type] [-n/--namespace] [-s/--nosrc] [-c/--noclass] [-i/--inherit superclass] [-k/--keyword (struct|class)] [-v/--visibility inheritance visibility]");
+}
 
 if (!name.match(/^[\w_\d]+$/i)) {
 	yikes("Invalid name:", name);
@@ -28,13 +36,15 @@ let allDir, sourcename, headername, sourcetext, headertext;
 const sourcebase = "src", headerbase = "include";
 let sourcedirs = [], headerdirs = [];
 
+const defaultNamespace = "spjalla";
 const setDirs = (...a) => { sourcedirs = [...a]; headerdirs = [...a]; };
 const setNames = s => { sourcename = `${s}.cpp`; headername = `${s}.h`; };
 const upper = () => name.toUpperCase();
 const sourceDir = () => `${sourcebase}/${sourcedirs.join("/")}`;
 const headerDir = () => `${headerbase}/${headerdirs.join("/")}`;
 const sourcePath = () => `${sourceDir()}/${sourcename}`;
-const headerPath = () => `${sourceDir()}/${sourcename}`;
+const headerPath = () => `${headerDir()}/${headername}`;
+const headerIncl = () => `${headerdirs.join("/")}/${headername}`;
 
 if (type == "core") {
 	setDirs("core");
@@ -44,7 +54,7 @@ if (type == "core") {
 #ifndef CORE_${upper()}_H_
 #define CORE_${upper()}_H_
 
-namespace ${namespace} {
+namespace ${namespace || defaultNamespace} {
 	
 }
 
@@ -54,18 +64,56 @@ namespace ${namespace} {
 	sourcetext = `
 #include "core/${name}.h"
 
-namespace ${namespace} {
+namespace ${namespace || defaultNamespace} {
 
 }
 `.substr(1);
 
 	updateModule();
-} else {
-	console.error("Unknown type:", type);
-	yikes(`Expected "core"`);
+} else if (type == "auto") {
+	if (!namespace) yikes("Namespace not given");
+	const spl = namespace.split(/::/);
+	setNames(name);
+	setDirs(...spl);
+	console.log("Source path:", sourcePath());
+	console.log("Header path:", headerPath());
+	console.log("Header dir:", headerIncl());
+
+	let classDef = `${keyword} ${name}`;
+	if (inherit && inherit !== true) {
+		classDef += ": ";
+		if (visibility != "none") classDef += visibility + " ";
+		classDef += inherit;
+	}
+	classDef += " {\n\t\t\n\t};";
+
+	sourcetext = `
+#include "${headerIncl()}"
+
+namespace ${namespace || defaultNamespace} {
+	${noclass? "" : classDef}
+}
+`.substr(1);
+
+	const guard = [...headerdirs, name].join("_").toUpperCase() + "_H_";
+
+	headertext = `
+#ifndef ${guard}
+#define ${guard}
+
+namespace ${namespace || defaultNamespace} {
+	
 }
 
-if (sourcetext) write(sourcePath(), sourcetext);
+#endif
+`.substr(1);
+
+} else {
+	console.error("Unknown type:", type);
+	yikes(`Expected "auto" | "core"`);
+}
+
+if (sourcetext && !nosrc) write(sourcePath(), sourcetext);
 if (headertext) write(headerPath(), headertext);
 
 if (allDir) {
@@ -105,5 +153,13 @@ function write(path, text) {
 	const padEnds = "\x1b[2m" + "".padStart(width, "━") + "\x1b[0m";
 	const padMid =  "\x1b[2m" + "".padStart(width, "─") + "\x1b[0m";
 	const [paddedText, paddedOld] = [text, old].map(s => "    " + s.replace(/\n/g, "\n    ").replace(/\n *$/, ""));
-	console.log(`\n${padEnds}\n\x1b[1m${path + (old? "" : " (new)")}\x1b[0m\n${old? `${padMid}\n${paddedOld}\n` : ``}${padMid}\n${paddedText}\n${padEnds}\n`);
+	let debugOut = `\n${padEnds}\n`;
+	if (preview) debugOut += " \x1b[31m✕\x1b[0m ";
+	debugOut += "\x1b[1;3" + (old? "3" : "2") + "m";
+	debugOut += path + "\x1b[0m\n";
+	if (old) debugOut += [padMid, paddedOld, ""].join("\n");
+	debugOut += [padMid, paddedText, padEnds, ""].join("\n");
+	console.log(debugOut);
+	if (!preview)
+		fs.writeFileSync(path, text);
 }
