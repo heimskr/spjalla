@@ -21,7 +21,7 @@ const options = minimist(process.argv.slice(2), {
 	default: {
 		nosrc: false,
 		noclass: false,
-		preview: true,
+		preview: false,
 		keyword: "class",
 		visibility: "public",
 		makevar: "COMMONSRC"
@@ -107,7 +107,7 @@ namespace ${namespace || defaultNamespace} {
 #include "${headerIncl()}"
 
 namespace ${namespace || defaultNamespace} {
-	${noclass? "" : classDef}
+	
 }
 `.substr(1);
 
@@ -118,7 +118,7 @@ namespace ${namespace || defaultNamespace} {
 #define ${guard}
 
 namespace ${namespace || defaultNamespace} {
-	
+	${noclass? "" : classDef}
 }
 
 #endif
@@ -178,7 +178,7 @@ function write(path, text) {
 	debugOut += path + reset + "\n";
 	if (old) debugOut += [padMid, paddedOld, ""].join("\n");
 	debugOut += [padMid, paddedText, padEnds].join("\n");
-	let spl = debugOut.split(/\n/);
+	let spl = debugOut.replace(/\t/g, "    ").split(/\n/);
 	const snip = s => s.substr(style.length, s.length - style.length - reset.length);
 	if (3 <= spl.length) {
 		const last = spl.length - 1;
