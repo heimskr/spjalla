@@ -7,6 +7,7 @@
 
 #include "ui/ui.h"
 #include "ui/defs.h"
+#include "haunted/boxes/hbox_propo.h"
 
 namespace spjalla {
 	ui::ui() {
