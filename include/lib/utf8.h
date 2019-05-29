@@ -20,7 +20,9 @@ namespace spjalla {
 
 		public:
 			utf8str() {}
+			utf8str(const utf8str &other): unistr(icu::UnicodeString(other.unistr)) {}
 			utf8str(const std::string &str): unistr(icu::UnicodeString::fromUTF8(str)) {}
+			utf8str(UChar32 uch): unistr(uch) {}
 			utf8str(char ch): utf8str(std::string(1, ch)) {}
 
 			utf8char operator[](ssize_t) const;
@@ -31,6 +33,9 @@ namespace spjalla {
 			bool operator==(const utf8str &) const;
 			operator std::string() const;
 
+			void append(const utf8str &);
+			void append(const std::string &);
+			void append(char);
 			std::string substr(ssize_t, ssize_t) const;
 			std::string substr(ssize_t) const;
 			void insert(ssize_t, const std::string &);
@@ -43,6 +48,21 @@ namespace spjalla {
 			void   clear();
 
 			friend std::ostream & operator<<(std::ostream &os, const utf8str &input);
+			friend std::string operator+(const std::string &, const utf8str &);
+			friend std::string operator+(const char *, const utf8str &);
+
+			template <typename T>
+			utf8str operator+(const T &other) {
+				utf8str copy(*this);
+				copy += other;
+				return copy;
+			}
+
+			template <typename T>
+			utf8str & operator+=(const T &other) {
+				append(other);
+				return *this;
+			}
 	};
 }
 

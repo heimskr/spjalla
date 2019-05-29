@@ -1,4 +1,3 @@
-#include <iostream>
 #include <functional>
 #include <ostream>
 #include <string>
@@ -30,60 +29,31 @@ namespace spjalla {
 		update();
 	}
 
-	void textinput::insert(char ch) {
+	void textinput::insert(unsigned char ch) {
 		if (!unicode_buffer.empty()) {
-			std::cerr << "foo" << std::endl;
 			unicode_buffer.push_back(ch);
-			// if (utf8::is_valid(unicode_buffer.begin(), unicode_buffer.end())) {
-			if (!icu::UnicodeString::fromUTF8(unicode_buffer).isBogus()) {
-				// The unicode buffer now contains a complete and valid codepoint, so we insert it into the buffer.
-				buffer.insert(cursor, unicode_buffer);
+			if (unicode_buffer.size() == bytes_expected) {
+				// The Unicode buffer now contains a complete and valid codepoint (the first byte is valid, at least).
+				// Insert the buffer's contents into the primary buffer.
+				buffer.insert(cursor++, unicode_buffer);
 				unicode_buffer.clear();
-				++cursor;
-				update();
-			} else if (unicode_buffer.size() == 4) {
-				// At this point, it seems there's just garbage in the buffer. Insert it.
-				buffer.insert(cursor, unicode_buffer);
-				unicode_buffer.clear();
-				cursor += unicode_buffer.length();
+				bytes_expected = 0;
 				update();
 			}
 		} else {
-			// std::string str(1, ch);
-			// unsigned char zext = static_cast<unsigned char>(ch);
-			// std::cerr << std::hex << "\'" << ch << "\': " << std::hex << static_cast<unsigned int>(zext) << std::dec << std::endl;
-			unsigned char uch = static_cast<unsigned char>(ch);
-			if (uch < 0x80) {
-				std::cerr << "Not incomplete: '" << std::string(1, ch) << "' (0x" << std::hex << static_cast<int>(uch) << std::dec << ")" << std::endl;
-				buffer.insert(cursor++, ch);
-				update();
-				return;
-			}
-			
-			bytes_expected = utf8::width(uch);
-
-			if (bytes_expected == 0) {
-				// This doesn't appear to be a valid UTF8 start byte. Treat it as an ASCII character.
+			size_t width = utf8::width(ch);
+			if (width < 2) {
+				// It seems we've received a plain old ASCII character or an invalid UTF8 start byte.
+				// Either way, ppend it to the buffer.
 				buffer.insert(cursor++, ch);
 				update();
 			} else {
+				// This byte is the first of a multi-byte codepoint.
+				// Set the expected width and initialize the Unicode buffer with the byte.
+				bytes_expected = width;
 				unicode_buffer.push_back(ch);
-				std::cerr << "Incomplete: '" << std::string(1, ch) << "' (0x" << std::hex << static_cast<int>(uch) << std::dec << "), expecting " << bytes_expected << std::endl;
 			}
 		}
-	}
-
-	bool textinput::is_incomplete(const std::string &str) {
-		UChar32 word = 0;
-		for (size_t i = 0; i < 4 && i < str.length(); ++i)
-			word |= str[i] << (i << 3);
-		return icu::UnicodeString(word).isBogus();
-		// return icu::UnicodeString::fromUTF8(str).isBogus();
-	}
-
-	bool textinput::is_incomplete(char ch) {
-		return is_incomplete(std::string(1, ch));
-		// return icu::UnicodeString(static_cast<UChar32>(static_cast<uint8_t>(ch))).isBogus(); 
 	}
 
 	void textinput::clear() {
@@ -185,8 +155,14 @@ namespace spjalla {
 		return cursor < size()? buffer[cursor] : '\0';
 	}
 
-	std::string textinput::dbg_render() const {
-		return "[" + buffer.substr(0, cursor) + "\e[2m|\e[0m" + buffer.substr(cursor) + "]";
+	size_t textinput::get_cursor() const {
+		return cursor;
+	}
+
+	std::string textinput::dbg_render(bool show_cursor) const {
+		if (show_cursor)
+			return "[" + buffer.substr(0, cursor) + "\e[2m|\e[0m" + buffer.substr(cursor) + "]";
+		return "[" + buffer + "]";
 	}
 
 	textinput::operator std::string() const {

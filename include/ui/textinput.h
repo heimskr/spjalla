@@ -18,8 +18,6 @@ namespace spjalla {
 			size_t cursor = 0, bytes_expected = 0;
 			update_fn on_update;
 			void update();
-			bool is_incomplete(const std::string &);
-			bool is_incomplete(char);
 
 		public:
 			std::string unicode_buffer;
@@ -33,7 +31,7 @@ namespace spjalla {
 			void listen(const update_fn &);
 			void move_to(size_t);
 			void insert(const std::string &);
-			void insert(char);
+			void insert(unsigned char);
 			void clear();
 			void erase_word();
 			void erase();
@@ -49,8 +47,9 @@ namespace spjalla {
 			size_t size() const;
 			char prev_char() const;
 			char next_char() const;
+			size_t get_cursor() const;
 
-			std::string dbg_render() const;
+			std::string dbg_render(bool = true) const;
 
 			friend std::ostream & operator<<(std::ostream &os, const textinput &input);
 	};

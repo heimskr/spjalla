@@ -52,6 +52,18 @@ namespace spjalla {
 		return unistr.toUTF8String(out);
 	}
 
+	void utf8str::append(const utf8str &ustr) {
+		unistr.append(ustr.unistr);
+	}
+
+	void utf8str::append(const std::string &str) {
+		unistr.append(icu::UnicodeString::fromUTF8(str));
+	}
+
+	void utf8str::append(char ch) {
+		unistr.append(static_cast<char16_t>(ch));
+	}
+
 	std::string utf8str::substr(ssize_t start, ssize_t length) const {
 		std::string out;
 		return icu::UnicodeString(unistr, start, length).toUTF8String(out);
@@ -86,5 +98,13 @@ namespace spjalla {
 	std::ostream & operator<<(std::ostream &os, const utf8str &input) {
 		os << std::string(input);
 		return os;
+	}
+
+	std::string operator+(const std::string &left, const utf8str &right) {
+		return left + std::string(right);
+	}
+
+	std::string operator+(const char *left, const utf8str &right) {
+		return std::string(left) + std::string(right);
 	}
 }
