@@ -7,18 +7,34 @@ const yikes = (...a) => { console.error(...a); process.exit(1); };
 const [,, ...args] = process.argv;
 
 const options = minimist(process.argv.slice(2), {
-	alias: {n: "namespace", s: "nosrc", i: "inherit", k: "keyword", c: "noclass", v: "visibility", p: "preview"},
+	alias: {
+		n: "namespace",
+		s: "nosrc",
+		i: "inherit",
+		k: "keyword",
+		c: "noclass",
+		v: "visibility",
+		p: "preview",
+		m: "makevar"
+	},
 	boolean: ["nosrc", "noclass", "preview"],
-	default: {nosrc: false, noclass: false, preview: true, keyword: "class", visibility: "public"}
+	default: {
+		nosrc: false,
+		noclass: false,
+		preview: true,
+		keyword: "class",
+		visibility: "public",
+		makevar: "COMMONSRC"
+	}
 });
 
 let [name, type] = options._;
 if (!type) type = "auto";
-const {namespace, nosrc, inherit, keyword, noclass, visibility, preview} = options;
+const {namespace, nosrc, inherit, keyword, noclass, visibility, preview, makevar} = options;
 
 const isBad = () => {
 	if (!name) return true;
-	for (const obj of [namespace, nosrc, inherit, keyword, noclass, visibility])
+	for (const obj of [namespace, nosrc, inherit, keyword, noclass, visibility, preview, makevar])
 		if (obj instanceof Array) return true;
 	return false;
 };
@@ -108,6 +124,7 @@ namespace ${namespace || defaultNamespace} {
 #endif
 `.substr(1);
 
+	updateModule();
 } else {
 	console.error("Unknown type:", type);
 	yikes(`Expected "auto" | "core"`);
@@ -124,9 +141,9 @@ if (allDir) {
 }
 
 function updateModule() {
-	const moduleText = read(`${sourceDir()}/module.mk`);
+	let moduleText = read(`${sourceDir()}/module.mk`);
 	if (moduleText.indexOf(sourcePath()) == -1) {
-		write(`${sourceDir()}/module.mk`, moduleText.replace(/(#end)/, `${sourcePath()} $1\n`));
+		write(`${sourceDir()}/module.mk`, moduleText.replace(/\n*\s*$/, "\n") + `${makevar} += ${sourcePath()}\n`);
 	}
 }
 
@@ -149,17 +166,33 @@ function read(path, safe=false) {
 function write(path, text) {
 	const old = read(path, true);
 	const maxLineLength = [...text.split(/\n+/), ...old.split(/\n+/)].reduce((a, b) => Math.max(a, b.length), 0);
-	const width = maxLineLength + 8;
-	const padEnds = "\x1b[2m" + "".padStart(width, "━") + "\x1b[0m";
-	const padMid =  "\x1b[2m" + "".padStart(width, "─") + "\x1b[0m";
+	const width = Math.max(52, maxLineLength) + 8;
+	const style = "\x1b[2m";
+	const reset = "\x1b[0m";
+	const padEnds = style + "".padStart(width, "━") + reset;
+	const padMid =  style + "".padStart(width, "─") + reset;
 	const [paddedText, paddedOld] = [text, old].map(s => "    " + s.replace(/\n/g, "\n    ").replace(/\n *$/, ""));
-	let debugOut = `\n${padEnds}\n`;
+	let debugOut = `${padEnds}\n`;
 	if (preview) debugOut += " \x1b[31m✕\x1b[0m ";
 	debugOut += "\x1b[1;3" + (old? "3" : "2") + "m";
-	debugOut += path + "\x1b[0m\n";
+	debugOut += path + reset + "\n";
 	if (old) debugOut += [padMid, paddedOld, ""].join("\n");
-	debugOut += [padMid, paddedText, padEnds, ""].join("\n");
-	console.log(debugOut);
+	debugOut += [padMid, paddedText, padEnds].join("\n");
+	let spl = debugOut.split(/\n/);
+	const snip = s => s.substr(style.length, s.length - style.length - reset.length);
+	if (3 <= spl.length) {
+		const last = spl.length - 1;
+		spl[0]    = style + "┏" + snip(spl[0])    + "┓" + reset;
+		spl[last] = style + "┗" + snip(spl[last]) + "┛" + reset;
+		for (let i = 1; i < last; ++i) {
+			if (spl[i] == padMid) {
+				spl[i] = style + "┠" + snip(spl[i]) + "┨" + reset;
+			} else {
+				spl[i] = style + "┃" + reset + spl[i] + `\x1b[${width + 2}G` + style + "┃" + reset;
+			}
+		}
+	}
+	console.log(["", ...spl, ""].join("\n"));
 	if (!preview)
 		fs.writeFileSync(path, text);
 }
