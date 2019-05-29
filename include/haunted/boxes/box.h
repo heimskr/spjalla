@@ -7,9 +7,9 @@
 namespace haunted::boxes {
 	/**
 	 * Base class representing boxes, which are controls that contain
-	 * two subcontrols provide calculations for the sizes of the boxes.
+	 * two subcontrols and provide resize them as appropriate.
 	 */
-	class box: virtual public control {
+	class box: public virtual control {
 		protected:
 			box(const position &pos_): control(pos_) {}
 			using control::control;
@@ -18,9 +18,6 @@ namespace haunted::boxes {
 			haunted::side side;
 
 			virtual int max_children() const = 0;
-			virtual int size_one() const = 0;
-			virtual int size_two() const = 0;
-			virtual int get_size() const = 0;
 	};
 }
 

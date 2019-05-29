@@ -8,4 +8,8 @@ namespace haunted {
 	int control::child_count() const {
 		return children.size();
 	}
+
+	control * control::operator[](size_t index) {
+		return index < children.size()? children.at(index) : nullptr;
+	}
 }

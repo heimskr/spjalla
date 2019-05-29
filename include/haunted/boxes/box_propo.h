@@ -2,6 +2,7 @@
 #define HAUNTED_BOXES_BOX_PROPO_H_
 
 #include "haunted/boxes/box.h"
+#include "haunted/boxes/box_dual.h"
 
 namespace haunted::boxes {
 	/**
@@ -17,14 +18,16 @@ namespace haunted::boxes {
 	 * 
 	 *     size_two = size_box/(1 + ratio)
 	 */
-	class box_propo: public box {
+	class box_propo: public virtual box_dual {
+		protected:
+			box_propo(const position &, double);
+			box_propo(const position &pos_): box_propo(pos_, 1) {}
+
 		public:
 			double ratio;
-			box_propo(const position &, double);
 
-			virtual int max_children() const override;
-			virtual int size_one() const override;
-			virtual int size_two() const override;
+			virtual int size_one() const;
+			virtual int size_two() const;
 	};
 }
 
