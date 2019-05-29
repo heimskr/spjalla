@@ -34,6 +34,7 @@ namespace spjalla {
 
 	void ui::start() {
 		initscr();
+		start_color();
 		cbreak();
 		noecho();
 		keypad(stdscr, true);
