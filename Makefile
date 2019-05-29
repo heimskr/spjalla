@@ -33,7 +33,7 @@ OBJ_PP			:= $(patsubst src/%.cpp,pingpong/build/%.o, $(filter %.cpp,$(SRC)))
 sinclude $(patsubst %,$(SRCDIR_PP)/%/targets.mk,$(MODULES))
 SRC_PP			:= $(patsubst %,pingpong/%,$(SRC))
 
-MODULES			:= core ui lib haunted
+MODULES			:= core ui lib haunted tests
 COMMONSRC		:=
 SRC				:=
 CFLAGS			+= -Iinclude
