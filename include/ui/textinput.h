@@ -6,18 +6,20 @@
 #include <string>
 
 #include "ui/defs.h"
+#include "lib/utf8.h"
 
 namespace spjalla {
 	class textinput {
-		using update_fn = std::function<void(const std::string &, int)>;
+		using update_fn = std::function<void(const utf8str &, int)>;
 
 		private:
-			std::string buffer, prefix;
-			size_t cursor;
+			std::string prefix;
+			utf8str buffer;
+			size_t cursor = 0, bytes_expected = 0;
 			update_fn on_update;
 			void update();
-			// bool is_incomplete(const std::string &);
-			// bool is_incomplete(char);
+			bool is_incomplete(const std::string &);
+			bool is_incomplete(char);
 
 		public:
 			std::string unicode_buffer;
@@ -43,6 +45,7 @@ namespace spjalla {
 			void end();
 			void prev_word();
 			void next_word();
+			size_t length() const;
 			size_t size() const;
 			char prev_char() const;
 			char next_char() const;

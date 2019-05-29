@@ -1,9 +1,10 @@
+#include <iostream>
 #include <functional>
 #include <ostream>
 #include <string>
 
 #include "ui/textinput.h"
-#include "unicode/uniset.h"
+#include "lib/utf8.h"
 
 namespace spjalla {
 	void textinput::update() {
@@ -11,7 +12,7 @@ namespace spjalla {
 			on_update(buffer, cursor);
 	}
 
-	void textinput::listen(const std::function<void(const std::string &, int)> &fn) {
+	void textinput::listen(const update_fn &fn) {
 		on_update = fn;
 	}
 
@@ -23,16 +24,18 @@ namespace spjalla {
 	}
 
 	void textinput::insert(const std::string &str) {
-		buffer.insert(cursor, str);
-		cursor += str.size();
+		utf8str newstr = str;
+		buffer.insert(cursor, newstr);
+		cursor += newstr.size();
 		update();
 	}
 
 	void textinput::insert(char ch) {
 		if (!unicode_buffer.empty()) {
+			std::cerr << "foo" << std::endl;
 			unicode_buffer.push_back(ch);
 			// if (utf8::is_valid(unicode_buffer.begin(), unicode_buffer.end())) {
-			if (false) {
+			if (!icu::UnicodeString::fromUTF8(unicode_buffer).isBogus()) {
 				// The unicode buffer now contains a complete and valid codepoint, so we insert it into the buffer.
 				buffer.insert(cursor, unicode_buffer);
 				unicode_buffer.clear();
@@ -42,33 +45,46 @@ namespace spjalla {
 				// At this point, it seems there's just garbage in the buffer. Insert it.
 				buffer.insert(cursor, unicode_buffer);
 				unicode_buffer.clear();
-				cursor += 4;
+				cursor += unicode_buffer.length();
 				update();
 			}
 		} else {
-			std::string str(1, ch);
-			// if (!is_incomplete(ch)) {
-			if (true) {
-				buffer.insert(cursor++, 1, ch);
+			// std::string str(1, ch);
+			// unsigned char zext = static_cast<unsigned char>(ch);
+			// std::cerr << std::hex << "\'" << ch << "\': " << std::hex << static_cast<unsigned int>(zext) << std::dec << std::endl;
+			unsigned char uch = static_cast<unsigned char>(ch);
+			if (uch < 0x80) {
+				std::cerr << "Not incomplete: '" << std::string(1, ch) << "' (0x" << std::hex << static_cast<int>(uch) << std::dec << ")" << std::endl;
+				buffer.insert(cursor++, ch);
+				update();
+				return;
+			}
+			
+			bytes_expected = utf8::width(uch);
+
+			if (bytes_expected == 0) {
+				// This doesn't appear to be a valid UTF8 start byte. Treat it as an ASCII character.
+				buffer.insert(cursor++, ch);
 				update();
 			} else {
 				unicode_buffer.push_back(ch);
+				std::cerr << "Incomplete: '" << std::string(1, ch) << "' (0x" << std::hex << static_cast<int>(uch) << std::dec << "), expecting " << bytes_expected << std::endl;
 			}
 		}
 	}
 
-	// bool textinput::is_incomplete(const std::string &str) {
-	// 	unsigned int cp = 0;
-	// 	for (size_t i = 0; i < str.size(); ++i)
-	// 		cp |= str[i] << (i << 3);
-	// 	return !utf8::internal::is_code_point_valid(cp);
-	// }
+	bool textinput::is_incomplete(const std::string &str) {
+		UChar32 word = 0;
+		for (size_t i = 0; i < 4 && i < str.length(); ++i)
+			word |= str[i] << (i << 3);
+		return icu::UnicodeString(word).isBogus();
+		// return icu::UnicodeString::fromUTF8(str).isBogus();
+	}
 
-	// bool textinput::is_incomplete(char ch) {
-	// 	std::string str(1, ch);
-	// 	auto it = str.begin();
-	// 	return utf8::internal::validate_next(it, str.end()) != 4;
-	// }
+	bool textinput::is_incomplete(char ch) {
+		return is_incomplete(std::string(1, ch));
+		// return icu::UnicodeString(static_cast<UChar32>(static_cast<uint8_t>(ch))).isBogus(); 
+	}
 
 	void textinput::clear() {
 		buffer.clear();
@@ -100,7 +116,7 @@ namespace spjalla {
 	}
 
 	void textinput::set_text(const std::string &str) {
-		buffer = str;
+		buffer = icu::UnicodeString::fromUTF8(str);
 		cursor = str.size();
 		update();
 	}
@@ -113,7 +129,7 @@ namespace spjalla {
 	}
 
 	void textinput::right() {
-		if (cursor != buffer.size()) {
+		if (cursor != buffer.length()) {
 			++cursor;
 			update();
 		}
@@ -153,8 +169,12 @@ namespace spjalla {
 			update();
 	}
 
+	size_t textinput::length() const {
+		return buffer.length();
+	}
+
 	size_t textinput::size() const {
-		return buffer.size();
+		return buffer.length();
 	}
 
 	char textinput::prev_char() const {
@@ -170,7 +190,7 @@ namespace spjalla {
 	}
 
 	textinput::operator std::string() const {
-		return buffer;
+		return std::string(buffer);
 	}
 
 	std::ostream & operator<<(std::ostream &os, const textinput &input) {
