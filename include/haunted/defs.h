@@ -7,7 +7,8 @@ namespace haunted {
 	struct position {
 		int left, top, width, height;
 		position(int l, int t, int w, int h): left(l), top(t), width(w), height(h) {}
-		position(): left(0), top(0), width(0), height(0) {}
+		position(): left(-1), top(-1), width(-1), height(-1) {}
+		operator bool() const;
 	};
 }
 

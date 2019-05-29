@@ -22,6 +22,7 @@ namespace haunted::boxes {
 			double ratio;
 			box_propo(const position &, double);
 
+			virtual int max_children() const override;
 			virtual int size_one() const override;
 			virtual int size_two() const override;
 	};

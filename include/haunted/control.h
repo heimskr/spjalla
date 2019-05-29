@@ -20,7 +20,7 @@ namespace haunted {
 			virtual ~control() = 0;
 			virtual int max_children() const;
 			virtual int  child_count() const;
-			virtual void resize(const position &new_pos);
+			virtual void resize(const position &new_pos) = 0;
 	};
 }
 
