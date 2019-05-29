@@ -204,12 +204,12 @@ int main(int argc, char **argv) {
 
 	hostname = 1 < argc? argv[1] : "localhost";
 	std::shared_ptr<server> sserv = std::make_shared<server>(pp, hostname);
-	server_ptr serv = sserv.get();
-	serv->start();
-	serv->set_nick("pingpong");
-	instance += serv;
+	// server_ptr serv = sserv.get();
+	// serv->start();
+	// serv->set_nick("pingpong");
+	// instance += serv;
 	instance.start_input();
 	u.join();
-	serv->worker->join();
+	// serv->worker->join();
 	instance.join();
 }
