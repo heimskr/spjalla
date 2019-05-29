@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <functional>
 #include <string>
+#include <unordered_set>
 
 #include "ui/defs.h"
 #include "lib/utf8.h"
@@ -18,6 +19,7 @@ namespace spjalla {
 			size_t cursor = 0, bytes_expected = 0;
 			update_fn on_update;
 			void update();
+			static std::unordered_set<unsigned char> whitelist;
 
 		public:
 			std::string unicode_buffer;

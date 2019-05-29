@@ -1,11 +1,14 @@
 #include <functional>
 #include <ostream>
 #include <string>
+#include <unordered_set>
 
 #include "ui/textinput.h"
 #include "lib/utf8.h"
 
 namespace spjalla {
+	std::unordered_set<unsigned char> textinput::whitelist = {9, 10, 11, 13};
+
 	void textinput::update() {
 		if (on_update)
 			on_update(buffer, cursor);
@@ -30,6 +33,9 @@ namespace spjalla {
 	}
 
 	void textinput::insert(unsigned char ch) {
+		if (ch < 0x20 && whitelist.find(ch) == whitelist.end())
+			return;
+
 		if (!unicode_buffer.empty()) {
 			unicode_buffer.push_back(ch);
 			if (unicode_buffer.size() == bytes_expected) {

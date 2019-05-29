@@ -72,10 +72,19 @@ namespace spjalla {
 					case 'f': // alt+right
 						input.next_word();
 						break;
+					case 127:
+					case KEY_BACKSPACE:
+						input.erase_word();
+						break;
 				}
 			} else {
 				switch (c) {
 					case -1:
+					case 14:  // ^N
+					case 16:  // ^P
+					case 258: // down
+					case 259: // up
+					case KEY_RESIZE:
 						break;
 					case 21: // ^U
 						input.clear();
@@ -90,8 +99,6 @@ namespace spjalla {
 					case KEY_F(1):
 						std::cout << "[" << input << "]\r" << std::endl;
 						break;
-					case 258: break; // down
-					case 259: break; // up
 					case 260: // left
 						input.left();
 						break;
@@ -103,14 +110,16 @@ namespace spjalla {
 						process_input();
 						break;
 					default:
-						input.insert(static_cast<char>(c));
+						if (c <= 0xff)
+							input.insert(static_cast<char>(c));
 				}
 			}
 
 			std::string str(1, c);
 
-			cout << "\e[2K\e[G" << input.dbg_render(false) << "\r\n\e[2K" << std::setfill(' ') << std::setw(3) << c
-			     << " " << keyname(c) << "\e[A\e[" << (2 + input.get_cursor()) << "G";
+			cout << "\e[2K\e[G" << input.dbg_render(false) << "\r\n\e[2K" << std::setfill(' ') << std::setw(2)
+			     << std::left << input.length() << " " << std::setw(3) << std::right << c << (alt? " Alt+" : " ")
+			     << keyname(c) << "\e[A\e[" << 2 + input.get_cursor() << "G";
 			cout.flush();
 			alt = false;
 		}
