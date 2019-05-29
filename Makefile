@@ -70,13 +70,9 @@ clean:
 	@ tmpdir=".build.$$RANDOM"; mkdir "$$tmpdir";                                \
 	  if [ -e build/lib/unicode ]; then echo "Saving Unicode directory.";        \
 	      mv build/lib/unicode "$$tmpdir/unicode";  fi;                          \
-	  if [ -e pingpong/build ];    then echo "Saving pingpong directory.";       \
-	      mv pingpong/build    "$$tmpdir/pingpong"; fi;                          \
 	  rm -rf build;                                                              \
 	  if [ -e "$$tmpdir/unicode" ];  then echo "Restoring Unicode directory.";   \
 	      mkdir -p build/lib;      mv "$$tmpdir/unicode"  build/lib/unicode; fi; \
-	  if [ -e "$$tmpdir/pingpong" ]; then echo "Restoring pingpong directory.";  \
-	      mkdir -p pingpong/build; mv "$$tmpdir/pingpong" pingpong/build;    fi; \
 	  rm -rf "$$tmpdir";
 
 spotless:
