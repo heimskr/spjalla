@@ -16,7 +16,7 @@ else
 	CHECKFLAGS +=
 endif
 
-.PHONY: all test clean depend
+.PHONY: all test clean depend save_unicode
 all: Makefile
 
 # Peter Miller, "Recursive Make Considered Harmful" (http://aegis.sourceforge.net/auug97.pdf)
@@ -66,9 +66,18 @@ test: $(OUTPUT)
 grind: $(OUTPUT)
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=no ./$(OUTPUT) irchost
 
-clean:
-	rm -rf build
+clean: save_unicode
 	$(MAKE) -C pingpong clean
+
+save_unicode:
+	@ if [ -e build/lib/unicode ]; then \
+	echo "Saving Unicode directory."; \
+	rand=".unicode.$$RANDOM"; \
+	mv build/lib/unicode $$rand; \
+	rm -rf build; \
+	mkdir -p build/lib; \
+	mv $$rand build/lib/unicode; \
+fi
 
 DEPFILE  = .dep
 DEPTOKEN = "\# MAKEDEPENDS"
