@@ -4,7 +4,6 @@
 #include <thread>
 
 #include <csignal>
-#include <ncurses.h>
 
 #include "ui/ui.h"
 #include "ui/defs.h"
@@ -23,21 +22,21 @@ namespace spjalla {
 	}
 
 	ui::~ui() {
-		endwin();
-		free(chat_window);
-		free(users_window);
-		free(input_window);
+		// endwin();
+		// free(chat_window);
+		// free(users_window);
+		// free(input_window);
 	}
 
 	void ui::draw() {
 	}
 
 	void ui::start() {
-		initscr();
-		start_color();
-		cbreak();
-		noecho();
-		keypad(stdscr, true);
+		// initscr();
+		// start_color();
+		// cbreak();
+		// noecho();
+		// keypad(stdscr, true);
 		signal(SIGWINCH, &ui::handle_winch);
 		worker_draw  = std::make_shared<std::thread>(&ui::work_draw,  this);
 		worker_input = std::make_shared<std::thread>(&ui::work_input, this);
@@ -48,12 +47,13 @@ namespace spjalla {
 	}
 
 	void ui::handle_winch(int) {
-		endwin();
-		refresh();
+		// endwin();
+		// refresh();
 	}
 
 	void ui::work_input() {
 		using std::cout, std::endl;
+		return;
 		for (;;) {
 			int c = getch();
 
