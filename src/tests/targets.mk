@@ -10,3 +10,4 @@ build/test_haunted: build/tests/test_haunted.o $(COMMONOBJ)
 	$(CC) $^ -o $@ $(LDFLAGS) $(LDLIBS)
 
 hauntedtest: build/test_haunted
+	./$^
