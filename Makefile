@@ -37,7 +37,6 @@ MODULES			:= core ui lib haunted tests
 COMMONSRC		:=
 SRC				:=
 CFLAGS			+= -Iinclude
-LDFLAGS			+= -lncurses
 include $(patsubst %,src/%/module.mk,$(MODULES))
 SRC				+= $(COMMONSRC)
 COMMONOBJ		:= $(patsubst src/%.cpp,build/%.o, $(filter %.cpp,$(COMMONSRC))) $(COMMONOBJ_PP) 
