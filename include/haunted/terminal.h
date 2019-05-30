@@ -5,17 +5,23 @@
 #include <termios.h>
 
 namespace haunted {
+	/**
+	 * This class enables interaction with terminals.
+	 * It makes use of termios to change terminal modes.
+	 * With its destructor, it resets 
+	 */
 	class terminal {
 		private:
-			termios & attrs();
+			termios original;
 			termios getattr();
 			void setattr(const termios &);
-			void resetattr();
+			void apply();
+			void reset();
 
 		public:
-			termios *original, *current;
+			termios attrs;
 
-			terminal(): original(nullptr), current(nullptr) {}
+			terminal();
 			~terminal();
 
 			void cbreak();
