@@ -13,7 +13,7 @@
 namespace spjalla {
 	class ui {
 		private:
-			textinput input;
+			haunted::ui::textinput input;
 			std::shared_ptr<std::thread> worker_draw, worker_input;
 			WINDOW *chat_window, *users_window, *input_window;
 			bool alt = false;
