@@ -6,31 +6,14 @@
 #include <csignal>
 
 #include "ui/ui.h"
-#include "ui/defs.h"
-#include "ui/boxes/hbox_propo.h"
+#include "haunted/core/defs.h"
+#include "haunted/ui/boxes/hbox_propo.h"
 
 namespace spjalla {
-	ui::ui() {
-		rect chat_rect  = get_chat_rect(),
-		     users_rect = get_users_rect(),
-		     input_rect = get_input_rect();
-		chat_window  = newwin(chat_rect.h,  chat_rect.w,  chat_rect.y,  chat_rect.y);
-		users_window = newwin(users_rect.h, users_rect.w, users_rect.y, users_rect.y);
-		input_window = newwin(input_rect.h, input_rect.w, input_rect.y, input_rect.y);
-		box(chat_window,  0, 0);
-		box(users_window, 0, 0);
-		box(input_window, 0, 0);
-	}
-
 	void ui::draw() {
 	}
 
 	void ui::start() {
-		// initscr();
-		// start_color();
-		// cbreak();
-		// noecho();
-		// keypad(stdscr, true);
 		signal(SIGWINCH, &ui::handle_winch);
 		worker_draw  = std::make_shared<std::thread>(&ui::work_draw,  this);
 		worker_input = std::make_shared<std::thread>(&ui::work_input, this);
@@ -44,7 +27,7 @@ namespace spjalla {
 		
 	}
 
-	void ui::work_input() {
+	void ui::work_input() { /*
 		using std::cout, std::endl;
 		return;
 		for (;;) {
@@ -116,7 +99,7 @@ namespace spjalla {
 			cout.flush();
 			alt = false;
 		}
-	}
+	*/ }
 
 	void ui::render_input() {
 
@@ -130,20 +113,22 @@ namespace spjalla {
 	void ui::join() {
 		worker_draw->join();
 		worker_input->join();
-		endwin();
 	}
 
-	rect ui::get_chat_rect() {
-		int uwidth = static_cast<int>(COLS * users_width);
-		return {users_side == right? 0 : uwidth, 0, COLS - uwidth, LINES - get_input_rect().h};
+	haunted::position ui::get_chat_position() {
+		return {0, 0, 0, 0};
+		// int uwidth = static_cast<int>(COLS * users_width);
+		// return {users_side == haunted::side::right? 0 : uwidth, 0, COLS - uwidth, LINES - get_input_position().h};
 	}
 
-	rect ui::get_users_rect() {
-		int uwidth = static_cast<int>(COLS * users_width);
-		return {users_side == left? 0 : COLS - uwidth, 0, uwidth, LINES - get_input_rect().h};
+	haunted::position ui::get_users_position() {
+		return {0, 0, 0, 0};
+		// int uwidth = static_cast<int>(COLS * users_width);
+		// return {users_side == haunted::side::left? 0 : COLS - uwidth, 0, uwidth, LINES - get_input_position().h};
 	}
 
-	rect ui::get_input_rect() {
-		return {0, LINES - 1, COLS, 1};
+	haunted::position ui::get_input_position() {
+		return {0, 0, 0, 0};
+		// return {0, LINES - 1, COLS, 1};
 	}
 }

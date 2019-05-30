@@ -6,33 +6,29 @@
 #include <sstream>
 #include <thread>
 
-#include <ncurses.h>
-
-#include "ui/textinput.h"
+#include "haunted/ui/textinput.h"
 
 namespace spjalla {
 	class ui {
 		private:
 			haunted::ui::textinput input;
 			std::shared_ptr<std::thread> worker_draw, worker_input;
-			WINDOW *chat_window, *users_window, *input_window;
-			bool alt = false;
 
 			void work_draw();
 			void work_input();
 			void process_input();
 			void render_input();
-			rect get_chat_rect();
-			rect get_users_rect();
-			rect get_input_rect();
+			haunted::position get_chat_position();
+			haunted::position get_users_position();
+			haunted::position get_input_position();
 			static void handle_winch(int);
 
 		public:
-			side users_side = left;
+			haunted::side users_side = haunted::side::left;
 			double users_width = 0.2;
 			size_t max_lines = 128;
 
-			ui();
+			ui() {}
 
 			void draw();
 			void start();

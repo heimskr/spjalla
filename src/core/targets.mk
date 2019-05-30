@@ -1,3 +1,3 @@
-build/spjalla: build/core/client.o $(OBJ) $(COMMONOBJ_PP)
+build/spjalla: build/core/client.o $(OBJ) $(COMMONOBJ_LIBS)
 	@ $(MKBUILD)
 	$(CC) $< $(filter-out $<,$+) -o $@ $(LDFLAGS) $(LDLIBS)

@@ -1,7 +1,7 @@
 COMPILER		:= clang++
 CFLAGS			:= -std=c++2a -stdlib=libc++ -g -O0 -Wall -Wextra -fdiagnostics-color=always
 CFLAGS_ORIG		:= $(CFLAGS)
-INCLUDE			:= -Iinclude
+INCLUDE			:= -Iinclude -Iinclude/lib
 LDFLAGS			:=
 CC				 = $(COMPILER) $(CFLAGS) $(CHECKFLAGS)
 CHECKFLAGS		:=
@@ -17,7 +17,7 @@ else
 	CHECKFLAGS +=
 endif
 
-.PHONY: all test clean depend spotless
+.PHONY: all test clean depend spotless destroy
 all: Makefile
 
 # Peter Miller, "Recursive Make Considered Harmful" (http://aegis.sourceforge.net/auug97.pdf)
@@ -37,8 +37,8 @@ sinclude $(patsubst %,$(SRCDIR_PP)/%/targets.mk,$(MODULES))
 SRC_PP			:= $(patsubst %,pingpong/%,$(SRC))
 
 SRCDIR_H		:= haunted/src
-MODULES			:= core ui ui/boxes
-INCLUDE_H		:= -Ihaunted/include
+MODULES			:= core ui ui/boxes lib
+INCLUDE_H		:= -Ihaunted/include -Ihaunted/include/lib
 INCLUDE			+= $(INCLUDE_H)
 CFLAGS			:= $(CFLAGS_ORIG) $(INCLUDE_H)
 COMMONSRC		:=
@@ -57,7 +57,8 @@ SRC				:=
 CFLAGS			:= $(CFLAGS_ORIG)
 include $(patsubst %,src/%/module.mk,$(MODULES))
 SRC				+= $(COMMONSRC)
-COMMONOBJ		:= $(patsubst src/%.cpp,build/%.o, $(filter %.cpp,$(COMMONSRC))) $(COMMONOBJ_PP) 
+COMMONOBJ		:= $(patsubst src/%.cpp,build/%.o, $(filter %.cpp,$(COMMONSRC)))
+COMMONOBJ_LIBS	:= $(COMMONOBJ_PP) $(COMMONOBJ_H)
 OBJ				:= $(patsubst src/%.cpp,build/%.o, $(filter %.cpp,$(SRC)))
 sinclude $(patsubst %,src/%/targets.mk,$(MODULES))
 
@@ -90,9 +91,16 @@ grind: $(OUTPUT)
 clean:
 	rm -rf build
 
+# Don't completely wipe the build directories of the libraries.
+# They might contain libraries that take a while to compile...
 spotless:
 	$(MAKE) -C pingpong clean
+	$(MAKE) -C haunted clean
 	rm -rf build $(DEPFILE)
+
+# Not a great idea.
+destroy: spotless
+	rm -rf haunted/build/unicode
 
 DEPFILE  = .dep
 DEPTOKEN = "\# MAKEDEPENDS"
