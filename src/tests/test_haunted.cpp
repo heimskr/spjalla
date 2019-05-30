@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 
 #include "tests/haunted.h"
 #include "haunted/terminal.h"
@@ -8,9 +9,9 @@ int main(int, char **) {
 	terminal term;
 	term.cbreak();
 
-	std::string str;
-	while (std::cin >> str) {
-		std::cout << "[" << str << "] ";
+	char ch;
+	while (term >> ch) {
+		std::cout << "\r" << std::setw(3) << std::left << std::setfill(' ') << static_cast<int>(ch) << " " << ch << std::endl;
 	}
 
 	std::cout << "Terminating." << std::endl;
