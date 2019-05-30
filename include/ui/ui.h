@@ -33,7 +33,6 @@ namespace spjalla {
 			size_t max_lines = 128;
 
 			ui();
-			~ui();
 
 			void draw();
 			void start();

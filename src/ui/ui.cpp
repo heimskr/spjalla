@@ -22,13 +22,6 @@ namespace spjalla {
 		box(input_window, 0, 0);
 	}
 
-	ui::~ui() {
-		// endwin();
-		// free(chat_window);
-		// free(users_window);
-		// free(input_window);
-	}
-
 	void ui::draw() {
 	}
 
@@ -48,8 +41,7 @@ namespace spjalla {
 	}
 
 	void ui::handle_winch(int) {
-		// endwin();
-		// refresh();
+		
 	}
 
 	void ui::work_input() {
