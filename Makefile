@@ -1,6 +1,7 @@
 COMPILER		:= clang++
 CFLAGS			:= -std=c++2a -stdlib=libc++ -g -O0 -Wall -Wextra -fdiagnostics-color=always
 CFLAGS_ORIG		:= $(CFLAGS)
+INCLUDE			:= -Iinclude
 LDFLAGS			:=
 CC				 = $(COMPILER) $(CFLAGS) $(CHECKFLAGS)
 CHECKFLAGS		:=
@@ -22,7 +23,9 @@ all: Makefile
 # Peter Miller, "Recursive Make Considered Harmful" (http://aegis.sourceforge.net/auug97.pdf)
 SRCDIR_PP		:= pingpong/src
 MODULES			:= core test commands messages lib events
-CFLAGS			+= -Ipingpong/include
+INCLUDE_PP		:= -Ipingpong/include
+INCLUDE			+= $(INCLUDE_PP)
+CFLAGS			:= $(CFLAGS_ORIG) $(INCLUDE_PP)
 COMMONSRC		:=
 SRC				:=
 include $(patsubst %,$(SRCDIR_PP)/%/module.mk,$(MODULES))
@@ -33,19 +36,34 @@ OBJ_PP			:= $(patsubst src/%.cpp,pingpong/build/%.o, $(filter %.cpp,$(SRC)))
 sinclude $(patsubst %,$(SRCDIR_PP)/%/targets.mk,$(MODULES))
 SRC_PP			:= $(patsubst %,pingpong/%,$(SRC))
 
-MODULES			:= core ui lib haunted tests
+SRCDIR_H		:= haunted/src
+MODULES			:= core ui ui/boxes
+INCLUDE_H		:= -Ihaunted/include
+INCLUDE			+= $(INCLUDE_H)
+CFLAGS			:= $(CFLAGS_ORIG) $(INCLUDE_H)
 COMMONSRC		:=
 SRC				:=
-CFLAGS			+= -Iinclude
+include $(patsubst %,$(SRCDIR_H)/%/module.mk,$(MODULES))
+SRC				+= $(COMMONSRC)
+COMMONSRC_H		:= $(COMMONSRC)
+COMMONOBJ_H		:= $(patsubst src/%.cpp,haunted/build/%.o, $(filter %.cpp,$(COMMONSRC)))
+OBJ_H			:= $(patsubst src/%.cpp,haunted/build/%.o, $(filter %.cpp,$(SRC)))
+sinclude $(patsubst %,$(SRCDIR_H)/%/targets.mk,$(MODULES))
+SRC_H			:= $(patsubst %,haunted/%,$(SRC))
+
+MODULES			:= core ui lib tests
+COMMONSRC		:=
+SRC				:=
+CFLAGS			:= $(CFLAGS_ORIG)
 include $(patsubst %,src/%/module.mk,$(MODULES))
 SRC				+= $(COMMONSRC)
 COMMONOBJ		:= $(patsubst src/%.cpp,build/%.o, $(filter %.cpp,$(COMMONSRC))) $(COMMONOBJ_PP) 
 OBJ				:= $(patsubst src/%.cpp,build/%.o, $(filter %.cpp,$(SRC)))
-
-OBJ_ALL			:= $(OBJ) $(OBJ_PP)
-SRC_ALL			:= $(SRC) $(SRC_PP)
-
 sinclude $(patsubst %,src/%/targets.mk,$(MODULES))
+
+OBJ_ALL			:= $(OBJ) $(OBJ_PP) $(OBJ_H)
+SRC_ALL			:= $(SRC) $(SRC_PP) $(SRC_H)
+CFLAGS			:= $(CFLAGS_ORIG)
 
 include pingpong/conan.mk
 
@@ -53,11 +71,15 @@ all: $(COMMONOBJ) $(OUTPUT)
 
 pingpong/build/%.o: pingpong/src/%.cpp
 	@ mkdir -p "$(shell dirname "$@")"
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) $(INCLUDE_PP) -c $< -o $@
+
+haunted/build/%.o: haunted/src/%.cpp
+	@ mkdir -p "$(shell dirname "$@")"
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) $(INCLUDE_H) -c $< -o $@
 
 build/%.o: src/%.cpp
 	@ mkdir -p "$(shell dirname "$@")"
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) $(INCLUDE) -c $< -o $@
 
 test: $(OUTPUT)
 	./$(OUTPUT) irchost
