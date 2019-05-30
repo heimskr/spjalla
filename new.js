@@ -74,8 +74,6 @@ if (!namespace) {
 	fullNamespace = namespace;
 }
 
-console.log({base, usebase, namespace, fullNamespace});
-
 const setDirs = (...a) => { sourcedirs = [...a]; headerdirs = [...a]; };
 const setNames = s => { sourcename = `${filename || s}.cpp`; headername = `${filename || s}.h`; };
 const upper = () => name.toUpperCase();
@@ -114,9 +112,6 @@ namespace ${fullNamespace} {
 	const spl = namespace.split(/::/);
 	setNames(name);
 	setDirs(...spl);
-	console.log("Source path:", sourcePath());
-	console.log("Header path:", headerPath());
-	console.log("Header dir:", headerIncl());
 
 	let classDef = `${keyword} ${name}`;
 	if (inherit && inherit !== true) {
@@ -196,8 +191,8 @@ function write(where, text) {
 	const padMid =  style + "".padStart(width, "─") + reset;
 	const [paddedText, paddedOld] = [text, old].map(s => "    " + s.replace(/\n/g, "\n    ").replace(/\n *$/, ""));
 	let debugOut = `${padEnds}\n`;
-	if (preview) debugOut += " \x1b[31m✕\x1b[0m ";
-	debugOut += "\x1b[1;3" + (old? "3" : "2") + "m";
+	if (preview) debugOut += " \x1b[31m✕\x1b[0m";
+	debugOut += " \x1b[1;3" + (old? "3" : "2") + "m";
 	debugOut += where + reset + "\n";
 	if (old) debugOut += [padMid, paddedOld, ""].join("\n");
 	debugOut += [padMid, paddedText, padEnds].join("\n");
