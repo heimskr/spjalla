@@ -159,6 +159,7 @@ if (allDir) {
 }
 
 function updateModule() {
+	if (nosrc) return;
 	let moduleText = read(`${sourceDir()}/module.mk`, true);
 	if (moduleText.indexOf(sourcePath()) == -1) {
 		write(`${sourceDir()}/module.mk`, moduleText.replace(/\n*\s*$/, "\n") + `${makevar} += ${sourcePath()}\n`);
