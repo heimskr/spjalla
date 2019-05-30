@@ -88,13 +88,7 @@ grind: $(OUTPUT)
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=no ./$(OUTPUT) irchost
 
 clean:
-	@ tmpdir=".build.$$RANDOM"; mkdir "$$tmpdir";                                \
-	  if [ -e build/lib/unicode ]; then echo "Saving Unicode directory.";        \
-	      mv build/lib/unicode "$$tmpdir/unicode";  fi;                          \
-	  rm -rf build;                                                              \
-	  if [ -e "$$tmpdir/unicode" ];  then echo "Restoring Unicode directory.";   \
-	      mkdir -p build/lib;      mv "$$tmpdir/unicode"  build/lib/unicode; fi; \
-	  rm -rf "$$tmpdir";
+	rm -rf build
 
 spotless:
 	$(MAKE) -C pingpong clean
