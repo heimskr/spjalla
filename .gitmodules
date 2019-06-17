@@ -4,9 +4,6 @@
 [submodule "pingpong"]
 	path = pingpong
 	url = git://github.com/kaitamkun/pingpong.git
-[submodule "icu"]
-	path = icu
-	url = https://github.com/unicode-org/icu.git
 [submodule "haunted"]
 	path = haunted
 	url = https://github.com/kaitamkun/haunted.git
