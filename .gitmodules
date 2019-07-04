@@ -1,9 +1,9 @@
 [submodule "formicine"]
 	path = formicine
-	url = https://github.com/kaitamkun/formicine
+	url = https://github.com/heimskr/formicine
 [submodule "pingpong"]
 	path = pingpong
-	url = git://github.com/kaitamkun/pingpong.git
+	url = git://github.com/heimskr/pingpong.git
 [submodule "haunted"]
 	path = haunted
-	url = https://github.com/kaitamkun/haunted.git
+	url = https://github.com/heimskr/haunted.git
