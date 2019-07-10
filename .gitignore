@@ -1,5 +1,6 @@
 .vscode
 .dep
+node_modules
 formicine
 spjalla
 build
