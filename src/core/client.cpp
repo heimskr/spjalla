@@ -194,7 +194,10 @@ namespace spjalla {
 int main(int argc, char **argv) {
 	std::shared_ptr<irc> pp = irc::shared();
 
-	ui u;
+	haunted::terminal term(std::cin, ansi::ansistream());
+	term.watch_size();
+
+	ui u(&term);
 	u.start();
 	pp->init();
 	client instance(pp);

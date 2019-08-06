@@ -24,7 +24,7 @@ all: Makefile
 # Peter Miller, "Recursive Make Considered Harmful" (http://aegis.sourceforge.net/auug97.pdf)
 SRCDIR_PP		:= pingpong/src
 MODULES			:= core test commands messages lib events
-INCLUDE_PP		:= -Ipingpong/include
+INCLUDE_PP		:= -Ipingpong/include -Iinclude
 INCLUDE			+= $(INCLUDE_PP)
 CFLAGS			:= $(CFLAGS_ORIG) $(INCLUDE_PP)
 COMMONSRC		:=
@@ -47,7 +47,7 @@ SRC				:=
 include $(patsubst %,$(SRCDIR_H)/%/module.mk,$(MODULES))
 SRC				+= $(COMMONSRC)
 COMMONSRC_H		:= $(COMMONSRC)
-COMMONOBJ_H		:= $(patsubst src/%.cpp,haunted/build/%.o, $(filter %.cpp,$(COMMONSRC)))
+COMMONOBJ_H		:= $(patsubst lib/%.cpp,haunted/build/lib/%.o, $(patsubst src/%.cpp,haunted/build/%.o, $(filter %.cpp,$(COMMONSRC))))
 OBJ_H			:= $(patsubst src/%.cpp,haunted/build/%.o, $(filter %.cpp,$(SRC)))
 sinclude $(patsubst %,$(SRCDIR_H)/%/targets.mk,$(MODULES))
 SRC_H			:= $(patsubst %,haunted/%,$(SRC))

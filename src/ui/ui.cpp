@@ -8,15 +8,7 @@
 #include "haunted/core/key.h"
 
 namespace spjalla {
-	// ui::ui(haunted::terminal *term): term(term), expando({term, term == nullptr? {} : term->get_position(), haunted::ui::boxes::box_orientation::vertical}) {
 	ui::ui(haunted::terminal *term): term(term) {
-	// propo(haunted::ui::boxes::propobox(term, 0.5, &output, &input)),
-	// expando(haunted::ui::boxes::expandobox(term, term == nullptr? haunted::position() : term->get_position(), haunted::ui::boxes::box_orientation::vertical)),
-	// titlebar(haunted::ui::label(term)),
-	// statusbar(haunted::ui::label(term)),
-	// output(haunted::ui::textbox(term)),
-	// userbox(haunted::ui::textbox(term)),
-	// input(haunted::ui::textinput(term))
 		using haunted::ui::boxes::box_orientation;
 
 		input     = new haunted::ui::textinput(term);
@@ -24,8 +16,11 @@ namespace spjalla {
 		output    = new haunted::ui::textbox(term);
 		titlebar  = new haunted::ui::label(term);
 		statusbar = new haunted::ui::label(term);
+
 		haunted::ui::textbox *first, *second;
-		std::tie(first, second) = users_side == haunted::side::left? std::pair(userbox, output) : std::pair(output, userbox);
+		std::tie(first, second) = users_side == haunted::side::left?
+			std::pair(userbox, output) : std::pair(output, userbox);
+
 		propo     = new haunted::ui::boxes::propobox(term, adjusted_ratio(), first, second);
 		expando   = new haunted::ui::boxes::expandobox(term, term->get_position(), box_orientation::vertical, {
 			{titlebar, 1}, {propo, -1}, {statusbar, 1}, {input, 1}
