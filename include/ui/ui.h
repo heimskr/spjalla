@@ -44,7 +44,7 @@ namespace spjalla {
 			size_t max_lines = 128;
 
 			ui(haunted::terminal *term);
-			~ui() {}
+			~ui();
 
 			void set_users_side(haunted::side);
 			void set_users_ratio(double);

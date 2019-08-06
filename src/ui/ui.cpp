@@ -5,6 +5,7 @@
 #include <csignal>
 
 #include "ui/ui.h"
+#include "haunted/core/defs.h"
 #include "haunted/core/key.h"
 
 namespace spjalla {
@@ -17,14 +18,42 @@ namespace spjalla {
 		titlebar  = new haunted::ui::label(term);
 		statusbar = new haunted::ui::label(term);
 
+		input->set_name("input");
+		userbox->set_name("userbox");
+		output->set_name("output");
+		titlebar->set_name("titlebar");
+		statusbar->set_name("statusbar");
+
 		haunted::ui::textbox *first, *second;
 		std::tie(first, second) = users_side == haunted::side::left?
 			std::pair(userbox, output) : std::pair(output, userbox);
 
-		propo     = new haunted::ui::boxes::propobox(term, adjusted_ratio(), first, second);
-		expando   = new haunted::ui::boxes::expandobox(term, term->get_position(), box_orientation::vertical, {
+		propo   = new haunted::ui::boxes::propobox(term, adjusted_ratio(), first, second);
+		expando = new haunted::ui::boxes::expandobox(term, term->get_position(), box_orientation::vertical, {
 			{titlebar, 1}, {propo, -1}, {statusbar, 1}, {input, 1}
 		});
+
+		DBG("old expandoparent = " << expando->get_parent());
+		expando->set_parent(term);
+
+		DBG("term = " << term);
+		DBG("propo = " << propo);
+		DBG("expando = " << expando);
+		// expando->resize();
+
+
+		propo->set_name("propo");
+		expando->set_name("expando");
+	}
+
+	ui::~ui() {
+		delete input;
+		delete userbox;
+		delete output;
+		delete titlebar;
+		delete statusbar;
+		delete propo;
+		delete expando;
 	}
 
 	void ui::readjust_columns() {
@@ -62,6 +91,7 @@ namespace spjalla {
 	}
 
 	void ui::draw() {
+		term->draw();
 	}
 
 	void ui::start() {
@@ -76,7 +106,17 @@ namespace spjalla {
 
 	void ui::work_input() {
 		haunted::key k;
-		// while
+		term->cbreak();
+		term->cbreak();
+		DBG("Hello");
+		while (*term >> k) {
+			DBG("key = " << k);
+
+			if (k == haunted::key(haunted::ktype::c).ctrl())
+				break;
+
+			term->send_key(k);
+		}
 	}
 
 	void ui::render_input() {

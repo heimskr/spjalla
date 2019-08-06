@@ -7,7 +7,7 @@ CC				 = $(COMPILER) $(CFLAGS) $(CHECKFLAGS)
 CHECKFLAGS		:=
 MKBUILD			:= mkdir -p build
 OUTPUT			:= build/spjalla
-CHECK			:= asan
+CHECK			:= none
 SDKFLAGS		:= --sysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
 
 ifeq ($(CHECK), asan)
@@ -91,13 +91,14 @@ grind: $(OUTPUT)
 
 clean:
 	rm -rf build
+	if [ -e .log ]; then > .log; fi
 
 # Don't completely wipe the build directories of the libraries.
 # They might contain libraries that take a while to compile...
 spotless:
 	$(MAKE) -C pingpong clean
 	$(MAKE) -C haunted clean
-	rm -rf build $(DEPFILE)
+	rm -rf build .log $(DEPFILE)
 
 # Not a great idea.
 destroy: spotless
