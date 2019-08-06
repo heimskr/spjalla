@@ -3,32 +3,51 @@
 
 #include <deque>
 #include <memory>
+#include <iostream>
 #include <sstream>
 #include <thread>
 
-#include "haunted/ui/textinput.h"
+#include "lib/haunted/core/defs.h"
+#include "lib/haunted/core/terminal.h"
+#include "lib/haunted/ui/label.h"
+#include "lib/haunted/ui/textbox.h"
+#include "lib/haunted/ui/textinput.h"
+#include "lib/haunted/ui/boxes/expandobox.h"
+#include "lib/haunted/ui/boxes/propobox.h"
 
 namespace spjalla {
 	class ui {
 		private:
-			haunted::ui::textinput input;
+			haunted::terminal *term;
 			std::shared_ptr<std::thread> worker_draw, worker_input;
+
+			haunted::ui::boxes::propobox *propo;
+			haunted::ui::boxes::expandobox *expando;
+			haunted::ui::label *titlebar, *statusbar;
+			haunted::ui::textbox *output, *userbox;
+			haunted::ui::textinput *input;
 
 			void work_draw();
 			void work_input();
 			void process_input();
 			void render_input();
-			haunted::position get_chat_position();
-			haunted::position get_users_position();
-			haunted::position get_input_position();
-			static void handle_winch(int);
+
+			/** Sets the propobox's ratio based on users_width and users_side. */
+			void readjust_columns();
+
+			/** Returns the ratio appropriate for use in the propobox (it depends on users_side). */
+			double adjusted_ratio() const;
 
 		public:
 			haunted::side users_side = haunted::side::left;
-			double users_width = 0.2;
+			double users_ratio = 0.2;
 			size_t max_lines = 128;
 
-			ui() {}
+			ui(haunted::terminal *term);
+			~ui() {}
+
+			void set_users_side(haunted::side);
+			void set_users_ratio(double);
 
 			void draw();
 			void start();

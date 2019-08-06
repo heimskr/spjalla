@@ -1,5 +1,5 @@
 COMPILER		:= clang++
-CFLAGS			:= -std=c++2a -stdlib=libc++ -g -O0 -Wall -Wextra -fdiagnostics-color=always
+CFLAGS			:= -std=c++2a -g -ggdb -O0 -Wall -Wextra -fdiagnostics-color=always
 CFLAGS_ORIG		:= $(CFLAGS)
 INCLUDE			:= -Iinclude -Iinclude/lib
 LDFLAGS			:=
@@ -8,6 +8,7 @@ CHECKFLAGS		:=
 MKBUILD			:= mkdir -p build
 OUTPUT			:= build/spjalla
 CHECK			:= asan
+SDKFLAGS		:= --sysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
 
 ifeq ($(CHECK), asan)
 	CHECKFLAGS += -fsanitize=address -fno-common
@@ -36,9 +37,9 @@ OBJ_PP			:= $(patsubst src/%.cpp,pingpong/build/%.o, $(filter %.cpp,$(SRC)))
 sinclude $(patsubst %,$(SRCDIR_PP)/%/targets.mk,$(MODULES))
 SRC_PP			:= $(patsubst %,pingpong/%,$(SRC))
 
-SRCDIR_H		:= haunted/src
-MODULES			:= core ui ui/boxes lib
-INCLUDE_H		:= -Ihaunted/include -Ihaunted/include/lib
+SRCDIR_H		:= haunted
+MODULES			:= src/core src/ui src/ui/boxes lib
+INCLUDE_H		:= -Ihaunted/include -Ihaunted/lib -Ihaunted
 INCLUDE			+= $(INCLUDE_H)
 CFLAGS			:= $(CFLAGS_ORIG) $(INCLUDE_H)
 COMMONSRC		:=
@@ -72,15 +73,15 @@ all: $(COMMONOBJ) $(OUTPUT)
 
 pingpong/build/%.o: pingpong/src/%.cpp
 	@ mkdir -p "$(shell dirname "$@")"
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) $(INCLUDE_PP) -c $< -o $@
+	$(CC) $(SDKFLAGS) $(CPPFLAGS) $(CXXFLAGS) $(INCLUDE_PP) -c $< -o $@
 
 haunted/build/%.o: haunted/src/%.cpp
 	@ mkdir -p "$(shell dirname "$@")"
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) $(INCLUDE_H) -c $< -o $@
+	$(CC) $(SDKFLAGS) $(CPPFLAGS) $(CXXFLAGS) $(INCLUDE_H) -c $< -o $@
 
 build/%.o: src/%.cpp
 	@ mkdir -p "$(shell dirname "$@")"
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) $(INCLUDE) -c $< -o $@
+	$(CC) $(SDKFLAGS) $(CPPFLAGS) $(CXXFLAGS) $(INCLUDE) -c $< -o $@
 
 test: $(OUTPUT)
 	./$(OUTPUT) irchost

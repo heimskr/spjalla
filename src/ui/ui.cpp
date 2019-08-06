@@ -1,20 +1,76 @@
 #include <iomanip>
-#include <iostream>
 #include <memory>
 #include <thread>
 
 #include <csignal>
 
 #include "ui/ui.h"
-#include "haunted/core/defs.h"
-#include "haunted/ui/boxes/hbox_propo.h"
+#include "haunted/core/key.h"
 
 namespace spjalla {
+	// ui::ui(haunted::terminal *term): term(term), expando({term, term == nullptr? {} : term->get_position(), haunted::ui::boxes::box_orientation::vertical}) {
+	ui::ui(haunted::terminal *term): term(term) {
+	// propo(haunted::ui::boxes::propobox(term, 0.5, &output, &input)),
+	// expando(haunted::ui::boxes::expandobox(term, term == nullptr? haunted::position() : term->get_position(), haunted::ui::boxes::box_orientation::vertical)),
+	// titlebar(haunted::ui::label(term)),
+	// statusbar(haunted::ui::label(term)),
+	// output(haunted::ui::textbox(term)),
+	// userbox(haunted::ui::textbox(term)),
+	// input(haunted::ui::textinput(term))
+		using haunted::ui::boxes::box_orientation;
+
+		input     = new haunted::ui::textinput(term);
+		userbox   = new haunted::ui::textbox(term);
+		output    = new haunted::ui::textbox(term);
+		titlebar  = new haunted::ui::label(term);
+		statusbar = new haunted::ui::label(term);
+		haunted::ui::textbox *first, *second;
+		std::tie(first, second) = users_side == haunted::side::left? std::pair(userbox, output) : std::pair(output, userbox);
+		propo     = new haunted::ui::boxes::propobox(term, adjusted_ratio(), first, second);
+		expando   = new haunted::ui::boxes::expandobox(term, term->get_position(), box_orientation::vertical, {
+			{titlebar, 1}, {propo, -1}, {statusbar, 1}, {input, 1}
+		});
+	}
+
+	void ui::readjust_columns() {
+		bool changed = false;
+		if (propo->get_children()[users_side == haunted::side::left? 1 : 0] == userbox) {
+			std::swap(*output, *userbox);
+			changed = true;
+		}
+
+		double adjusted = adjusted_ratio();
+		if (propo->get_ratio() != adjusted) {
+			propo->set_ratio(adjusted);
+		} else if (changed) {
+			// set_ratio() already draws if the ratio changed (and that's true for the preceding if block).
+			propo->draw();
+		}
+	}
+
+	double ui::adjusted_ratio() const {
+		return users_side == haunted::side::right? 1 - users_ratio : users_ratio;
+	}
+
+	void ui::set_users_side(haunted::side side) {
+		if (users_side != side) {
+			users_side = side;
+			readjust_columns();
+		}
+	}
+
+	void ui::set_users_ratio(double ratio) {
+		if (users_ratio != ratio) {
+			users_ratio = ratio;
+			readjust_columns();
+		}
+	}
+
 	void ui::draw() {
 	}
 
 	void ui::start() {
-		signal(SIGWINCH, &ui::handle_winch);
+		term->watch_size();
 		worker_draw  = std::make_shared<std::thread>(&ui::work_draw,  this);
 		worker_input = std::make_shared<std::thread>(&ui::work_input, this);
 	}
@@ -23,112 +79,22 @@ namespace spjalla {
 		draw();
 	}
 
-	void ui::handle_winch(int) {
-		
+	void ui::work_input() {
+		haunted::key k;
+		// while
 	}
-
-	void ui::work_input() { /*
-		using std::cout, std::endl;
-		return;
-		for (;;) {
-			int c = getch();
-
-			// if (c != -1) std::cout << c << "/" << static_cast<char>(c) << "\r" << std::endl; //continue;
-
-			if (c == 27) { // ^[ (alt)
-				alt = true;
-				continue;
-			}
-
-			if (alt) {
-				switch (c) {
-					case 'b': // alt+left
-						input.prev_word();
-						break;
-					case 'f': // alt+right
-						input.next_word();
-						break;
-					case 127:
-					case KEY_BACKSPACE:
-						input.erase_word();
-						break;
-				}
-			} else {
-				switch (c) {
-					case -1:
-					case 14:  // ^N
-					case 16:  // ^P
-					case 258: // down
-					case 259: // up
-					case KEY_RESIZE:
-						break;
-					case 21: // ^U
-						input.clear();
-						break;
-					case 23: // ^W
-						input.erase_word();
-						break;
-					case 127: // backspace
-					case KEY_BACKSPACE:
-						input.erase();
-						break;
-					case KEY_F(1):
-						std::cout << "[" << input << "]\r" << std::endl;
-						break;
-					case 260: // left
-						input.left();
-						break;
-					case 261: // right
-						input.right();
-						break;
-					case '\r':
-					case '\n':
-						process_input();
-						break;
-					default:
-						if (c <= 0xff)
-							input.insert(static_cast<char>(c));
-				}
-			}
-
-			std::string str(1, c);
-
-			cout << "\e[2K\e[G" << input.dbg_render(false) << "\r\n\e[2K" << std::setfill(' ') << std::setw(2)
-			     << std::left << input.length() << " " << std::setw(3) << std::right << c << (alt? " Alt+" : " ")
-			     << keyname(c) << "\e[A\e[" << 2 + input.get_cursor() << "G";
-			cout.flush();
-			alt = false;
-		}
-	*/ }
 
 	void ui::render_input() {
 
 	}
 
 	void ui::process_input() {
-		std::cout << "\r\e[2KString: \"" << input << "\" [" << input.length() << "]\r\n\e[2K\e[2G";
-		input.clear();
+		std::cout << "\r\e[2KString: \"" << input << "\" [" << input->length() << "]\r\n\e[2K\e[2G";
+		input->clear();
 	}
 
 	void ui::join() {
 		worker_draw->join();
 		worker_input->join();
-	}
-
-	haunted::position ui::get_chat_position() {
-		return {0, 0, 0, 0};
-		// int uwidth = static_cast<int>(COLS * users_width);
-		// return {users_side == haunted::side::right? 0 : uwidth, 0, COLS - uwidth, LINES - get_input_position().h};
-	}
-
-	haunted::position ui::get_users_position() {
-		return {0, 0, 0, 0};
-		// int uwidth = static_cast<int>(COLS * users_width);
-		// return {users_side == haunted::side::left? 0 : COLS - uwidth, 0, uwidth, LINES - get_input_position().h};
-	}
-
-	haunted::position ui::get_input_position() {
-		return {0, 0, 0, 0};
-		// return {0, LINES - 1, COLS, 1};
 	}
 }
