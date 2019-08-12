@@ -19,5 +19,4 @@ int main(int argc, char **argv) {
 	// serv->start();
 	// serv->set_nick("pingpong");
 	// instance += serv;
-	instance.start_input();
 }

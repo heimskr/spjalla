@@ -21,11 +21,6 @@ using namespace pingpong;
 using namespace spjalla;
 
 namespace spjalla {
-
-	client::~client() {
-		join();
-	}
-
 	client & client::operator+=(const command_pair &p) {
 		add(p);
 		return *this;
@@ -44,7 +39,7 @@ namespace spjalla {
 		add_handlers();
 	}
 
-	void client::input_worker() {
+	// void client::input_worker() {
 		// std::string in;
 
 		// while (alive && std::getline(std::cin, in)) {
@@ -65,7 +60,7 @@ namespace spjalla {
 		// 		YIKES("No active channel.");
 		// 	}
 		// }
-	}
+	// }
 
 	bool client::handle_line(const input_line &il) {
 		const int nargs = static_cast<int>(il.args.size());
@@ -168,15 +163,6 @@ namespace spjalla {
 			const std::string &first = il.first();
 			YIKES("Unknown option: " << first);
 		}}});
-	}
-
-	void client::start_input() {
-		input_thread = std::make_shared<std::thread>(&client::input_worker, this);
-	}
-
-	void client::join() {
-		if (input_thread)
-			input_thread->join();
 	}
 
 	server_ptr client::active_server() {

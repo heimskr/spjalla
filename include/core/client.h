@@ -22,7 +22,6 @@ namespace spjalla {
 		private:
 			pingpong::irc pp;
 			std::multimap<std::string, command_tuple> command_handlers;
-			std::shared_ptr<std::thread> input_thread;
 			std::mutex pp_mux;
 			bool alive = true;
 			haunted::terminal term;
@@ -33,8 +32,6 @@ namespace spjalla {
 
 			client(client &&) = delete;
 			client(const client &) = delete;
-
-			~client();
 
 			/**
 			 * Adds a command handler.
@@ -72,21 +69,7 @@ namespace spjalla {
 			 */
 			void init();
 
-			/**
-			 * Creates a thread to receive input.
-			 * @see input_worker
-			 */
-			void start_input();
-
-			void join();
-
 			void stop();
-
-			/**
-			 * Reads input from the server socket in an infinite loop and handles data as it comes in.
-			 * @param ptr A pointer to a server.
-			 */
-			void input_worker();
 
 			/**
 			 * Processes a line of user input.

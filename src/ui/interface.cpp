@@ -137,7 +137,9 @@ namespace spjalla {
 	}
 
 	void interface::join() {
-		worker_draw->join();
-		worker_input->join();
+		if (worker_draw)
+			worker_draw->join();
+		if (worker_input)
+			worker_input->join();
 	}
 }

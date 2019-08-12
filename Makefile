@@ -7,7 +7,7 @@ CC				 = $(COMPILER) $(CFLAGS) $(CHECKFLAGS)
 CHECKFLAGS		:=
 MKBUILD			:= mkdir -p build
 OUTPUT			:= build/spjalla
-CHECK			:= none
+CHECK			:= asan
 SDKFLAGS		:= --sysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/
 
 ifeq ($(CHECK), asan)
