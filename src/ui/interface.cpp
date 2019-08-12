@@ -4,12 +4,12 @@
 
 #include <csignal>
 
-#include "ui/ui.h"
+#include "ui/interface.h"
 #include "haunted/core/defs.h"
 #include "haunted/core/key.h"
 
 namespace spjalla {
-	ui::ui(haunted::terminal *term): term(term) {
+	interface::interface(haunted::terminal *term): term(term) {
 		using haunted::ui::boxes::box_orientation;
 
 		DBG("-------textinput--------");
@@ -53,7 +53,8 @@ namespace spjalla {
 		expando->set_name("expando");
 	}
 
-	ui::~ui() {
+	interface::~interface() {
+		join();
 		delete input;
 		delete userbox;
 		delete output;
@@ -63,7 +64,7 @@ namespace spjalla {
 		delete expando;
 	}
 
-	void ui::readjust_columns() {
+	void interface::readjust_columns() {
 		bool changed = false;
 		if (propo->get_children()[users_side == haunted::side::left? 1 : 0] == userbox) {
 			std::swap(*output, *userbox);
@@ -79,39 +80,39 @@ namespace spjalla {
 		}
 	}
 
-	double ui::adjusted_ratio() const {
+	double interface::adjusted_ratio() const {
 		return users_side == haunted::side::right? 1 - users_ratio : users_ratio;
 	}
 
-	void ui::set_users_side(haunted::side side) {
+	void interface::set_users_side(haunted::side side) {
 		if (users_side != side) {
 			users_side = side;
 			readjust_columns();
 		}
 	}
 
-	void ui::set_users_ratio(double ratio) {
+	void interface::set_users_ratio(double ratio) {
 		if (users_ratio != ratio) {
 			users_ratio = ratio;
 			readjust_columns();
 		}
 	}
 
-	void ui::draw() {
+	void interface::draw() {
 		term->draw();
 	}
 
-	void ui::start() {
+	void interface::start() {
 		term->watch_size();
-		worker_draw  = std::make_shared<std::thread>(&ui::work_draw,  this);
-		worker_input = std::make_shared<std::thread>(&ui::work_input, this);
+		worker_draw  = std::make_shared<std::thread>(&interface::work_draw,  this);
+		worker_input = std::make_shared<std::thread>(&interface::work_input, this);
 	}
 
-	void ui::work_draw() {
+	void interface::work_draw() {
 		draw();
 	}
 
-	void ui::work_input() {
+	void interface::work_input() {
 		haunted::key k;
 		term->cbreak();
 		term->cbreak();
@@ -126,16 +127,16 @@ namespace spjalla {
 		}
 	}
 
-	void ui::render_input() {
+	void interface::render_input() {
 
 	}
 
-	void ui::process_input() {
+	void interface::process_input() {
 		std::cout << "\r\e[2KString: \"" << input << "\" [" << input->length() << "]\r\n\e[2K\e[2G";
 		input->clear();
 	}
 
-	void ui::join() {
+	void interface::join() {
 		worker_draw->join();
 		worker_input->join();
 	}

@@ -1,5 +1,5 @@
-#ifndef UI_UI_H_
-#define UI_UI_H_
+#ifndef UI_INTERFACE_H_
+#define UI_INTERFACE_H_
 
 #include <deque>
 #include <memory>
@@ -16,7 +16,7 @@
 #include "lib/haunted/ui/boxes/propobox.h"
 
 namespace spjalla {
-	class ui {
+	class interface {
 		private:
 			haunted::terminal *term;
 			std::shared_ptr<std::thread> worker_draw, worker_input;
@@ -43,8 +43,8 @@ namespace spjalla {
 			double users_ratio = 0.2;
 			size_t max_lines = 128;
 
-			ui(haunted::terminal *term);
-			~ui();
+			interface(haunted::terminal *term);
+			~interface();
 
 			void set_users_side(haunted::side);
 			void set_users_ratio(double);

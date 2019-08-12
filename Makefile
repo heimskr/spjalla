@@ -8,7 +8,7 @@ CHECKFLAGS		:=
 MKBUILD			:= mkdir -p build
 OUTPUT			:= build/spjalla
 CHECK			:= none
-SDKFLAGS		:= --sysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
+SDKFLAGS		:= --sysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/
 
 ifeq ($(CHECK), asan)
 	CHECKFLAGS += -fsanitize=address -fno-common
@@ -113,7 +113,7 @@ DEPFLAGS = -f $(DEPFILE) -s $(DEPTOKEN)
 
 depend:
 	@ echo $(DEPTOKEN) > $(DEPFILE)
-	makedepend $(DEPFLAGS) -- $(CC) -- $(SRC_ALL) 2>/dev/null
+	makedepend $(DEPFLAGS) -- $(CC) $(INCLUDE) -- $(SRC_ALL) 2>/dev/null
 	@ sed -i .sed 's/^src\//build\//' $(DEPFILE)
 	@ sed -i .sed 's/^pingpong\/src\//pingpong\/build\//' $(DEPFILE)
 	@ rm $(DEPFILE).bak $(DEPFILE).sed

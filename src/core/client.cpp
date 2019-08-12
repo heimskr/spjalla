@@ -16,23 +16,30 @@
 
 #include "core/client.h"
 #include "core/input_line.h"
-#include "ui/ui.h"
 
 using namespace pingpong;
 using namespace spjalla;
 
 namespace spjalla {
+
+	client::~client() {
+		join();
+	}
+
 	client & client::operator+=(const command_pair &p) {
 		add(p);
 		return *this;
 	}
 	
 	client & client::operator+=(const server_ptr &ptr) {
-		*pp += ptr;
+		pp += ptr;
 		return *this;
 	}
 
 	void client::init() {
+		term.watch_size();
+		ui.start();
+		pp.init();
 		add_listeners();
 		add_handlers();
 	}
@@ -53,7 +60,7 @@ namespace spjalla {
 		// 		}
 		// 	} else if (channel_ptr chan = active_channel()) {
 		// 		privmsg_command(*chan, in).send(true);
-		// 		pp->dbgout() << "[" << *chan << "] <" << active_nick() << "> " << in << "\r\n";
+		// 		pp.dbgout() << "[" << *chan << "] <" << active_nick() << "> " << in << "\r\n";
 		// 	} else {
 		// 		YIKES("No active channel.");
 		// 	}
@@ -80,10 +87,10 @@ namespace spjalla {
 			} else if (max != -1 && max < nargs) {
 				YIKES("/" << name << " expects at most " << std::to_string(max) << " argument"
 				      << (min == 1? "." : "s."));
-			} else if (needs_serv && !pp->active_server) {
+			} else if (needs_serv && !pp.active_server) {
 				YIKES("No server is selected.");
 			} else {
-				fn(pp->active_server, il);
+				fn(pp.active_server, il);
 			}
 		}
 
@@ -97,7 +104,7 @@ namespace spjalla {
 	void client::add_listeners() {
 		events::listen<message_event>([&](auto *ev) {
 			if (!ev->msg->template is<numeric_message>() && !ev->msg->template is<ping_message>())
-				pp->dbgout() << std::string(*(ev->msg)) << "\r\n";
+				pp.dbgout() << std::string(*(ev->msg)) << "\r\n";
 		});
 	}
 
@@ -130,10 +137,10 @@ namespace spjalla {
 		}}});
 		add({"quit",  {0, -1, false, [&](sptr, line il) {
 			if (il.args.empty()) {
-				for (auto serv: pp->servers)
+				for (auto serv: pp.servers)
 					quit_command(serv).send(true);
 			} else {
-				for (auto serv: pp->servers)
+				for (auto serv: pp.servers)
 					quit_command(serv, il.body).send(true);
 			}
 
@@ -154,7 +161,7 @@ namespace spjalla {
 		}}});
 		add({"info",  {0, 1, false, [&](sptr, line il) {
 			if (il.args.size() == 0) {
-				debug::print_all(*pp);
+				debug::print_all(pp);
 				return;
 			}
 			
@@ -173,11 +180,11 @@ namespace spjalla {
 	}
 
 	server_ptr client::active_server() {
-		return pp->active_server;
+		return pp.active_server;
 	}
 
 	channel_ptr client::active_channel() {
-		return pp->active_server? pp->active_server->active_channel : nullptr;
+		return pp.active_server? pp.active_server->active_channel : nullptr;
 	}
 
 	std::string client::active_nick() {
@@ -189,33 +196,4 @@ namespace spjalla {
 	void client::stop() {
 		alive = false;
 	}
-}
-
-int main(int, char **) {
-	std::shared_ptr<irc> pp = std::make_shared<irc>();
-
-
-	haunted::dbgstream.clear().jump() << "\n\n\n\n\n\n";
-
-	haunted::terminal term(std::cin, ansi::ansistream());
-	term.watch_size();
-
-	ui u(&term);
-	u.start();
-	pp->init();
-	client instance(pp);
-	instance.init();
-
-	std::string hostname;
-
-	// hostname = 1 < argc? argv[1] : "localhost";
-	// std::shared_ptr<server> sserv = std::make_shared<server>(pp, hostname);
-	// server_ptr serv = sserv.get();
-	// serv->start();
-	// serv->set_nick("pingpong");
-	// instance += serv;
-	instance.start_input();
-	u.join();
-	// serv->worker->join();
-	instance.join();
 }

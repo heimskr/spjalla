@@ -10,6 +10,7 @@
 #include "core/input_line.h"
 #include "core/irc.h"
 #include "messages/message.h"
+#include "ui/interface.h"
 
 namespace spjalla {
 	class client {
@@ -19,14 +20,21 @@ namespace spjalla {
 		using command_pair = std::pair<std::string, command_tuple>;
 
 		private:
-			std::shared_ptr<pingpong::irc> pp;
+			pingpong::irc pp;
 			std::multimap<std::string, command_tuple> command_handlers;
 			std::shared_ptr<std::thread> input_thread;
 			std::mutex pp_mux;
 			bool alive = true;
+			haunted::terminal term;
+			interface ui;
 
 		public:
-			client(std::shared_ptr<pingpong::irc> irc_): pp(irc_) {}
+			client(): term(haunted::terminal(std::cin, ansi::ansistream())), ui(&term) {}
+
+			client(client &&) = delete;
+			client(const client &) = delete;
+
+			~client();
 
 			/**
 			 * Adds a command handler.
