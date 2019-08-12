@@ -191,8 +191,11 @@ namespace spjalla {
 	}
 }
 
-int main(int argc, char **argv) {
-	std::shared_ptr<irc> pp = irc::shared();
+int main(int, char **) {
+	std::shared_ptr<irc> pp = std::make_shared<irc>();
+
+
+	haunted::dbgstream.clear().jump() << "\n\n\n\n\n\n";
 
 	haunted::terminal term(std::cin, ansi::ansistream());
 	term.watch_size();
@@ -205,8 +208,8 @@ int main(int argc, char **argv) {
 
 	std::string hostname;
 
-	hostname = 1 < argc? argv[1] : "localhost";
-	std::shared_ptr<server> sserv = std::make_shared<server>(pp, hostname);
+	// hostname = 1 < argc? argv[1] : "localhost";
+	// std::shared_ptr<server> sserv = std::make_shared<server>(pp, hostname);
 	// server_ptr serv = sserv.get();
 	// serv->start();
 	// serv->set_nick("pingpong");

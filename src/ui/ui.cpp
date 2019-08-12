@@ -12,10 +12,15 @@ namespace spjalla {
 	ui::ui(haunted::terminal *term): term(term) {
 		using haunted::ui::boxes::box_orientation;
 
+		DBG("-------textinput--------");
 		input     = new haunted::ui::textinput(term);
+		DBG("--------textbox---------");
 		userbox   = new haunted::ui::textbox(term);
+		DBG("--------textbox---------");
 		output    = new haunted::ui::textbox(term);
+		DBG("---------label----------");
 		titlebar  = new haunted::ui::label(term);
+		DBG("---------label----------");
 		statusbar = new haunted::ui::label(term);
 
 		input->set_name("input");
@@ -28,7 +33,9 @@ namespace spjalla {
 		std::tie(first, second) = users_side == haunted::side::left?
 			std::pair(userbox, output) : std::pair(output, userbox);
 
-		propo   = new haunted::ui::boxes::propobox(term, adjusted_ratio(), first, second);
+		DBG("---------propo----------");
+		propo   = new haunted::ui::boxes::propobox(term, adjusted_ratio(), box_orientation::horizontal, first, second);
+		DBG("--------expando---------");
 		expando = new haunted::ui::boxes::expandobox(term, term->get_position(), box_orientation::vertical, {
 			{titlebar, 1}, {propo, -1}, {statusbar, 1}, {input, 1}
 		});

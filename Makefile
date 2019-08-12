@@ -18,7 +18,7 @@ else
 	CHECKFLAGS +=
 endif
 
-.PHONY: all test clean depend spotless destroy
+.PHONY: all test clean depend spotless destroy haunted
 all: Makefile
 
 # Peter Miller, "Recursive Make Considered Harmful" (http://aegis.sourceforge.net/auug97.pdf)
@@ -103,6 +103,9 @@ spotless:
 # Not a great idea.
 destroy: spotless
 	rm -rf haunted/build/unicode
+
+haunted:
+	@ make -C haunted
 
 DEPFILE  = .dep
 DEPTOKEN = "\# MAKEDEPENDS"
