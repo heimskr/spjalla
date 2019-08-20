@@ -1,21 +1,19 @@
 COMPILER		:= clang++
-CFLAGS			:= -std=c++2a -g -ggdb -O0 -Wall -Wextra -fdiagnostics-color=always
+CFLAGS			:= -std=c++2a -g -ggdb -O0 -Wall -Wextra
 CFLAGS_ORIG		:= $(CFLAGS)
 INCLUDE			:= -Iinclude -Iinclude/lib
 LDFLAGS			:=
-CC				 = $(COMPILER) $(CFLAGS) $(CHECKFLAGS)
+CC				 = $(COMPILER) $(strip $(CFLAGS)) $(CHECKFLAGS)
 CHECKFLAGS		:=
 MKBUILD			:= mkdir -p build
 OUTPUT			:= build/spjalla
 CHECK			:= asan
-SDKFLAGS		:= --sysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/
+SDKFLAGS		:= --sysroot /etc/sdk
 
 ifeq ($(CHECK), asan)
-	CHECKFLAGS += -fsanitize=address -fno-common
+	CHECKFLAGS := -fsanitize=address -fno-common
 else ifeq ($(CHECK), msan)
-	CHECKFLAGS += -fsanitize=memory -fno-common
-else
-	CHECKFLAGS +=
+	CHECKFLAGS := -fsanitize=memory -fno-common
 endif
 
 .PHONY: all test clean depend spotless destroy haunted
@@ -73,15 +71,15 @@ all: $(COMMONOBJ) $(OUTPUT)
 
 pingpong/build/%.o: pingpong/src/%.cpp
 	@ mkdir -p "$(shell dirname "$@")"
-	$(CC) $(SDKFLAGS) $(CPPFLAGS) $(CXXFLAGS) $(INCLUDE_PP) -c $< -o $@
+	$(CC) $(strip $(SDKFLAGS) $(CPPFLAGS) $(CXXFLAGS) $(INCLUDE_PP)) -c $< -o $@
 
 haunted/build/%.o: haunted/src/%.cpp
 	@ mkdir -p "$(shell dirname "$@")"
-	$(CC) $(SDKFLAGS) $(CPPFLAGS) $(CXXFLAGS) $(INCLUDE_H) -c $< -o $@
+	$(CC) $(strip $(SDKFLAGS) $(CPPFLAGS) $(CXXFLAGS) $(INCLUDE_H)) -c $< -o $@
 
 build/%.o: src/%.cpp
 	@ mkdir -p "$(shell dirname "$@")"
-	$(CC) $(SDKFLAGS) $(CPPFLAGS) $(CXXFLAGS) $(INCLUDE) -c $< -o $@
+	$(CC) $(strip $(SDKFLAGS) $(CPPFLAGS) $(CXXFLAGS) $(INCLUDE)) -c $< -o $@
 
 test: $(OUTPUT)
 	./$(OUTPUT) irchost
