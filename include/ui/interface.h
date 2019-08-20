@@ -29,10 +29,7 @@ namespace spjalla {
 			haunted::ui::textbox *output, *userbox;
 			haunted::ui::textinput *input;
 
-			void work_draw();
-			void work_input();
 			void process_input();
-			void render_input();
 
 			/** Sets the propobox's ratio based on users_width and users_side. */
 			void readjust_columns();
@@ -53,7 +50,6 @@ namespace spjalla {
 
 			void draw();
 			void start();
-			void join();
 	};
 }
 

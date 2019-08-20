@@ -12,15 +12,10 @@ namespace spjalla {
 	interface::interface(haunted::terminal *term): term(term) {
 		using haunted::ui::boxes::box_orientation;
 
-		DBG("-------textinput--------");
 		input     = new haunted::ui::textinput(term);
-		DBG("--------textbox---------");
 		userbox   = new haunted::ui::textbox(term);
-		DBG("--------textbox---------");
 		output    = new haunted::ui::textbox(term);
-		DBG("---------label----------");
 		titlebar  = new haunted::ui::label(term);
-		DBG("---------label----------");
 		statusbar = new haunted::ui::label(term);
 
 		input->set_name("input");
@@ -33,30 +28,19 @@ namespace spjalla {
 		std::tie(first, second) = users_side == haunted::side::left?
 			std::pair(userbox, output) : std::pair(output, userbox);
 
-		DBG("---------propo----------");
 		propo   = new haunted::ui::boxes::propobox(term, adjusted_ratio(), box_orientation::horizontal, first, second);
-		DBG("--------expando---------");
+		propo->set_name("propo");
 		expando = new haunted::ui::boxes::expandobox(term, term->get_position(), box_orientation::vertical, {
 			{titlebar, 1}, {propo, -1}, {statusbar, 1}, {input, 1}
 		});
 
-		DBG("old expandoparent = " << expando->get_parent());
-		expando->set_parent(term);
-
-		DBG("term = " << term);
-		DBG("propo = " << propo);
-		DBG("expando = " << expando);
+		expando->set_name("expando");
 		expando->resize();
 
-		propo->set_name("propo");
-		expando->set_name("expando");
 		input->focus();
 	}
 
 	interface::~interface() {
-		DBG(ansi::wrap("interface::~interface()", ansi::color::red) << ": joining.");
-		join();
-		DBG(ansi::wrap("interface::~interface()", ansi::color::red) << ": joined.");
 		delete input;
 		delete userbox;
 		delete output;
@@ -106,49 +90,10 @@ namespace spjalla {
 
 	void interface::start() {
 		term->watch_size();
-		worker_draw  = std::make_shared<std::thread>(&interface::work_draw,  this);
-		worker_input = std::make_shared<std::thread>(&interface::work_input, this);
-	}
-
-	void interface::work_draw() {
-		draw();
-	}
-
-	void interface::work_input() {
-		// haunted::key k;
-		// term->cbreak();
-		// term->cbreak();
-		// DBG("Hello");
-		// while (*term >> k) {
-		// 	DBG("key = " << k);
-
-		// 	if (k == haunted::key(haunted::ktype::c).ctrl())
-		// 		break;
-
-		// 	term->send_key(k);
-		// }
-	}
-
-	void interface::render_input() {
-
 	}
 
 	void interface::process_input() {
 		std::cout << "\r\e[2KString: \"" << input << "\" [" << input->length() << "]\r\n\e[2K\e[2G";
 		input->clear();
-	}
-
-	void interface::join() {
-		if (worker_draw && worker_draw->joinable()) {
-			DBG("Joining worker_draw.");
-			worker_draw->join();
-			DBG("Joined worker_draw.");
-		}
-
-		if (worker_input && worker_input->joinable()) {
-			DBG("Joining worker_input.");
-			worker_input->join();
-			DBG("Joined worker_input.");
-		}
 	}
 }

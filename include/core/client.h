@@ -24,11 +24,12 @@ namespace spjalla {
 			std::multimap<std::string, command_tuple> command_handlers;
 			std::mutex pp_mux;
 			bool alive = true;
+			ansi::ansistream &out_stream;
 			haunted::terminal term;
 			interface ui;
 
 		public:
-			client(): term(haunted::terminal(std::cin, ansi::ansistream())), ui(&term) {}
+			client(): out_stream(ansi::out), term(haunted::terminal(std::cin, out_stream)), ui(&term) {}
 			~client();
 
 			client(client &&) = delete;

@@ -22,11 +22,7 @@ using namespace spjalla;
 
 namespace spjalla {
 	client::~client() {
-		DBG(ansi::wrap("client::~client()", ansi::color::red) << ": joining.");
-		ui.join();
-		DBG(ansi::wrap("client::~client()", ansi::color::red) << ": joined ui.");
 		term.join();
-		DBG(ansi::wrap("client::~client()", ansi::color::red) << ": joined term.");
 	}
 
 	client & client::operator+=(const command_pair &p) {
