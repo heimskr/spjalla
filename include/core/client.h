@@ -29,6 +29,7 @@ namespace spjalla {
 
 		public:
 			client(): term(haunted::terminal(std::cin, ansi::ansistream())), ui(&term) {}
+			~client();
 
 			client(client &&) = delete;
 			client(const client &) = delete;
@@ -87,6 +88,8 @@ namespace spjalla {
 			 * Adds the built-in command handlers.
 			 */
 			void add_handlers();
+
+			interface & get_ui() { return ui; }
 
 			pingpong::server_ptr active_server();
 			pingpong::channel_ptr active_channel();

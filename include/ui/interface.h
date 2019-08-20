@@ -17,6 +17,8 @@
 
 namespace spjalla {
 	class interface {
+		friend class client;
+
 		private:
 			haunted::terminal *term;
 			std::shared_ptr<std::thread> worker_draw, worker_input;

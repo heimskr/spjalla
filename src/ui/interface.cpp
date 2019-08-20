@@ -46,15 +46,17 @@ namespace spjalla {
 		DBG("term = " << term);
 		DBG("propo = " << propo);
 		DBG("expando = " << expando);
-		// expando->resize();
-
+		expando->resize();
 
 		propo->set_name("propo");
 		expando->set_name("expando");
+		input->focus();
 	}
 
 	interface::~interface() {
+		DBG(ansi::wrap("interface::~interface()", ansi::color::red) << ": joining.");
 		join();
+		DBG(ansi::wrap("interface::~interface()", ansi::color::red) << ": joined.");
 		delete input;
 		delete userbox;
 		delete output;
@@ -113,18 +115,18 @@ namespace spjalla {
 	}
 
 	void interface::work_input() {
-		haunted::key k;
-		term->cbreak();
-		term->cbreak();
-		DBG("Hello");
-		while (*term >> k) {
-			DBG("key = " << k);
+		// haunted::key k;
+		// term->cbreak();
+		// term->cbreak();
+		// DBG("Hello");
+		// while (*term >> k) {
+		// 	DBG("key = " << k);
 
-			if (k == haunted::key(haunted::ktype::c).ctrl())
-				break;
+		// 	if (k == haunted::key(haunted::ktype::c).ctrl())
+		// 		break;
 
-			term->send_key(k);
-		}
+		// 	term->send_key(k);
+		// }
 	}
 
 	void interface::render_input() {
@@ -137,9 +139,16 @@ namespace spjalla {
 	}
 
 	void interface::join() {
-		if (worker_draw)
+		if (worker_draw && worker_draw->joinable()) {
+			DBG("Joining worker_draw.");
 			worker_draw->join();
-		if (worker_input)
+			DBG("Joined worker_draw.");
+		}
+
+		if (worker_input && worker_input->joinable()) {
+			DBG("Joining worker_input.");
 			worker_input->join();
+			DBG("Joined worker_input.");
+		}
 	}
 }
