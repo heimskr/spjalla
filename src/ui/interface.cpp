@@ -40,11 +40,11 @@ namespace spjalla {
 		propo->set_name("propo");
 		expando->set_name("expando");
 		expando->resize();
-		term->set_root(expando);
 
 		userbox->set_colors(ansi::color::green, ansi::color::red);
-
 		input->focus();
+
+		term->set_root(expando);
 
 		DBG("term == " << term);
 		DBG("expando == " << expando);
