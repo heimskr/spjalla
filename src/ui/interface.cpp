@@ -14,10 +14,10 @@ namespace spjalla {
 		using namespace haunted::ui;
 		using namespace spjalla::ui;
 
-		input     = new textinput(nullptr);
-		userbox   = new textbox(nullptr);
-		titlebar  = new label(nullptr);
-		statusbar = new label(nullptr);
+		input     = new textinput(term);
+		userbox   = new textbox(term);
+		titlebar  = new label(term);
+		statusbar = new label(term);
 
 		input->set_name("input");
 		userbox->set_name("userbox");
@@ -30,18 +30,33 @@ namespace spjalla {
 		active_window = status_window;
 		windows.push_front(status_window);
 
-		textbox *first = users_side == haunted::side::left? userbox : active_window;
-		textbox *second = first == userbox? active_window : userbox;
+		swappo = new boxes::swapbox(term, {}, {active_window});
 
-		propo = new boxes::propobox(nullptr, adjusted_ratio(), box_orientation::horizontal, first, second);
+		control *first, *second;
+		if (users_side == haunted::side::left) {
+			first = userbox;
+			second = swappo;
+		} else {
+			first = swappo;
+			second = userbox;
+		}
+
+		propo = new boxes::propobox(term, adjusted_ratio(), box_orientation::horizontal, first, second);
+		swappo->set_parent(propo);
+
 		expando = new boxes::expandobox(term, term->get_position(), box_orientation::vertical,
-			{{titlebar, 1}, {propo, -1}, {statusbar, 1}, {input, 1} });
+			{{titlebar, 1}, {propo, -1}, {statusbar, 1}, {input, 1}});
 
 		propo->set_name("propo");
 		expando->set_name("expando");
 		expando->resize();
 
 		userbox->set_colors(ansi::color::green, ansi::color::red);
+		input->set_colors(ansi::color::magenta, ansi::color::yellow);
+		titlebar->set_colors(ansi::color::blue, ansi::color::orange);
+		statusbar->set_colors(ansi::color::orange, ansi::color::blue);
+		active_window->set_colors(ansi::color::red, ansi::color::green);
+
 		input->focus();
 
 		term->set_root(expando);
@@ -99,7 +114,7 @@ namespace spjalla {
 		if (swappo->empty())
 			return nullptr;
 
-		
+		throw std::runtime_error("Unimplemented.");
 	}
 
 	size_t interface::get_output_index() const {
@@ -132,7 +147,7 @@ namespace spjalla {
 		term->watch_size();
 	}
 
-	void interface::log(const haunted::ui::textline &line, ui::window *win) {
+	void interface::log(const haunted::ui::textline &, ui::window *win) {
 		if (win == nullptr)
 			win = status_window;
 	}
