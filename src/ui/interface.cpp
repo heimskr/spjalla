@@ -99,7 +99,11 @@ namespace spjalla {
 	}
 
 	double interface::adjusted_ratio() const {
-		return users_side == haunted::side::right? 1 - users_ratio : users_ratio;
+		// It's best to avoid division by zero.
+		if (users_side == haunted::side::right && users_ratio == 0.0)
+			return 0.0;
+
+		return users_side == haunted::side::right? 1.0 / users_ratio : users_ratio;
 	}
 
 	ui::window * interface::get_window(const std::string &window_name, bool create) {

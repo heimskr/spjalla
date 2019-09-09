@@ -52,7 +52,7 @@ namespace spjalla {
 			size_t get_output_index() const;
 
 		public:
-			haunted::side users_side = haunted::side::left;
+			haunted::side users_side = haunted::side::right;
 			double users_ratio = 0.2;
 			size_t max_lines = 128;
 
