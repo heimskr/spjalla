@@ -8,6 +8,7 @@
 #include "core/defs.h"
 #include "core/irc.h"
 #include "core/server.h"
+#include "core/util.h"
 #include "events/event.h"
 #include "events/message.h"
 #include "lib/ansi.h"
@@ -42,6 +43,30 @@ namespace spjalla {
 		add_listeners();
 		add_handlers();
 		term.start_input();
+
+		ui.input->listen(haunted::ui::textinput::event::submit, [&](const haunted::superstring &sstr, int) {
+			if (sstr.empty()) return;
+			std::string str = sstr.str();
+			ui.input->clear();
+			input_line il = input_line(str);
+
+			ui.expando->resize();
+
+			if (il.is_command()) {
+				try {
+					if (!handle_line(il)) {
+						// *ui.output += "Unknown command: /" + il.command;
+					}
+				} catch (std::exception &err) {
+					// *ui.output += "Caught an exception (" + haunted::util::demangle_object(err) + "): " + err.what();
+				}
+			} else if (channel_ptr chan = active_channel()) {
+				privmsg_command(*chan, str).send(true);
+				// *ui.output += "[" + std::string(*chan) + "] <" + active_nick() + "> " + str;
+			} else {
+				// *ui.output += "No active channel.";
+			}
+		});
 	}
 
 	// void client::input_worker() {
@@ -114,17 +139,20 @@ namespace spjalla {
 
 		add<join_command>("join");
 
-		add({"nick",  {0,  1, true, [](sptr serv, line il) {
+		add({"nick",  {0,  1, true, [&](sptr serv, line il) {
 			if (il.args.size() == 0)
-				std::cout << "Current nick: " << serv->get_nick() << "\r\n";
+				// *ui.output += "Current nick: " + serv->get_nick();
+				;
 			else
 				nick_command(serv, il.first()).send(true);
 		}}});
+
 		add({"msg",   {2, -1, true, [](sptr serv, line il) { msg_command(serv, il.first(), il.rest()).send(true); }}});
 		add({"quote", {1, -1, true, [](sptr serv, line il) { serv->quote(il.body);                                }}});
-		add({"part",  {0, -1, true, [](sptr serv, line il) {
+
+		add({"part",  {0, -1, true, [&](sptr serv, line il) {
 			if ((il.args.empty() || il.first()[0] != '#') && !serv->active_channel) {
-				std::cout << "No active channel.\r\n";
+				// *ui.output += "No active channel.";
 			} else if (il.args.empty()) {
 				part_command(serv, serv->active_channel).send(true);
 			} else if (il.first()[0] != '#') {
@@ -132,9 +160,10 @@ namespace spjalla {
 			} else if (channel_ptr cptr = serv->get_channel(il.first())) {
 				part_command(serv, cptr, il.rest()).send(true);
 			} else {
-				YIKES(il.first() << ": no such channel.");
+				// *ui.output += il.first() + ": no such channel.";
 			}
 		}}});
+
 		add({"quit",  {0, -1, false, [&](sptr, line il) {
 			if (il.args.empty()) {
 				for (auto serv: pp.servers)
@@ -146,19 +175,22 @@ namespace spjalla {
 
 			stop();
 		}}});
-		add({"chans", {0, 0, true, [](sptr serv, line) {
-			std::cout << "Channels:";
+
+		add({"chans", {0, 0, true, [&](sptr serv, line) {
+			std::string msg = "Channels:";
 			for (auto [name, chan]: serv->channels)
-				std::cout << " " << name;
-			std::cout << "\r\n";
+				msg += " " + name;
+			// *ui.output += msg;
 		}}});
-		add({"chan",  {0, 0, true, [](sptr serv, line) {
+
+		add({"chan",  {0, 0, true, [&](sptr serv, line) {
 			channel_ptr chan = serv->active_channel;
-			if (chan == nullptr)
-				std::cout << "No active channel.\r\n";
-			else
-				std::cout << "Active channel: " << chan->name << "\r\n";
+			// if (chan == nullptr)
+			// 	*ui.output += "No active channel.";
+			// else
+			// 	*ui.output += "Active channel: " + chan->name;
 		}}});
+
 		add({"info",  {0, 1, false, [&](sptr, line il) {
 			if (il.args.size() == 0) {
 				debug::print_all(pp);
@@ -166,7 +198,7 @@ namespace spjalla {
 			}
 			
 			const std::string &first = il.first();
-			YIKES("Unknown option: " << first);
+			// *ui.output += "Unknown option: " + first;
 		}}});
 	}
 

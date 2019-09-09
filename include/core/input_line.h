@@ -13,6 +13,7 @@ namespace spjalla {
 			std::string command, body;
 			std::vector<std::string> args;
 
+			input_line() = delete;
 			input_line(std::string command_, std::string body_): command(command_), body(body_) {}
 			input_line(std::string full);
 

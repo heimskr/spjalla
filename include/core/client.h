@@ -52,9 +52,7 @@ namespace spjalla {
 			 * @param cmd The name of the command as typed by the user.
 			 */
 			template <typename T>
-			void add(const std::string &cmd) { add<T>(cmd, true); }
-			template <typename T>
-			void add(const std::string &cmd, bool needs_serv) {
+			void add(const std::string &cmd, bool needs_serv = true) {
 				*this += {cmd, {1, 1, needs_serv, [&](pingpong::server_ptr serv, const input_line &il) {
 					T(serv, il.args[0]).send(true);
 				}}};

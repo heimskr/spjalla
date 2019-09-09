@@ -9,7 +9,7 @@
 namespace spjalla {
 	void run(int argc, char **argv) {
 		std::shared_ptr<pingpong::irc> pp = std::make_shared<pingpong::irc>();
-		std::shared_ptr<spjalla::client> cli = std::make_shared<spjalla::client>();
+		// std::shared_ptr<spjalla::client> cli = std::make_shared<spjalla::client>();
 
 		haunted::dbgstream << "--------------------------------\n";
 		haunted::dbgstream.clear().jump().flush();
