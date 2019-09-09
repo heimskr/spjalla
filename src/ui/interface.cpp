@@ -60,11 +60,6 @@ namespace spjalla {
 // Private instance methods
 
 
-	void interface::process_input() {
-		std::cout << "\r\e[2KString: \"" << input << "\" [" << input->length() << "]\r\n\e[2K\e[2G";
-		input->clear();
-	}
-
 	void interface::readjust_columns() {
 		bool changed = false;
 		std::vector<haunted::ui::control *> &pchildren = propo->get_children();
