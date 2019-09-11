@@ -28,6 +28,7 @@ namespace spjalla {
 		status_window = new window("status");
 		status_window->set_terminal(term);
 		status_window->set_name("status_window");
+		status_window->set_voffset(-1);
 		active_window = status_window;
 		windows.push_front(status_window);
 
@@ -57,7 +58,7 @@ namespace spjalla {
 		// input->set_colors(ansi::color::magenta, ansi::color::yellow);
 		titlebar->set_colors(ansi::color::blue, ansi::color::orange);
 		statusbar->set_colors(ansi::color::orange, ansi::color::blue);
-		active_window->set_colors(ansi::color::red, ansi::color::green);
+		active_window->set_colors(ansi::color::normal, ansi::color::normal);
 
 		input->focus();
 
@@ -110,10 +111,8 @@ namespace spjalla {
 
 	ui::window * interface::get_window(const std::string &window_name, bool create) {
 		if (window_name == "status") {
-			if (status_window == nullptr && create) {
+			if (status_window == nullptr && create)
 				status_window = new ui::window(swappo, swappo->get_position(), "status");
-			}
-
 			return status_window;
 		}
 

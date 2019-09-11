@@ -52,8 +52,6 @@ namespace spjalla {
 			ui.input->clear();
 			input_line il = input_line(str);
 
-			ui.expando->resize();
-
 			if (il.is_command()) {
 				try {
 					if (!handle_line(il)) {
