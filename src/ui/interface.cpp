@@ -52,7 +52,7 @@ namespace spjalla {
 
 		propo->set_name("propo");
 		expando->set_name("expando");
-		expando->resize();
+		term->set_root(expando);
 
 		userbox->set_colors(ansi::color::green, ansi::color::red);
 		// input->set_colors(ansi::color::magenta, ansi::color::yellow);
@@ -61,17 +61,6 @@ namespace spjalla {
 		active_window->set_colors(ansi::color::normal, ansi::color::normal);
 
 		input->focus();
-
-		term->set_root(expando);
-
-		DBG("term == " << term);
-		DBG("expando == " << expando);
-		DBG("propo == " << propo);
-		DBG("input == " << input);
-		DBG("active_window == " << active_window);
-		DBG("userbox == " << userbox);
-		DBG("titlebar == " << titlebar);
-		DBG("statusbar == " << statusbar);
 	}
 
 
@@ -112,7 +101,7 @@ namespace spjalla {
 	ui::window * interface::get_window(const std::string &window_name, bool create) {
 		if (window_name == "status") {
 			if (status_window == nullptr && create)
-				status_window = new ui::window(swappo, swappo->get_position(), "status");
+				status_window = new_window("status");
 			return status_window;
 		}
 
@@ -124,6 +113,16 @@ namespace spjalla {
 
 	ui::window * interface::get_window(pingpong::channel_ptr chan, bool create) {
 		return get_window(chan->serv->hostname + " " + chan->name, create);
+	}
+
+	ui::window * interface::new_window(const std::string &name, bool append) {
+		static size_t win_count = 0;
+		ui::window *win = new ui::window(swappo, swappo->get_position(), name);
+		win->set_name("window" + std::to_string(++win_count));
+		win->set_voffset(-1);
+		if (append)
+			swappo->add_child(win);
+		return win;
 	}
 
 	size_t interface::get_output_index() const {
@@ -174,7 +173,7 @@ namespace spjalla {
 		active_window->set_parent(nullptr);
 		win->set_parent(propo);
 
-		std::swap(*active_window, *win);
+		swap(*active_window, *win);
 	}
 
 	void interface::focus_window(const std::string &window_name) {

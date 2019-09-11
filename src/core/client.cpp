@@ -12,8 +12,7 @@
 #include "pingpong/core/defs.h"
 #include "pingpong/core/irc.h"
 #include "pingpong/core/server.h"
-#include "pingpong/events/event.h"
-#include "pingpong/events/message.h"
+#include "pingpong/events/all.h"
 #include "pingpong/messages/numeric.h"
 #include "pingpong/messages/ping.h"
 
@@ -61,7 +60,7 @@ namespace spjalla {
 					ui.log("Caught an exception (" + haunted::util::demangle_object(err) + "): " + err.what());
 				}
 			} else if (channel_ptr chan = active_channel()) {
-				privmsg_command(*chan, str).send(true);
+				privmsg_command(*chan, str).send();
 				// ui.log("[" + std::string(*chan) + "] <" + active_nick() + "> " + str);
 			} else {
 				ui.log("No active channel.");
@@ -84,7 +83,7 @@ namespace spjalla {
 		// 			YIKES("Caught an exception (" << typeid(err).name() << "): " << err.what());
 		// 		}
 		// 	} else if (channel_ptr chan = active_channel()) {
-		// 		privmsg_command(*chan, in).send(true);
+		// 		privmsg_command(*chan, in).send();
 		// 		pp.dbgout() << "[" << *chan << "] <" << active_nick() << "> " << in << "\r\n";
 		// 	} else {
 		// 		YIKES("No active channel.");
@@ -127,9 +126,27 @@ namespace spjalla {
 	}
 
 	void client::add_listeners() {
-		events::listen<message_event>([&](auto *ev) {
-			if (!ev->msg->template is<numeric_message>() && !ev->msg->template is<ping_message>())
-				pp.dbgout() << std::string(*(ev->msg)) << "\r\n";
+		events::listen<message_event>([&](message_event *ev) {
+			if (!ev->msg->template is<numeric_message>() && !ev->msg->template is<ping_message>()) {
+				ui.log(*(ev->msg));
+				DBG(std::string(*(ev->msg)));
+			}
+		});
+
+		events::listen<raw_in_event>([&](raw_in_event *ev) {
+			ui.log(haunted::ui::simpleline(ansi::wrap("<< ", ansi::color::gray) + ev->raw_in, 3));
+		});
+
+		events::listen<raw_out_event>([&](raw_out_event *ev) {
+			ui.log(haunted::ui::simpleline(ansi::wrap(">> ", ansi::color::lightgray) + ev->raw_out, 3));
+		});
+
+		events::listen<bad_line_event>([&](bad_line_event *ev) {
+			ui.log(haunted::ui::simpleline(ansi::wrap(">> ", ansi::color::red) + ev->bad_line.original, 3));
+		});
+
+		events::listen<join_event>([&](join_event *ev) {
+
 		});
 	}
 
@@ -141,36 +158,35 @@ namespace spjalla {
 
 		add({"nick",  {0,  1, true, [&](sptr serv, line il) {
 			if (il.args.size() == 0)
-				// *ui.output += "Current nick: " + serv->get_nick();
-				;
+				ui.log("Current nick: " + serv->get_nick());
 			else
-				nick_command(serv, il.first()).send(true);
+				nick_command(serv, il.first()).send();
 		}}});
 
-		add({"msg",   {2, -1, true, [](sptr serv, line il) { msg_command(serv, il.first(), il.rest()).send(true); }}});
+		add({"msg",   {2, -1, true, [](sptr serv, line il) { msg_command(serv, il.first(), il.rest()).send(); }}});
 		add({"quote", {1, -1, true, [](sptr serv, line il) { serv->quote(il.body);                                }}});
 
 		add({"part",  {0, -1, true, [&](sptr serv, line il) {
 			if ((il.args.empty() || il.first()[0] != '#') && !serv->active_channel) {
-				// *ui.output += "No active channel.";
+				ui.log("No active channel.");
 			} else if (il.args.empty()) {
-				part_command(serv, serv->active_channel).send(true);
+				part_command(serv, serv->active_channel).send();
 			} else if (il.first()[0] != '#') {
-				part_command(serv, serv->active_channel, il.body).send(true);
+				part_command(serv, serv->active_channel, il.body).send();
 			} else if (channel_ptr cptr = serv->get_channel(il.first())) {
-				part_command(serv, cptr, il.rest()).send(true);
+				part_command(serv, cptr, il.rest()).send();
 			} else {
-				// *ui.output += il.first() + ": no such channel.";
+				ui.log(il.first() + ": no such channel.");
 			}
 		}}});
 
 		add({"quit",  {0, -1, false, [&](sptr, line il) {
 			if (il.args.empty()) {
 				for (auto serv: pp.servers)
-					quit_command(serv).send(true);
+					quit_command(serv).send();
 			} else {
 				for (auto serv: pp.servers)
-					quit_command(serv, il.body).send(true);
+					quit_command(serv, il.body).send();
 			}
 
 			stop();
@@ -180,15 +196,15 @@ namespace spjalla {
 			std::string msg = "Channels:";
 			for (auto [name, chan]: serv->channels)
 				msg += " " + name;
-			// *ui.output += msg;
+			ui.log(msg);
 		}}});
 
 		add({"chan",  {0, 0, true, [&](sptr serv, line) {
 			channel_ptr chan = serv->active_channel;
-			// if (chan == nullptr)
-			// 	*ui.output += "No active channel.";
-			// else
-			// 	*ui.output += "Active channel: " + chan->name;
+			if (chan == nullptr)
+				ui.log("No active channel.");
+			else
+				ui.log("Active channel: " + chan->name);
 		}}});
 
 		add({"info",  {0, 1, false, [&](sptr, line il) {
@@ -198,7 +214,20 @@ namespace spjalla {
 			}
 			
 			const std::string &first = il.first();
-			// *ui.output += "Unknown option: " + first;
+			ui.log("Unknown option: " + first);
+		}}});
+
+		add({"connect", {1, 2, false, [&](sptr, line il) {
+			const std::string &hostname = il.first();
+
+			std::string nick(irc::default_nick);
+			if (il.args.size() > 1)
+				nick = il.args[1];
+
+			server *serv = new server(&pp, hostname);
+			serv->start();
+			serv->set_nick(nick);
+			pp += serv;
 		}}});
 	}
 

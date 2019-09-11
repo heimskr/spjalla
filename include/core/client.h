@@ -30,10 +30,12 @@ namespace spjalla {
 
 		public:
 			client(): out_stream(ansi::out), term(haunted::terminal(std::cin, out_stream)), ui(&term) {}
-			~client();
 
-			client(client &&) = delete;
 			client(const client &) = delete;
+			client(client &&) = delete;
+			client & operator=(const client &) = delete;
+			client & operator=(client &&) = delete;
+			~client();
 
 			/**
 			 * Adds a command handler.
@@ -54,7 +56,7 @@ namespace spjalla {
 			template <typename T>
 			void add(const std::string &cmd, bool needs_serv = true) {
 				*this += {cmd, {1, 1, needs_serv, [&](pingpong::server_ptr serv, const input_line &il) {
-					T(serv, il.args[0]).send(true);
+					T(serv, il.args[0]).send();
 				}}};
 			}
 

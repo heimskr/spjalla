@@ -1,1 +1,1 @@
-COMMONSRC += src/ui/interface.cpp
+COMMONSRC += src/ui/interface.cpp src/ui/window.cpp

@@ -52,6 +52,9 @@ namespace spjalla {
 			 *  created for the channel if `create` is true. */
 			ui::window * get_window(pingpong::channel_ptr, bool create = false);
 
+			/** Creates a new window, configures it as appropriate and optionally appends it to the swapbox. */
+			ui::window * new_window(const std::string &name, bool append = false);
+
 			/** Returns the index within the propobox's children vector in which the output window resides. */
 			size_t get_output_index() const;
 
