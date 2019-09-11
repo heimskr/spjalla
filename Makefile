@@ -114,6 +114,7 @@ depend:
 	makedepend $(DEPFLAGS) -- $(CC) $(INCLUDE) -- $(SRC_ALL) 2>/dev/null
 	@ sed -i .sed 's/^src\//build\//' $(DEPFILE)
 	@ sed -i .sed 's/^pingpong\/src\//pingpong\/build\//' $(DEPFILE)
+	@ sed -i .sed '/\/usr\/include\//d' $(DEPFILE)
 	@ rm $(DEPFILE).bak $(DEPFILE).sed
 
 sinclude $(DEPFILE)
