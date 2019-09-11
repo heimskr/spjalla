@@ -11,31 +11,47 @@
 
 namespace spjalla {
 	interface::interface(haunted::terminal *term): term(term) {
-		using haunted::ui::boxes::box_orientation;
-		using namespace haunted::ui;
-		using namespace spjalla::ui;
+		init_basic();
+		init_swappo();
+		init_propo();
+		init_expando();
+		init_colors();
 
-		input     = new textinput(term);
-		userbox   = new textbox(term);
-		titlebar  = new label(term);
-		statusbar = new label(term);
+		input->focus();
+	}
 
+
+// Private instance methods
+
+
+	void interface::init_basic() {
+		input = new haunted::ui::textinput(term);
 		input->set_name("input");
+	
+		userbox = new haunted::ui::textbox(term);
 		userbox->set_name("userbox");
+	
+		titlebar = new haunted::ui::label(term);
 		titlebar->set_name("titlebar");
-		statusbar->set_name("statusbar");
 
-		status_window = new window("status");
+		statusbar = new haunted::ui::label(term);
+		statusbar->set_name("statusbar");
+	}
+
+	void interface::init_swappo() {
+		status_window = new ui::window("status");
 		status_window->set_terminal(term);
 		status_window->set_name("status_window");
 		status_window->set_voffset(-1);
 		active_window = status_window;
 		windows.push_front(status_window);
 
-		swappo = new boxes::swapbox(term, {}, {active_window});
+		swappo = new haunted::ui::boxes::swapbox(term, {}, {active_window});
 		swappo->set_name("swappo");
+	}
 
-		control *first, *second;
+	void interface::init_propo() {
+		haunted::ui::control *first, *second;
 		if (users_side == haunted::side::left) {
 			first = userbox;
 			second = swappo;
@@ -44,28 +60,26 @@ namespace spjalla {
 			second = userbox;
 		}
 
-		propo = new boxes::propobox(term, adjusted_ratio(), box_orientation::horizontal, first, second);
+		propo = new haunted::ui::boxes::propobox(term, adjusted_ratio(),
+			haunted::ui::boxes::box_orientation::horizontal, first, second);
 		swappo->set_parent(propo);
-
-		expando = new boxes::expandobox(term, term->get_position(), box_orientation::vertical,
-			{{titlebar, 1}, {propo, -1}, {statusbar, 1}, {input, 1}});
-
 		propo->set_name("propo");
+	}
+
+	void interface::init_expando() {
+		expando = new haunted::ui::boxes::expandobox(term, term->get_position(),
+			haunted::ui::boxes::box_orientation::vertical, {{titlebar, 1}, {propo, -1}, {statusbar, 1}, {input, 1}});
 		expando->set_name("expando");
 		term->set_root(expando);
+	}
 
+	void interface::init_colors() {
 		userbox->set_colors(ansi::color::green, ansi::color::red);
 		// input->set_colors(ansi::color::magenta, ansi::color::yellow);
 		titlebar->set_colors(ansi::color::blue, ansi::color::orange);
 		statusbar->set_colors(ansi::color::orange, ansi::color::blue);
 		active_window->set_colors(ansi::color::normal, ansi::color::normal);
-
-		input->focus();
 	}
-
-
-// Private instance methods
-
 
 	void interface::readjust_columns() {
 		bool changed = false;
@@ -178,5 +192,31 @@ namespace spjalla {
 
 	void interface::focus_window(const std::string &window_name) {
 		focus_window(get_window(window_name));
+	}
+
+	void interface::next_window() {
+		if (swappo->empty()) {
+			active_window = nullptr;
+		} if (!active_window) {
+			focus_window(swappo->get_children.at(0));
+		} else {
+			auto iter = std::find(swappo->begin(), swappo->end(), active_window);
+			haunted::ui::control *win = *(++iter == swappo->end()? swappo->begin() : iter);
+			focus_window(dynamic_cast<ui::window *>(win));
+		}
+	}
+
+	void interface::prev_window() {
+		if (swappo->empty()) {
+			active_window = nullptr;
+		} if (!active_window) {
+			focus_window(swappo->get_children.at(0));
+		} else {
+			auto iter = std::find(swappo->begin(), swappo->end(), active_window);
+			if (iter == swappo->begin())
+				iter = swappo->end();
+			--iter;
+			focus_window(dynamic_cast<ui::window *>(*iter));
+		}
 	}
 }

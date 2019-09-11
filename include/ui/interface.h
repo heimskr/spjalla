@@ -38,6 +38,21 @@ namespace spjalla {
 			haunted::ui::textbox   *userbox;
 			haunted::ui::textinput *input;
 
+			/** Sets up the labels, sidebar and textinput. */
+			void init_basic();
+
+			/** Sets up the swapbox that contains all the windows. */
+			void init_swappo();
+
+			/** Sets up the propobox that contains the sidebar and the swapbox. */
+			void init_propo();
+
+			/** Sets up the expandobox that serves as the program's root control. */
+			void init_expando();
+
+			/** Colors all the controls. */
+			void init_colors();
+
 			/** Sets the propobox's ratio based on users_width and users_side. */
 			void readjust_columns();
 
@@ -99,6 +114,11 @@ namespace spjalla {
 			void focus_window(ui::window * = nullptr);
 			void focus_window(const std::string &);
 
+			/** Switches to the next window after the current window. */
+			void next_window();
+
+			/** Switches to the previous window before the current window. */
+			void prev_window();
 	};
 }
 

@@ -146,7 +146,11 @@ namespace spjalla {
 		});
 
 		events::listen<join_event>([&](join_event *ev) {
+			const pingpong::channel &chan = ev->chan;
+			const pingpong::user &who = ev->who;
 
+			ui::window *win = ui.get_window(chan, true);
+			
 		});
 	}
 
