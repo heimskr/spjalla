@@ -1,6 +1,6 @@
 #include <stdexcept>
 
-#include "core/irc.h"
+#include "pingpong/core/irc.h"
 #include "core/client.h"
 #include "core/util.h"
 

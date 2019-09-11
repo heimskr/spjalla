@@ -31,6 +31,7 @@ namespace spjalla {
 		windows.push_front(status_window);
 
 		swappo = new boxes::swapbox(term, {}, {active_window});
+		swappo->set_name("swappo");
 
 		control *first, *second;
 		if (users_side == haunted::side::left) {
@@ -52,7 +53,7 @@ namespace spjalla {
 		expando->resize();
 
 		userbox->set_colors(ansi::color::green, ansi::color::red);
-		input->set_colors(ansi::color::magenta, ansi::color::yellow);
+		// input->set_colors(ansi::color::magenta, ansi::color::yellow);
 		titlebar->set_colors(ansi::color::blue, ansi::color::orange);
 		statusbar->set_colors(ansi::color::orange, ansi::color::blue);
 		active_window->set_colors(ansi::color::red, ansi::color::green);
@@ -121,6 +122,11 @@ namespace spjalla {
 		throw std::runtime_error("Unimplemented.");
 	}
 
+	ui::window * interface::get_window(pingpong::channel_ptr chan, bool create) {
+		// return get_window(ch
+		return get_window("", create);
+	}
+
 	size_t interface::get_output_index() const {
 		return users_side == haunted::side::left? 1 : 0;
 	}
@@ -151,13 +157,12 @@ namespace spjalla {
 		term->watch_size();
 	}
 
-	void interface::log(const haunted::ui::textline &, ui::window *win) {
-		if (win == nullptr)
-			win = status_window;
+	void interface::log(const std::string &line, ui::window *win) {
+		log(haunted::ui::simpleline(line, 0), win);
 	}
 
-	void interface::log(const haunted::ui::textline &line, const std::string &window_name) {
-		log(line, get_window(window_name));
+	void interface::log(const std::string &line, const std::string &window_name) {
+		log(haunted::ui::simpleline(line, 0), window_name);
 	}
 
 	void interface::focus_window(ui::window *win) {

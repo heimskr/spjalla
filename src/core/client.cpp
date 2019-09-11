@@ -2,18 +2,20 @@
 #include <string>
 #include <thread>
 
-#include "commands/all.h"
-#include "core/channel.h"
-#include "core/debug.h"
-#include "core/defs.h"
-#include "core/irc.h"
-#include "core/server.h"
-#include "core/util.h"
-#include "events/event.h"
-#include "events/message.h"
-#include "lib/ansi.h"
-#include "messages/numeric.h"
-#include "messages/ping.h"
+#include "formicine/ansi.h"
+
+#include "haunted/core/util.h"
+
+#include "pingpong/commands/all.h"
+#include "pingpong/core/channel.h"
+#include "pingpong/core/debug.h"
+#include "pingpong/core/defs.h"
+#include "pingpong/core/irc.h"
+#include "pingpong/core/server.h"
+#include "pingpong/events/event.h"
+#include "pingpong/events/message.h"
+#include "pingpong/messages/numeric.h"
+#include "pingpong/messages/ping.h"
 
 #include "core/client.h"
 #include "core/input_line.h"
@@ -55,16 +57,16 @@ namespace spjalla {
 			if (il.is_command()) {
 				try {
 					if (!handle_line(il)) {
-						// *ui.output += "Unknown command: /" + il.command;
+						ui.log("Unknown command: /" + il.command);
 					}
 				} catch (std::exception &err) {
-					// *ui.output += "Caught an exception (" + haunted::util::demangle_object(err) + "): " + err.what();
+					ui.log("Caught an exception (" + haunted::util::demangle_object(err) + "): " + err.what());
 				}
 			} else if (channel_ptr chan = active_channel()) {
 				privmsg_command(*chan, str).send(true);
-				// *ui.output += "[" + std::string(*chan) + "] <" + active_nick() + "> " + str;
+				// ui.log("[" + std::string(*chan) + "] <" + active_nick() + "> " + str);
 			} else {
-				// *ui.output += "No active channel.";
+				ui.log("No active channel.");
 			}
 		});
 	}
