@@ -5,8 +5,9 @@
 #include <csignal>
 
 #include "ui/interface.h"
-#include "haunted/core/defs.h"
-#include "haunted/core/key.h"
+#include "lib/haunted/core/defs.h"
+#include "lib/haunted/core/key.h"
+#include "lib/pingpong/core/channel.h"
 
 namespace spjalla {
 	interface::interface(haunted::terminal *term): term(term) {
@@ -123,8 +124,7 @@ namespace spjalla {
 	}
 
 	ui::window * interface::get_window(pingpong::channel_ptr chan, bool create) {
-		// return get_window(ch
-		return get_window("", create);
+		return get_window(chan->serv->hostname + " " + chan->name, create);
 	}
 
 	size_t interface::get_output_index() const {
