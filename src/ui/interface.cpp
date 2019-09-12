@@ -135,7 +135,16 @@ namespace spjalla {
 	}
 
 	ui::window * interface::get_window(pingpong::channel_ptr chan, bool create) {
-		return get_window(chan->serv->hostname + " " + chan->name, create);
+		const std::string name = chan->serv->hostname + " " + chan->name;
+		ui::window *win = get_window(name, false);
+
+		if (create && !win) {
+			win = new_window(name);
+			win->data = {ui::window_type::channel};
+			win->data->chan = chan;
+		}
+
+		return win;
 	}
 
 	ui::window * interface::new_window(const std::string &name) {
@@ -235,7 +244,7 @@ namespace spjalla {
 		}
 	}
 
-	pingpong::channel_ptr interface::get_channel() const {
+	pingpong::channel_ptr interface::get_active_channel() const {
 		if (active_window && active_window->data && active_window->data->type == ui::window_type::channel)
 			return active_window->data->chan;
 		return nullptr;

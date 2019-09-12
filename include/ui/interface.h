@@ -134,7 +134,7 @@ namespace spjalla {
 			ui::window * get_active_window() { return active_window; }
 
 			/** If the active window is for a channel, this returns the pointer to the relevant channel. */
-			pingpong::channel_ptr get_channel() const;
+			pingpong::channel_ptr get_active_channel() const;
 
 			/** Handles keypresses that aren't handled by the textinput. */
 			bool on_key(const haunted::key &);

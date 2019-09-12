@@ -60,9 +60,8 @@ namespace spjalla {
 				} catch (std::exception &err) {
 					ui.log("Caught an exception (" + haunted::util::demangle_object(err) + "): " + err.what());
 				}
-			} else if (channel_ptr chan = active_channel()) {
-				privmsg_command(*chan, str).send();
-				// ui.log("[" + std::string(*chan) + "] <" + active_nick() + "> " + str);
+			} else if (channel_ptr chan = ui.get_active_channel()) {
+				privmsg_command(chan, str).send();
 			} else {
 				ui.log("No active channel.");
 			}
@@ -146,12 +145,14 @@ namespace spjalla {
 
 		events::listen<join_event>([&](join_event *ev) {
 			ui::window *win = ui.get_window(ev->chan, true);
-			if (!win->data) {
-				win->data = {ui::window_type::channel};
-				win->data->chan = ev->chan;
-			}
-
 			*win += "-!- "_d + ansi::bold(ev->who->name) + " joined " + ansi::bold(ev->chan->name);
+		});
+
+		events::listen<command_event>([&](command_event *ev) {
+			if (privmsg_command *privmsg = dynamic_cast<privmsg_command *>(ev->cmd)) {
+				ui::window *win = ui.get_window(privmsg->destination, true);
+				*win += "<" + ev->serv->get_nick() + "> " + privmsg->message;
+			}
 		});
 	}
 
@@ -172,12 +173,14 @@ namespace spjalla {
 		add({"quote", {1, -1, true, [](sptr serv, line il) { serv->quote(il.body);                                }}});
 
 		add({"part",  {0, -1, true, [&](sptr serv, line il) {
-			if ((il.args.empty() || il.first()[0] != '#') && !serv->active_channel) {
+			channel_ptr active_channel = ui.get_active_channel();
+
+			if ((il.args.empty() || il.first()[0] != '#') && !active_channel) {
 				ui.log("No active channel.");
 			} else if (il.args.empty()) {
-				part_command(serv, serv->active_channel).send();
+				part_command(serv, active_channel).send();
 			} else if (il.first()[0] != '#') {
-				part_command(serv, serv->active_channel, il.body).send();
+				part_command(serv, active_channel, il.body).send();
 			} else if (channel_ptr cptr = serv->get_channel(il.first())) {
 				part_command(serv, cptr, il.rest()).send();
 			} else {
@@ -204,8 +207,8 @@ namespace spjalla {
 			ui.log(msg);
 		}}});
 
-		add({"chan",  {0, 0, true, [&](sptr serv, line) {
-			channel_ptr chan = serv->active_channel;
+		add({"chan",  {0, 0, true, [&](sptr, line) {
+			channel_ptr chan = ui.get_active_channel();
 			if (chan == nullptr)
 				ui.log("No active channel.");
 			else
@@ -248,10 +251,6 @@ namespace spjalla {
 
 	server_ptr client::active_server() {
 		return pp.active_server;
-	}
-
-	channel_ptr client::active_channel() {
-		return pp.active_server? pp.active_server->active_channel : nullptr;
 	}
 
 	std::string client::active_nick() {
