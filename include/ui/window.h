@@ -1,14 +1,39 @@
 #ifndef SPJALLA_UI_WINDOW_H_
 #define SPJALLA_UI_WINDOW_H_
 
+#include <optional>
+
 #include "lib/haunted/core/defs.h"
 #include "lib/haunted/ui/container.h"
 #include "lib/haunted/ui/textbox.h"
+#include "lib/pingpong/core/defs.h"
 
 namespace spjalla::ui {
+
+	enum class window_type {status, channel, user, other};
+
+	/**
+	 * Represents metadata useful for windows.
+	 */ 
+	struct window_meta {
+		window_type type;
+
+		pingpong::server_ptr  serv;
+		pingpong::channel_ptr chan;
+		pingpong::user_ptr    user;
+		void *other;
+
+		window_meta(window_type type_): type(type_) {}
+	};
+
+	/**
+	 * Represents a type of textbox for use within a swapbox. It has a window name separate from the control ID, in
+	 * addition to an optional data object.
+	 */
 	class window: public haunted::ui::textbox {
 		public:
 			std::string window_name;
+			std::optional<window_meta> data;
 
 			window() = delete;
 			window(const window &) = delete;

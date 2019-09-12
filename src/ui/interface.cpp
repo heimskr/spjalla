@@ -29,8 +29,8 @@ namespace spjalla {
 		input = new haunted::ui::textinput(term);
 		input->set_name("input");
 	
-		userbox = new haunted::ui::textbox(term);
-		userbox->set_name("userbox");
+		sidebar = new haunted::ui::textbox(term);
+		sidebar->set_name("sidebar");
 	
 		titlebar = new haunted::ui::label(term);
 		titlebar->set_name("titlebar");
@@ -41,6 +41,7 @@ namespace spjalla {
 
 	void interface::init_swappo() {
 		status_window = new ui::window("status");
+		status_window->data = {ui::window_type::status};
 		status_window->set_terminal(term);
 		status_window->set_name("status_window");
 		status_window->set_voffset(-1);
@@ -53,12 +54,12 @@ namespace spjalla {
 
 	void interface::init_propo() {
 		haunted::ui::control *first, *second;
-		if (users_side == haunted::side::left) {
-			first = userbox;
+		if (sidebar_side == haunted::side::left) {
+			first = sidebar;
 			second = swappo;
 		} else {
 			first = swappo;
-			second = userbox;
+			second = sidebar;
 		}
 
 		propo = new haunted::ui::boxes::propobox(term, adjusted_ratio(),
@@ -76,7 +77,7 @@ namespace spjalla {
 	}
 
 	void interface::init_colors() {
-		// userbox->set_colors(ansi::color::green, ansi::color::red);
+		// sidebar->set_colors(ansi::color::green, ansi::color::red);
 		// input->set_colors(ansi::color::magenta, ansi::color::yellow);
 		// titlebar->set_colors(ansi::color::blue, ansi::color::orange);
 		statusbar->set_colors(ansi::color::white, ansi::color::blue);
@@ -87,12 +88,12 @@ namespace spjalla {
 		bool changed = false;
 		std::vector<haunted::ui::control *> &pchildren = propo->get_children();
 
-		if (pchildren[get_output_index()] == userbox) {
+		if (pchildren[get_output_index()] == sidebar) {
 			std::swap(pchildren.at(0), pchildren.at(1));
 			// haunted::ui::control *back = pchildren.back();
 			// pchildren.pop_back();
 
-			// std::swap(*active_window, *userbox);
+			// std::swap(*active_window, *sidebar);
 			changed = true;
 		}
 
@@ -108,10 +109,10 @@ namespace spjalla {
 
 	double interface::adjusted_ratio() const {
 		// It's best to avoid division by zero.
-		if (users_side == haunted::side::right && users_ratio == 0.0)
+		if (sidebar_side == haunted::side::right && sidebar_ratio == 0.0)
 			return 0.0;
 
-		return users_side == haunted::side::right? 1.0 / users_ratio : users_ratio;
+		return sidebar_side == haunted::side::right? 1.0 / sidebar_ratio : sidebar_ratio;
 	}
 
 	ui::window * interface::get_window(const std::string &window_name, bool create) {
@@ -142,11 +143,12 @@ namespace spjalla {
 		ui::window *win = new ui::window(swappo, swappo->get_position(), name);
 		win->set_name("window" + std::to_string(++win_count));
 		win->set_voffset(-1);
+		win->set_terminal(nullptr); // inactive windows are marked by their null terminals
 		return win;
 	}
 
 	size_t interface::get_output_index() const {
-		return users_side == haunted::side::left? 1 : 0;
+		return sidebar_side == haunted::side::left? 1 : 0;
 	}
 
 	void interface::update_statusbar() {
@@ -161,16 +163,16 @@ namespace spjalla {
 // Public instance methods
 
 
-	void interface::set_users_side(haunted::side side) {
-		if (users_side != side) {
-			users_side = side;
+	void interface::set_sidebar_side(haunted::side side) {
+		if (sidebar_side != side) {
+			sidebar_side = side;
 			readjust_columns();
 		}
 	}
 
-	void interface::set_users_ratio(double ratio) {
-		if (users_ratio != ratio) {
-			users_ratio = ratio;
+	void interface::set_sidebar_ratio(double ratio) {
+		if (sidebar_ratio != ratio) {
+			sidebar_ratio = ratio;
 			readjust_columns();
 		}
 	}
@@ -231,6 +233,12 @@ namespace spjalla {
 			--iter;
 			focus_window(dynamic_cast<ui::window *>(*iter));
 		}
+	}
+
+	pingpong::channel_ptr interface::get_channel() const {
+		if (active_window && active_window->data && active_window->data->type == ui::window_type::channel)
+			return active_window->data->chan;
+		return nullptr;
 	}
 
 	bool interface::on_key(const haunted::key &k) {

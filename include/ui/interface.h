@@ -36,7 +36,7 @@ namespace spjalla {
 			haunted::ui::boxes::propobox   *propo;
 			haunted::ui::boxes::expandobox *expando;
 			haunted::ui::label     *titlebar, *statusbar;
-			haunted::ui::textbox   *userbox;
+			haunted::ui::textbox   *sidebar;
 			haunted::ui::textinput *input;
 
 			/** Sets up the labels, sidebar and textinput. */
@@ -54,10 +54,10 @@ namespace spjalla {
 			/** Colors all the controls. */
 			void init_colors();
 
-			/** Sets the propobox's ratio based on users_width and users_side. */
+			/** Sets the propobox's ratio based on sidebar_ratio and sidebar_side. */
 			void readjust_columns();
 
-			/** Returns the ratio appropriate for use in the propobox (it depends on users_side). */
+			/** Returns the ratio appropriate for use in the propobox (it depends on sidebar_side). */
 			double adjusted_ratio() const;
 
 			/** Returns a pointer to the window indicated by a given string. If no window is found, one will be created
@@ -78,16 +78,22 @@ namespace spjalla {
 			void update_statusbar();
 
 		public:
-			haunted::side users_side = haunted::side::right;
-			double users_ratio = 0.2;
+			haunted::side sidebar_side = haunted::side::right;
+			double sidebar_ratio = 0.2;
 			size_t max_lines = 128;
 
 			interface(haunted::terminal *term);
 
-			void set_users_side(haunted::side);
-			void set_users_ratio(double);
+			/** Sets the side of the screen that the sidebar should be on. */
+			void set_sidebar_side(haunted::side);
 
+			/** Changes the propobox ratio of the sidebar. */
+			void set_sidebar_ratio(double);
+
+			/** Redraws the interface. */
 			void draw();
+
+			/** Starts any workers (or the like) needed for this interface. */
 			void start();
 
 			/** Logs a line of output for a given target window. */
@@ -124,7 +130,11 @@ namespace spjalla {
 			/** Switches to the previous window before the current window. */
 			void prev_window();
 
+			/** Returns the active window. ¯\_(ツ)_/¯ */
 			ui::window * get_active_window() { return active_window; }
+
+			/** If the active window is for a channel, this returns the pointer to the relevant channel. */
+			pingpong::channel_ptr get_channel() const;
 
 			/** Handles keypresses that aren't handled by the textinput. */
 			bool on_key(const haunted::key &);
