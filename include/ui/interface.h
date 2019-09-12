@@ -17,7 +17,7 @@
 #include "haunted/ui/boxes/expandobox.h"
 #include "haunted/ui/boxes/propobox.h"
 #include "haunted/ui/boxes/swapbox.h"
-#include "pingpong/core/defs.h"
+#include "pingpong/core/ppdefs.h"
 
 #include "ui/window.h"
 
@@ -129,6 +129,9 @@ namespace spjalla {
 
 			/** Switches to the previous window before the current window. */
 			void prev_window();
+
+			/** Returns all windows (for channels or private conversations) where a given user is present. */
+			std::vector<ui::window *> windows_for_user(pingpong::user_ptr) const;
 
 			/** Returns the active window. ¯\_(ツ)_/¯ */
 			ui::window * get_active_window() { return active_window; }

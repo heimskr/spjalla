@@ -162,9 +162,9 @@ namespace spjalla {
 
 	void interface::update_statusbar() {
 		if (!active_window) {
-			statusbar->set_text("[?]"_d);
+			statusbar->set_text("[?]");
 		} else {
-			statusbar->set_text("["_d + active_window->window_name + "]"_d);
+			statusbar->set_text("[" + ansi::wrap(active_window->window_name, ansi::style::bold) + "]");
 		}
 	}
 
@@ -242,6 +242,29 @@ namespace spjalla {
 			--iter;
 			focus_window(dynamic_cast<ui::window *>(*iter));
 		}
+	}
+
+	std::vector<ui::window *> interface::windows_for_user(pingpong::user_ptr user) const {
+		if (swappo->empty())
+			return {};
+
+		std::vector<ui::window *> found {};
+
+		for (haunted::ui::control *ctrl: swappo->get_children()) {
+			ui::window *win = dynamic_cast<ui::window *>(ctrl);
+			if (!win->data)
+				continue;
+
+			const ui::window_meta &data = *win->data;
+			ui::window_type type = data.type;
+
+			if ((type == ui::window_type::user && *user == *data.user) ||
+				(type == ui::window_type::channel && data.chan->has_user(user))) {
+				found.push_back(win);
+			}
+		}
+
+		return found;
 	}
 
 	pingpong::channel_ptr interface::get_active_channel() const {

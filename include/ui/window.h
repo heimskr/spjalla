@@ -6,11 +6,16 @@
 #include "lib/haunted/core/defs.h"
 #include "lib/haunted/ui/container.h"
 #include "lib/haunted/ui/textbox.h"
-#include "lib/pingpong/core/defs.h"
+#include "lib/pingpong/core/ppdefs.h"
 
 namespace spjalla::ui {
 
-	enum class window_type {status, channel, user, other};
+	enum class window_type {
+		status,  // The single status window where miscellaneous messages go.
+		channel, // A window containing the conversation within an IRC channel.
+		user,    // A window for a private conversation with another user.
+		other    // A window used for any purpose not covered by the other window types.
+	};
 
 	/**
 	 * Represents metadata useful for windows.

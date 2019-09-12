@@ -1,5 +1,5 @@
-#ifndef CORE_INPUT_LINE_H_
-#define CORE_INPUT_LINE_H_
+#ifndef PINGPONG_CORE_INPUT_LINE_H_
+#define PINGPONG_CORE_INPUT_LINE_H_
 
 #include <string>
 #include <vector>

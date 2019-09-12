@@ -1,7 +1,4 @@
-#include "lines/lines.h"
 #include "lines/privmsg.h"
-
-#include "formicine/ansi.h"
 
 namespace spjalla::lines {
 	privmsg_line::privmsg_line(pingpong::channel_ptr chan_, pingpong::user_ptr user_, const std::string &message_,

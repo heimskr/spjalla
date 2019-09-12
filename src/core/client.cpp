@@ -9,7 +9,7 @@
 #include "pingpong/commands/all.h"
 #include "pingpong/core/channel.h"
 #include "pingpong/core/debug.h"
-#include "pingpong/core/defs.h"
+#include "pingpong/core/ppdefs.h"
 #include "pingpong/core/irc.h"
 #include "pingpong/core/server.h"
 #include "pingpong/events/all.h"
@@ -21,6 +21,7 @@
 #include "core/input_line.h"
 
 #include "lines/privmsg.h"
+#include "lines/quit.h"
 
 using namespace pingpong;
 using namespace spjalla;
@@ -131,8 +132,10 @@ namespace spjalla {
 
 	void client::add_listeners() {
 		events::listen<message_event>([&](message_event *ev) {
-			if (!ev->msg->is<numeric_message>() && !ev->msg->is<ping_message>())
+			if (!ev->msg->is<numeric_message>() && !ev->msg->is<ping_message>()) {
+				DBG("Logging from message_event: <" << std::string(*(ev->msg)) << ">");
 				ui.log(*(ev->msg));
+			}
 		});
 
 		events::listen<raw_in_event>([&](raw_in_event *ev) {
@@ -163,6 +166,12 @@ namespace spjalla {
 
 		events::listen<privmsg_event>([&](privmsg_event *ev) {
 			*ui.get_window(ev->chan, true) += lines::privmsg_line(ev->chan, ev->who, ev->content, ev->stamp);
+		});
+
+		events::listen<quit_event>([&](quit_event *ev) {
+			lines::quit_line qline = lines::quit_line(ev->who, ev->content, ev->stamp);
+			for (ui::window *win: ui.windows_for_user(ev->who))
+				*win += qline;
 		});
 	}
 
