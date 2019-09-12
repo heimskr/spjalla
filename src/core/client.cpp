@@ -54,8 +54,6 @@ namespace spjalla {
 			ui.input->clear();
 			input_line il = input_line(str);
 
-			// DBG("Line: " << std::string(il));
-
 			if (il.is_command()) {
 				try {
 					if (!handle_line(il)) {
@@ -65,40 +63,14 @@ namespace spjalla {
 					ui.log("Caught an exception (" + haunted::util::demangle_object(err) + "): " + err.what());
 				}
 			} else {
-				DBG("Trying to send a privmsg command.");
 				if (channel_ptr chan = ui.get_active_channel()) {
-					DBG("Found a channel.");
 					privmsg_command(chan, str).send();
 				} else {
-					DBG("There's no channel.");
 					ui.log("No active channel.");
 				}
 			}
 		});
 	}
-
-	// void client::input_worker() {
-		// std::string in;
-
-		// while (alive && std::getline(std::cin, in)) {
-		// 	input_line il = input_line(in);
-
-		// 	if (il.is_command()) {
-		// 		try {
-		// 			if (!handle_line(il)) {
-		// 				std::cerr << "Unknown command: /" << il.command << "\r\n";
-		// 			}
-		// 		} catch (std::exception &err) {
-		// 			YIKES("Caught an exception (" << typeid(err).name() << "): " << err.what());
-		// 		}
-		// 	} else if (channel_ptr chan = active_channel()) {
-		// 		privmsg_command(*chan, in).send();
-		// 		pp.dbgout() << "[" << *chan << "] <" << active_nick() << "> " << in << "\r\n";
-		// 	} else {
-		// 		YIKES("No active channel.");
-		// 	}
-		// }
-	// }
 
 	bool client::handle_line(const input_line &il) {
 		const int nargs = static_cast<int>(il.args.size());
@@ -161,12 +133,8 @@ namespace spjalla {
 		});
 
 		events::listen<command_event>([&](command_event *ev) {
-			// DBG("A command was dispatched: " << haunted::util::demangle_object(*ev->cmd));
-
 			if (privmsg_command *privmsg = dynamic_cast<privmsg_command *>(ev->cmd)) {
-				DBG("It's a privmsg command.");
-				ui::window *win = ui.get_window(privmsg->destination, true);
-				*win += lines::privmsg_line(*privmsg);
+				*ui.get_window(privmsg->destination, true) += lines::privmsg_line(*privmsg);
 			}
 		});
 	}
@@ -185,7 +153,7 @@ namespace spjalla {
 		}}});
 
 		add({"msg",   {2, -1, true, [](sptr serv, line il) { msg_command(serv, il.first(), il.rest()).send(); }}});
-		add({"quote", {1, -1, true, [](sptr serv, line il) { serv->quote(il.body);                                }}});
+		add({"quote", {1, -1, true, [](sptr serv, line il) { serv->quote(il.body);                            }}});
 
 		add({"part",  {0, -1, true, [&](sptr serv, line il) {
 			channel_ptr active_channel = ui.get_active_channel();
@@ -255,6 +223,7 @@ namespace spjalla {
 
 		add({"clear", {0, 0, false, [&](sptr, line) {
 			if (ui::window *win = ui.get_active_window()) {
+				// TODO: find out why changing the voffset has seemingly no effect.
 				// win->set_voffset(win->total_rows());
 				win->clear_lines();
 				win->draw();

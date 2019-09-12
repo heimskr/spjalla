@@ -131,20 +131,12 @@ namespace spjalla {
 				return win;
 		}
 
-		return new_window(window_name);
+		return create? new_window(window_name) : nullptr;
 	}
 
 	ui::window * interface::get_window(pingpong::channel_ptr chan, bool create) {
-		const std::string name = chan->serv->hostname + " " + chan->name;
-		DBG("Trying to look up \"" << name << "\"");
+		const std::string name = chan->serv->hostname + "/" + chan->name;
 		ui::window *win = get_window(name, false);
-		DBG("get_window(\"" << name << "\", false) completed.");
-
-		if (!win) {
-			DBG("\nCouldn't find a window for " << chan->name << "; " << (create? "" : "n") << "one will be created.\n");
-		} else {
-			DBG("Found a window for \"" << name << "\"; create = " << (create? "true" : "false"));
-		}
 
 		if (create && !win) {
 			win = new_window(name);
@@ -157,7 +149,6 @@ namespace spjalla {
 
 	ui::window * interface::new_window(const std::string &name) {
 		static size_t win_count = 0;
-		DBG("Creating a new window called \"" << name << "\"");
 		ui::window *win = new ui::window(swappo, swappo->get_position(), name);
 		win->set_name("window" + std::to_string(++win_count));
 		win->set_voffset(-1);
@@ -254,19 +245,8 @@ namespace spjalla {
 	}
 
 	pingpong::channel_ptr interface::get_active_channel() const {
-		if (!active_window)
-			DBG("No active window.");
-		else if (!active_window->data)
-			DBG("No data for active window (" << active_window->window_name << ").");
-		else if (active_window->data->type != ui::window_type::channel)
-			DBG("Incorrect active window type (found " << static_cast<int>(active_window->data->type) << ", expected " << static_cast<int>(ui::window_type::channel) << ")");
-
-		if (active_window && active_window->data && active_window->data->type == ui::window_type::channel) {
-			DBG("Found an active window with a channel.");
-			if (active_window->data->chan == nullptr) DBG("...but the channel pointer is null.");
+		if (active_window && active_window->data && active_window->data->type == ui::window_type::channel)
 			return active_window->data->chan;
-		}
-
 		return nullptr;
 	}
 
