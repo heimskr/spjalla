@@ -130,20 +130,18 @@ namespace spjalla {
 				return win;
 		}
 
-		return new_window(window_name, true);
+		return new_window(window_name);
 	}
 
 	ui::window * interface::get_window(pingpong::channel_ptr chan, bool create) {
 		return get_window(chan->serv->hostname + " " + chan->name, create);
 	}
 
-	ui::window * interface::new_window(const std::string &name, bool append) {
+	ui::window * interface::new_window(const std::string &name) {
 		static size_t win_count = 0;
 		ui::window *win = new ui::window(swappo, swappo->get_position(), name);
 		win->set_name("window" + std::to_string(++win_count));
 		win->set_voffset(-1);
-		if (append)
-			swappo->add_child(win);
 		return win;
 	}
 
@@ -200,10 +198,7 @@ namespace spjalla {
 		if (win == active_window)
 			return;
 
-		active_window->set_parent(nullptr);
-		win->set_parent(propo);
-
-		swap(*active_window, *win);
+		swappo->set_active(active_window = win);
 		swappo->draw();
 		update_statusbar();
 	}
@@ -215,7 +210,7 @@ namespace spjalla {
 	void interface::next_window() {
 		if (swappo->empty()) {
 			active_window = nullptr;
-		} if (!active_window) {
+		} else if (!active_window) {
 			focus_window(dynamic_cast<ui::window *>(swappo->get_children().at(0)));
 		} else {
 			auto iter = std::find(swappo->begin(), swappo->end(), active_window);
@@ -227,7 +222,7 @@ namespace spjalla {
 	void interface::prev_window() {
 		if (swappo->empty()) {
 			active_window = nullptr;
-		} if (!active_window) {
+		} else if (!active_window) {
 			focus_window(dynamic_cast<ui::window *>(swappo->get_children().at(0)));
 		} else {
 			auto iter = std::find(swappo->begin(), swappo->end(), active_window);
@@ -241,20 +236,8 @@ namespace spjalla {
 	bool interface::on_key(const haunted::key &k) {
 		if (k == haunted::kmod::ctrl) {
 			switch (k.type) {
-				case haunted::ktype::n: {
-					const std::string old = active_window? active_window->window_name : "?";
-					next_window();
-					DBG("next_window(). " << old << " -> " << (active_window? active_window->window_name : "?"));
-					break;
-				}
-					
-				case haunted::ktype::p: {
-					const std::string old = active_window? active_window->window_name : "?";
-					prev_window();
-					DBG("prev_window(). " << old << " -> " << (active_window? active_window->window_name : "?"));
-					break;
-				}
-
+				case haunted::ktype::n: next_window(); break;
+				case haunted::ktype::p: prev_window(); break;
 				default: return false;
 			}
 
