@@ -20,6 +20,8 @@
 #include "core/client.h"
 #include "core/input_line.h"
 
+#include "lines/privmsg.h"
+
 using namespace pingpong;
 using namespace spjalla;
 
@@ -151,7 +153,7 @@ namespace spjalla {
 		events::listen<command_event>([&](command_event *ev) {
 			if (privmsg_command *privmsg = dynamic_cast<privmsg_command *>(ev->cmd)) {
 				ui::window *win = ui.get_window(privmsg->destination, true);
-				*win += "<" + ev->serv->get_nick() + "> " + privmsg->message;
+				*win += lines::privmsg_line(*privmsg);
 			}
 		});
 	}

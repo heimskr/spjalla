@@ -50,7 +50,7 @@ OBJ_H			:= $(patsubst src/%.cpp,haunted/build/%.o, $(filter %.cpp,$(SRC)))
 sinclude $(patsubst %,$(SRCDIR_H)/%/targets.mk,$(MODULES))
 SRC_H			:= $(patsubst %,haunted/%,$(SRC))
 
-MODULES			:= core ui lib tests
+MODULES			:= core ui lib lines tests
 COMMONSRC		:=
 SRC				:=
 CFLAGS			:= $(CFLAGS_ORIG)
