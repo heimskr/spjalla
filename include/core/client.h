@@ -1,5 +1,5 @@
-#ifndef CORE_SPJALLA_H_
-#define CORE_SPJALLA_H_
+#ifndef SPJALLA_CORE_CLIENT_H_
+#define SPJALLA_CORE_CLIENT_H_
 
 #include <functional>
 #include <map>

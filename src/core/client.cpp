@@ -124,6 +124,12 @@ namespace spjalla {
 			ui.log(haunted::ui::simpleline(ansi::wrap(">> ", ansi::color::red) + ev->bad_line, 3));
 		});
 
+		events::listen<command_event>([&](command_event *ev) {
+			if (privmsg_command *privmsg = dynamic_cast<privmsg_command *>(ev->cmd)) {
+				*ui.get_window(privmsg->destination, true) += lines::privmsg_line(*privmsg);
+			}
+		});
+
 		events::listen<join_event>([&](join_event *ev) {
 			ui::window *win = ui.get_window(ev->chan, true);
 			*win += "-!- "_d + ansi::bold(ev->who->name) + " joined " + ansi::bold(ev->chan->name);
@@ -132,10 +138,8 @@ namespace spjalla {
 				ui.focus_window(win);
 		});
 
-		events::listen<command_event>([&](command_event *ev) {
-			if (privmsg_command *privmsg = dynamic_cast<privmsg_command *>(ev->cmd)) {
-				*ui.get_window(privmsg->destination, true) += lines::privmsg_line(*privmsg);
-			}
+		events::listen<privmsg_event>([&](privmsg_event *ev) {
+			*ui.get_window(ev->chan, true) += lines::privmsg_line(ev->chan, ev->who, ev->content, ev->stamp);
 		});
 	}
 

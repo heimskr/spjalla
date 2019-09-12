@@ -1,5 +1,5 @@
-#ifndef UI_INTERFACE_H_
-#define UI_INTERFACE_H_
+#ifndef SPJALLA_UI_INTERFACE_H_
+#define SPJALLA_UI_INTERFACE_H_
 
 #include <deque>
 #include <memory>
