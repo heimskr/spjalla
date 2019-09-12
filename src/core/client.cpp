@@ -13,6 +13,7 @@
 #include "pingpong/core/irc.h"
 #include "pingpong/core/server.h"
 #include "pingpong/events/all.h"
+#include "pingpong/messages/join.h"
 #include "pingpong/messages/numeric.h"
 #include "pingpong/messages/ping.h"
 
@@ -127,10 +128,8 @@ namespace spjalla {
 
 	void client::add_listeners() {
 		events::listen<message_event>([&](message_event *ev) {
-			if (!ev->msg->template is<numeric_message>() && !ev->msg->template is<ping_message>()) {
+			if (!ev->msg->is<numeric_message>() && !ev->msg->is<ping_message>())
 				ui.log(*(ev->msg));
-				DBG(std::string(*(ev->msg)));
-			}
 		});
 
 		events::listen<raw_in_event>([&](raw_in_event *ev) {
@@ -142,15 +141,12 @@ namespace spjalla {
 		});
 
 		events::listen<bad_line_event>([&](bad_line_event *ev) {
-			ui.log(haunted::ui::simpleline(ansi::wrap(">> ", ansi::color::red) + ev->bad_line.original, 3));
+			ui.log(haunted::ui::simpleline(ansi::wrap(">> ", ansi::color::red) + ev->bad_line, 3));
 		});
 
 		events::listen<join_event>([&](join_event *ev) {
 			const pingpong::channel &chan = ev->chan;
-			const pingpong::user &who = ev->who;
-
-			ui::window *win = ui.get_window(chan, true);
-			
+			*(ui.get_window(chan, true)) += "-!- "_d + ansi::bold(ev->who.name) + " joined " + ansi::bold(chan.name);
 		});
 	}
 
@@ -232,6 +228,16 @@ namespace spjalla {
 			serv->start();
 			serv->set_nick(nick);
 			pp += serv;
+		}}});
+
+		add({"clear", {0, 0, false, [&](sptr, line) {
+			if (ui::window *win = ui.get_active_window()) {
+				// win->set_voffset(win->total_rows());
+				win->clear_lines();
+				win->draw();
+			} else {
+				DBG("!! No window.");
+			}
 		}}});
 	}
 
