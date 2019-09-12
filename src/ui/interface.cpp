@@ -18,6 +18,7 @@ namespace spjalla {
 		init_colors();
 
 		input->focus();
+		update_statusbar();
 	}
 
 
@@ -71,13 +72,14 @@ namespace spjalla {
 			haunted::ui::boxes::box_orientation::vertical, {{titlebar, 1}, {propo, -1}, {statusbar, 1}, {input, 1}});
 		expando->set_name("expando");
 		term->set_root(expando);
+		expando->key_fn = [&](const haunted::key &k) { return on_key(k); };
 	}
 
 	void interface::init_colors() {
-		userbox->set_colors(ansi::color::green, ansi::color::red);
+		// userbox->set_colors(ansi::color::green, ansi::color::red);
 		// input->set_colors(ansi::color::magenta, ansi::color::yellow);
-		titlebar->set_colors(ansi::color::blue, ansi::color::orange);
-		statusbar->set_colors(ansi::color::orange, ansi::color::blue);
+		// titlebar->set_colors(ansi::color::blue, ansi::color::orange);
+		statusbar->set_colors(ansi::color::white, ansi::color::blue);
 		active_window->set_colors(ansi::color::normal, ansi::color::normal);
 	}
 
@@ -122,7 +124,13 @@ namespace spjalla {
 		if (swappo->empty())
 			return nullptr;
 
-		throw std::runtime_error("Unimplemented.");
+		for (haunted::ui::control *ctrl: swappo->get_children()) {
+			ui::window *win = dynamic_cast<ui::window *>(ctrl);
+			if (win->window_name == window_name)
+				return win;
+		}
+
+		return new_window(window_name, true);
 	}
 
 	ui::window * interface::get_window(pingpong::channel_ptr chan, bool create) {
@@ -141,6 +149,14 @@ namespace spjalla {
 
 	size_t interface::get_output_index() const {
 		return users_side == haunted::side::left? 1 : 0;
+	}
+
+	void interface::update_statusbar() {
+		if (!active_window) {
+			statusbar->set_text("[?]"_d);
+		} else {
+			statusbar->set_text("["_d + active_window->window_name + "]"_d);
+		}
 	}
 
 
@@ -188,6 +204,8 @@ namespace spjalla {
 		win->set_parent(propo);
 
 		swap(*active_window, *win);
+		swappo->draw();
+		update_statusbar();
 	}
 
 	void interface::focus_window(const std::string &window_name) {
@@ -198,7 +216,7 @@ namespace spjalla {
 		if (swappo->empty()) {
 			active_window = nullptr;
 		} if (!active_window) {
-			focus_window(swappo->get_children.at(0));
+			focus_window(dynamic_cast<ui::window *>(swappo->get_children().at(0)));
 		} else {
 			auto iter = std::find(swappo->begin(), swappo->end(), active_window);
 			haunted::ui::control *win = *(++iter == swappo->end()? swappo->begin() : iter);
@@ -210,7 +228,7 @@ namespace spjalla {
 		if (swappo->empty()) {
 			active_window = nullptr;
 		} if (!active_window) {
-			focus_window(swappo->get_children.at(0));
+			focus_window(dynamic_cast<ui::window *>(swappo->get_children().at(0)));
 		} else {
 			auto iter = std::find(swappo->begin(), swappo->end(), active_window);
 			if (iter == swappo->begin())
@@ -218,5 +236,31 @@ namespace spjalla {
 			--iter;
 			focus_window(dynamic_cast<ui::window *>(*iter));
 		}
+	}
+
+	bool interface::on_key(const haunted::key &k) {
+		if (k == haunted::kmod::ctrl) {
+			switch (k.type) {
+				case haunted::ktype::n: {
+					const std::string old = active_window? active_window->window_name : "?";
+					next_window();
+					DBG("next_window(). " << old << " -> " << (active_window? active_window->window_name : "?"));
+					break;
+				}
+					
+				case haunted::ktype::p: {
+					const std::string old = active_window? active_window->window_name : "?";
+					prev_window();
+					DBG("prev_window(). " << old << " -> " << (active_window? active_window->window_name : "?"));
+					break;
+				}
+
+				default: return false;
+			}
+
+			return true;
+		}
+
+		return false;
 	}
 }

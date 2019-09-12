@@ -9,6 +9,7 @@
 #include <thread>
 
 #include "haunted/core/defs.h"
+#include "haunted/core/key.h"
 #include "haunted/core/terminal.h"
 #include "haunted/ui/label.h"
 #include "haunted/ui/textbox.h"
@@ -73,6 +74,9 @@ namespace spjalla {
 			/** Returns the index within the propobox's children vector in which the output window resides. */
 			size_t get_output_index() const;
 
+			/** Updates the text in the status bar. */
+			void update_statusbar();
+
 		public:
 			haunted::side users_side = haunted::side::right;
 			double users_ratio = 0.2;
@@ -119,6 +123,11 @@ namespace spjalla {
 
 			/** Switches to the previous window before the current window. */
 			void prev_window();
+
+			ui::window * get_active_window() { return active_window; }
+
+			/** Handles keypresses that aren't handled by the textinput. */
+			bool on_key(const haunted::key &);
 	};
 }
 
