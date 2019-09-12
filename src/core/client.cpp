@@ -54,6 +54,8 @@ namespace spjalla {
 			ui.input->clear();
 			input_line il = input_line(str);
 
+			// DBG("Line: " << std::string(il));
+
 			if (il.is_command()) {
 				try {
 					if (!handle_line(il)) {
@@ -62,10 +64,15 @@ namespace spjalla {
 				} catch (std::exception &err) {
 					ui.log("Caught an exception (" + haunted::util::demangle_object(err) + "): " + err.what());
 				}
-			} else if (channel_ptr chan = ui.get_active_channel()) {
-				privmsg_command(chan, str).send();
 			} else {
-				ui.log("No active channel.");
+				DBG("Trying to send a privmsg command.");
+				if (channel_ptr chan = ui.get_active_channel()) {
+					DBG("Found a channel.");
+					privmsg_command(chan, str).send();
+				} else {
+					DBG("There's no channel.");
+					ui.log("No active channel.");
+				}
 			}
 		});
 	}
@@ -148,10 +155,16 @@ namespace spjalla {
 		events::listen<join_event>([&](join_event *ev) {
 			ui::window *win = ui.get_window(ev->chan, true);
 			*win += "-!- "_d + ansi::bold(ev->who->name) + " joined " + ansi::bold(ev->chan->name);
+
+			if (ev->who->name == ev->serv->get_nick())
+				ui.focus_window(win);
 		});
 
 		events::listen<command_event>([&](command_event *ev) {
+			// DBG("A command was dispatched: " << haunted::util::demangle_object(*ev->cmd));
+
 			if (privmsg_command *privmsg = dynamic_cast<privmsg_command *>(ev->cmd)) {
+				DBG("It's a privmsg command.");
 				ui::window *win = ui.get_window(privmsg->destination, true);
 				*win += lines::privmsg_line(*privmsg);
 			}
