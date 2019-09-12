@@ -57,7 +57,29 @@ namespace spjalla {
 			if (il.is_command()) {
 				try {
 					if (!handle_line(il)) {
-						ui.log("Unknown command: /" + il.command);
+						// If the command isn't an exact match, try partial matches (e.g., "/j" for "/join").
+						const std::string &cmd = il.command;
+						size_t cmd_length = cmd.length();
+
+						std::vector<std::string> matches;
+
+						for (std::pair<std::string, command_tuple> pair: command_handlers) {
+							const std::string &candidate_name = pair.first;
+							if (candidate_name.substr(0, cmd_length) == cmd)
+								matches.push_back(candidate_name);
+						}
+
+						if (1 < matches.size()) {
+							ui.log("Ambiguous command: /" + cmd);
+							std::string joined;
+							for (const std::string &match: matches)
+								joined += "/" + match + " ";
+							DBG("Matches: " << joined);
+						} else {
+							if (!matches.empty() && handle_line("/" + matches[0] + " " + il.body))
+								return;
+							ui.log("Unknown command: /" + cmd);
+						}
 					}
 				} catch (std::exception &err) {
 					ui.log("Caught an exception (" + haunted::util::demangle_object(err) + "): " + err.what());
@@ -77,6 +99,7 @@ namespace spjalla {
 		const std::string &name = il.command;
 
 		auto range = command_handlers.equal_range(name);
+		// Quit if there are no matching handlers.
 		if (range.first == range.second)
 			return false;
 
