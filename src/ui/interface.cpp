@@ -142,6 +142,7 @@ namespace spjalla {
 			win = new_window(name);
 			win->data = {ui::window_type::channel};
 			win->data->chan = chan;
+			win->data->serv = chan->serv;
 		}
 
 		return win;
@@ -154,6 +155,17 @@ namespace spjalla {
 		win->set_voffset(-1);
 		win->set_terminal(nullptr); // inactive windows are marked by their null terminals
 		return win;
+	}
+
+	void interface::remove_window(ui::window *win) {
+		if (win->get_parent() != swappo)
+			throw std::invalid_argument("Can't remove window: not a child of swappo.");
+
+		if (active_window == win)
+			focus_window(status_window);
+
+		swappo->remove_child(win);
+		delete win;
 	}
 
 	size_t interface::get_output_index() const {

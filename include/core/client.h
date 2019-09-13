@@ -43,10 +43,7 @@ namespace spjalla {
 			 */
 			client & operator+=(const command_pair &p);
 
-			/**
-			 * Adds a server.
-			 * @param ptr A pointer to a server.
-			 */
+			/** Adds a server. */
 			client & operator+=(const pingpong::server_ptr &ptr);
 			
 			/**
@@ -66,29 +63,23 @@ namespace spjalla {
 			 */
 			void add(const command_pair &p);
 
-			/**
-			 * Initializes the client.
-			 */
+			/** Initializes the client. */
 			void init();
 
+			/** Stops the client. */
 			void stop();
 
-			/**
-			 * Processes a line of user input.
-			 * @param  line A line of user input.
-			 * @return Whether the line was recognized as a valid input.
-			 */
+			/** Processes a line of user input and returns whether the line was recognized as a valid input. */
 			bool handle_line(const input_line &line);
 
-			/**
-			 * Adds listeners for pingpong events.
-			 */
+			/** Adds listeners for pingpong events. */
 			void add_listeners();
 
-			/**
-			 * Adds the built-in command handlers.
-			 */
+			/** Adds the built-in command handlers. */
 			void add_handlers();
+
+			/** Updates the interface to accommodate the removal of a server. */
+			void server_removed(pingpong::server_ptr);
 
 			interface & get_ui() { return ui; }
 

@@ -71,6 +71,9 @@ namespace spjalla {
 			/** Creates a new window, configures it as appropriate and appends it to the swapbox. */
 			ui::window * new_window(const std::string &name);
 
+			/** Closes a window. */
+			void remove_window(ui::window *);
+
 			/** Returns the index within the propobox's children vector in which the output window resides. */
 			size_t get_output_index() const;
 
