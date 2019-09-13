@@ -133,7 +133,6 @@ namespace spjalla {
 	void client::add_listeners() {
 		events::listen<message_event>([&](message_event *ev) {
 			if (!ev->msg->is<numeric_message>() && !ev->msg->is<ping_message>()) {
-				DBG("Logging from message_event: <" << std::string(*(ev->msg)) << ">");
 				ui.log(*(ev->msg));
 			}
 		});
@@ -150,11 +149,7 @@ namespace spjalla {
 			ui.log(haunted::ui::simpleline(ansi::wrap(">> ", ansi::color::red) + ev->bad_line, 3));
 		});
 
-		events::listen<command_event>([&](command_event *ev) {
-			if (privmsg_command *privmsg = dynamic_cast<privmsg_command *>(ev->cmd)) {
-				*ui.get_window(privmsg->destination, true) += lines::privmsg_line(*privmsg);
-			}
-		});
+		// events::listen<command_event>([&](command_event *ev) { });
 
 		events::listen<join_event>([&](join_event *ev) {
 			ui::window *win = ui.get_window(ev->chan, true);
@@ -188,8 +183,14 @@ namespace spjalla {
 				nick_command(serv, il.first()).send();
 		}}});
 
-		add({"msg",   {2, -1, true, [](sptr serv, line il) { msg_command(serv, il.first(), il.rest()).send(); }}});
-		add({"quote", {1, -1, true, [](sptr serv, line il) { serv->quote(il.body);                            }}});
+		add({"msg",   {2, -1, true, [&](sptr serv, line il) { privmsg_command(serv, il.first(), il.rest()).send(); }}});
+		add({"quote", {1, -1, true, [&](sptr serv, line il) { serv->quote(il.body);                            }}});
+
+		add({"me", {1, -1, true, [&](sptr serv, line il) {
+			if (channel_ptr chan = ui.get_active_channel())
+				privmsg_command(serv, chan, "\1ACTION " + il.body + "\1").send();
+			else ui.log("No active channel.");
+		}}});
 
 		add({"part",  {0, -1, true, [&](sptr serv, line il) {
 			channel_ptr active_channel = ui.get_active_channel();

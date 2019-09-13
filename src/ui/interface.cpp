@@ -278,6 +278,25 @@ namespace spjalla {
 			switch (k.type) {
 				case haunted::ktype::n: next_window(); break;
 				case haunted::ktype::p: prev_window(); break;
+				case haunted::ktype::r:
+					if (active_window)
+						DBG("v = " << active_window->get_voffset() << ", e = " << active_window->effective_voffset());
+					break;
+				default: return false;
+			}
+
+			return true;
+		} else if (k == haunted::kmod::shift) {
+			if (!active_window)
+				return false;
+			
+			int off = active_window->get_voffset();
+			int eff = active_window->effective_voffset();
+			switch (k.type) {
+				case haunted::ktype::up_arrow:    active_window->set_voffset(off - 1); swappo->draw(); DBG("v-1"); break;
+				case haunted::ktype::down_arrow:  active_window->set_voffset(off + 1); swappo->draw(); DBG("v+1"); break;
+				case haunted::ktype::left_arrow:  active_window->set_voffset(eff - 1); swappo->draw(); DBG("e-1"); break;
+				case haunted::ktype::right_arrow: active_window->set_voffset(eff + 1); swappo->draw(); DBG("e+1"); break;
 				default: return false;
 			}
 
