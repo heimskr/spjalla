@@ -2,17 +2,27 @@
 #include <string>
 #include <thread>
 
-#include "formicine/ansi.h"
-
 #include "haunted/core/util.h"
 
-#include "pingpong/commands/all.h"
+#include "pingpong/commands/join.h"
+#include "pingpong/commands/nick.h"
+#include "pingpong/commands/part.h"
+#include "pingpong/commands/quit.h"
+
 #include "pingpong/core/channel.h"
 #include "pingpong/core/debug.h"
 #include "pingpong/core/ppdefs.h"
 #include "pingpong/core/irc.h"
 #include "pingpong/core/server.h"
-#include "pingpong/events/all.h"
+
+#include "pingpong/events/bad_line.h"
+#include "pingpong/events/command.h"
+#include "pingpong/events/join.h"
+#include "pingpong/events/message.h"
+#include "pingpong/events/privmsg.h"
+#include "pingpong/events/quit.h"
+#include "pingpong/events/raw.h"
+
 #include "pingpong/messages/join.h"
 #include "pingpong/messages/numeric.h"
 #include "pingpong/messages/ping.h"
@@ -22,6 +32,8 @@
 
 #include "lines/privmsg.h"
 #include "lines/quit.h"
+
+#include "formicine/ansi.h"
 
 namespace spjalla {
 	client::~client() {

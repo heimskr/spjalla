@@ -305,10 +305,10 @@ namespace spjalla {
 			int off = active_window->get_voffset();
 			int eff = active_window->effective_voffset();
 			switch (k.type) {
-				case haunted::ktype::up_arrow:    active_window->set_voffset(off - 1); swappo->draw(); DBG("v-1"); break;
-				case haunted::ktype::down_arrow:  active_window->set_voffset(off + 1); swappo->draw(); DBG("v+1"); break;
-				case haunted::ktype::left_arrow:  active_window->set_voffset(eff - 1); swappo->draw(); DBG("e-1"); break;
-				case haunted::ktype::right_arrow: active_window->set_voffset(eff + 1); swappo->draw(); DBG("e+1"); break;
+				case haunted::ktype::up_arrow:    active_window->set_voffset(off - 1); swappo->draw(); DBG("v-"); break;
+				case haunted::ktype::down_arrow:  active_window->set_voffset(off + 1); swappo->draw(); DBG("v+"); break;
+				case haunted::ktype::left_arrow:  active_window->set_voffset(eff - 1); swappo->draw(); DBG("e-"); break;
+				case haunted::ktype::right_arrow: active_window->set_voffset(eff + 1); swappo->draw(); DBG("e+"); break;
 				default: return false;
 			}
 
