@@ -19,6 +19,7 @@
 #include "pingpong/events/command.h"
 #include "pingpong/events/join.h"
 #include "pingpong/events/message.h"
+#include "pingpong/events/part.h"
 #include "pingpong/events/privmsg.h"
 #include "pingpong/events/quit.h"
 #include "pingpong/events/raw.h"
@@ -30,6 +31,7 @@
 #include "core/client.h"
 #include "core/input_line.h"
 
+#include "lines/join.h"
 #include "lines/privmsg.h"
 #include "lines/quit.h"
 
@@ -140,36 +142,40 @@ namespace spjalla {
 	}
 
 	void client::add_listeners() {
-		pingpong::events::listen<pingpong::message_event>([&](pingpong::message_event *ev) {
-			if (!ev->msg->is<pingpong::numeric_message>() && !ev->msg->is<pingpong::ping_message>()) {
-				ui.log(*(ev->msg));
-			}
-		});
-
-		pingpong::events::listen<pingpong::raw_in_event>([&](pingpong::raw_in_event *ev) {
-			ui.log(haunted::ui::simpleline(ansi::wrap("<< ", ansi::color::gray) + ev->raw_in, 3));
-		});
-
-		pingpong::events::listen<pingpong::raw_out_event>([&](pingpong::raw_out_event *ev) {
-			ui.log(haunted::ui::simpleline(ansi::wrap(">> ", ansi::color::lightgray) + ev->raw_out, 3));
-		});
-
 		pingpong::events::listen<pingpong::bad_line_event>([&](pingpong::bad_line_event *ev) {
 			ui.log(haunted::ui::simpleline(ansi::wrap(">> ", ansi::color::red) + ev->bad_line, 3));
 		});
 
 		pingpong::events::listen<pingpong::command_event>([&](pingpong::command_event *ev) {
-			if (pingpong::quit_command *quit = dynamic_cast<pingpong::quit_command *>(ev->cmd)) {
+			if (pingpong::quit_command *quit = dynamic_cast<pingpong::quit_command *>(ev->cmd))
 				server_removed(quit->serv);
-			}
 		});
 
 		pingpong::events::listen<pingpong::join_event>([&](pingpong::join_event *ev) {
 			ui::window *win = ui.get_window(ev->chan, true);
-			*win += "-!- "_d + ansi::bold(ev->who->name) + " joined " + ansi::bold(ev->chan->name);
+			*win += lines::join_line(*ev);
 
-			if (ev->who->name == ev->serv->get_nick())
+			if (ev->who->is_self())
 				ui.focus_window(win);
+		});
+
+		pingpong::events::listen<pingpong::message_event>([&](pingpong::message_event *ev) {
+			if (!ev->msg->is<pingpong::numeric_message>() && !ev->msg->is<pingpong::ping_message>())
+				ui.log(*(ev->msg));
+		});
+
+		pingpong::events::listen<pingpong::part_event>([&](pingpong::part_event *ev) {
+			ui::window *win = ui.get_window(ev->chan, false);
+			if (!win) {
+				ui.log(ansi::yellow("!!") + " Couldn't find window for " + std::string(*ev->chan));
+				return;
+			}
+
+			if (ev->who->is_self()) {
+				ui.remove_window(win);
+			} else {
+				
+			}
 		});
 
 		pingpong::events::listen<pingpong::privmsg_event>([&](pingpong::privmsg_event *ev) {
@@ -180,6 +186,14 @@ namespace spjalla {
 			lines::quit_line qline = lines::quit_line(ev->who, ev->content, ev->stamp);
 			for (ui::window *win: ui.windows_for_user(ev->who))
 				*win += qline;
+		});
+
+		pingpong::events::listen<pingpong::raw_in_event>([&](pingpong::raw_in_event *ev) {
+			ui.log(haunted::ui::simpleline(ansi::wrap("<< ", ansi::color::gray) + ev->raw_in, 3));
+		});
+
+		pingpong::events::listen<pingpong::raw_out_event>([&](pingpong::raw_out_event *ev) {
+			ui.log(haunted::ui::simpleline(ansi::wrap(">> ", ansi::color::lightgray) + ev->raw_out, 3));
 		});
 	}
 
