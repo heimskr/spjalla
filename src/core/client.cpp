@@ -201,6 +201,65 @@ namespace spjalla {
 		using sptr = pingpong::server_ptr;
 		using line = const input_line &;
 
+		add({"chans", {0, 0, true, [&](sptr serv, line) {
+			std::string msg = "Channels:";
+			for (auto [name, chan]: serv->channels)
+				msg += " " + name;
+			ui.log(msg);
+		}}});
+
+		add({"chan",  {0, 0, true, [&](sptr, line) {
+			pingpong::channel_ptr chan = ui.get_active_channel();
+			if (chan == nullptr)
+				ui.log("No active channel.");
+			else
+				ui.log("Active channel: " + chan->name);
+		}}});
+
+		add({"clear", {0, 0, false, [&](sptr, line) {
+			if (ui::window *win = ui.get_active_window()) {
+				// TODO: find out why changing the voffset has seemingly no effect.
+				// win->set_voffset(win->total_rows());
+				win->clear_lines();
+				win->draw();
+			} else {
+				DBG("!! No window.");
+			}
+		}}});
+
+		add({"connect", {1, 2, false, [&](sptr, line il) {
+			const std::string &hostname = il.first();
+
+			std::string nick(pingpong::irc::default_nick);
+			if (il.args.size() > 1)
+				nick = il.args[1];
+
+			pingpong::server *serv = new pingpong::server(&pp, hostname);
+			serv->start();
+			serv->set_nick(nick);
+			pp += serv;
+		}}});
+
+		add({"info",  {0, 1, false, [&](sptr, line il) {
+			if (il.args.size() == 0) {
+				pingpong::debug::print_all(pp);
+				return;
+			}
+			
+			const std::string &first = il.first();
+			ui.log("Unknown option: " + first);
+		}}});
+
+		add({"me", {1, -1, true, [&](sptr serv, line il) {
+			if (pingpong::channel_ptr chan = ui.get_active_channel())
+				pingpong::privmsg_command(serv, chan, "\1ACTION " + il.body + "\1").send();
+			else ui.log("No active channel.");
+		}}});
+
+		add({"msg", {2, -1, true, [&](sptr serv, line il) {
+			pingpong::privmsg_command(serv, il.first(), il.rest()).send();
+		}}});
+
 		add<pingpong::join_command>("join");
 
 		add({"nick",  {0,  1, true, [&](sptr serv, line il) {
@@ -208,15 +267,6 @@ namespace spjalla {
 				ui.log("Current nick: " + serv->get_nick());
 			else
 				pingpong::nick_command(serv, il.first()).send();
-		}}});
-
-		add({"msg",   {2, -1, true, [&](sptr serv, line il) { pingpong::privmsg_command(serv, il.first(), il.rest()).send(); }}});
-		add({"quote", {1, -1, true, [&](sptr serv, line il) { serv->quote(il.body);                            }}});
-
-		add({"me", {1, -1, true, [&](sptr serv, line il) {
-			if (pingpong::channel_ptr chan = ui.get_active_channel())
-				pingpong::privmsg_command(serv, chan, "\1ACTION " + il.body + "\1").send();
-			else ui.log("No active channel.");
 		}}});
 
 		add({"part",  {0, -1, true, [&](sptr serv, line il) {
@@ -247,53 +297,8 @@ namespace spjalla {
 			stop();
 		}}});
 
-		add({"chans", {0, 0, true, [&](sptr serv, line) {
-			std::string msg = "Channels:";
-			for (auto [name, chan]: serv->channels)
-				msg += " " + name;
-			ui.log(msg);
-		}}});
-
-		add({"chan",  {0, 0, true, [&](sptr, line) {
-			pingpong::channel_ptr chan = ui.get_active_channel();
-			if (chan == nullptr)
-				ui.log("No active channel.");
-			else
-				ui.log("Active channel: " + chan->name);
-		}}});
-
-		add({"info",  {0, 1, false, [&](sptr, line il) {
-			if (il.args.size() == 0) {
-				pingpong::debug::print_all(pp);
-				return;
-			}
-			
-			const std::string &first = il.first();
-			ui.log("Unknown option: " + first);
-		}}});
-
-		add({"connect", {1, 2, false, [&](sptr, line il) {
-			const std::string &hostname = il.first();
-
-			std::string nick(pingpong::irc::default_nick);
-			if (il.args.size() > 1)
-				nick = il.args[1];
-
-			pingpong::server *serv = new pingpong::server(&pp, hostname);
-			serv->start();
-			serv->set_nick(nick);
-			pp += serv;
-		}}});
-
-		add({"clear", {0, 0, false, [&](sptr, line) {
-			if (ui::window *win = ui.get_active_window()) {
-				// TODO: find out why changing the voffset has seemingly no effect.
-				// win->set_voffset(win->total_rows());
-				win->clear_lines();
-				win->draw();
-			} else {
-				DBG("!! No window.");
-			}
+		add({"quote", {1, -1, true, [&](sptr serv, line il) {
+			serv->quote(il.body);
 		}}});
 	}
 
