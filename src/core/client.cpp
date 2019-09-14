@@ -32,6 +32,7 @@
 #include "core/input_line.h"
 
 #include "lines/join.h"
+#include "lines/part.h"
 #include "lines/privmsg.h"
 #include "lines/quit.h"
 
@@ -171,15 +172,14 @@ namespace spjalla {
 				return;
 			}
 
-			if (ev->who->is_self()) {
+			if (ev->who->is_self())
 				ui.remove_window(win);
-			} else {
-				
-			}
+			else
+				*win += lines::part_line(*ev);
 		});
 
 		pingpong::events::listen<pingpong::privmsg_event>([&](pingpong::privmsg_event *ev) {
-			*ui.get_window(ev->chan, true) += lines::privmsg_line(ev->chan, ev->who, ev->content, ev->stamp);
+			*ui.get_window(ev->chan, true) += lines::privmsg_line(*ev);
 		});
 
 		pingpong::events::listen<pingpong::quit_event>([&](pingpong::quit_event *ev) {

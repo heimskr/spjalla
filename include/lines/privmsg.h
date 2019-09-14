@@ -1,10 +1,13 @@
 #ifndef SPJALLA_LINES_PRIVMSG_H_
 #define SPJALLA_LINES_PRIVMSG_H_
 
-#include "pingpong/commands/privmsg.h"
 #include "pingpong/core/ppdefs.h"
 #include "pingpong/core/user.h"
 #include "pingpong/core/channel.h"
+
+#include "pingpong/commands/privmsg.h"
+
+#include "pingpong/events/privmsg.h"
 
 #include "lines/lines.h"
 
@@ -24,8 +27,12 @@ namespace spjalla::lines {
 			long stamp;
 
 			privmsg_line(pingpong::channel_ptr chan_, pingpong::user_ptr user_, const std::string &message_, long stamp_);
+
 			privmsg_line(const pingpong::privmsg_command &cmd):
-				privmsg_line(cmd.destination, cmd.serv->get_user(cmd.serv->get_nick(), true), cmd.message, cmd.sent_time) {}
+				privmsg_line(cmd.destination, cmd.serv->get_user(cmd.serv->get_nick(), true), cmd.message,
+				cmd.sent_time) {}
+
+			privmsg_line(const pingpong::privmsg_event &ev): privmsg_line(ev.chan, ev.who, ev.content, ev.stamp) {}
 
 			virtual operator std::string() const override;
 	};
