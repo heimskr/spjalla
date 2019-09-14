@@ -21,8 +21,8 @@ all: Makefile
 
 # Peter Miller, "Recursive Make Considered Harmful" (http://aegis.sourceforge.net/auug97.pdf)
 SRCDIR_PP		:= pingpong/src
-MODULES			:= core test commands messages lib events
-INCLUDE_PP		:= -Ipingpong/include -Iinclude
+MODULES			:= core test commands messages lib events net
+INCLUDE_PP		:= -Ipingpong/include
 INCLUDE			+= $(INCLUDE_PP)
 CFLAGS			:= $(CFLAGS_ORIG) $(INCLUDE_PP)
 COMMONSRC		:=
@@ -64,8 +64,6 @@ sinclude $(patsubst %,src/%/targets.mk,$(MODULES))
 OBJ_ALL			:= $(OBJ) $(OBJ_PP) $(OBJ_H)
 SRC_ALL			:= $(SRC) $(SRC_PP) $(SRC_H)
 CFLAGS			:= $(CFLAGS_ORIG)
-
-include pingpong/conan.mk
 
 all: $(COMMONOBJ) $(OUTPUT)
 

@@ -208,7 +208,7 @@ namespace spjalla {
 			ui.log(msg);
 		}}});
 
-		add({"chan",  {0, 0, true, [&](sptr, line) {
+		add({"chan", {0, 0, true, [&](sptr, line) {
 			pingpong::channel_ptr chan = ui.get_active_channel();
 			if (chan == nullptr)
 				ui.log("No active channel.");
@@ -240,7 +240,7 @@ namespace spjalla {
 			pp += serv;
 		}}});
 
-		add({"info",  {0, 1, false, [&](sptr, line il) {
+		add({"info", {0, 1, false, [&](sptr, line il) {
 			if (il.args.size() == 0) {
 				pingpong::debug::print_all(pp);
 				return;
@@ -249,6 +249,10 @@ namespace spjalla {
 			const std::string &first = il.first();
 			ui.log("Unknown option: " + first);
 		}}});
+
+		// add({"kick", {1, -1, true, [&](sptr, line il) {
+			
+		// }}});
 
 		add({"me", {1, -1, true, [&](sptr serv, line il) {
 			if (pingpong::channel_ptr chan = ui.get_active_channel())
@@ -262,14 +266,14 @@ namespace spjalla {
 
 		add<pingpong::join_command>("join");
 
-		add({"nick",  {0,  1, true, [&](sptr serv, line il) {
+		add({"nick", {0,  1, true, [&](sptr serv, line il) {
 			if (il.args.size() == 0)
 				ui.log("Current nick: " + serv->get_nick());
 			else
 				pingpong::nick_command(serv, il.first()).send();
 		}}});
 
-		add({"part",  {0, -1, true, [&](sptr serv, line il) {
+		add({"part", {0, -1, true, [&](sptr serv, line il) {
 			pingpong::channel_ptr active_channel = ui.get_active_channel();
 
 			if ((il.args.empty() || il.first()[0] != '#') && !active_channel) {
@@ -285,7 +289,7 @@ namespace spjalla {
 			}
 		}}});
 
-		add({"quit",  {0, -1, false, [&](sptr, line il) {
+		add({"quit", {0, -1, false, [&](sptr, line il) {
 			if (il.args.empty()) {
 				for (auto serv: pp.servers)
 					pingpong::quit_command(serv).send();
@@ -299,6 +303,11 @@ namespace spjalla {
 
 		add({"quote", {1, -1, true, [&](sptr serv, line il) {
 			serv->quote(il.body);
+		}}});
+
+		add({"spam", {0, 0, false, [&](sptr, line) {
+			for (int i = 0; i < 50; ++i)
+				ui.log(std::to_string(i));
 		}}});
 	}
 
