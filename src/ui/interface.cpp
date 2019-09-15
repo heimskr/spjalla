@@ -302,13 +302,10 @@ namespace spjalla {
 			if (!active_window)
 				return false;
 			
-			int off = active_window->get_voffset();
-			int eff = active_window->effective_voffset();
 			switch (k.type) {
-				case haunted::ktype::up_arrow:    active_window->vscroll(-1); DBG("v-"); break;
-				case haunted::ktype::down_arrow:  active_window->vscroll(1); DBG("v+"); break;
-				case haunted::ktype::left_arrow:  active_window->set_voffset(eff - 1); DBG("e-"); break;
-				case haunted::ktype::right_arrow: active_window->set_voffset(eff + 1); DBG("e+"); break;
+				case haunted::ktype::up_arrow:   active_window->vscroll(-1); break;
+				case haunted::ktype::down_arrow: active_window->vscroll(1);  break;
+				case haunted::ktype::left_arrow: active_window->set_voffset(-1); break;
 				default: return false;
 			}
 

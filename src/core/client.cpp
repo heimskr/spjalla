@@ -305,8 +305,19 @@ namespace spjalla {
 			serv->quote(il.body);
 		}}});
 
-		add({"spam", {0, 0, false, [&](sptr, line) {
-			for (int i = 0; i < 50; ++i)
+		add({"spam", {0, 1, false, [&](sptr, line il) {
+			long max = 64;
+
+			if (!il.args.empty()) {
+				char *ptr;
+				const std::string &str = il.first();
+				long parsed = strtol(str.c_str(), &ptr, 10);
+				if (ptr != &*str.end()) {
+					ui.log(ansi::yellow("!!") + " Invalid number: \"" + il.first() + "\"");
+				} else max = parsed;
+			}
+
+			for (long i = 1; i <= max; ++i)
 				ui.log(std::to_string(i));
 		}}});
 	}
