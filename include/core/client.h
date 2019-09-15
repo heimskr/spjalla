@@ -26,7 +26,7 @@ namespace spjalla {
 			bool alive = true;
 			ansi::ansistream &out_stream;
 			haunted::terminal term;
-			interface ui;
+			ui::interface ui;
 
 		public:
 			client(): out_stream(ansi::out), term(haunted::terminal(std::cin, out_stream)), ui(&term) {}
@@ -81,7 +81,7 @@ namespace spjalla {
 			/** Updates the interface to accommodate the removal of a server. */
 			void server_removed(pingpong::server_ptr);
 
-			interface & get_ui() { return ui; }
+			ui::interface & get_ui() { return ui; }
 
 			pingpong::server_ptr active_server();
 			pingpong::channel_ptr active_channel();

@@ -9,7 +9,7 @@
 #include "lib/haunted/core/key.h"
 #include "lib/pingpong/core/channel.h"
 
-namespace spjalla {
+namespace spjalla::ui {
 	interface::interface(haunted::terminal *term): term(term) {
 		init_basic();
 		init_swappo();
@@ -40,8 +40,8 @@ namespace spjalla {
 	}
 
 	void interface::init_swappo() {
-		status_window = new ui::window("status");
-		status_window->data = {ui::window_type::status};
+		status_window = new window("status");
+		status_window->data = {window_type::status};
 		status_window->set_terminal(term);
 		status_window->set_name("status_window");
 		status_window->set_voffset(-1);
@@ -115,7 +115,7 @@ namespace spjalla {
 		return sidebar_side == haunted::side::right? 1.0 / sidebar_ratio : sidebar_ratio;
 	}
 
-	ui::window * interface::get_window(const std::string &window_name, bool create) {
+	window * interface::get_window(const std::string &window_name, bool create) {
 		if (window_name == "status") {
 			if (status_window == nullptr && create)
 				status_window = new_window("status");
@@ -126,7 +126,7 @@ namespace spjalla {
 			return nullptr;
 
 		for (haunted::ui::control *ctrl: swappo->get_children()) {
-			ui::window *win = dynamic_cast<ui::window *>(ctrl);
+			window *win = dynamic_cast<window *>(ctrl);
 			if (win->window_name == window_name)
 				return win;
 		}
@@ -134,13 +134,13 @@ namespace spjalla {
 		return create? new_window(window_name) : nullptr;
 	}
 
-	ui::window * interface::get_window(pingpong::channel_ptr chan, bool create) {
+	window * interface::get_window(pingpong::channel_ptr chan, bool create) {
 		const std::string name = chan->serv->hostname + "/" + chan->name;
-		ui::window *win = get_window(name, false);
+		window *win = get_window(name, false);
 
 		if (create && !win) {
 			win = new_window(name);
-			win->data = {ui::window_type::channel};
+			win->data = {window_type::channel};
 			win->data->chan = chan;
 			win->data->serv = chan->serv;
 		}
@@ -148,16 +148,16 @@ namespace spjalla {
 		return win;
 	}
 
-	ui::window * interface::new_window(const std::string &name) {
+	window * interface::new_window(const std::string &name) {
 		static size_t win_count = 0;
-		ui::window *win = new ui::window(swappo, swappo->get_position(), name);
+		window *win = new window(swappo, swappo->get_position(), name);
 		win->set_name("window" + std::to_string(++win_count));
 		win->set_voffset(-1);
 		win->set_terminal(nullptr); // inactive windows are marked by their null terminals
 		return win;
 	}
 
-	void interface::remove_window(ui::window *win) {
+	void interface::remove_window(window *win) {
 		if (win->get_parent() != swappo)
 			throw std::invalid_argument("Can't remove window: not a child of swappo.");
 
@@ -178,6 +178,9 @@ namespace spjalla {
 		} else {
 			statusbar->set_text("[" + ansi::wrap(active_window->window_name, ansi::style::bold) + "]");
 		}
+	}
+
+	void interface::update_sidebar() {
 	}
 
 
@@ -206,7 +209,7 @@ namespace spjalla {
 		term->watch_size();
 	}
 
-	void interface::log(const std::string &line, ui::window *win) {
+	void interface::log(const std::string &line, window *win) {
 		log(haunted::ui::simpleline(line, 0), win);
 	}
 
@@ -214,7 +217,7 @@ namespace spjalla {
 		log(haunted::ui::simpleline(line, 0), window_name);
 	}
 
-	void interface::focus_window(ui::window *win) {
+	void interface::focus_window(window *win) {
 		if (win == nullptr)
 			win = status_window;
 
@@ -234,11 +237,11 @@ namespace spjalla {
 		if (swappo->empty()) {
 			active_window = nullptr;
 		} else if (!active_window) {
-			focus_window(dynamic_cast<ui::window *>(swappo->get_children().at(0)));
+			focus_window(dynamic_cast<window *>(swappo->get_children().at(0)));
 		} else {
 			auto iter = std::find(swappo->begin(), swappo->end(), active_window);
 			haunted::ui::control *win = *(++iter == swappo->end()? swappo->begin() : iter);
-			focus_window(dynamic_cast<ui::window *>(win));
+			focus_window(dynamic_cast<window *>(win));
 		}
 	}
 
@@ -246,32 +249,32 @@ namespace spjalla {
 		if (swappo->empty()) {
 			active_window = nullptr;
 		} else if (!active_window) {
-			focus_window(dynamic_cast<ui::window *>(swappo->get_children().at(0)));
+			focus_window(dynamic_cast<window *>(swappo->get_children().at(0)));
 		} else {
 			auto iter = std::find(swappo->begin(), swappo->end(), active_window);
 			if (iter == swappo->begin())
 				iter = swappo->end();
 			--iter;
-			focus_window(dynamic_cast<ui::window *>(*iter));
+			focus_window(dynamic_cast<window *>(*iter));
 		}
 	}
 
-	std::vector<ui::window *> interface::windows_for_user(pingpong::user_ptr user) const {
+	std::vector<window *> interface::windows_for_user(pingpong::user_ptr user) const {
 		if (swappo->empty())
 			return {};
 
-		std::vector<ui::window *> found {};
+		std::vector<window *> found {};
 
 		for (haunted::ui::control *ctrl: swappo->get_children()) {
-			ui::window *win = dynamic_cast<ui::window *>(ctrl);
+			window *win = dynamic_cast<window *>(ctrl);
 			if (!win->data)
 				continue;
 
-			const ui::window_meta &data = *win->data;
-			ui::window_type type = data.type;
+			const window_meta &data = *win->data;
+			window_type type = data.type;
 
-			if ((type == ui::window_type::user && *user == *data.user) ||
-				(type == ui::window_type::channel && data.chan->has_user(user))) {
+			if ((type == window_type::user && *user == *data.user) ||
+				(type == window_type::channel && data.chan->has_user(user))) {
 				found.push_back(win);
 			}
 		}
@@ -280,7 +283,7 @@ namespace spjalla {
 	}
 
 	pingpong::channel_ptr interface::get_active_channel() const {
-		if (active_window && active_window->data && active_window->data->type == ui::window_type::channel)
+		if (active_window && active_window->data && active_window->data->type == window_type::channel)
 			return active_window->data->chan;
 		return nullptr;
 	}

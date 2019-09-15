@@ -22,15 +22,19 @@
 #include "ui/window.h"
 
 namespace spjalla {
+	class client;
+}
+
+namespace spjalla::ui {
 	class interface {
-		friend class client;
+		friend class spjalla::client;
 
 		private:
 			haunted::terminal *term;
 			std::shared_ptr<std::thread> worker_draw, worker_input;
 
-			std::list<ui::window *> windows;
-			ui::window *status_window, *active_window;
+			std::list<window *> windows;
+			window *status_window, *active_window;
 
 			haunted::ui::boxes::swapbox    *swappo;
 			haunted::ui::boxes::propobox   *propo;
@@ -62,23 +66,26 @@ namespace spjalla {
 
 			/** Returns a pointer to the window indicated by a given string. If no window is found, one will be created
 			 *  with that name if `create` is true. */
-			ui::window * get_window(const std::string &, bool create = false);
+			window * get_window(const std::string &, bool create = false);
 
 			/** Returns a pointer to the window corresponding to a given channel. If no window is found, one will be
 			 *  created for the channel if `create` is true. */
-			ui::window * get_window(pingpong::channel_ptr, bool create = false);
+			window * get_window(pingpong::channel_ptr, bool create = false);
 
 			/** Creates a new window, configures it as appropriate and appends it to the swapbox. */
-			ui::window * new_window(const std::string &name);
+			window * new_window(const std::string &name);
 
 			/** Closes a window. */
-			void remove_window(ui::window *);
+			void remove_window(window *);
 
 			/** Returns the index within the propobox's children vector in which the output window resides. */
 			size_t get_output_index() const;
 
 			/** Updates the text in the status bar. */
 			void update_statusbar();
+
+			/** Updates the text in the sidebar. */
+			void update_sidebar();
 
 		public:
 			haunted::side sidebar_side = haunted::side::right;
@@ -101,14 +108,14 @@ namespace spjalla {
 
 			/** Logs a line of output for a given target window. */
 			template <typename T>
-			void log(const T &line, ui::window *win = nullptr) {
+			void log(const T &line, window *win = nullptr) {
 				if (win == nullptr)
 					win = status_window;
 				*win += line;
 			}
 
 			/** Logs a line of output for a given target window. */
-			void log(const std::string &, ui::window * = nullptr);
+			void log(const std::string &, window * = nullptr);
 
 			/** Logs a line of output for a given target name. This can be `status` for the main window,
 			 *  `networkname/#channel` for a channel or `networkname/nickname` for a private conversation. */
@@ -124,7 +131,7 @@ namespace spjalla {
 			/** Focuses a window. Note that this method will swap the active window and the given window, so the pointer
 			 *  given will point to a different window after the method is called (assuming the given window isn't
 			 *  already the active window, in which case nothing would happen). */
-			void focus_window(ui::window * = nullptr);
+			void focus_window(window * = nullptr);
 			void focus_window(const std::string &);
 
 			/** Switches to the next window after the current window. */
@@ -134,10 +141,10 @@ namespace spjalla {
 			void prev_window();
 
 			/** Returns all windows (for channels or private conversations) where a given user is present. */
-			std::vector<ui::window *> windows_for_user(pingpong::user_ptr) const;
+			std::vector<window *> windows_for_user(pingpong::user_ptr) const;
 
 			/** Returns the active window. ¯\_(ツ)_/¯ */
-			ui::window * get_active_window() { return active_window; }
+			window * get_active_window() { return active_window; }
 
 			/** If the active window is for a channel, this returns the pointer to the relevant channel. */
 			pingpong::channel_ptr get_active_channel() const;
