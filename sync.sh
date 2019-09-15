@@ -4,7 +4,7 @@
 
 git submodule init
 git submodule update
-cd .haunted
+cd haunted
 git submodule init
 git submodule update
 cd ../pingpong
