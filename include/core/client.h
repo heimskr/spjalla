@@ -6,7 +6,7 @@
 #include <thread>
 #include <tuple>
 
-#include "core/defs.h"
+#include "core/hdefs.h"
 #include "core/input_line.h"
 #include "core/irc.h"
 #include "messages/message.h"

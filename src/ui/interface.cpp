@@ -5,7 +5,7 @@
 #include <csignal>
 
 #include "ui/interface.h"
-#include "lib/haunted/core/defs.h"
+#include "lib/haunted/core/hdefs.h"
 #include "lib/haunted/core/key.h"
 #include "lib/pingpong/core/channel.h"
 
@@ -77,7 +77,7 @@ namespace spjalla {
 	}
 
 	void interface::init_colors() {
-		// sidebar->set_colors(ansi::color::green, ansi::color::red);
+		sidebar->set_colors(ansi::color::normal, ansi::color::gray);
 		// input->set_colors(ansi::color::magenta, ansi::color::yellow);
 		titlebar->set_colors(ansi::color::white, ansi::color::blue);
 		statusbar->set_colors(ansi::color::white, ansi::color::blue);

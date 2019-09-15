@@ -8,7 +8,7 @@
 #include <sstream>
 #include <thread>
 
-#include "haunted/core/defs.h"
+#include "haunted/core/hdefs.h"
 #include "haunted/core/key.h"
 #include "haunted/core/terminal.h"
 #include "haunted/ui/label.h"

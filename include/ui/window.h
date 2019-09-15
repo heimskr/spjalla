@@ -3,7 +3,7 @@
 
 #include <optional>
 
-#include "lib/haunted/core/defs.h"
+#include "lib/haunted/core/hdefs.h"
 #include "lib/haunted/ui/container.h"
 #include "lib/haunted/ui/textbox.h"
 #include "lib/pingpong/core/ppdefs.h"
