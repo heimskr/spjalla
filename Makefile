@@ -8,7 +8,10 @@ CHECKFLAGS		:=
 MKBUILD			:= mkdir -p build
 OUTPUT			:= build/spjalla
 CHECK			:= asan
-SDKFLAGS		:= --sysroot /etc/sdk
+
+ifeq ($(shell uname -s), Darwin)
+	SDKFLAGS	:= --sysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
+endif
 
 ifeq ($(CHECK), asan)
 	CHECKFLAGS := -fsanitize=address -fno-common
@@ -72,6 +75,10 @@ pingpong/build/%.o: pingpong/src/%.cpp
 	$(CC) $(strip $(SDKFLAGS) $(CPPFLAGS) $(CXXFLAGS) $(INCLUDE_PP)) -c $< -o $@
 
 haunted/build/%.o: haunted/src/%.cpp
+	@ mkdir -p "$(shell dirname "$@")"
+	$(CC) $(strip $(SDKFLAGS) $(CPPFLAGS) $(CXXFLAGS) $(INCLUDE_H)) -c $< -o $@
+
+haunted/build/lib/%.o: haunted/lib/%.cpp
 	@ mkdir -p "$(shell dirname "$@")"
 	$(CC) $(strip $(SDKFLAGS) $(CPPFLAGS) $(CXXFLAGS) $(INCLUDE_H)) -c $< -o $@
 
