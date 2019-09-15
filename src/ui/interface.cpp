@@ -7,7 +7,10 @@
 #include "ui/interface.h"
 #include "lib/haunted/core/hdefs.h"
 #include "lib/haunted/core/key.h"
+#include "lib/pingpong/core/ppdefs.h"
 #include "lib/pingpong/core/channel.h"
+#include "lib/pingpong/core/user.h"
+#include "lines/userlist.h"
 
 namespace spjalla::ui {
 	interface::interface(haunted::terminal *term): term(term) {
@@ -19,6 +22,7 @@ namespace spjalla::ui {
 
 		input->focus();
 		update_statusbar();
+		update_sidebar();
 	}
 
 
@@ -181,6 +185,23 @@ namespace spjalla::ui {
 	}
 
 	void interface::update_sidebar() {
+		std::optional<window_meta> &data = active_window->data;
+
+		if (!data)
+			return;
+
+		window_type type = data->type;
+		if (type == window_type::channel) {
+			sidebar->clear_lines();
+			for (const auto &p: data->chan->users) {
+				DBG(p.first);
+				*sidebar += spjalla::lines::userlist_line(data->chan, p.second);
+			}
+
+			sidebar->draw();
+		} else {
+			sidebar->clear_lines();
+		}
 	}
 
 
@@ -227,6 +248,7 @@ namespace spjalla::ui {
 		swappo->set_active(active_window = win);
 		swappo->draw();
 		update_statusbar();
+		update_sidebar();
 	}
 
 	void interface::focus_window(const std::string &window_name) {
