@@ -207,7 +207,7 @@ namespace spjalla {
 			ui.log(haunted::ui::simpleline(ansi::wrap(">> ", ansi::color::lightgray) + ev->raw_out, 3));
 		});
 
-		pingpong::events::listen<pingpong::server_status_event>([&](pingpong::server_status_event *ev) {
+		pingpong::events::listen<pingpong::server_status_event>([&](pingpong::server_status_event *) {
 			if (ui.active_window == ui.status_window)
 				ui.update_sidebar();
 		});

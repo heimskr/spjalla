@@ -176,6 +176,10 @@ namespace spjalla::ui {
 
 	void interface::update_sidebar(pingpong::channel_ptr chan) {
 		*sidebar += haunted::ui::simpleline(ansi::bold(chan->name));
+		chan->users.sort([&](pingpong::user_ptr left, pingpong::user_ptr right) -> bool {
+			return left->name < right->name;
+		});
+
 		for (pingpong::user_ptr user: chan->users)
 			*sidebar += spjalla::lines::userlist_line(chan, user);
 	}
