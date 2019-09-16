@@ -24,6 +24,7 @@
 #include "pingpong/events/privmsg.h"
 #include "pingpong/events/quit.h"
 #include "pingpong/events/raw.h"
+#include "pingpong/events/server_status.h"
 
 #include "pingpong/messages/join.h"
 #include "pingpong/messages/numeric.h"
@@ -204,6 +205,11 @@ namespace spjalla {
 
 		pingpong::events::listen<pingpong::raw_out_event>([&](pingpong::raw_out_event *ev) {
 			ui.log(haunted::ui::simpleline(ansi::wrap(">> ", ansi::color::lightgray) + ev->raw_out, 3));
+		});
+
+		pingpong::events::listen<pingpong::server_status_event>([&](pingpong::server_status_event *ev) {
+			if (ui.active_window == ui.status_window)
+				ui.update_sidebar();
 		});
 	}
 

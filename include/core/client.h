@@ -14,6 +14,8 @@
 
 namespace spjalla {
 	class client {
+		friend class ui::interface;
+
 		using command_handler = std::function<void(pingpong::server_ptr, const input_line &)>;
 		// Tuple: (minimum args, maximum args, needs server, function)
 		using command_tuple = std::tuple<int, int, bool, command_handler>;
@@ -31,7 +33,7 @@ namespace spjalla {
 			void debug_servers();
 
 		public:
-			client(): out_stream(ansi::out), term(haunted::terminal(std::cin, out_stream)), ui(&term) {}
+			client(): out_stream(ansi::out), term(haunted::terminal(std::cin, out_stream)), ui(&term, this) {}
 
 			client(const client &) = delete;
 			client(client &&) = delete;

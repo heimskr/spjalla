@@ -12,8 +12,10 @@
 #include "lib/pingpong/core/user.h"
 #include "lines/userlist.h"
 
+#include "core/client.h"
+
 namespace spjalla::ui {
-	interface::interface(haunted::terminal *term): term(term) {
+	interface::interface(haunted::terminal *term_, client *parent_): term(term_), parent(parent_) {
 		init_basic();
 		init_swappo();
 		init_propo();
@@ -172,6 +174,12 @@ namespace spjalla::ui {
 		return sidebar_side == haunted::side::left? 1 : 0;
 	}
 
+	void interface::update_sidebar(pingpong::channel_ptr chan) {
+		*sidebar += haunted::ui::simpleline(ansi::bold(chan->name));
+		for (pingpong::user_ptr user: chan->users)
+			*sidebar += spjalla::lines::userlist_line(chan, user);
+	}
+
 
 
 // Public instance methods
@@ -259,8 +267,19 @@ namespace spjalla::ui {
 	}
 
 	void interface::update_sidebar() {
-		std::optional<window_meta> &data = active_window->data;
 		sidebar->clear_lines();
+
+		if (active_window == status_window) {
+			*sidebar += haunted::ui::simpleline(ansi::bold("Servers"));
+			for (pingpong::server_ptr serv: parent->pp.servers) {
+				using pingpong::server;
+				if (serv->status != server::stage::dead && serv->status != server::stage::unconnected)
+					*sidebar += haunted::ui::simpleline(ansi::dim("- ") + std::string(*serv));
+			}
+			return;
+		}
+
+		std::optional<window_meta> &data = active_window->data;
 
 		if (!data) {
 			DBG("No data for " << active_window->window_name);
@@ -273,12 +292,6 @@ namespace spjalla::ui {
 		}
 
 		sidebar->draw();
-	}
-
-	void interface::update_sidebar(pingpong::channel_ptr chan) {
-		*sidebar += haunted::ui::simpleline(ansi::bold(chan->name));
-		for (pingpong::user_ptr user: chan->users)
-			*sidebar += spjalla::lines::userlist_line(chan, user);
 	}
 
 	std::vector<window *> interface::windows_for_user(pingpong::user_ptr user) const {

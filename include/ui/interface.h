@@ -32,6 +32,7 @@ namespace spjalla::ui {
 
 		private:
 			haunted::terminal *term;
+			client *parent;
 
 			std::list<window *> windows;
 			window *status_window, *active_window;
@@ -89,7 +90,7 @@ namespace spjalla::ui {
 			double sidebar_ratio = 0.2;
 			size_t max_lines = 128;
 
-			interface(haunted::terminal *term);
+			interface(haunted::terminal *, client * = nullptr);
 
 			/** Sets the side of the screen that the sidebar should be on. */
 			void set_sidebar_side(haunted::side);
