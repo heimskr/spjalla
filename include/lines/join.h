@@ -14,7 +14,7 @@ namespace spjalla::lines {
 		pingpong::channel_ptr chan;
 		pingpong::user_ptr user;
 		const std::string name;
-		long stamp;
+		const long stamp;
 
 		join_line(pingpong::channel_ptr chan_, pingpong::user_ptr user_, long stamp_):
 			haunted::ui::textline(0), chan(chan_), user(user_), name(user_->name), stamp(stamp_) {}

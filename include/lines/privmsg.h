@@ -25,7 +25,7 @@ namespace spjalla::lines {
 			pingpong::user_ptr user;
 			const std::string name;
 			const std::string message;
-			long stamp;
+			const long stamp;
 
 			privmsg_line(pingpong::channel_ptr chan_, pingpong::user_ptr user_, const std::string &message_,
 				long stamp_);
