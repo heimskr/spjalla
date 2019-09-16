@@ -81,11 +81,11 @@ namespace spjalla::ui {
 	}
 
 	void interface::init_colors() {
-		sidebar->set_colors(ansi::color::normal, ansi::color::verydark);
-		// input->set_colors(ansi::color::magenta, ansi::color::yellow);
+		sidebar->set_colors(ansi::color::normal, ansi::color::green);
+		input->set_colors(ansi::color::normal, ansi::color::red);
 		titlebar->set_colors(ansi::color::white, ansi::color::blue);
 		statusbar->set_colors(ansi::color::white, ansi::color::blue);
-		active_window->set_colors(ansi::color::normal, ansi::color::normal);
+		active_window->set_colors(ansi::color::normal, ansi::color::magenta);
 	}
 
 	void interface::readjust_columns() {
@@ -94,10 +94,6 @@ namespace spjalla::ui {
 
 		if (pchildren[get_output_index()] == sidebar) {
 			std::swap(pchildren.at(0), pchildren.at(1));
-			// haunted::ui::control *back = pchildren.back();
-			// pchildren.pop_back();
-
-			// std::swap(*active_window, *sidebar);
 			changed = true;
 		}
 
@@ -106,8 +102,8 @@ namespace spjalla::ui {
 		if (propo->get_ratio() != adjusted) {
 			propo->set_ratio(adjusted);
 		} else if (changed) {
-			// set_ratio() already draws if the ratio changed (and that's true for the preceding if block).
-			propo->draw();
+			// set_ratio() already resizes if the ratio changed (and that's true for the preceding if block).
+			propo->resize();
 		}
 	}
 
@@ -156,8 +152,8 @@ namespace spjalla::ui {
 		static size_t win_count = 0;
 		window *win = new window(swappo, swappo->get_position(), name);
 		win->set_name("window" + std::to_string(++win_count));
-		win->set_voffset(-1);
 		win->set_terminal(nullptr); // inactive windows are marked by their null terminals
+		win->set_voffset(-1);
 		return win;
 	}
 
@@ -330,7 +326,14 @@ namespace spjalla::ui {
 			
 			switch (k.type) {
 				case haunted::ktype::up_arrow:   active_window->vscroll(-1); break;
-				case haunted::ktype::down_arrow: active_window->vscroll(1);  break;
+				case haunted::ktype::down_arrow: {
+					active_window->vscroll(1); 
+					const int total = active_window->total_rows(), height = active_window->get_position().height,
+					          effective = active_window->effective_voffset();
+					if (total == height + effective)
+						active_window->set_voffset(-1);
+					break;
+				}
 				case haunted::ktype::left_arrow: active_window->set_voffset(-1); break;
 				default: return false;
 			}
