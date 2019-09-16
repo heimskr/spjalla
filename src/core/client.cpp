@@ -345,6 +345,10 @@ namespace spjalla {
 		}
 	}
 
+	void client::join() {
+		term.join();
+	}
+
 	pingpong::server_ptr client::active_server() {
 		return pp.active_server;
 	}

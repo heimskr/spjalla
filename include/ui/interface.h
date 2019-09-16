@@ -31,7 +31,6 @@ namespace spjalla::ui {
 
 		private:
 			haunted::terminal *term;
-			std::shared_ptr<std::thread> worker_draw, worker_input;
 
 			std::list<window *> windows;
 			window *status_window, *active_window;

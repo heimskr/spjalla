@@ -8,16 +8,20 @@
 
 namespace spjalla {
 	void run(int argc, char **argv) {
-		std::shared_ptr<pingpong::irc> pp = std::make_shared<pingpong::irc>();
-		// std::shared_ptr<spjalla::client> cli = std::make_shared<spjalla::client>();
-
 		haunted::dbgstream << "--------------------------------\n";
 		haunted::dbgstream.clear().jump().flush();
 
-		spjalla::client instance;
-		instance.init();
+		std::shared_ptr<pingpong::irc> pp = std::make_shared<pingpong::irc>();
+		std::shared_ptr<spjalla::client> instance = std::make_shared<spjalla::client>();
+
+
+		// spjalla::client instance;
+		instance->init();
 
 		std::string hostname = 1 < argc? argv[1] : "localhost";
+
+		instance->join();
+
 		// std::shared_ptr<server> sserv = std::make_shared<server>(pp, hostname);
 		// server_ptr serv = sserv.get();
 		// serv->start();

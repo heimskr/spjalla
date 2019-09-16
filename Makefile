@@ -89,7 +89,7 @@ test: $(OUTPUT)
 	./$(OUTPUT) irchost
 
 grind: $(OUTPUT)
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=no ./$(OUTPUT) irchost
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=no ./$(OUTPUT)
 
 clean:
 	rm -rf build
@@ -116,9 +116,9 @@ DEPFLAGS = -f $(DEPFILE) -s $(DEPTOKEN)
 depend:
 	@ echo $(DEPTOKEN) > $(DEPFILE)
 	makedepend $(DEPFLAGS) -- $(CC) $(INCLUDE) -- $(SRC_ALL) 2>/dev/null
-	@ sed -i .sed 's/^src\//build\//' $(DEPFILE)
-	@ sed -i .sed 's/^pingpong\/src\//pingpong\/build\//' $(DEPFILE)
-	@ sed -i .sed '/\/usr\/include\//d' $(DEPFILE)
+	@ sed -i.sed 's/^src\//build\//' $(DEPFILE)
+	@ sed -i.sed 's/^pingpong\/src\//pingpong\/build\//' $(DEPFILE)
+	@ sed -i.sed '/\/usr\/include\//d' $(DEPFILE)
 	@ rm $(DEPFILE).bak $(DEPFILE).sed
 
 sinclude $(DEPFILE)

@@ -82,7 +82,7 @@ namespace spjalla::ui {
 
 	void interface::init_colors() {
 		sidebar->set_colors(ansi::color::normal, ansi::color::green);
-		input->set_colors(ansi::color::normal, ansi::color::red);
+		// input->set_colors(ansi::color::normal, ansi::color::red);
 		titlebar->set_colors(ansi::color::white, ansi::color::blue);
 		statusbar->set_colors(ansi::color::white, ansi::color::blue);
 		active_window->set_colors(ansi::color::normal, ansi::color::magenta);

@@ -81,6 +81,8 @@ namespace spjalla {
 			/** Updates the interface to accommodate the removal of a server. */
 			void server_removed(pingpong::server_ptr);
 
+			void join();
+
 			ui::interface & get_ui() { return ui; }
 
 			pingpong::server_ptr active_server();
