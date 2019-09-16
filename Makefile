@@ -2,12 +2,11 @@ COMPILER		:= g++
 CFLAGS			:= -std=c++17 -g -ggdb -O0 -Wall -Wextra
 CFLAGS_ORIG		:= $(CFLAGS)
 INCLUDE			:= -Iinclude -Iinclude/lib
-LDFLAGS			:=
-CC				 = $(COMPILER) $(strip $(CFLAGS)) $(CHECKFLAGS)
+LDFLAGS			:= -pthread
+CC				 = $(COMPILER) $(strip $(CFLAGS) $(CHECKFLAGS))
 CHECKFLAGS		:=
 MKBUILD			:= mkdir -p build
 OUTPUT			:= build/spjalla
-CHECK			:= asan
 
 ifeq ($(shell uname -s), Darwin)
 	SDKFLAGS	:= --sysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
