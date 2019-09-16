@@ -2,8 +2,8 @@
 
 namespace spjalla::lines {
 	privmsg_line::privmsg_line(pingpong::channel_ptr chan_, pingpong::user_ptr user_, const std::string &message_,
-	long stamp_): haunted::ui::textline(0), chan(chan_), user(user_), message(message_), stamp(stamp_),
-	name(user_->name) {
+	long stamp_): haunted::ui::textline(0), chan(chan_), user(user_), name(user_->name), message(message_),
+	stamp(stamp_) {
 		if (is_action()) {
 			continuation = ("[xx:xx:xx] * " + name + " ").length();
 		} else {

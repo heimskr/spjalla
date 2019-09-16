@@ -147,6 +147,9 @@ namespace spjalla::ui {
 			/** Returns all windows (for channels or private conversations) where a given user is present. */
 			std::vector<window *> windows_for_user(pingpong::user_ptr) const;
 
+			/** Returns the window for a given channel. */
+			window * window_for_channel(pingpong::channel_ptr) const;
+
 			/** Returns the active window. ¯\_(ツ)_/¯ */
 			window * get_active_window() { return active_window; }
 

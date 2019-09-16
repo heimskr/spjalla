@@ -321,6 +321,16 @@ namespace spjalla::ui {
 		return found;
 	}
 
+	window * interface::window_for_channel(pingpong::channel_ptr chan) const {
+		for (haunted::ui::control *ctrl: swappo->get_children()) {
+			window *win = dynamic_cast<window *>(ctrl);
+			if (win->data && win->data->chan == chan)
+				return win;
+		}
+
+		return nullptr;
+	}
+
 	pingpong::channel_ptr interface::get_active_channel() const {
 		if (active_window && active_window->data && active_window->data->type == window_type::channel)
 			return active_window->data->chan;

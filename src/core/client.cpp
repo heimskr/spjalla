@@ -20,6 +20,7 @@
 #include "pingpong/events/join.h"
 #include "pingpong/events/message.h"
 #include "pingpong/events/names_updated.h"
+#include "pingpong/events/nick.h"
 #include "pingpong/events/part.h"
 #include "pingpong/events/privmsg.h"
 #include "pingpong/events/quit.h"
@@ -36,6 +37,7 @@
 #include "core/input_line.h"
 
 #include "lines/join.h"
+#include "lines/nick_change.h"
 #include "lines/part.h"
 #include "lines/privmsg.h"
 #include "lines/quit.h"
@@ -174,6 +176,12 @@ namespace spjalla {
 				if (win->data && win->data->chan && win->data->chan == ev->chan)
 					ui.update_sidebar();
 			}
+		});
+
+		pingpong::events::listen<pingpong::nick_event>([&](pingpong::nick_event *ev) {
+			lines::nick_change_line nline = lines::nick_change_line(*ev);
+			for (ui::window *win: ui.windows_for_user(ev->who))
+				*win += nline;
 		});
 
 		pingpong::events::listen<pingpong::part_event>([&](pingpong::part_event *ev) {
