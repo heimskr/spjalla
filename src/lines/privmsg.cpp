@@ -2,11 +2,12 @@
 
 namespace spjalla::lines {
 	privmsg_line::privmsg_line(pingpong::channel_ptr chan_, pingpong::user_ptr user_, const std::string &message_,
-	long stamp_): haunted::ui::textline(0), chan(chan_), user(user_), message(message_), stamp(stamp_) {
+	long stamp_): haunted::ui::textline(0), chan(chan_), user(user_), message(message_), stamp(stamp_),
+	name(user_->name) {
 		if (is_action()) {
-			continuation = ("[xx:xx:xx] * " + user_->name + " ").length();
+			continuation = ("[xx:xx:xx] * " + name + " ").length();
 		} else {
-			continuation = ("[xx:xx:xx] <." + user_->name + "> ").length();
+			continuation = ("[xx:xx:xx] <." + name + "> ").length();
 		}
 	}
 
@@ -36,7 +37,7 @@ namespace spjalla::lines {
 
 		const std::string hat_str(1, static_cast<char>(hat));
 
-		return is_action()? (lines::render_time(stamp) + "* "_b + ansi::bold(user->name) + " " + trimmed_message())
-		                  : (lines::render_time(stamp) + "<"_d + hat_str + user->name + "> "_d + message);
+		return is_action()? (lines::render_time(stamp) + "* "_b + ansi::bold(name) + " " + trimmed_message())
+		                  : (lines::render_time(stamp) + "<"_d + hat_str + name + "> "_d + message);
 	}
 }
