@@ -320,6 +320,15 @@ namespace spjalla {
 			for (long i = 1; i <= max; ++i)
 				ui.log(std::to_string(i));
 		}}});
+
+		add({"swap", {0, 0, false, [&](sptr, line) {
+			DBG("old side: " << static_cast<int>(ui.sidebar_side));
+			ui.set_sidebar_side(ui.sidebar_side == haunted::side::left? haunted::side::right : haunted::side::left);
+			ui.propo->resize();
+			ui.active_window->draw();
+			ui.sidebar->draw();
+			DBG("new side: " << static_cast<int>(ui.sidebar_side));
+		}}});
 	}
 
 	void client::server_removed(pingpong::server_ptr serv) {

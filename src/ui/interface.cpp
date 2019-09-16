@@ -81,7 +81,7 @@ namespace spjalla::ui {
 	}
 
 	void interface::init_colors() {
-		sidebar->set_colors(ansi::color::normal, ansi::color::gray);
+		sidebar->set_colors(ansi::color::normal, ansi::color::verydark);
 		// input->set_colors(ansi::color::magenta, ansi::color::yellow);
 		titlebar->set_colors(ansi::color::white, ansi::color::blue);
 		statusbar->set_colors(ansi::color::white, ansi::color::blue);
@@ -194,7 +194,6 @@ namespace spjalla::ui {
 		if (type == window_type::channel) {
 			sidebar->clear_lines();
 			for (const auto &p: data->chan->users) {
-				DBG(p.first);
 				*sidebar += spjalla::lines::userlist_line(data->chan, p.second);
 			}
 
@@ -315,6 +314,8 @@ namespace spjalla::ui {
 			switch (k.type) {
 				case haunted::ktype::n: next_window(); break;
 				case haunted::ktype::p: prev_window(); break;
+				case haunted::ktype::h: sidebar->draw(); break;
+				case haunted::ktype::g: active_window->draw(); break;
 				case haunted::ktype::r:
 					if (active_window)
 						DBG("v = " << active_window->get_voffset() << ", e = " << active_window->effective_voffset());
