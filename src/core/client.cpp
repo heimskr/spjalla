@@ -28,6 +28,8 @@
 #include "pingpong/messages/numeric.h"
 #include "pingpong/messages/ping.h"
 
+#include "pingpong/net/resolution_error.h"
+
 #include "core/client.h"
 #include "core/input_line.h"
 
@@ -235,9 +237,14 @@ namespace spjalla {
 				nick = il.args[1];
 
 			pingpong::server *serv = new pingpong::server(&pp, hostname);
-			serv->start();
-			serv->set_nick(nick);
-			pp += serv;
+			try {
+				serv->start();
+				serv->set_nick(nick);
+				pp += serv;
+			} catch (pingpong::net::resolution_error &err) {
+				delete serv;
+				throw;
+			}
 		}}});
 
 		add({"info", {0, 1, false, [&](sptr, line il) {
