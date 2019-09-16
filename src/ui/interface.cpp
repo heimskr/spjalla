@@ -269,14 +269,16 @@ namespace spjalla::ui {
 
 		window_type type = data->type;
 		if (type == window_type::channel) {
-			DBG("Checking users for " << data->chan->name);
-			for (pingpong::user_ptr user: data->chan->users) {
-				DBG("Adding " << user->name);
-				*sidebar += spjalla::lines::userlist_line(data->chan, user);
-			}
+			update_sidebar(data->chan);
 		}
 
 		sidebar->draw();
+	}
+
+	void interface::update_sidebar(pingpong::channel_ptr chan) {
+		*sidebar += haunted::ui::simpleline(ansi::bold(chan->name));
+		for (pingpong::user_ptr user: chan->users)
+			*sidebar += spjalla::lines::userlist_line(chan, user);
 	}
 
 	std::vector<window *> interface::windows_for_user(pingpong::user_ptr user) const {

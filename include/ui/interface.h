@@ -17,6 +17,7 @@
 #include "haunted/ui/boxes/expandobox.h"
 #include "haunted/ui/boxes/propobox.h"
 #include "haunted/ui/boxes/swapbox.h"
+
 #include "pingpong/core/ppdefs.h"
 
 #include "ui/window.h"
@@ -79,6 +80,9 @@ namespace spjalla::ui {
 
 			/** Returns the index within the propobox's children vector in which the output window resides. */
 			size_t get_output_index() const;
+
+			/** Renders a channel's user list onto the sidebar. */
+			void update_sidebar(pingpong::channel_ptr);
 
 		public:
 			haunted::side sidebar_side = haunted::side::right;
