@@ -81,11 +81,11 @@ namespace spjalla::ui {
 	}
 
 	void interface::init_colors() {
-		sidebar->set_colors(ansi::color::normal, ansi::color::green);
-		// input->set_colors(ansi::color::normal, ansi::color::red);
+		sidebar->set_colors(ansi::color::normal, ansi::color::verydark);
 		titlebar->set_colors(ansi::color::white, ansi::color::blue);
 		statusbar->set_colors(ansi::color::white, ansi::color::blue);
-		active_window->set_colors(ansi::color::normal, ansi::color::magenta);
+		// input->set_colors(ansi::color::normal, ansi::color::red);
+		// active_window->set_colors(ansi::color::normal, ansi::color::magenta);
 	}
 
 	void interface::readjust_columns() {
@@ -172,32 +172,6 @@ namespace spjalla::ui {
 		return sidebar_side == haunted::side::left? 1 : 0;
 	}
 
-	void interface::update_statusbar() {
-		if (!active_window) {
-			statusbar->set_text("[?]");
-		} else {
-			statusbar->set_text("[" + ansi::wrap(active_window->window_name, ansi::style::bold) + "]");
-		}
-	}
-
-	void interface::update_sidebar() {
-		std::optional<window_meta> &data = active_window->data;
-
-		if (!data)
-			return;
-
-		window_type type = data->type;
-		if (type == window_type::channel) {
-			sidebar->clear_lines();
-			for (const auto &p: data->chan->users) {
-				*sidebar += spjalla::lines::userlist_line(data->chan, p.second);
-			}
-
-			sidebar->draw();
-		} else {
-			sidebar->clear_lines();
-		}
-	}
 
 
 // Public instance methods
@@ -274,6 +248,35 @@ namespace spjalla::ui {
 			--iter;
 			focus_window(dynamic_cast<window *>(*iter));
 		}
+	}
+
+	void interface::update_statusbar() {
+		if (!active_window) {
+			statusbar->set_text("[?]");
+		} else {
+			statusbar->set_text("[" + ansi::wrap(active_window->window_name, ansi::style::bold) + "]");
+		}
+	}
+
+	void interface::update_sidebar() {
+		std::optional<window_meta> &data = active_window->data;
+		sidebar->clear_lines();
+
+		if (!data) {
+			DBG("No data for " << active_window->window_name);
+			return;
+		}
+
+		window_type type = data->type;
+		if (type == window_type::channel) {
+			DBG("Checking users for " << data->chan->name);
+			for (const auto &p: data->chan->users) {
+				DBG("Adding " << p.second->name << " (index: " << p.first << ")");
+				*sidebar += spjalla::lines::userlist_line(data->chan, p.second);
+			}
+		}
+
+		sidebar->draw();
 	}
 
 	std::vector<window *> interface::windows_for_user(pingpong::user_ptr user) const {

@@ -80,12 +80,6 @@ namespace spjalla::ui {
 			/** Returns the index within the propobox's children vector in which the output window resides. */
 			size_t get_output_index() const;
 
-			/** Updates the text in the status bar. */
-			void update_statusbar();
-
-			/** Updates the text in the sidebar. */
-			void update_sidebar();
-
 		public:
 			haunted::side sidebar_side = haunted::side::right;
 			double sidebar_ratio = 0.2;
@@ -138,6 +132,12 @@ namespace spjalla::ui {
 
 			/** Switches to the previous window before the current window. */
 			void prev_window();
+
+			/** Updates the text in the status bar. */
+			void update_statusbar();
+
+			/** Updates the text in the sidebar. */
+			void update_sidebar();
 
 			/** Returns all windows (for channels or private conversations) where a given user is present. */
 			std::vector<window *> windows_for_user(pingpong::user_ptr) const;

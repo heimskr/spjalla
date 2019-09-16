@@ -19,6 +19,7 @@
 #include "pingpong/events/command.h"
 #include "pingpong/events/join.h"
 #include "pingpong/events/message.h"
+#include "pingpong/events/names_updated.h"
 #include "pingpong/events/part.h"
 #include "pingpong/events/privmsg.h"
 #include "pingpong/events/quit.h"
@@ -165,6 +166,13 @@ namespace spjalla {
 		pingpong::events::listen<pingpong::message_event>([&](pingpong::message_event *ev) {
 			if (!ev->msg->is<pingpong::numeric_message>() && !ev->msg->is<pingpong::ping_message>())
 				ui.log(*(ev->msg));
+		});
+
+		pingpong::events::listen<pingpong::names_updated_event>([&](pingpong::names_updated_event *ev) {
+			if (ui::window *win = ui.get_active_window()) {
+				if (win->data && win->data->chan && win->data->chan == ev->chan)
+					ui.update_sidebar();
+			}
 		});
 
 		pingpong::events::listen<pingpong::part_event>([&](pingpong::part_event *ev) {
@@ -331,6 +339,14 @@ namespace spjalla {
 		add({"swap", {0, 0, false, [&](sptr, line) {
 			ui.set_sidebar_side(ui.sidebar_side == haunted::side::left? haunted::side::right : haunted::side::left);
 		}}});
+		
+		add({"dbg", {0, 0, false, [&](sptr, line) {
+			debug_servers();
+		}}});
+
+		add({"sidebar", {0, 0, false, [&](sptr, line) {
+			ui.update_sidebar();
+		}}});
 	}
 
 	void client::server_removed(pingpong::server_ptr serv) {
@@ -361,5 +377,19 @@ namespace spjalla {
 
 	void client::stop() {
 		alive = false;
+	}
+
+	void client::debug_servers() {
+		for (pingpong::server_ptr serv: pp.servers) {
+			DBG(ansi::bold(serv->hostname));
+			for (const auto &cp: serv->channels) {
+				pingpong::channel_ptr chan = cp.second;
+				DBG("    " << ansi::wrap(chan->name, ansi::style::underline));
+				for (const auto &up: chan->users) {
+					pingpong::user_ptr user = up.second;
+					DBG("        " << user->name);
+				}
+			}
+		}
 	}
 }

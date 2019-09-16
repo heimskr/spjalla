@@ -28,6 +28,8 @@ namespace spjalla {
 			haunted::terminal term;
 			ui::interface ui;
 
+			void debug_servers();
+
 		public:
 			client(): out_stream(ansi::out), term(haunted::terminal(std::cin, out_stream)), ui(&term) {}
 
