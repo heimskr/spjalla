@@ -213,8 +213,8 @@ namespace spjalla {
 
 		add({"chans", {0, 0, true, [&](sptr serv, line) {
 			std::string msg = "Channels:";
-			for (auto [name, chan]: serv->channels)
-				msg += " " + name;
+			for (pingpong::channel_ptr chan: serv->channels)
+				msg += " " + chan->name;
 			ui.log(msg);
 		}}});
 
@@ -382,13 +382,10 @@ namespace spjalla {
 	void client::debug_servers() {
 		for (pingpong::server_ptr serv: pp.servers) {
 			DBG(ansi::bold(serv->hostname));
-			for (const auto &cp: serv->channels) {
-				pingpong::channel_ptr chan = cp.second;
+			for (pingpong::channel_ptr chan: serv->channels) {
 				DBG("    " << ansi::wrap(chan->name, ansi::style::underline));
-				for (const auto &up: chan->users) {
-					pingpong::user_ptr user = up.second;
+				for (pingpong::user_ptr user: chan->users)
 					DBG("        " << user->name);
-				}
 			}
 		}
 	}

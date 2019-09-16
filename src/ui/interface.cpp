@@ -270,9 +270,9 @@ namespace spjalla::ui {
 		window_type type = data->type;
 		if (type == window_type::channel) {
 			DBG("Checking users for " << data->chan->name);
-			for (const auto &p: data->chan->users) {
-				DBG("Adding " << p.second->name << " (index: " << p.first << ")");
-				*sidebar += spjalla::lines::userlist_line(data->chan, p.second);
+			for (pingpong::user_ptr user: data->chan->users) {
+				DBG("Adding " << user->name);
+				*sidebar += spjalla::lines::userlist_line(data->chan, user);
 			}
 		}
 
