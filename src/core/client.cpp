@@ -315,9 +315,9 @@ namespace spjalla {
 			
 		// }}});
 
-		add({"me", {1, -1, true, [&](sptr serv, line il) {
+		add({"me", {1, -1, true, [&](sptr, line il) {
 			if (std::shared_ptr<pingpong::channel> chan = ui.get_active_channel())
-				pingpong::privmsg_command(serv, chan, "\1ACTION " + il.body + "\1").send();
+				pingpong::privmsg_command(chan, "\1ACTION " + il.body + "\1").send();
 			else ui.log("No active channel.");
 		}}});
 
