@@ -17,6 +17,7 @@
 
 #include "pingpong/events/bad_line.h"
 #include "pingpong/events/command.h"
+#include "pingpong/events/error.h"
 #include "pingpong/events/join.h"
 #include "pingpong/events/kick.h"
 #include "pingpong/events/message.h"
@@ -103,13 +104,13 @@ namespace spjalla {
 						}
 					}
 				} catch (std::exception &err) {
-					ui.log("Caught an exception (" + haunted::util::demangle_object(err) + "): " + err.what());
+					ui.log(err);
 				}
 			} else {
 				if (std::shared_ptr<pingpong::channel> chan = ui.get_active_channel()) {
 					pingpong::privmsg_command(chan, str).send();
 				} else {
-					ui.log("No active channel.");
+					ui.log(lines::red_notice + "No active channel.");
 				}
 			}
 		});
@@ -137,7 +138,7 @@ namespace spjalla {
 				YIKES("/" << name << " expects at most " << std::to_string(max) << " argument"
 				      << (min == 1? "." : "s."));
 			} else if (needs_serv && !pp.active_server) {
-				YIKES("No server is selected.");
+				ui.log(lines::red_notice + "No server is selected.");
 			} else {
 				fn(pp.active_server, il);
 			}
@@ -158,6 +159,11 @@ namespace spjalla {
 		pingpong::events::listen<pingpong::command_event>([&](pingpong::command_event *ev) {
 			if (pingpong::quit_command *quit = dynamic_cast<pingpong::quit_command *>(ev->cmd))
 				server_removed(quit->serv);
+		});
+
+		pingpong::events::listen<pingpong::error_event>([&](pingpong::error_event *ev) {
+			ui::window *win = ev->current_window? ui.active_window : ui.status_window;
+			*win += haunted::ui::simpleline(lines::red_notice + ev->message, ansi::length(lines::red_notice));
 		});
 
 		pingpong::events::listen<pingpong::join_event>([&](pingpong::join_event *ev) {
@@ -203,7 +209,10 @@ namespace spjalla {
 		});
 
 		pingpong::events::listen<pingpong::privmsg_event>([&](pingpong::privmsg_event *ev) {
-			*ui.get_window(ev->chan, true) += lines::privmsg_line(*ev);
+			if (ev->is_channel())
+				*ui.get_window(ev->chan, true) += lines::privmsg_line(*ev);
+			else
+				*ui.get_window(ev->whom, true) += lines::privmsg_line(*ev);
 		});
 
 		pingpong::events::listen<pingpong::quit_event>([&](pingpong::quit_event *ev) {
@@ -240,7 +249,7 @@ namespace spjalla {
 		add({"chan", {0, 0, true, [&](sptr, line) {
 			std::shared_ptr<pingpong::channel> chan = ui.get_active_channel();
 			if (chan == nullptr)
-				ui.log("No active channel.");
+				ui.log(lines::red_notice + "No active channel.");
 			else
 				ui.log("Active channel: " + chan->name);
 		}}});
@@ -248,11 +257,11 @@ namespace spjalla {
 		add({"clear", {0, 0, false, [&](sptr, line) {
 			if (ui::window *win = ui.get_active_window()) {
 				// TODO: find out why changing the voffset has seemingly no effect.
-				// win->set_voffset(win->total_rows());
-				win->clear_lines();
-				win->draw();
+				win->set_voffset(win->total_rows());
+				// win->clear_lines();
+				// win->draw();
 			} else {
-				DBG("!! No window.");
+				DBG(lines::red_notice + "No window.");
 			}
 		}}});
 
@@ -318,7 +327,7 @@ namespace spjalla {
 		add({"me", {1, -1, true, [&](sptr, line il) {
 			if (std::shared_ptr<pingpong::channel> chan = ui.get_active_channel())
 				pingpong::privmsg_command(chan, "\1ACTION " + il.body + "\1").send();
-			else ui.log("No active channel.");
+			else ui.log(lines::red_notice + "No active channel.");
 		}}});
 
 		add({"msg", {2, -1, true, [&](sptr serv, line il) {
@@ -338,7 +347,7 @@ namespace spjalla {
 			std::shared_ptr<pingpong::channel> active_channel = ui.get_active_channel();
 
 			if ((il.args.empty() || il.first()[0] != '#') && !active_channel) {
-				ui.log("No active channel.");
+				ui.log(lines::red_notice + "No active channel.");
 			} else if (il.args.empty()) {
 				pingpong::part_command(serv, active_channel).send();
 			} else if (il.first()[0] != '#') {

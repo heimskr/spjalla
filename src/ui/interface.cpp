@@ -137,6 +137,9 @@ namespace spjalla::ui {
 	}
 
 	window * interface::get_window(std::shared_ptr<pingpong::channel> chan, bool create) {
+		if (!chan)
+			return nullptr;
+
 		const std::string name = chan->serv->hostname + "/" + chan->name;
 		window *win = get_window(name, false);
 
@@ -145,6 +148,23 @@ namespace spjalla::ui {
 			win->data = {window_type::channel};
 			win->data->chan = chan;
 			win->data->serv = chan->serv;
+		}
+
+		return win;
+	}
+
+	window * interface::get_window(std::shared_ptr<pingpong::user> user, bool create) {
+		if (!user)
+			return nullptr;
+
+		const std::string name = user->serv->hostname + "/" + user->name;
+		window *win = get_window(name, false);
+
+		if (create && !win) {
+			win = new_window(name);
+			win->data = {window_type::user};
+			win->data->user = user;
+			win->data->serv = user->serv;
 		}
 
 		return win;
@@ -185,7 +205,6 @@ namespace spjalla::ui {
 	}
 
 
-
 // Public instance methods
 
 
@@ -217,6 +236,10 @@ namespace spjalla::ui {
 
 	void interface::log(const std::string &line, const std::string &window_name) {
 		log(haunted::ui::simpleline(line, 0), window_name);
+	}
+
+	void interface::log(const std::exception &err) {
+		log(ansi::red(haunted::util::demangle_object(err)) + ": "_d + ansi::bold(err.what()));
 	}
 
 	void interface::focus_window(window *win) {
@@ -357,7 +380,7 @@ namespace spjalla::ui {
 				return false;
 			
 			switch (k.type) {
-				case haunted::ktype::up_arrow:   active_window->vscroll(-1); break;
+				case haunted::ktype::up_arrow: active_window->vscroll(-1); break;
 				case haunted::ktype::down_arrow: {
 					active_window->vscroll(1); 
 					const int total = active_window->total_rows(), height = active_window->get_position().height,

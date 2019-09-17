@@ -6,6 +6,7 @@
 #include <iostream>
 #include <list>
 #include <sstream>
+#include <stdexcept>
 #include <thread>
 
 #include "haunted/core/hdefs.h"
@@ -73,6 +74,10 @@ namespace spjalla::ui {
 			 *  created for the channel if `create` is true. */
 			window * get_window(std::shared_ptr<pingpong::channel>, bool create = false);
 
+			/** Returns a pointer to the window corresponding to a given user. If no window is found, one will be
+			 *  created for the user if `create` is true. */
+			window * get_window(std::shared_ptr<pingpong::user>, bool create = false);
+
 			/** Creates a new window, configures it as appropriate and appends it to the swapbox. */
 			window * new_window(const std::string &name);
 
@@ -125,6 +130,9 @@ namespace spjalla::ui {
 			/** Logs a line of output for a given target name. This can be `status` for the main window,
 			 *  `networkname/#channel` for a channel or `networkname/nickname` for a private conversation. */
 			void log(const std::string &, const std::string &);
+
+			/** Logs an exception to the status window. */
+			void log(const std::exception &);
 
 			/** Focuses a window. Note that this method will swap the active window and the given window, so the pointer
 			 *  given will point to a different window after the method is called (assuming the given window isn't
