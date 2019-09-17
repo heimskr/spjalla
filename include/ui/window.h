@@ -23,14 +23,14 @@ namespace spjalla::ui {
 	struct window_meta {
 		window_type type;
 
-		pingpong::server *serv;
+		pingpong::server *serv = nullptr;
 		std::shared_ptr<pingpong::channel> chan;
 		std::shared_ptr<pingpong::user>    user;
 
 		/** Whether whatever the window is for is dead—e.g., a channel you've been kicked from. */
 		bool dead = false;
 		
-		void *other;
+		void *other = nullptr;
 
 		window_meta(window_type type_): type(type_) {}
 	};

@@ -373,7 +373,7 @@ namespace spjalla {
 				char *ptr;
 				const std::string &str = il.first();
 				long parsed = strtol(str.c_str(), &ptr, 10);
-				if (ptr != &*str.end()) {
+				if (ptr != 1 + &*(str.end() - 1)) {
 					ui.log(ansi::yellow("!!") + " Invalid number: \"" + il.first() + "\"");
 				} else max = parsed;
 			}
