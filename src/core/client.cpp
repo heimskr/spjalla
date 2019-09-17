@@ -56,7 +56,7 @@ namespace spjalla {
 		return *this;
 	}
 	
-	client & client::operator+=(const pingpong::server_ptr &ptr) {
+	client & client::operator+=(pingpong::server *ptr) {
 		pp += ptr;
 		return *this;
 	}
@@ -106,7 +106,7 @@ namespace spjalla {
 					ui.log("Caught an exception (" + haunted::util::demangle_object(err) + "): " + err.what());
 				}
 			} else {
-				if (pingpong::channel_ptr chan = ui.get_active_channel()) {
+				if (std::shared_ptr<pingpong::channel> chan = ui.get_active_channel()) {
 					pingpong::privmsg_command(chan, str).send();
 				} else {
 					ui.log("No active channel.");
@@ -227,18 +227,18 @@ namespace spjalla {
 	}
 
 	void client::add_handlers() {
-		using sptr = pingpong::server_ptr;
+		using sptr = pingpong::server *;
 		using line = const input_line &;
 
 		add({"chans", {0, 0, true, [&](sptr serv, line) {
 			std::string msg = "Channels:";
-			for (pingpong::channel_ptr chan: serv->channels)
+			for (std::shared_ptr<pingpong::channel> chan: serv->channels)
 				msg += " " + chan->name;
 			ui.log(msg);
 		}}});
 
 		add({"chan", {0, 0, true, [&](sptr, line) {
-			pingpong::channel_ptr chan = ui.get_active_channel();
+			std::shared_ptr<pingpong::channel> chan = ui.get_active_channel();
 			if (chan == nullptr)
 				ui.log("No active channel.");
 			else
@@ -316,7 +316,7 @@ namespace spjalla {
 		// }}});
 
 		add({"me", {1, -1, true, [&](sptr serv, line il) {
-			if (pingpong::channel_ptr chan = ui.get_active_channel())
+			if (std::shared_ptr<pingpong::channel> chan = ui.get_active_channel())
 				pingpong::privmsg_command(serv, chan, "\1ACTION " + il.body + "\1").send();
 			else ui.log("No active channel.");
 		}}});
@@ -335,7 +335,7 @@ namespace spjalla {
 		}}});
 
 		add({"part", {0, -1, true, [&](sptr serv, line il) {
-			pingpong::channel_ptr active_channel = ui.get_active_channel();
+			std::shared_ptr<pingpong::channel> active_channel = ui.get_active_channel();
 
 			if ((il.args.empty() || il.first()[0] != '#') && !active_channel) {
 				ui.log("No active channel.");
@@ -343,7 +343,7 @@ namespace spjalla {
 				pingpong::part_command(serv, active_channel).send();
 			} else if (il.first()[0] != '#') {
 				pingpong::part_command(serv, active_channel, il.body).send();
-			} else if (pingpong::channel_ptr cptr = serv->get_channel(il.first())) {
+			} else if (std::shared_ptr<pingpong::channel> cptr = serv->get_channel(il.first())) {
 				pingpong::part_command(serv, cptr, il.rest()).send();
 			} else {
 				ui.log(il.first() + ": no such channel.");
@@ -395,7 +395,7 @@ namespace spjalla {
 		}}});
 	}
 
-	void client::server_removed(pingpong::server_ptr serv) {
+	void client::server_removed(pingpong::server *serv) {
 		// We need to check the windows in reverse because we're removing some along the way. Removing elements while
 		// looping through a vector causes all kinds of problems unless you loop in reverse.
 		std::vector<haunted::ui::control *> &windows = ui.swappo->get_children();
@@ -411,12 +411,12 @@ namespace spjalla {
 		term.join();
 	}
 
-	pingpong::server_ptr client::active_server() {
+	pingpong::server * client::active_server() {
 		return pp.active_server;
 	}
 
 	std::string client::active_nick() {
-		if (pingpong::server_ptr serv = active_server())
+		if (pingpong::server *serv = active_server())
 			return serv->get_nick();
 		return std::string();
 	}
@@ -426,17 +426,24 @@ namespace spjalla {
 	}
 
 	void client::debug_servers() {
-		for (pingpong::server_ptr serv: pp.servers) {
+		for (pingpong::server *serv: pp.servers) {
 			DBG(ansi::bold(serv->hostname));
-			for (pingpong::channel_ptr chan: serv->channels) {
+			for (std::shared_ptr<pingpong::channel> chan: serv->channels) {
 				DBG("    " << ansi::wrap(chan->name, ansi::style::underline));
-				for (pingpong::user_ptr user: chan->users)
-					DBG("        " << user->name);
+				for (std::shared_ptr<pingpong::user> user: chan->users) {
+					std::string chans = "";
+					for (std::weak_ptr<pingpong::channel> user_chan: user->channels)
+						chans += " " + user_chan.lock()->name;
+					if (chans.empty())
+						DBG("        " << user->name);
+					else
+						DBG("        " << user->name << ":" << chans);
+				}
 			}
 		}
 	}
 
-	ui::window * client::try_window(pingpong::channel_ptr chan) {
+	ui::window * client::try_window(std::shared_ptr<pingpong::channel> chan) {
 		ui::window *win = ui.get_window(chan, false);
 		if (!win)
 			ui.log(ansi::yellow("!!") + " Couldn't find window for " + std::string(*chan));

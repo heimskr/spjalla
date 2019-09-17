@@ -71,7 +71,7 @@ namespace spjalla::ui {
 
 			/** Returns a pointer to the window corresponding to a given channel. If no window is found, one will be
 			 *  created for the channel if `create` is true. */
-			window * get_window(pingpong::channel_ptr, bool create = false);
+			window * get_window(std::shared_ptr<pingpong::channel>, bool create = false);
 
 			/** Creates a new window, configures it as appropriate and appends it to the swapbox. */
 			window * new_window(const std::string &name);
@@ -83,7 +83,7 @@ namespace spjalla::ui {
 			size_t get_output_index() const;
 
 			/** Renders a channel's user list onto the sidebar. */
-			void update_sidebar(pingpong::channel_ptr);
+			void update_sidebar(std::shared_ptr<pingpong::channel>);
 
 		public:
 			haunted::side sidebar_side = haunted::side::right;
@@ -145,16 +145,16 @@ namespace spjalla::ui {
 			void update_sidebar();
 
 			/** Returns all windows (for channels or private conversations) where a given user is present. */
-			std::vector<window *> windows_for_user(pingpong::user_ptr) const;
+			std::vector<window *> windows_for_user(std::shared_ptr<pingpong::user>) const;
 
 			/** Returns the window for a given channel. */
-			window * window_for_channel(pingpong::channel_ptr) const;
+			window * window_for_channel(std::shared_ptr<pingpong::channel>) const;
 
 			/** Returns the active window. ¯\_(ツ)_/¯ */
 			window * get_active_window() { return active_window; }
 
 			/** If the active window is for a channel, this returns the pointer to the relevant channel. */
-			pingpong::channel_ptr get_active_channel() const;
+			std::shared_ptr<pingpong::channel> get_active_channel() const;
 
 			/** Handles keypresses that aren't handled by the textinput. */
 			bool on_key(const haunted::key &);

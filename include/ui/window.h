@@ -23,9 +23,9 @@ namespace spjalla::ui {
 	struct window_meta {
 		window_type type;
 
-		pingpong::server_ptr  serv;
-		pingpong::channel_ptr chan;
-		pingpong::user_ptr    user;
+		pingpong::server *serv;
+		std::shared_ptr<pingpong::channel> chan;
+		std::shared_ptr<pingpong::user>    user;
 
 		/** Whether whatever the window is for is dead—e.g., a channel you've been kicked from. */
 		bool dead = false;

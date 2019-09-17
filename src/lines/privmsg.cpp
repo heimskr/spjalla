@@ -1,8 +1,9 @@
 #include "lines/privmsg.h"
 
 namespace spjalla::lines {
-	privmsg_line::privmsg_line(pingpong::channel_ptr chan_, pingpong::user_ptr user_, const std::string &message_,
-	long stamp_): haunted::ui::textline(0), chan(chan_), user(user_), name(user_->name), message(message_),
+	privmsg_line::privmsg_line(std::shared_ptr<pingpong::channel> chan_, std::shared_ptr<pingpong::user> user_,
+	const std::string &message_, long stamp_):
+	haunted::ui::textline(0), chan(chan_), user(user_), name(user_->name), message(message_),
 	stamp(stamp_) {
 		if (is_action()) {
 			continuation = ("[xx:xx:xx] * " + name + " ").length();

@@ -21,14 +21,14 @@ namespace spjalla::lines {
 			std::string trimmed_message() const;
 
 		public:
-			pingpong::channel_ptr chan;
-			pingpong::user_ptr user;
+			std::shared_ptr<pingpong::channel> chan;
+			std::shared_ptr<pingpong::user> user;
 			const std::string name;
 			const std::string message;
 			const long stamp;
 
-			privmsg_line(pingpong::channel_ptr chan_, pingpong::user_ptr user_, const std::string &message_,
-				long stamp_);
+			privmsg_line(std::shared_ptr<pingpong::channel> chan_, std::shared_ptr<pingpong::user> user_,
+				const std::string &message_, long stamp_);
 
 			privmsg_line(const pingpong::privmsg_command &cmd):
 				privmsg_line(cmd.destination, cmd.serv->get_user(cmd.serv->get_nick(), true), cmd.message,

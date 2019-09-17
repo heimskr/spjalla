@@ -136,7 +136,7 @@ namespace spjalla::ui {
 		return create? new_window(window_name) : nullptr;
 	}
 
-	window * interface::get_window(pingpong::channel_ptr chan, bool create) {
+	window * interface::get_window(std::shared_ptr<pingpong::channel> chan, bool create) {
 		const std::string name = chan->serv->hostname + "/" + chan->name;
 		window *win = get_window(name, false);
 
@@ -174,13 +174,13 @@ namespace spjalla::ui {
 		return sidebar_side == haunted::side::left? 1 : 0;
 	}
 
-	void interface::update_sidebar(pingpong::channel_ptr chan) {
+	void interface::update_sidebar(std::shared_ptr<pingpong::channel> chan) {
 		*sidebar += haunted::ui::simpleline(ansi::bold(chan->name));
-		chan->users.sort([&](pingpong::user_ptr left, pingpong::user_ptr right) -> bool {
+		chan->users.sort([&](std::shared_ptr<pingpong::user> left, std::shared_ptr<pingpong::user> right) -> bool {
 			return left->name < right->name;
 		});
 
-		for (pingpong::user_ptr user: chan->users)
+		for (std::shared_ptr<pingpong::user> user: chan->users)
 			*sidebar += spjalla::lines::userlist_line(chan, user);
 	}
 
@@ -275,7 +275,7 @@ namespace spjalla::ui {
 
 		if (active_window == status_window) {
 			*sidebar += haunted::ui::simpleline(ansi::bold("Servers"));
-			for (pingpong::server_ptr serv: parent->pp.servers) {
+			for (pingpong::server *serv: parent->pp.servers) {
 				using pingpong::server;
 				if (serv->status != server::stage::dead && serv->status != server::stage::unconnected)
 					*sidebar += haunted::ui::simpleline(ansi::dim("- ") + std::string(*serv));
@@ -298,7 +298,7 @@ namespace spjalla::ui {
 		sidebar->draw();
 	}
 
-	std::vector<window *> interface::windows_for_user(pingpong::user_ptr user) const {
+	std::vector<window *> interface::windows_for_user(std::shared_ptr<pingpong::user> user) const {
 		if (swappo->empty())
 			return {};
 
@@ -321,7 +321,7 @@ namespace spjalla::ui {
 		return found;
 	}
 
-	window * interface::window_for_channel(pingpong::channel_ptr chan) const {
+	window * interface::window_for_channel(std::shared_ptr<pingpong::channel> chan) const {
 		for (haunted::ui::control *ctrl: swappo->get_children()) {
 			window *win = dynamic_cast<window *>(ctrl);
 			if (win->data && win->data->chan == chan)
@@ -331,7 +331,7 @@ namespace spjalla::ui {
 		return nullptr;
 	}
 
-	pingpong::channel_ptr interface::get_active_channel() const {
+	std::shared_ptr<pingpong::channel> interface::get_active_channel() const {
 		if (active_window && active_window->data && active_window->data->type == window_type::channel)
 			return active_window->data->chan;
 		return nullptr;

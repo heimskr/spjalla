@@ -9,11 +9,11 @@
 
 namespace spjalla::lines {
 	struct quit_line: haunted::ui::textline {
-		pingpong::user_ptr user;
+		std::shared_ptr<pingpong::user> user;
 		const std::string message;
 		long stamp;
 
-		quit_line(pingpong::user_ptr user_, const std::string &message_, long stamp_):
+		quit_line(std::shared_ptr<pingpong::user> user_, const std::string &message_, long stamp_):
 			haunted::ui::textline(0), user(user_), message(message_), stamp(stamp_) {}
 
 		quit_line(const pingpong::quit_command &cmd):

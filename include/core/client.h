@@ -16,7 +16,7 @@ namespace spjalla {
 	class client {
 		friend class ui::interface;
 
-		using command_handler = std::function<void(pingpong::server_ptr, const input_line &)>;
+		using command_handler = std::function<void(pingpong::server *, const input_line &)>;
 		// Tuple: (minimum args, maximum args, needs server, function)
 		using command_tuple = std::tuple<int, int, bool, command_handler>;
 		using command_pair = std::pair<std::string, command_tuple>;
@@ -32,7 +32,7 @@ namespace spjalla {
 
 			void debug_servers();
 
-			ui::window * try_window(pingpong::channel_ptr);
+			ui::window * try_window(std::shared_ptr<pingpong::channel>);
 
 		public:
 			client(): out_stream(ansi::out), term(haunted::terminal(std::cin, out_stream)), ui(&term, this) {}
@@ -50,7 +50,7 @@ namespace spjalla {
 			client & operator+=(const command_pair &p);
 
 			/** Adds a server. */
-			client & operator+=(const pingpong::server_ptr &ptr);
+			client & operator+=(pingpong::server *ptr);
 			
 			/**
 			 * Succinctly adds a handler for a single-argument command.
@@ -58,7 +58,7 @@ namespace spjalla {
 			 */
 			template <typename T>
 			void add(const std::string &cmd, bool needs_serv = true) {
-				*this += {cmd, {1, 1, needs_serv, [&](pingpong::server_ptr serv, const input_line &il) {
+				*this += {cmd, {1, 1, needs_serv, [&](pingpong::server *serv, const input_line &il) {
 					T(serv, il.args[0]).send();
 				}}};
 			}
@@ -85,15 +85,15 @@ namespace spjalla {
 			void add_handlers();
 
 			/** Updates the interface to accommodate the removal of a server. */
-			void server_removed(pingpong::server_ptr);
+			void server_removed(pingpong::server *);
 
 			/** Joins any threads associated with the client. */
 			void join();
 
 			ui::interface & get_ui() { return ui; }
 
-			pingpong::server_ptr active_server();
-			pingpong::channel_ptr active_channel();
+			pingpong::server * active_server();
+			std::shared_ptr<pingpong::channel> active_channel();
 			std::string active_nick();
 	};
 }
