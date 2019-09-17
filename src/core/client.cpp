@@ -18,6 +18,7 @@
 #include "pingpong/events/bad_line.h"
 #include "pingpong/events/command.h"
 #include "pingpong/events/join.h"
+#include "pingpong/events/kick.h"
 #include "pingpong/events/message.h"
 #include "pingpong/events/names_updated.h"
 #include "pingpong/events/nick.h"
@@ -37,6 +38,7 @@
 #include "core/input_line.h"
 
 #include "lines/join.h"
+#include "lines/kick.h"
 #include "lines/nick_change.h"
 #include "lines/part.h"
 #include "lines/privmsg.h"
@@ -166,6 +168,13 @@ namespace spjalla {
 				ui.focus_window(win);
 		});
 
+		pingpong::events::listen<pingpong::kick_event>([&](pingpong::kick_event *ev) {
+			if (ui::window *win = ui.get_window(ev->chan, false)) {
+				win->data->dead = true;
+				*win += lines::kick_line(*ev);
+			}
+		});
+
 		pingpong::events::listen<pingpong::message_event>([&](pingpong::message_event *ev) {
 			if (!ev->msg->is<pingpong::numeric_message>() && !ev->msg->is<pingpong::ping_message>())
 				ui.log(*(ev->msg));
@@ -185,16 +194,12 @@ namespace spjalla {
 		});
 
 		pingpong::events::listen<pingpong::part_event>([&](pingpong::part_event *ev) {
-			ui::window *win = ui.get_window(ev->chan, false);
-			if (!win) {
-				ui.log(ansi::yellow("!!") + " Couldn't find window for " + std::string(*ev->chan));
-				return;
+			if (ui::window *win = try_window(ev->chan)) {
+				if (ev->who->is_self())
+					ui.remove_window(win);
+				else
+					*win += lines::part_line(*ev);
 			}
-
-			if (ev->who->is_self())
-				ui.remove_window(win);
-			else
-				*win += lines::part_line(*ev);
 		});
 
 		pingpong::events::listen<pingpong::privmsg_event>([&](pingpong::privmsg_event *ev) {
@@ -402,5 +407,12 @@ namespace spjalla {
 					DBG("        " << user->name);
 			}
 		}
+	}
+
+	ui::window * client::try_window(pingpong::channel_ptr chan) {
+		ui::window *win = ui.get_window(chan, false);
+		if (!win)
+			ui.log(ansi::yellow("!!") + " Couldn't find window for " + std::string(*chan));
+		return win;
 	}
 }

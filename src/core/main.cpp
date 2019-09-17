@@ -1,5 +1,8 @@
 #include <stdexcept>
 
+#include <sys/types.h>
+#include <unistd.h>
+
 #include "pingpong/core/irc.h"
 #include "core/client.h"
 #include "core/util.h"
@@ -10,6 +13,7 @@ namespace spjalla {
 	void run(int argc, char **argv) {
 		haunted::dbgstream << "--------------------------------\n";
 		haunted::dbgstream.clear().jump().flush();
+		DBG("PID: " << getpid());
 
 		std::shared_ptr<pingpong::irc> pp = std::make_shared<pingpong::irc>();
 		std::shared_ptr<spjalla::client> instance = std::make_shared<spjalla::client>();

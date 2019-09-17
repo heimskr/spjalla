@@ -1,5 +1,5 @@
 COMPILER		:= g++
-CFLAGS			:= -std=c++17 -g -ggdb -O0 -Wall -Wextra
+CFLAGS			:= -std=c++17 -g -O0 -Wall -Wextra
 CFLAGS_ORIG		:= $(CFLAGS)
 INCLUDE			:= -Iinclude -Iinclude/lib
 LDFLAGS			:= -pthread

@@ -32,6 +32,8 @@ namespace spjalla {
 
 			void debug_servers();
 
+			ui::window * try_window(pingpong::channel_ptr);
+
 		public:
 			client(): out_stream(ansi::out), term(haunted::terminal(std::cin, out_stream)), ui(&term, this) {}
 
@@ -85,6 +87,7 @@ namespace spjalla {
 			/** Updates the interface to accommodate the removal of a server. */
 			void server_removed(pingpong::server_ptr);
 
+			/** Joins any threads associated with the client. */
 			void join();
 
 			ui::interface & get_ui() { return ui; }

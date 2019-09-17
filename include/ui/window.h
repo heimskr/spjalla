@@ -26,6 +26,10 @@ namespace spjalla::ui {
 		pingpong::server_ptr  serv;
 		pingpong::channel_ptr chan;
 		pingpong::user_ptr    user;
+
+		/** Whether whatever the window is for is dead—e.g., a channel you've been kicked from. */
+		bool dead = false;
+		
 		void *other;
 
 		window_meta(window_type type_): type(type_) {}
