@@ -7,6 +7,9 @@
 #include "formicine/ansi.h"
 
 namespace spjalla::lines {
+	extern std::string notice;
+	extern std::string red_notice;
+
 	/** Renders a UNIX timestamp as an hours-minutes-seconds set. */
 	std::string render_time(long seconds);
 }
