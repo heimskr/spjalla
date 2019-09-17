@@ -274,6 +274,33 @@ namespace spjalla {
 			}
 		}}});
 
+		add({"defnick", {0, 1, false, [&](sptr, line il) {
+			if (il.args.empty()) {
+				ui.log("The current default nick is " + ansi::bold(pingpong::irc::default_nick));
+			} else {
+				pingpong::irc::default_nick = il.first();
+				ui.log("Default nick set to " + ansi::bold(pingpong::irc::default_nick));
+			}
+		}}});
+
+		add({"defuser", {0, 1, false, [&](sptr, line il) {
+			if (il.args.empty()) {
+				ui.log("The current default user is " + ansi::bold(pingpong::irc::default_user));
+			} else {
+				pingpong::irc::default_user = il.first();
+				ui.log("Default username set to " + ansi::bold(pingpong::irc::default_user));
+			}
+		}}});
+
+		add({"defreal", {0, -1, false, [&](sptr, line il) {
+			if (il.args.empty()) {
+				ui.log("The current default realname is " + ansi::bold(pingpong::irc::default_realname));
+			} else {
+				pingpong::irc::default_realname = il.body;
+				ui.log("Default realname set to " + ansi::bold(pingpong::irc::default_realname));
+			}
+		}}});
+
 		add({"info", {0, 1, false, [&](sptr, line il) {
 			if (il.args.size() == 0) {
 				pingpong::debug::print_all(pp);
