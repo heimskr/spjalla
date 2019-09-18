@@ -36,6 +36,8 @@ namespace spjalla {
 
 			void no_channel();
 
+			std::string active_server_name();
+
 			/** Handles commands like /kick that take a user and an optional longer string and an optional channel.
 			 *  If no channel is specified, the command must be issued from a channel window.
 			 *  Returns whether a "no active channel" message should be displayed. */

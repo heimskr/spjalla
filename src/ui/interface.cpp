@@ -236,7 +236,16 @@ namespace spjalla::ui {
 	}
 
 	void interface::next_server() {
+		if (active_window != status_window || parent->pp.servers.size() < 2)
+			return;
+
 		const std::set<pingpong::server *> &servers = parent->pp.servers;
+		auto iter = servers.find(parent->active_server());
+		if (++iter == servers.end())
+			iter = servers.begin();
+		parent->pp.active_server = *iter;
+		log(lines::notice + "Switched to " + ansi::bold((*iter)->hostname) + ".");
+		update_statusbar();
 	}
 
 	void interface::next_window() {
@@ -287,8 +296,14 @@ namespace spjalla::ui {
 	void interface::update_statusbar() {
 		if (!active_window) {
 			statusbar->set_text("[?]");
+		} else if (active_window == status_window) {
+			statusbar->set_text("[" + ansi::bold(active_window->window_name) + "] [" +
+				ansi::bold(parent->active_server_name()) + "]");
+		} else if (active_window->data && active_window->data->type == window_type::channel) {
+			statusbar->set_text("[" + ansi::bold(parent->active_server_name()) + "] [" +
+				ansi::bold(active_window->data->chan->name) + "]");
 		} else {
-			statusbar->set_text("[" + ansi::wrap(active_window->window_name, ansi::style::bold) + "]");
+			statusbar->set_text("[" + ansi::bold(active_window->window_name) + "]");
 		}
 	}
 
@@ -395,7 +410,7 @@ namespace spjalla::ui {
 			previous_window();
 		} else if (k == haunted::kmod::ctrl) {
 			switch (k.type) {
-				case haunted::ktype::g: active_window->draw(); break;
+				case haunted::ktype::g: log("Active server: " + parent->active_server_name()); break;
 				case haunted::ktype::r:
 					if (active_window)
 						DBG("v = " << active_window->get_voffset() << ", e = " << active_window->effective_voffset());

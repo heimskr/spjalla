@@ -88,6 +88,10 @@ namespace spjalla {
 		ui.log(lines::red_notice + "No active channel.");
 	}
 
+	std::string client::active_server_name() {
+		return pp.active_server? pp.active_server->hostname : "none";
+	}
+
 
 // Public instance methods
 
@@ -280,7 +284,8 @@ namespace spjalla {
 		});
 
 		pingpong::events::listen<pingpong::server_status_event>([&](pingpong::server_status_event *) {
-			if (ui.active_window == ui.status_window)
+			ui.update_statusbar();
+			if (ui.active_window == ui.overlay)
 				ui.update_overlay();
 		});
 	}
