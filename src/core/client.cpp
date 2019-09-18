@@ -398,10 +398,6 @@ namespace spjalla {
 			for (long i = 1; i <= max; ++i)
 				ui.log(std::to_string(i));
 		}}});
-
-		add({"swap", {0, 0, false, [&](sptr, line) {
-			ui.set_overlay_side(ui.overlay_side == haunted::side::left? haunted::side::right : haunted::side::left);
-		}}});
 		
 		add({"dbg", {0, 0, false, [&](sptr, line) {
 			debug_servers();

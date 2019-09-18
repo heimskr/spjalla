@@ -218,9 +218,8 @@ namespace spjalla::ui {
 				// If the only window is the overlay, then this loop would get stuck. This shouldn't be possible
 				// (the status window should always be a child of swappo), but it can't hurt to prevent it anyway.
 				do {
-					if (iter == swappo->end())
+					if (++iter == swappo->end())
 						iter = swappo->begin();
-					++iter;
 				} while (*iter == overlay); // Skip the overlay.
 				focus_window(dynamic_cast<window *>(*iter));
 			}
