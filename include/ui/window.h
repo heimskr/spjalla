@@ -12,6 +12,7 @@ namespace spjalla::ui {
 
 	enum class window_type {
 		status,  // The single status window where miscellaneous messages go.
+		overlay, // The window that replaces the sidebar (RIP) and can be summoned with a keypress.
 		channel, // A window containing the conversation within an IRC channel.
 		user,    // A window for a private conversation with another user.
 		other    // A window used for any purpose not covered by the other window types.

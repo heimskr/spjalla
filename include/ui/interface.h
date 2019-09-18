@@ -36,35 +36,24 @@ namespace spjalla::ui {
 			client *parent;
 
 			std::list<window *> windows;
-			window *status_window, *active_window;
+			window *status_window, *active_window, *overlay;
 
 			haunted::ui::boxes::swapbox    *swappo;
-			haunted::ui::boxes::propobox   *propo;
 			haunted::ui::boxes::expandobox *expando;
 			haunted::ui::label     *titlebar, *statusbar;
-			haunted::ui::textbox   *sidebar;
 			haunted::ui::textinput *input;
 
-			/** Sets up the labels, sidebar and textinput. */
+			/** Sets up the labels, overlay and textinput. */
 			void init_basic();
 
 			/** Sets up the swapbox that contains all the windows. */
 			void init_swappo();
-
-			/** Sets up the propobox that contains the sidebar and the swapbox. */
-			void init_propo();
 
 			/** Sets up the expandobox that serves as the program's root control. */
 			void init_expando();
 
 			/** Colors all the controls. */
 			void init_colors();
-
-			/** Sets the propobox's ratio based on sidebar_ratio and sidebar_side. */
-			void readjust_columns();
-
-			/** Returns the ratio appropriate for use in the propobox (it depends on sidebar_side). */
-			double adjusted_ratio() const;
 
 			/** Returns a pointer to the window indicated by a given string. If no window is found, one will be created
 			 *  with that name if `create` is true. */
@@ -84,24 +73,14 @@ namespace spjalla::ui {
 			/** Closes a window. */
 			void remove_window(window *);
 
-			/** Returns the index within the propobox's children vector in which the output window resides. */
-			size_t get_output_index() const;
+			/** Renders a channel's user list onto the overlay. */
+			void update_overlay(std::shared_ptr<pingpong::channel>);
 
-			/** Renders a channel's user list onto the sidebar. */
-			void update_sidebar(std::shared_ptr<pingpong::channel>);
+			/** Returns the iterator pointing to the active window in swappo's children. */
+			std::vector<haunted::ui::control *>::iterator window_iterator() const;
 
 		public:
-			haunted::side sidebar_side = haunted::side::right;
-			double sidebar_ratio = 0.2;
-			size_t max_lines = 128;
-
 			interface(haunted::terminal *, client * = nullptr);
-
-			/** Sets the side of the screen that the sidebar should be on. */
-			void set_sidebar_side(haunted::side);
-
-			/** Changes the propobox ratio of the sidebar. */
-			void set_sidebar_ratio(double);
 
 			/** Redraws the interface. */
 			void draw();
@@ -149,8 +128,8 @@ namespace spjalla::ui {
 			/** Updates the text in the status bar. */
 			void update_statusbar();
 
-			/** Updates the text in the sidebar. */
-			void update_sidebar();
+			/** Updates the text in the overlay. */
+			void update_overlay();
 
 			/** Returns all windows (for channels or private conversations) where a given user is present. */
 			std::vector<window *> windows_for_user(std::shared_ptr<pingpong::user>) const;

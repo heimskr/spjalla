@@ -193,7 +193,7 @@ namespace spjalla {
 		pingpong::events::listen<pingpong::names_updated_event>([&](pingpong::names_updated_event *ev) {
 			if (ui::window *win = ui.get_active_window()) {
 				if (win->data && win->data->chan && win->data->chan == ev->chan)
-					ui.update_sidebar();
+					ui.update_overlay();
 			}
 		});
 
@@ -239,7 +239,7 @@ namespace spjalla {
 
 		pingpong::events::listen<pingpong::server_status_event>([&](pingpong::server_status_event *) {
 			if (ui.active_window == ui.status_window)
-				ui.update_sidebar();
+				ui.update_overlay();
 		});
 	}
 
@@ -400,15 +400,15 @@ namespace spjalla {
 		}}});
 
 		add({"swap", {0, 0, false, [&](sptr, line) {
-			ui.set_sidebar_side(ui.sidebar_side == haunted::side::left? haunted::side::right : haunted::side::left);
+			ui.set_overlay_side(ui.overlay_side == haunted::side::left? haunted::side::right : haunted::side::left);
 		}}});
 		
 		add({"dbg", {0, 0, false, [&](sptr, line) {
 			debug_servers();
 		}}});
 
-		add({"sidebar", {0, 0, false, [&](sptr, line) {
-			ui.update_sidebar();
+		add({"overlay", {0, 0, false, [&](sptr, line) {
+			ui.update_overlay();
 		}}});
 	}
 

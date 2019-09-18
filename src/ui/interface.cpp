@@ -18,13 +18,12 @@ namespace spjalla::ui {
 	interface::interface(haunted::terminal *term_, client *parent_): term(term_), parent(parent_) {
 		init_basic();
 		init_swappo();
-		init_propo();
 		init_expando();
 		init_colors();
 
 		input->focus();
 		update_statusbar();
-		update_sidebar();
+		update_overlay();
 	}
 
 
@@ -35,9 +34,6 @@ namespace spjalla::ui {
 		input = new haunted::ui::textinput(term);
 		input->set_name("input");
 	
-		sidebar = new haunted::ui::textbox(term);
-		sidebar->set_name("sidebar");
-	
 		titlebar = new haunted::ui::label(term);
 		titlebar->set_name("titlebar");
 
@@ -46,6 +42,12 @@ namespace spjalla::ui {
 	}
 
 	void interface::init_swappo() {
+		overlay = new window("overlay");
+		overlay->data = {window_type::overlay};
+		overlay->set_terminal(term);
+		overlay->set_name("overlay_window");
+		windows.push_front(overlay);
+
 		status_window = new window("status");
 		status_window->data = {window_type::status};
 		status_window->set_terminal(term);
@@ -58,63 +60,20 @@ namespace spjalla::ui {
 		swappo->set_name("swappo");
 	}
 
-	void interface::init_propo() {
-		haunted::ui::control *first, *second;
-		if (sidebar_side == haunted::side::left) {
-			first = sidebar;
-			second = swappo;
-		} else {
-			first = swappo;
-			second = sidebar;
-		}
-
-		propo = new haunted::ui::boxes::propobox(term, adjusted_ratio(),
-			haunted::ui::boxes::box_orientation::horizontal, first, second);
-		swappo->set_parent(propo);
-		propo->set_name("propo");
-	}
-
 	void interface::init_expando() {
 		expando = new haunted::ui::boxes::expandobox(term, term->get_position(),
-			haunted::ui::boxes::box_orientation::vertical, {{titlebar, 1}, {propo, -1}, {statusbar, 1}, {input, 1}});
+			haunted::ui::boxes::box_orientation::vertical, {{titlebar, 1}, {swappo, -1}, {statusbar, 1}, {input, 1}});
 		expando->set_name("expando");
 		term->set_root(expando);
 		expando->key_fn = [&](const haunted::key &k) { return on_key(k); };
 	}
 
 	void interface::init_colors() {
-		sidebar->set_colors(ansi::color::white, ansi::color::verydark);
+		overlay->set_colors(ansi::color::white, ansi::color::verydark);
 		titlebar->set_colors(ansi::color::white, ansi::color::blue);
 		statusbar->set_colors(ansi::color::white, ansi::color::blue);
 		// input->set_colors(ansi::color::normal, ansi::color::red);
 		// active_window->set_colors(ansi::color::normal, ansi::color::magenta);
-	}
-
-	void interface::readjust_columns() {
-		bool changed = false;
-		std::vector<haunted::ui::control *> &pchildren = propo->get_children();
-
-		if (pchildren[get_output_index()] == sidebar) {
-			std::swap(pchildren.at(0), pchildren.at(1));
-			changed = true;
-		}
-
-		double adjusted = adjusted_ratio();
-
-		if (propo->get_ratio() != adjusted) {
-			propo->set_ratio(adjusted);
-		} else if (changed) {
-			// set_ratio() already resizes if the ratio changed (and that's true for the preceding if block).
-			propo->resize();
-		}
-	}
-
-	double interface::adjusted_ratio() const {
-		// It's best to avoid division by zero.
-		if (sidebar_side == haunted::side::right && sidebar_ratio == 0.0)
-			return 0.0;
-
-		return sidebar_side == haunted::side::right? 1.0 / sidebar_ratio : sidebar_ratio;
 	}
 
 	window * interface::get_window(const std::string &window_name, bool create) {
@@ -190,37 +149,26 @@ namespace spjalla::ui {
 		delete win;
 	}
 
-	size_t interface::get_output_index() const {
-		return sidebar_side == haunted::side::left? 1 : 0;
-	}
-
-	void interface::update_sidebar(std::shared_ptr<pingpong::channel> chan) {
-		*sidebar += haunted::ui::simpleline(ansi::bold(chan->name));
+	void interface::update_overlay(std::shared_ptr<pingpong::channel> chan) {
+		*overlay += haunted::ui::simpleline(ansi::bold(chan->name));
 		chan->users.sort([&](std::shared_ptr<pingpong::user> left, std::shared_ptr<pingpong::user> right) -> bool {
 			return left->name < right->name;
 		});
 
 		for (std::shared_ptr<pingpong::user> user: chan->users)
-			*sidebar += spjalla::lines::userlist_line(chan, user);
+			*overlay += spjalla::lines::userlist_line(chan, user);
+	}
+
+	std::vector<haunted::ui::control *>::iterator interface::window_iterator() const {
+		auto iter = std::find(swappo->begin(), swappo->end(), active_window);
+		if (iter == swappo->end())
+			throw std::runtime_error("The active window isn't a child of swappo");
+		return iter;
 	}
 
 
 // Public instance methods
 
-
-	void interface::set_sidebar_side(haunted::side side) {
-		if (sidebar_side != side) {
-			sidebar_side = side;
-			readjust_columns();
-		}
-	}
-
-	void interface::set_sidebar_ratio(double ratio) {
-		if (sidebar_ratio != ratio) {
-			sidebar_ratio = ratio;
-			readjust_columns();
-		}
-	}
 
 	void interface::draw() {
 		term->draw();
@@ -252,7 +200,7 @@ namespace spjalla::ui {
 		swappo->set_active(active_window = win);
 		swappo->draw();
 		update_statusbar();
-		update_sidebar();
+		update_overlay();
 	}
 
 	void interface::focus_window(const std::string &window_name) {
@@ -265,9 +213,17 @@ namespace spjalla::ui {
 		} else if (!active_window) {
 			focus_window(dynamic_cast<window *>(swappo->get_children().at(0)));
 		} else {
-			auto iter = std::find(swappo->begin(), swappo->end(), active_window);
-			haunted::ui::control *win = *(++iter == swappo->end()? swappo->begin() : iter);
-			focus_window(dynamic_cast<window *>(win));
+			auto iter = window_iterator();
+			if (swappo->size() > 1 || *iter != overlay) {
+				// If the only window is the overlay, then this loop would get stuck. This shouldn't be possible
+				// (the status window should always be a child of swappo), but it can't hurt to prevent it anyway.
+				do {
+					if (iter == swappo->end())
+						iter = swappo->begin();
+					++iter;
+				} while (*iter == overlay); // Skip the overlay.
+				focus_window(dynamic_cast<window *>(*iter));
+			}
 		}
 	}
 
@@ -277,11 +233,15 @@ namespace spjalla::ui {
 		} else if (!active_window) {
 			focus_window(dynamic_cast<window *>(swappo->get_children().at(0)));
 		} else {
-			auto iter = std::find(swappo->begin(), swappo->end(), active_window);
-			if (iter == swappo->begin())
-				iter = swappo->end();
-			--iter;
-			focus_window(dynamic_cast<window *>(*iter));
+			auto iter = window_iterator();
+			if (swappo->size() > 1 || *iter != overlay) {
+				do {
+					if (iter == swappo->begin())
+						iter = swappo->end();
+					--iter;
+				} while (*iter == overlay);
+				focus_window(dynamic_cast<window *>(*iter));
+			}
 		}
 	}
 
@@ -293,15 +253,15 @@ namespace spjalla::ui {
 		}
 	}
 
-	void interface::update_sidebar() {
-		sidebar->clear_lines();
+	void interface::update_overlay() {
+		overlay->clear_lines();
 
 		if (active_window == status_window) {
-			*sidebar += haunted::ui::simpleline(ansi::bold("Servers"));
+			*overlay += haunted::ui::simpleline(ansi::bold("Servers"));
 			for (pingpong::server *serv: parent->pp.servers) {
 				using pingpong::server;
 				if (serv->status != server::stage::dead && serv->status != server::stage::unconnected)
-					*sidebar += haunted::ui::simpleline(ansi::dim("- ") + std::string(*serv));
+					*overlay += haunted::ui::simpleline(ansi::dim("- ") + std::string(*serv));
 			}
 			return;
 		}
@@ -314,11 +274,10 @@ namespace spjalla::ui {
 		}
 
 		window_type type = data->type;
-		if (type == window_type::channel) {
-			update_sidebar(data->chan);
-		}
+		if (type == window_type::channel)
+			update_overlay(data->chan);
 
-		sidebar->draw();
+		overlay->draw();
 	}
 
 	std::vector<window *> interface::windows_for_user(std::shared_ptr<pingpong::user> user) const {
@@ -371,7 +330,7 @@ namespace spjalla::ui {
 			switch (k.type) {
 				case haunted::ktype::n: next_window(); break;
 				case haunted::ktype::p: prev_window(); break;
-				case haunted::ktype::h: sidebar->draw(); break;
+				case haunted::ktype::h: overlay->draw(); break;
 				case haunted::ktype::g: active_window->draw(); break;
 				case haunted::ktype::r:
 					if (active_window)
