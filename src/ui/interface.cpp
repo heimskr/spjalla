@@ -331,6 +331,11 @@ namespace spjalla::ui {
 			*overlay += haunted::ui::simpleline(ansi::bold("Servers"));
 			for (pingpong::server *serv: parent->pp.servers) {
 				using pingpong::server;
+				serv->channels.sort([&](std::weak_ptr<pingpong::channel> left, std::weak_ptr<pingpong::channel> right)
+					-> bool {
+					return left.lock()->name < right.lock()->name;
+				});
+
 				if (serv->status != server::stage::dead && serv->status != server::stage::unconnected) {					
 					*overlay += haunted::ui::simpleline("- "_d + std::string(*serv));
 
