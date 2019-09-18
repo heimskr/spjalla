@@ -226,7 +226,7 @@ namespace spjalla {
 
 		pingpong::events::listen<pingpong::kick_event>([&](pingpong::kick_event *ev) {
 			if (ui::window *win = ui.get_window(ev->chan, false)) {
-				win->data->dead = true;
+				win->data.dead = true;
 				*win += lines::kick_line(*ev);
 			}
 		});
@@ -238,7 +238,7 @@ namespace spjalla {
 
 		pingpong::events::listen<pingpong::names_updated_event>([&](pingpong::names_updated_event *ev) {
 			if (ui::window *win = ui.get_active_window()) {
-				if (win->data && win->data->chan && win->data->chan == ev->chan)
+				if (win->data.chan == ev->chan)
 					ui.update_overlay();
 			}
 		});
@@ -320,6 +320,10 @@ namespace spjalla {
 				throw;
 			}
 		}}});
+		
+		add({"dbg", {0, 0, false, [&](sptr, line) {
+			debug_servers();
+		}}});
 
 		add({"defnick", {0, 1, false, [&](sptr, line il) {
 			if (il.args.empty()) {
@@ -383,6 +387,10 @@ namespace spjalla {
 				pingpong::nick_command(serv, il.first()).send();
 		}}});
 
+		add({"overlay", {0, 0, false, [&](sptr, line) {
+			ui.update_overlay();
+		}}});
+
 		add({"part", {0, -1, true, [&](sptr serv, line il) {
 			std::shared_ptr<pingpong::channel> active_channel = ui.get_active_channel();
 
@@ -430,13 +438,10 @@ namespace spjalla {
 			for (long i = 1; i <= max; ++i)
 				ui.log(std::to_string(i));
 		}}});
-		
-		add({"dbg", {0, 0, false, [&](sptr, line) {
-			debug_servers();
-		}}});
 
-		add({"overlay", {0, 0, false, [&](sptr, line) {
-			ui.update_overlay();
+		add({"wc", {0, 0, false, [&](sptr, line) {
+			if (ui.can_remove())
+				ui.remove_window(ui.active_window);
 		}}});
 	}
 
@@ -446,7 +451,7 @@ namespace spjalla {
 		std::vector<haunted::ui::control *> &windows = ui.swappo->get_children();
 		for (auto iter = windows.rbegin(), rend = windows.rend(); iter != rend; ++iter) {
 			ui::window *win = dynamic_cast<ui::window *>(*iter);
-			if (win->data && win->data->serv == serv) {
+			if (win->data.serv == serv) {
 				ui.remove_window(win);
 			}
 		}

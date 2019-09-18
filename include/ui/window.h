@@ -15,7 +15,7 @@ namespace spjalla::ui {
 		overlay, // The window that replaces the sidebar (RIP) and can be summoned with a keypress.
 		channel, // A window containing the conversation within an IRC channel.
 		user,    // A window for a private conversation with another user.
-		other    // A window used for any purpose not covered by the other window types.
+		other    // A window used for any purpose not covered by the other window types and when the type is unknown.
 	};
 
 	/**
@@ -43,7 +43,7 @@ namespace spjalla::ui {
 	class window: public haunted::ui::textbox {
 		public:
 			std::string window_name;
-			std::optional<window_meta> data;
+			window_meta data {window_type::other};
 
 			window() = delete;
 			window(const window &) = delete;
@@ -67,6 +67,14 @@ namespace spjalla::ui {
 
 			/** Constructs a window with no parent and no contents. */
 			window(const std::string &window_name_): window(nullptr, std::vector<std::string> {}, window_name_) {}
+
+			bool is_status() const;
+			bool is_overlay() const;
+			bool is_channel() const;
+			bool is_user() const;
+			bool is_other() const;
+
+			bool is_dead() const;
 
 			friend void swap(window &left, window &right);
 	};

@@ -63,7 +63,7 @@ namespace spjalla::ui {
 
 			/** Returns a pointer to the window indicated by a given string. If no window is found, one will be created
 			 *  with that name if `create` is true. */
-			window * get_window(const std::string &, bool create = false);
+			window * get_window(const std::string &, bool create = false, window_type = window_type::other);
 
 			/** Returns a pointer to the window corresponding to a given channel. If no window is found, one will be
 			 *  created for the channel if `create` is true. */
@@ -74,7 +74,7 @@ namespace spjalla::ui {
 			window * get_window(std::shared_ptr<pingpong::user>, bool create = false);
 
 			/** Creates a new window, configures it as appropriate and appends it to the swapbox. */
-			window * new_window(const std::string &name);
+			window * new_window(const std::string &name, window_type);
 
 			/** Closes a window. */
 			void remove_window(window *);
@@ -87,6 +87,9 @@ namespace spjalla::ui {
 
 			/** Returns the iterator pointing to the active window in swappo's children. */
 			std::vector<haunted::ui::control *>::iterator window_iterator() const;
+
+			/** Returns whether it's okay to immediately remove a given window. */
+			bool can_remove(window * = nullptr) const;
 
 		public:
 			interface(haunted::terminal *, client * = nullptr);
@@ -144,7 +147,7 @@ namespace spjalla::ui {
 			void update_overlay();
 
 			/** Toggles the overlay and returns a pointer to the window that was covered/uncovered. */
-			ui::window * toggle_overlay();
+			window * toggle_overlay();
 
 			/** Returns all windows (for channels or private conversations) where a given user is present. */
 			std::vector<window *> windows_for_user(std::shared_ptr<pingpong::user>) const;
