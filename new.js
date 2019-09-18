@@ -88,8 +88,8 @@ if (type == "core") {
 	setNames(name);
 
 	headertext = `
-#ifndef CORE_${upper()}_H_
-#define CORE_${upper()}_H_
+#ifndef SPJALLA_CORE_${upper()}_H_
+#define SPJALLA_CORE_${upper()}_H_
 
 namespace ${fullNamespace} {
 	

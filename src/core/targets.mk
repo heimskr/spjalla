@@ -1,3 +1,3 @@
-build/spjalla: build/core/main.o $(OBJ) $(COMMONOBJ_LIBS)
+build/spjalla: build/core/main.o $(OBJECTS)
 	@ $(MKBUILD)
 	$(CC) $< $(filter-out $<,$+) -o $@ $(LDFLAGS) $(LDLIBS)
