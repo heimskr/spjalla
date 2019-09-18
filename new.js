@@ -1,4 +1,9 @@
 #!/usr/bin/env node
+
+/* 
+ * Types = core, auto
+ */
+
 const fs = require("fs"),
       path = require("path"),
       minimist = require("minimist");

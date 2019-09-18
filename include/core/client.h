@@ -34,6 +34,33 @@ namespace spjalla {
 
 			ui::window * try_window(std::shared_ptr<pingpong::channel>);
 
+			void no_channel();
+
+			/** Handles commands like /kick that take a user and an optional longer string and an optional channel.
+			 *  If no channel is specified, the command must be issued from a channel window.
+			 *  Returns whether a "no active channel" message should be displayed. */
+			template <typename T>
+			bool triple_command(pingpong::server *serv, const input_line &il, std::shared_ptr<pingpong::channel> chan) {
+				const std::string first = il.first(), rest = il.rest();
+				const size_t spaces = std::count(il.body.begin(), il.body.end(), ' ');
+
+				if (first.front() == '#') {
+					const std::string &where = first;
+					if (spaces == 1) {
+						T(serv, where, rest).send();
+					} else {
+						const size_t found = rest.find(' ');
+						T(serv, where, rest.substr(0, found), rest.substr(found + 1)).send();
+					}
+				} else if (chan) {
+					T(serv, chan, first, rest).send();
+				} else {
+					return true;
+				}
+
+				return false;
+			}
+
 		public:
 			client(): out_stream(ansi::out), term(haunted::terminal(std::cin, out_stream)), ui(&term, this) {}
 
@@ -79,10 +106,10 @@ namespace spjalla {
 			bool handle_line(const input_line &line);
 
 			/** Adds listeners for pingpong events. */
-			void add_listeners();
+			void add_events();
 
 			/** Adds the built-in command handlers. */
-			void add_handlers();
+			void add_commands();
 
 			/** Updates the interface to accommodate the removal of a server. */
 			void server_removed(pingpong::server *);
@@ -93,7 +120,6 @@ namespace spjalla {
 			ui::interface & get_ui() { return ui; }
 
 			pingpong::server * active_server();
-			std::shared_ptr<pingpong::channel> active_channel();
 			std::string active_nick();
 	};
 }

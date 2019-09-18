@@ -5,6 +5,7 @@
 #include "haunted/core/util.h"
 
 #include "pingpong/commands/join.h"
+#include "pingpong/commands/kick.h"
 #include "pingpong/commands/nick.h"
 #include "pingpong/commands/part.h"
 #include "pingpong/commands/quit.h"
@@ -54,6 +55,43 @@ namespace spjalla {
 		term.join();
 	}
 
+
+// Private instance methods
+
+
+	void client::debug_servers() {
+		for (pingpong::server *serv: pp.servers) {
+			DBG(ansi::bold(serv->hostname));
+			for (std::shared_ptr<pingpong::channel> chan: serv->channels) {
+				DBG("    " << ansi::wrap(chan->name, ansi::style::underline));
+				for (std::shared_ptr<pingpong::user> user: chan->users) {
+					std::string chans = "";
+					for (std::weak_ptr<pingpong::channel> user_chan: user->channels)
+						chans += " " + user_chan.lock()->name;
+					if (chans.empty())
+						DBG("        " << user->name);
+					else
+						DBG("        " << user->name << ":" << chans);
+				}
+			}
+		}
+	}
+
+	ui::window * client::try_window(std::shared_ptr<pingpong::channel> chan) {
+		ui::window *win = ui.get_window(chan, false);
+		if (!win)
+			ui.log(ansi::yellow("!!") + " Couldn't find window for " + std::string(*chan));
+		return win;
+	}
+
+	void client::no_channel() {
+		ui.log(lines::red_notice + "No active channel.");
+	}
+
+
+// Public instance methods
+
+
 	client & client::operator+=(const command_pair &p) {
 		add(p);
 		return *this;
@@ -64,12 +102,16 @@ namespace spjalla {
 		return *this;
 	}
 
+	void client::add(const command_pair &p) {
+		command_handlers.insert(p);
+	}
+
 	void client::init() {
 		term.watch_size();
 		ui.start();
 		pp.init();
-		add_listeners();
-		add_handlers();
+		add_events();
+		add_commands();
 		term.start_input();
 
 		ui.input->listen(haunted::ui::textinput::event::submit, [&](const haunted::superstring &sstr, int) {
@@ -114,10 +156,14 @@ namespace spjalla {
 				} else if (std::shared_ptr<pingpong::user> user = ui.get_active_user()) {
 					pingpong::privmsg_command(user, str).send();
 				} else {
-					ui.log(lines::red_notice + "No active channel.");
+					no_channel();
 				}
 			}
 		});
+	}
+
+	void client::stop() {
+		alive = false;
 	}
 
 	bool client::handle_line(const input_line &il) {
@@ -151,11 +197,7 @@ namespace spjalla {
 		return true;
 	}
 
-	void client::add(const command_pair &p) {
-		command_handlers.insert(p);
-	}
-
-	void client::add_listeners() {
+	void client::add_events() {
 		pingpong::events::listen<pingpong::bad_line_event>([&](pingpong::bad_line_event *ev) {
 			ui.log(haunted::ui::simpleline(ansi::wrap(">> ", ansi::color::red) + ev->bad_line, 3));
 		});
@@ -243,31 +285,14 @@ namespace spjalla {
 		});
 	}
 
-	void client::add_handlers() {
+	void client::add_commands() {
 		using sptr = pingpong::server *;
 		using line = const input_line &;
-
-		add({"chans", {0, 0, true, [&](sptr serv, line) {
-			std::string msg = "Channels:";
-			for (std::shared_ptr<pingpong::channel> chan: serv->channels)
-				msg += " " + chan->name;
-			ui.log(msg);
-		}}});
-
-		add({"chan", {0, 0, true, [&](sptr, line) {
-			std::shared_ptr<pingpong::channel> chan = ui.get_active_channel();
-			if (chan == nullptr)
-				ui.log(lines::red_notice + "No active channel.");
-			else
-				ui.log("Active channel: " + chan->name);
-		}}});
 
 		add({"clear", {0, 0, false, [&](sptr, line) {
 			if (ui::window *win = ui.get_active_window()) {
 				// TODO: find out why changing the voffset has seemingly no effect.
 				win->set_voffset(win->total_rows());
-				// win->clear_lines();
-				// win->draw();
 			} else {
 				DBG(lines::red_notice + "No window.");
 			}
@@ -328,14 +353,16 @@ namespace spjalla {
 			ui.log("Unknown option: " + first);
 		}}});
 
-		// add({"kick", {1, -1, true, [&](sptr, line il) {
-			
-		// }}});
+		add({"kick", {1, -1, true, [&](sptr serv, line il) {
+			if (triple_command<pingpong::kick_command>(serv, il, ui.get_active_channel()))
+				no_channel();
+		}}});
 
 		add({"me", {1, -1, true, [&](sptr, line il) {
 			if (std::shared_ptr<pingpong::channel> chan = ui.get_active_channel())
 				pingpong::privmsg_command(chan, "\1ACTION " + il.body + "\1").send();
-			else ui.log(lines::red_notice + "No active channel.");
+			else
+				no_channel();
 		}}});
 
 		add({"msg", {2, -1, true, [&](sptr serv, line il) {
@@ -355,7 +382,7 @@ namespace spjalla {
 			std::shared_ptr<pingpong::channel> active_channel = ui.get_active_channel();
 
 			if ((il.args.empty() || il.first()[0] != '#') && !active_channel) {
-				ui.log(lines::red_notice + "No active channel.");
+				no_channel();
 			} else if (il.args.empty()) {
 				pingpong::part_command(serv, active_channel).send();
 			} else if (il.first()[0] != '#') {
@@ -432,34 +459,5 @@ namespace spjalla {
 		if (pingpong::server *serv = active_server())
 			return serv->get_nick();
 		return std::string();
-	}
-
-	void client::stop() {
-		alive = false;
-	}
-
-	void client::debug_servers() {
-		for (pingpong::server *serv: pp.servers) {
-			DBG(ansi::bold(serv->hostname));
-			for (std::shared_ptr<pingpong::channel> chan: serv->channels) {
-				DBG("    " << ansi::wrap(chan->name, ansi::style::underline));
-				for (std::shared_ptr<pingpong::user> user: chan->users) {
-					std::string chans = "";
-					for (std::weak_ptr<pingpong::channel> user_chan: user->channels)
-						chans += " " + user_chan.lock()->name;
-					if (chans.empty())
-						DBG("        " << user->name);
-					else
-						DBG("        " << user->name << ":" << chans);
-				}
-			}
-		}
-	}
-
-	ui::window * client::try_window(std::shared_ptr<pingpong::channel> chan) {
-		ui::window *win = ui.get_window(chan, false);
-		if (!win)
-			ui.log(ansi::yellow("!!") + " Couldn't find window for " + std::string(*chan));
-		return win;
 	}
 }
