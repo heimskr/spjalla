@@ -164,6 +164,9 @@ namespace spjalla::ui {
 			/** If the active window is for a channel, this returns the pointer to the relevant channel. */
 			std::shared_ptr<pingpong::channel> get_active_channel() const;
 
+			/** If the active window is for a user, this returns the pointer to the relevant user. */
+			std::shared_ptr<pingpong::user> get_active_user() const;
+
 			/** Handles keypresses that aren't handled by the textinput. */
 			bool on_key(const haunted::key &);
 	};

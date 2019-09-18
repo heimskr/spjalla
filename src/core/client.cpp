@@ -109,6 +109,8 @@ namespace spjalla {
 			} else {
 				if (std::shared_ptr<pingpong::channel> chan = ui.get_active_channel()) {
 					pingpong::privmsg_command(chan, str).send();
+				} else if (std::shared_ptr<pingpong::user> user = ui.get_active_user()) {
+					pingpong::privmsg_command(user, str).send();
 				} else {
 					ui.log(lines::red_notice + "No active channel.");
 				}
@@ -212,9 +214,10 @@ namespace spjalla {
 			if (ev->is_channel()) {
 				*ui.get_window(ev->get_channel(ev->serv), true) += lines::privmsg_line(*ev);
 			} else {
-				// I know I chose not to assume the destination is always you and not a user in sourced_message,
-				// but I can't avoid that here.
-				*ui.get_window(ev->speaker, true) += lines::privmsg_line(*ev);
+				if (ev->speaker->is_self()) // privmsg_events are dispatched when we send messages too.
+					*ui.get_window(ev->serv->get_user(ev->where, true), true) += lines::privmsg_line(*ev);
+				else
+					*ui.get_window(ev->speaker, true) += lines::privmsg_line(*ev);
 			}
 		});
 

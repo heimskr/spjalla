@@ -360,6 +360,12 @@ namespace spjalla::ui {
 		return nullptr;
 	}
 
+	std::shared_ptr<pingpong::user> interface::get_active_user() const {
+		if (active_window && active_window->data && active_window->data->type == window_type::user)
+			return active_window->data->user;
+		return nullptr;
+	}
+
 	bool interface::on_key(const haunted::key &k) {
 		if (k == haunted::kmod::ctrl) {
 			switch (k.type) {
