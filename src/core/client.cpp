@@ -47,6 +47,8 @@
 
 #include "formicine/ansi.h"
 
+long int strtol(const char *, char **, int base); // suppresses an incorrect VS Code error
+
 namespace spjalla {
 	client::~client() {
 		term.join();
