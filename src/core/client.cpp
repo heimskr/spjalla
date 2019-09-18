@@ -220,8 +220,10 @@ namespace spjalla {
 			ui::window *win = ui.get_window(ev->chan, true);
 			*win += lines::join_line(*ev);
 
-			if (ev->who->is_self())
+			if (ev->who->is_self()) {
 				ui.focus_window(win);
+				win->data.dead = false;
+			}
 		});
 
 		pingpong::events::listen<pingpong::kick_event>([&](pingpong::kick_event *ev) {
