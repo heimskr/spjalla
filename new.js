@@ -65,8 +65,8 @@ let allDir, sourcename, headername, sourcetext, headertext;
 const sourcebase = "src", headerbase = "include";
 let sourcedirs = [], headerdirs = [];
 
-
 let fullNamespace;
+
 if (!namespace) {
 	fullNamespace = namespace = base;
 } else if (namespace.indexOf(base + "::") == 0) {
@@ -89,31 +89,34 @@ const headerPath = () => `${headerDir()}/${headername}`;
 const headerIncl = () => `${headerdirs.join("/")}/${headername}`;
 
 if (type == "core") {
+
 	setDirs("core");
 	setNames(name);
 
-	headertext = `
-#ifndef SPJALLA_CORE_${upper()}_H_
-#define SPJALLA_CORE_${upper()}_H_
+	headertext = prepare(`
+	%	#ifndef SPJALLA_CORE_${upper()}_H_
+	%	#define SPJALLA_CORE_${upper()}_H_
+	%	
+	%	namespace ${fullNamespace} {
+	%		class ${name} {
+	%			
+	%		};
+	%	}
+	%	
+	%	#endif`);
 
-namespace ${fullNamespace} {
-	
-}
+	sourcetext = prepare(`
+	%	#include "core/${name}.h"
+	%	
+	%	namespace ${fullNamespace} {
+	%		
+	%	}`);
 
-#endif
-`.substr(1);
-
-	sourcetext = `
-#include "core/${name}.h"
-
-namespace ${fullNamespace} {
-
-}
-`.substr(1);
-
-	updateModule();
 } else if (type == "auto") {
-	if (!namespace) yikes("Namespace not given");
+
+	if (!namespace)
+		yikes("Namespace not given");
+
 	const spl = namespace.split(/::/);
 	setNames(name);
 	setDirs(...spl);
@@ -126,28 +129,25 @@ namespace ${fullNamespace} {
 	}
 	classDef += " {\n\t\t\n\t};";
 
-	sourcetext = `
-#include "${headerIncl()}"
+	sourcetext = prepare(`
+	%	#include "${headerIncl()}"
+	%	
+	%	namespace ${fullNamespace} {
+	%		
+	%	}`);
 
-namespace ${fullNamespace} {
-	
-}
-`.substr(1);
+	const guard = "SPJALLA_" + [...headerdirs, filename || name].join("_").toUpperCase() + "_H_";
 
-	const guard = [...headerdirs, filename || name].join("_").toUpperCase() + "_H_";
+	headertext = prepare(`
+	%	#ifndef ${guard}
+	%	#define ${guard}
+	%	
+	%	namespace ${fullNamespace} {
+	%		${noclass? "" : classDef}
+	%	}
+	%	
+	%	#endif`);
 
-	headertext = `
-#ifndef ${guard}
-#define ${guard}
-
-namespace ${fullNamespace} {
-	${noclass? "" : classDef}
-}
-
-#endif
-`.substr(1);
-
-	updateModule();
 } else {
 	console.error("Unknown type:", type);
 	yikes(`Expected "auto" | "core"`);
@@ -160,14 +160,6 @@ if (allDir) {
 	const allText = read(`${headerbase}/${allDir}/all.h`, true);
 	if (allText.indexOf(`#include "${name}.h"`) == -1) {
 		write(`${headerbase}/${allDir}/all.h`, allText.replace(/(\n#endif)/, `#include "${name}.h"\n$1`));
-	}
-}
-
-function updateModule() {
-	if (nosrc) return;
-	let moduleText = read(`${sourceDir()}/module.mk`, true);
-	if (moduleText.indexOf(sourcePath()) == -1) {
-		write(`${sourceDir()}/module.mk`, moduleText.replace(/\n*\s*$/, "\n") + `${makevar} += ${sourcePath()}\n`);
 	}
 }
 
@@ -187,6 +179,7 @@ function read(where, safe=false) {
 	}
 }
 
+// What
 function write(where, text) {
 	const old = read(where, true);
 	const maxLineLength = [...text.split(/\n+/), ...old.split(/\n+/)].reduce((a, b) => Math.max(a, b.length), 0);
@@ -221,4 +214,9 @@ function write(where, text) {
 		fs.mkdirSync(path.dirname(where), {recursive: true});
 		fs.writeFileSync(where, text);
 	}
+}
+
+function prepare(text) {
+	// Remove the initial newline and then the extra tabs and add a trailing newline..
+	return text.substr(1).replace(/^\t+%\t?/gm, "") + "\n";
 }

@@ -49,8 +49,6 @@ namespace spjalla::ui {
 			haunted::ui::label     *titlebar, *statusbar;
 			haunted::ui::textinput *input;
 
-			haunted::key overlay_toggle_key {haunted::ktype::semicolon, haunted::kmod::ctrl};
-
 			/** Sets up the labels, overlay and textinput. */
 			void init_basic();
 
@@ -130,11 +128,14 @@ namespace spjalla::ui {
 			void focus_window(window * = nullptr);
 			void focus_window(const std::string &);
 
+			/** Switches to the next server in the list. */
+			void next_server();
+
 			/** Switches to the next window after the current window. */
 			void next_window();
 
 			/** Switches to the previous window before the current window. */
-			void prev_window();
+			void previous_window();
 
 			/** Updates the text in the status bar. */
 			void update_statusbar();

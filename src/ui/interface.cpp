@@ -1,5 +1,6 @@
 #include <iomanip>
 #include <memory>
+#include <set>
 #include <thread>
 
 #include <csignal>
@@ -14,6 +15,7 @@
 #include "lines/userlist.h"
 
 #include "core/client.h"
+#include "core/config.h"
 #include "core/spopt.h"
 
 namespace spjalla::ui {
@@ -51,7 +53,7 @@ namespace spjalla::ui {
 		windows.push_front(overlay);
 		overlay->key_fn = [&](const haunted::key &k) {
 			toggle_overlay();
-			return k == overlay_toggle_key || input->on_key(k);
+			return k == config::keys::toggle_overlay || input->on_key(k);
 		};
 
 		status_window = new window("status");
@@ -233,6 +235,10 @@ namespace spjalla::ui {
 		focus_window(get_window(window_name));
 	}
 
+	void interface::next_server() {
+		const std::set<pingpong::server *> &servers = parent->pp.servers;
+	}
+
 	void interface::next_window() {
 #ifdef OVERLAY_PREVENTS_SWAPPING
 		if (active_window == overlay)
@@ -256,7 +262,7 @@ namespace spjalla::ui {
 		}
 	}
 
-	void interface::prev_window() {
+	void interface::previous_window() {
 #ifdef OVERLAY_PREVENTS_SWAPPING
 		if (active_window == overlay)
 			return;
@@ -379,12 +385,16 @@ namespace spjalla::ui {
 	}
 
 	bool interface::on_key(const haunted::key &k) {
-		if (k == overlay_toggle_key) {
+		if (k == config::keys::toggle_overlay) {
 			toggle_overlay();
+		} else if (k == config::keys::switch_server) {
+			next_server();
+		} else if (k == config::keys::next_window) {
+			next_window();
+		} else if (k == config::keys::previous_window) {
+			previous_window();
 		} else if (k == haunted::kmod::ctrl) {
 			switch (k.type) {
-				case haunted::ktype::n: next_window(); break;
-				case haunted::ktype::p: prev_window(); break;
 				case haunted::ktype::g: active_window->draw(); break;
 				case haunted::ktype::r:
 					if (active_window)

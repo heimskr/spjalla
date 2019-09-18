@@ -73,9 +73,9 @@ DEPFLAGS = -f $(DEPFILE) -s $(DEPTOKEN)
 
 depend:
 	@ echo $(DEPTOKEN) > $(DEPFILE)
-	makedepend $(DEPFLAGS) -- $(CC) $(INCLUDE) -- $(SRC_ALL) 2>/dev/null
+	makedepend $(DEPFLAGS) -- $(CC) $(INCLUDE_LIBS) $(INCLUDE_SP) -- $(SOURCES_PP) $(SOURCES_HN) $(SOURCED_SP) 2>/dev/null
 	@ sed -i.sed 's/^src\//build\//' $(DEPFILE)
-	@ sed -i.sed 's/^pingpong\/src\//pingpong\/build\//' $(DEPFILE)
+	@ sed -i.sed -E 's/^(pingpong|haunted)\/src\//\1\/build\//' $(DEPFILE)
 	@ sed -i.sed '/\/usr\/include\//d' $(DEPFILE)
 	@ rm $(DEPFILE).bak $(DEPFILE).sed
 
