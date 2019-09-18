@@ -42,7 +42,7 @@ namespace spjalla::ui {
 
 			/** Whenever the overlay is activated, a pointer to the previous window is kept in this variable so that the
 			 *  correct window can be restored when the overlay is closed. */
-			window *before_overlay;
+			window *before_overlay = nullptr;
 
 			haunted::ui::boxes::swapbox    *swappo;
 			haunted::ui::boxes::expandobox *expando;
