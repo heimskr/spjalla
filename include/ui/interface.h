@@ -36,7 +36,13 @@ namespace spjalla::ui {
 			client *parent;
 
 			std::list<window *> windows;
-			window *status_window, *active_window, *overlay;
+			window *status_window, *active_window;
+			
+			window *overlay;
+
+			/** Whenever the overlay is activated, a pointer to the previous window is kept in this variable so that the
+			 *  correct window can be restored when the overlay is closed. */
+			window *before_overlay;
 
 			haunted::ui::boxes::swapbox    *swappo;
 			haunted::ui::boxes::expandobox *expando;
@@ -75,6 +81,9 @@ namespace spjalla::ui {
 
 			/** Renders a channel's user list onto the overlay. */
 			void update_overlay(std::shared_ptr<pingpong::channel>);
+
+			/** Renders a user's channel list onto the overlay. */
+			void update_overlay(std::shared_ptr<pingpong::user>);
 
 			/** Returns the iterator pointing to the active window in swappo's children. */
 			std::vector<haunted::ui::control *>::iterator window_iterator() const;
@@ -130,6 +139,9 @@ namespace spjalla::ui {
 
 			/** Updates the text in the overlay. */
 			void update_overlay();
+
+			/** Toggles the overlay and returns a pointer to the window that was covered/uncovered. */
+			ui::window * toggle_overlay();
 
 			/** Returns all windows (for channels or private conversations) where a given user is present. */
 			std::vector<window *> windows_for_user(std::shared_ptr<pingpong::user>) const;

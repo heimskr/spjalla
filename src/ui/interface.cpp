@@ -10,9 +10,11 @@
 #include "lib/pingpong/core/ppdefs.h"
 #include "lib/pingpong/core/channel.h"
 #include "lib/pingpong/core/user.h"
+#include "lines/chanlist.h"
 #include "lines/userlist.h"
 
 #include "core/client.h"
+#include "core/spopt.h"
 
 namespace spjalla::ui {
 	interface::interface(haunted::terminal *term_, client *parent_): term(term_), parent(parent_) {
@@ -69,7 +71,7 @@ namespace spjalla::ui {
 	}
 
 	void interface::init_colors() {
-		overlay->set_colors(ansi::color::white, ansi::color::verydark);
+		overlay->set_colors(ansi::color::blue, ansi::color::green);
 		titlebar->set_colors(ansi::color::white, ansi::color::blue);
 		statusbar->set_colors(ansi::color::white, ansi::color::blue);
 		// input->set_colors(ansi::color::normal, ansi::color::red);
@@ -159,6 +161,17 @@ namespace spjalla::ui {
 			*overlay += spjalla::lines::userlist_line(chan, user);
 	}
 
+	void interface::update_overlay(std::shared_ptr<pingpong::user> user) {
+		*overlay += haunted::ui::simpleline(ansi::bold(user->name));
+		// user->channels.sort([&](std::weak_ptr<pingpong::channel> left, std::weak_ptr<pingpong::channel> right)
+		// 	-> bool {
+		// 	return left->name < right->name;
+		// });
+
+		for (std::weak_ptr<pingpong::channel> chan: user->channels)
+			*overlay += spjalla::lines::chanlist_line(user, chan.lock());
+	}
+
 	std::vector<haunted::ui::control *>::iterator interface::window_iterator() const {
 		auto iter = std::find(swappo->begin(), swappo->end(), active_window);
 		if (iter == swappo->end())
@@ -191,6 +204,9 @@ namespace spjalla::ui {
 	}
 
 	void interface::focus_window(window *win) {
+		if (active_window == overlay)
+			before_overlay = nullptr;
+
 		if (win == nullptr)
 			win = status_window;
 
@@ -200,7 +216,13 @@ namespace spjalla::ui {
 		swappo->set_active(active_window = win);
 		swappo->draw();
 		update_statusbar();
-		update_overlay();
+
+		if (win == overlay) {
+			update_overlay();
+			overlay->clear_rect();
+			DBG("Drawing overlay?");
+			overlay->draw();
+		}
 	}
 
 	void interface::focus_window(const std::string &window_name) {
@@ -208,6 +230,10 @@ namespace spjalla::ui {
 	}
 
 	void interface::next_window() {
+#ifdef OVERLAY_PREVENTS_SWAPPING
+		if (active_window == overlay)
+			return;
+#endif
 		if (swappo->empty()) {
 			active_window = nullptr;
 		} else if (!active_window) {
@@ -227,6 +253,10 @@ namespace spjalla::ui {
 	}
 
 	void interface::prev_window() {
+#ifdef OVERLAY_PREVENTS_SWAPPING
+		if (active_window == overlay)
+			return;
+#endif
 		if (swappo->empty()) {
 			active_window = nullptr;
 		} else if (!active_window) {
@@ -255,7 +285,12 @@ namespace spjalla::ui {
 	void interface::update_overlay() {
 		overlay->clear_lines();
 
-		if (active_window == status_window) {
+		if (before_overlay == nullptr)
+			return;
+
+		DBG("Updating overlay.");
+
+		if (before_overlay == status_window) {
 			*overlay += haunted::ui::simpleline(ansi::bold("Servers"));
 			for (pingpong::server *serv: parent->pp.servers) {
 				using pingpong::server;
@@ -265,18 +300,34 @@ namespace spjalla::ui {
 			return;
 		}
 
-		std::optional<window_meta> &data = active_window->data;
+		std::optional<window_meta> &data = before_overlay->data;
 
 		if (!data) {
-			DBG("No data for " << active_window->window_name);
+			DBG("No data for " << before_overlay->window_name);
 			return;
 		}
 
 		window_type type = data->type;
 		if (type == window_type::channel)
 			update_overlay(data->chan);
+		else if (type == window_type::user)
+			update_overlay(data->user);
 
 		overlay->draw();
+	}
+
+	ui::window * interface::toggle_overlay() {
+		if (active_window == overlay) {
+			DBG("Disabling overlay.");
+			ui::window *old_active = active_window;
+			focus_window(before_overlay);
+			return old_active;
+		}
+
+		DBG("Enabling overlay.");
+		before_overlay = active_window;
+		focus_window(overlay);
+		return before_overlay;
 	}
 
 	std::vector<window *> interface::windows_for_user(std::shared_ptr<pingpong::user> user) const {
@@ -329,7 +380,10 @@ namespace spjalla::ui {
 			switch (k.type) {
 				case haunted::ktype::n: next_window(); break;
 				case haunted::ktype::p: prev_window(); break;
-				case haunted::ktype::h: overlay->draw(); break;
+				case haunted::ktype::semicolon:
+					DBG("Toggling overlay.");
+					toggle_overlay();
+					break;
 				case haunted::ktype::g: active_window->draw(); break;
 				case haunted::ktype::r:
 					if (active_window)
