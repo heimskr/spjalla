@@ -253,10 +253,9 @@ namespace spjalla {
 
 		pingpong::events::listen<pingpong::part_event>([&](pingpong::part_event *ev) {
 			if (ui::window *win = try_window(ev->chan)) {
+				*win += lines::part_line(*ev);
 				if (ev->who->is_self())
-					ui.remove_window(win);
-				else
-					*win += lines::part_line(*ev);
+					win->data.dead = true;
 			}
 		});
 
