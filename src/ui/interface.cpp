@@ -296,8 +296,11 @@ namespace spjalla::ui {
 			*overlay += haunted::ui::simpleline(ansi::bold("Servers"));
 			for (pingpong::server *serv: parent->pp.servers) {
 				using pingpong::server;
-				if (serv->status != server::stage::dead && serv->status != server::stage::unconnected)
-					*overlay += haunted::ui::simpleline(ansi::dim("- ") + std::string(*serv));
+				if (serv->status != server::stage::dead && serv->status != server::stage::unconnected) {
+					*overlay += haunted::ui::simpleline("- "_d + std::string(*serv));
+					for (std::shared_ptr<pingpong::channel> chan: serv->channels)
+						*overlay += haunted::ui::simpleline("  - "_d + chan->name);
+				}
 			}
 			return;
 		}
