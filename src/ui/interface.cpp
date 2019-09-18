@@ -226,7 +226,6 @@ namespace spjalla::ui {
 			overlay->focus();
 		}
 
-		swappo->draw();
 		update_statusbar();
 	}
 
