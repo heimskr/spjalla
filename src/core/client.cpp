@@ -154,7 +154,7 @@ namespace spjalla {
 				} catch (std::exception &err) {
 					ui.log(err);
 				}
-			} else {
+			} else if (!ui.active_window->is_dead()) {
 				if (std::shared_ptr<pingpong::channel> chan = ui.get_active_channel()) {
 					pingpong::privmsg_command(chan, str).send();
 				} else if (std::shared_ptr<pingpong::user> user = ui.get_active_user()) {
@@ -369,10 +369,15 @@ namespace spjalla {
 		}}});
 
 		add({"me", {1, -1, true, [&](sptr, line il) {
-			if (std::shared_ptr<pingpong::channel> chan = ui.get_active_channel())
-				pingpong::privmsg_command(chan, "\1ACTION " + il.body + "\1").send();
-			else
-				no_channel();
+			const ui::window *win = ui.active_window;
+			if (win->is_dead())
+				return;
+
+			const std::string msg = "\1ACTION " + il.body + "\1";
+			if (win->is_channel())
+				pingpong::privmsg_command(win->data.chan, msg).send();
+			else if (win->is_user())
+				pingpong::privmsg_command(win->data.user, msg).send();
 		}}});
 
 		add({"msg", {2, -1, true, [&](sptr serv, line il) {
