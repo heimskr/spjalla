@@ -209,10 +209,13 @@ namespace spjalla {
 		});
 
 		pingpong::events::listen<pingpong::privmsg_event>([&](pingpong::privmsg_event *ev) {
-			if (ev->is_channel())
-				*ui.get_window(ev->chan, true) += lines::privmsg_line(*ev);
-			else
-				*ui.get_window(ev->whom, true) += lines::privmsg_line(*ev);
+			if (ev->is_channel()) {
+				*ui.get_window(ev->get_channel(ev->serv), true) += lines::privmsg_line(*ev);
+			} else {
+				// I know I chose not to assume the destination is always you and not a user in sourced_message,
+				// but I can't avoid that here.
+				*ui.get_window(ev->speaker, true) += lines::privmsg_line(*ev);
+			}
 		});
 
 		pingpong::events::listen<pingpong::quit_event>([&](pingpong::quit_event *ev) {
