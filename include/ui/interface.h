@@ -49,6 +49,8 @@ namespace spjalla::ui {
 			haunted::ui::label     *titlebar, *statusbar;
 			haunted::ui::textinput *input;
 
+			haunted::key overlay_toggle_key {haunted::ktype::semicolon, haunted::kmod::ctrl};
+
 			/** Sets up the labels, overlay and textinput. */
 			void init_basic();
 

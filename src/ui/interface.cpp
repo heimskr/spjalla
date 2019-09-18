@@ -49,6 +49,10 @@ namespace spjalla::ui {
 		overlay->set_terminal(term);
 		overlay->set_name("overlay_window");
 		windows.push_front(overlay);
+		overlay->key_fn = [&](const haunted::key &k) {
+			toggle_overlay();
+			return k == overlay_toggle_key || input->on_key(k);
+		};
 
 		status_window = new window("status");
 		status_window->data = {window_type::status};
@@ -58,7 +62,7 @@ namespace spjalla::ui {
 		active_window = status_window;
 		windows.push_front(status_window);
 
-		swappo = new haunted::ui::boxes::swapbox(term, {}, {active_window});
+		swappo = new haunted::ui::boxes::swapbox(term, {}, {active_window, overlay});
 		swappo->set_name("swappo");
 	}
 
@@ -71,7 +75,7 @@ namespace spjalla::ui {
 	}
 
 	void interface::init_colors() {
-		overlay->set_colors(ansi::color::blue, ansi::color::green);
+		overlay->set_colors(ansi::color::white, ansi::color::verydark);
 		titlebar->set_colors(ansi::color::white, ansi::color::blue);
 		statusbar->set_colors(ansi::color::white, ansi::color::blue);
 		// input->set_colors(ansi::color::normal, ansi::color::red);
@@ -204,8 +208,10 @@ namespace spjalla::ui {
 	}
 
 	void interface::focus_window(window *win) {
-		if (active_window == overlay)
+		if (active_window == overlay) {
 			before_overlay = nullptr;
+			input->focus();
+		}
 
 		if (win == nullptr)
 			win = status_window;
@@ -214,15 +220,14 @@ namespace spjalla::ui {
 			return;
 
 		swappo->set_active(active_window = win);
-		swappo->draw();
-		update_statusbar();
 
 		if (win == overlay) {
 			update_overlay();
-			overlay->clear_rect();
-			DBG("Drawing overlay?");
-			overlay->draw();
+			overlay->focus();
 		}
+
+		swappo->draw();
+		update_statusbar();
 	}
 
 	void interface::focus_window(const std::string &window_name) {
@@ -288,8 +293,6 @@ namespace spjalla::ui {
 		if (before_overlay == nullptr)
 			return;
 
-		DBG("Updating overlay.");
-
 		if (before_overlay == status_window) {
 			*overlay += haunted::ui::simpleline(ansi::bold("Servers"));
 			for (pingpong::server *serv: parent->pp.servers) {
@@ -318,13 +321,11 @@ namespace spjalla::ui {
 
 	ui::window * interface::toggle_overlay() {
 		if (active_window == overlay) {
-			DBG("Disabling overlay.");
 			ui::window *old_active = active_window;
 			focus_window(before_overlay);
 			return old_active;
 		}
 
-		DBG("Enabling overlay.");
 		before_overlay = active_window;
 		focus_window(overlay);
 		return before_overlay;
@@ -376,14 +377,12 @@ namespace spjalla::ui {
 	}
 
 	bool interface::on_key(const haunted::key &k) {
-		if (k == haunted::kmod::ctrl) {
+		if (k == overlay_toggle_key) {
+			toggle_overlay();
+		} else if (k == haunted::kmod::ctrl) {
 			switch (k.type) {
 				case haunted::ktype::n: next_window(); break;
 				case haunted::ktype::p: prev_window(); break;
-				case haunted::ktype::semicolon:
-					DBG("Toggling overlay.");
-					toggle_overlay();
-					break;
 				case haunted::ktype::g: active_window->draw(); break;
 				case haunted::ktype::r:
 					if (active_window)
