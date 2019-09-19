@@ -76,6 +76,9 @@ namespace spjalla::ui {
 
 			bool is_dead() const;
 
+			void kill();
+			void resurrect();
+
 			friend void swap(window &left, window &right);
 	};
 }

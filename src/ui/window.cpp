@@ -29,4 +29,12 @@ namespace spjalla::ui {
 	bool window::is_dead() const {
 		return data.dead;
 	}
+
+	void window::kill() {
+		data.dead = true;
+	}
+
+	void window::resurrect() {
+		data.dead = false;
+	}
 }
