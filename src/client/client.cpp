@@ -54,13 +54,6 @@ namespace spjalla {
 		}
 	}
 
-	ui::window * client::try_window(std::shared_ptr<pingpong::channel> chan) {
-		ui::window *win = ui.get_window(chan, false);
-		if (!win)
-			ui.log(ansi::yellow("!!") + " Couldn't find window for " + std::string(*chan));
-		return win;
-	}
-
 	void client::no_channel() {
 		ui.log(lines::red_notice + "No active channel.");
 	}
@@ -201,6 +194,6 @@ namespace spjalla {
 	std::string client::active_nick() {
 		if (pingpong::server *serv = active_server())
 			return serv->get_nick();
-		return std::string();
+		return "";
 	}
 }

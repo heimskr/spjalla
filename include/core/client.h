@@ -30,10 +30,18 @@ namespace spjalla {
 			haunted::terminal term;
 			ui::interface ui;
 
+			/** Prints debug information about the server list to the log file. */
 			void debug_servers();
 
-			ui::window * try_window(std::shared_ptr<pingpong::channel>);
+			template <typename T>
+			ui::window * try_window(const T &where) {
+				ui::window *win = ui.get_window(where, false);
+				if (!win)
+					ui.log(ansi::yellow("!!") + " Couldn't find window for " + std::string(*where));
+				return win;
+			}
 
+			/** Logs a message indicated that there is no active channel. */
 			void no_channel();
 
 			std::string active_server_name();
@@ -119,9 +127,13 @@ namespace spjalla {
 			/** Joins any threads associated with the client. */
 			void join();
 
+			/** Returns the client's ui::interface instance. */
 			ui::interface & get_ui() { return ui; }
 
+			/** Returns a pointer to the active server. */
 			pingpong::server * active_server();
+
+			/** Returns the nickname in use on the active server if possible, or a blank string otherwise. */
 			std::string active_nick();
 	};
 }
