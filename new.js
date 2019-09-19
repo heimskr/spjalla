@@ -54,7 +54,7 @@ const isBad = () => {
 };
 
 if (isBad()) {
-	yikes("Usage: new.js <name> [type] [-n/--namespace] [-s/--nosrc] [-h/--noheader] [-c/--noclass] [-i/--inherit superclass] [-k/--keyword (struct|class)] [-v/--visibility inheritance visibility] [-b/--base base namespace] [-u/--usebase] [-f/--filename alt. filename]");
+	yikes("Usage: new.js <name> [type=core,line,auto] [-n/--namespace] [-s/--nosrc] [-h/--noheader] [-c/--noclass] [-i/--inherit superclass] [-k/--keyword (struct|class)] [-v/--visibility inheritance visibility] [-b/--base base namespace] [-u/--usebase] [-f/--filename alt. filename]");
 }
 
 if (!name.match(/^[\w_\d]+$/i)) {
@@ -89,7 +89,7 @@ const sourcePath = () => `${sourceDir()}/${sourcename}`;
 const headerPath = () => `${headerDir()}/${headername}`;
 const headerIncl = () => `${headerdirs.join("/")}/${headername}`;
 
-if (type == "core") {
+if (type.match(/^c(ore)?$/i)) {
 
 	setDirs("core");
 	setNames(name);
@@ -97,20 +97,52 @@ if (type == "core") {
 	headertext = prepare(`
 	%	#ifndef SPJALLA_CORE_${upper()}_H_
 	%	#define SPJALLA_CORE_${upper()}_H_
-	%	
+	%
 	%	namespace spjalla {
 	%		class ${name} {
 	%			
 	%		};
 	%	}
-	%	
+	%
 	%	#endif`);
 
 	sourcetext = prepare(`
 	%	#include "core/${name}.h"
-	%	
+	%
 	%	namespace spjalla {
 	%		
+	%	}`);
+
+} else if (type.match(/^l(ines?)?$/i)) {
+
+	setDirs("lines");
+	setNames(name);
+
+	headertext = prepare(`
+	%	#ifndef SPJALLA_LINES_${upper()}_H_
+	%	#define SPJALLA_LINES_${upper()}_H_
+	%
+	%	#include "lines/lines.h"
+	%
+	%	namespace spjalla::lines {
+	%		struct ${name}_line: public haunted::ui::textline {
+	%			long stamp;
+	%
+	%			${name}_line(long stamp_): haunted::ui::textline(0), stamp(stamp_) {}
+	%
+	%			virtual operator std::string() const override;
+	%		};
+	%	}
+	%
+	%	#endif`);
+
+	sourcetext = prepare(`
+	%	#include "lines/${name}.h"
+	%
+	%	namespace spjalla::lines {
+	%		${name}_line::operator std::string() const {
+	%			return lines::render_time(stamp);
+	%		}
 	%	}`);
 
 } else if (type == "auto") {
@@ -142,11 +174,11 @@ if (type == "core") {
 	headertext = prepare(`
 	%	#ifndef ${guard}
 	%	#define ${guard}
-	%	
+	%
 	%	namespace spjalla::${fullNamespace} {
 	%		${noclass? "" : classDef}
 	%	}
-	%	
+	%
 	%	#endif`);
 
 } else {
@@ -183,7 +215,8 @@ function read(where, safe=false) {
 // What
 function write(where, text) {
 	const old = read(where, true);
-	const maxLineLength = [...text.split(/\n+/), ...old.split(/\n+/)].reduce((a, b) => Math.max(a, b.length), 0);
+	const maxLineLength = [...text.replace(/\t/g, "    ").split(/\n+/), ...old.replace(/\t/g, "    ").split(/\n+/)]
+	                      .reduce((a, b) => Math.max(a, b.length), 0);
 	const width = Math.max(52, maxLineLength) + 8;
 	const style = "\x1b[2m";
 	const reset = "\x1b[0m";
