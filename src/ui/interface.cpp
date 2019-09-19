@@ -104,7 +104,7 @@ namespace spjalla::ui {
 		return create? new_window(window_name, type) : nullptr;
 	}
 
-	window * interface::get_window(std::shared_ptr<pingpong::channel> chan, bool create) {
+	window * interface::get_window(const std::shared_ptr<pingpong::channel> &chan, bool create) {
 		if (!chan)
 			return nullptr;
 
@@ -120,7 +120,7 @@ namespace spjalla::ui {
 		return win;
 	}
 
-	window * interface::get_window(std::shared_ptr<pingpong::user> user, bool create) {
+	window * interface::get_window(const std::shared_ptr<pingpong::user> &user, bool create) {
 		if (!user)
 			return nullptr;
 
@@ -157,7 +157,7 @@ namespace spjalla::ui {
 		delete win;
 	}
 
-	void interface::update_overlay(std::shared_ptr<pingpong::channel> chan) {
+	void interface::update_overlay(const std::shared_ptr<pingpong::channel> &chan) {
 		*overlay += haunted::ui::simpleline(ansi::bold(chan->name) + " [" + chan->mode_str() + "]");
 		chan->users.sort([&](std::shared_ptr<pingpong::user> left, std::shared_ptr<pingpong::user> right) -> bool {
 			return left->name < right->name;
@@ -167,7 +167,7 @@ namespace spjalla::ui {
 			*overlay += spjalla::lines::userlist_line(chan, user);
 	}
 
-	void interface::update_overlay(std::shared_ptr<pingpong::user> user) {
+	void interface::update_overlay(const std::shared_ptr<pingpong::user> &user) {
 		*overlay += haunted::ui::simpleline(ansi::bold(user->name));
 		for (std::weak_ptr<pingpong::channel> chan: user->channels)
 			*overlay += spjalla::lines::chanlist_line(user, chan.lock());
@@ -178,6 +178,15 @@ namespace spjalla::ui {
 		if (iter == swappo->end())
 			throw std::runtime_error("The active window isn't a child of swappo");
 		return iter;
+	}
+
+	void interface::update_titlebar(const std::shared_ptr<pingpong::channel> &chan) {
+		if (!chan) {
+			DBG("chan is null in update_titlebar");
+			return;
+		}
+
+		titlebar->set_text(" " + std::string(chan->topic));
 	}
 
 	bool interface::can_remove(window *win) const {
@@ -235,6 +244,7 @@ namespace spjalla::ui {
 		}
 
 		update_statusbar();
+		update_titlebar();
 	}
 
 	void interface::focus_window(const std::string &window_name) {
@@ -252,6 +262,7 @@ namespace spjalla::ui {
 		parent->pp.active_server = *iter;
 		log(lines::notice + "Switched to " + ansi::bold((*iter)->hostname) + ".");
 		update_statusbar();
+		update_titlebar();
 	}
 
 	void interface::next_window() {
@@ -355,6 +366,15 @@ namespace spjalla::ui {
 			update_overlay(data.user);
 
 		overlay->draw();
+	}
+
+	void interface::update_titlebar() {
+		window_type type = active_window->data.type;
+		if (type == window_type::channel) {
+			update_titlebar(active_window->data.chan);
+		} else {
+			titlebar->clear();
+		}
 	}
 
 	window * interface::toggle_overlay() {

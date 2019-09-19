@@ -67,11 +67,11 @@ namespace spjalla::ui {
 
 			/** Returns a pointer to the window corresponding to a given channel. If no window is found, one will be
 			 *  created for the channel if `create` is true. */
-			window * get_window(std::shared_ptr<pingpong::channel>, bool create = false);
+			window * get_window(const std::shared_ptr<pingpong::channel> &, bool create = false);
 
 			/** Returns a pointer to the window corresponding to a given user. If no window is found, one will be
 			 *  created for the user if `create` is true. */
-			window * get_window(std::shared_ptr<pingpong::user>, bool create = false);
+			window * get_window(const std::shared_ptr<pingpong::user> &, bool create = false);
 
 			/** Creates a new window, configures it as appropriate and appends it to the swapbox. */
 			window * new_window(const std::string &name, window_type);
@@ -80,10 +80,13 @@ namespace spjalla::ui {
 			void remove_window(window *);
 
 			/** Renders a channel's user list onto the overlay. */
-			void update_overlay(std::shared_ptr<pingpong::channel>);
+			void update_overlay(const std::shared_ptr<pingpong::channel> &);
 
 			/** Renders a user's channel list onto the overlay. */
-			void update_overlay(std::shared_ptr<pingpong::user>);
+			void update_overlay(const std::shared_ptr<pingpong::user> &);
+
+			/** Renders a channel's topic onto the titlebar. */
+			void update_titlebar(const std::shared_ptr<pingpong::channel> &);
 
 			/** Returns the iterator pointing to the active window in swappo's children. */
 			std::vector<haunted::ui::control *>::iterator window_iterator() const;
@@ -148,6 +151,9 @@ namespace spjalla::ui {
 
 			/** Updates the text in the overlay. */
 			void update_overlay();
+
+			/** Updates the text in the titlebar. */
+			void update_titlebar();
 
 			/** Toggles the overlay and returns a pointer to the window that was covered/uncovered. */
 			window * toggle_overlay();

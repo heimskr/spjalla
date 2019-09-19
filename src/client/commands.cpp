@@ -12,8 +12,6 @@
 #include "core/client.h"
 #include "lines/lines.h"
 
-long int strtol(const char *, char **, int base); // suppresses an incorrect VS Code error
-
 namespace spjalla {
 	void client::add_commands() {
 		using sptr = pingpong::server *;
