@@ -2,7 +2,7 @@
 #include <iomanip>
 
 #include "tests/haunted.h"
-#include "haunted/terminal.h"
+#include "haunted/core/terminal.h"
 
 int main(int, char **) {
 	using namespace haunted;
