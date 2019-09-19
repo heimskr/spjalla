@@ -6,6 +6,7 @@
 #include "pingpong/events/join.h"
 #include "pingpong/events/kick.h"
 #include "pingpong/events/message.h"
+#include "pingpong/events/mode.h"
 #include "pingpong/events/names_updated.h"
 #include "pingpong/events/nick.h"
 #include "pingpong/events/part.h"
@@ -63,6 +64,10 @@ namespace spjalla {
 		pingpong::events::listen<pingpong::message_event>([&](pingpong::message_event *ev) {
 			if (!ev->msg->is<pingpong::numeric_message>() && !ev->msg->is<pingpong::ping_message>())
 				ui.log(*(ev->msg));
+		});
+
+		pingpong::events::listen<pingpong::mode_event>([&](pingpong::mode_event *ev) {
+			
 		});
 
 		pingpong::events::listen<pingpong::names_updated_event>([&](pingpong::names_updated_event *ev) {

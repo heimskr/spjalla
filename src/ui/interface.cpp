@@ -158,7 +158,7 @@ namespace spjalla::ui {
 	}
 
 	void interface::update_overlay(std::shared_ptr<pingpong::channel> chan) {
-		*overlay += haunted::ui::simpleline(ansi::bold(chan->name));
+		*overlay += haunted::ui::simpleline(ansi::bold(chan->name) + " [" + chan->mode_str() + "]");
 		chan->users.sort([&](std::shared_ptr<pingpong::user> left, std::shared_ptr<pingpong::user> right) -> bool {
 			return left->name < right->name;
 		});

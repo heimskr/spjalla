@@ -59,12 +59,12 @@ grind: $(OUTPUT)
 
 clean:
 	rm -rf build
+	$(MAKE) -C pingpong clean
+	$(MAKE) -C haunted clean
 	if [ -e .log ]; then > .log; fi
 
 spotless:
-	$(MAKE) -C pingpong clean
-	$(MAKE) -C haunted clean
-	rm -rf build .log $(DEPFILE)
+	rm -rf build pingpong/build haunted/build .log $(DEPFILE)
 
 count:
 	cloc src include pingpong/src pingpong/include haunted/src haunted/include formicine

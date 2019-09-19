@@ -31,14 +31,20 @@ namespace spjalla {
 
 
 	void client::debug_servers() {
+		if (pp.servers.empty()) {
+			DBG("No servers.");
+			return;
+		}
+
 		for (pingpong::server *serv: pp.servers) {
 			DBG(ansi::bold(serv->hostname));
 			for (std::shared_ptr<pingpong::channel> chan: serv->channels) {
-				DBG("    " << ansi::wrap(chan->name, ansi::style::underline));
+				DBG("    " << ansi::wrap(chan->name, ansi::style::underline) << " [" << chan->mode_str() << "]");
 				for (std::shared_ptr<pingpong::user> user: chan->users) {
 					std::string chans = "";
 					for (std::weak_ptr<pingpong::channel> user_chan: user->channels)
 						chans += " " + user_chan.lock()->name;
+
 					if (chans.empty())
 						DBG("        " << user->name);
 					else
