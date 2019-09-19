@@ -158,6 +158,7 @@ namespace spjalla::ui {
 	}
 
 	void interface::update_overlay(const std::shared_ptr<pingpong::channel> &chan) {
+		overlay->clear_lines();
 		*overlay += haunted::ui::simpleline(ansi::bold(chan->name) + " [" + chan->mode_str() + "]");
 		chan->users.sort([&](std::shared_ptr<pingpong::user> left, std::shared_ptr<pingpong::user> right) -> bool {
 			return left->name < right->name;
@@ -168,6 +169,7 @@ namespace spjalla::ui {
 	}
 
 	void interface::update_overlay(const std::shared_ptr<pingpong::user> &user) {
+		overlay->clear_lines();
 		*overlay += haunted::ui::simpleline(ansi::bold(user->name));
 		for (std::weak_ptr<pingpong::channel> chan: user->channels)
 			*overlay += spjalla::lines::chanlist_line(user, chan.lock());
@@ -427,6 +429,13 @@ namespace spjalla::ui {
 		if (active_window->is_user())
 			return active_window->data.user;
 		return nullptr;
+	}
+
+	bool interface::is_active(window *win) const {
+		if (!win)
+			return false;
+
+		return active_window == win || before_overlay == win;
 	}
 
 	bool interface::on_key(const haunted::key &k) {

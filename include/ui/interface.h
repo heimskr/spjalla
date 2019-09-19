@@ -173,6 +173,9 @@ namespace spjalla::ui {
 			/** If the active window is for a user, this returns the pointer to the relevant user. */
 			std::shared_ptr<pingpong::user> get_active_user() const;
 
+			/** Returns true if the window is active or currently covered by the overlay. */
+			bool is_active(window *) const;
+
 			/** Handles keypresses that aren't handled by the textinput. */
 			bool on_key(const haunted::key &);
 	};
