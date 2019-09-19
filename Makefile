@@ -1,5 +1,5 @@
 COMPILER		:= g++
-CFLAGS			:= -std=c++17 -g -O0 -Wall -Wextra
+CFLAGS			:= -std=c++2a -g -O0 -Wall -Wextra
 CFLAGS_ORIG		:= $(CFLAGS)
 INCLUDE			:= 
 LDFLAGS			:= -pthread
@@ -18,8 +18,7 @@ else ifeq ($(CHECK), msan)
 	CHECKFLAGS := -fsanitize=memory -fno-common
 endif
 
-.PHONY: all test clean depend spotless
-
+.PHONY: all test clean depend spotless count
 
 INCLUDE_PP		:= -Ipingpong/include
 SOURCES_PP		:= $(shell find pingpong/src -name '*.cpp' | sed -nE '/(tests?|test_.+|ansi)\.cpp$$/!p')
@@ -66,6 +65,12 @@ spotless:
 	$(MAKE) -C pingpong clean
 	$(MAKE) -C haunted clean
 	rm -rf build .log $(DEPFILE)
+
+count:
+	cloc src include pingpong/src pingpong/include haunted/src haunted/include formicine
+
+countbf:
+	cloc --by-file src include pingpong/src pingpong/include haunted/src haunted/include formicine
 
 DEPFILE  = .dep
 DEPTOKEN = "\# MAKEDEPENDS"

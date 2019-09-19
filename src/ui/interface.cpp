@@ -12,6 +12,7 @@
 #include "lib/pingpong/core/channel.h"
 #include "lib/pingpong/core/user.h"
 #include "lines/chanlist.h"
+#include "lines/overlay.h"
 #include "lines/userlist.h"
 
 #include "core/client.h"
@@ -168,11 +169,6 @@ namespace spjalla::ui {
 
 	void interface::update_overlay(std::shared_ptr<pingpong::user> user) {
 		*overlay += haunted::ui::simpleline(ansi::bold(user->name));
-		// user->channels.sort([&](std::weak_ptr<pingpong::channel> left, std::weak_ptr<pingpong::channel> right)
-		// 	-> bool {
-		// 	return left->name < right->name;
-		// });
-
 		for (std::weak_ptr<pingpong::channel> chan: user->channels)
 			*overlay += spjalla::lines::chanlist_line(user, chan.lock());
 	}
@@ -330,19 +326,14 @@ namespace spjalla::ui {
 		if (before_overlay == status_window) {
 			*overlay += haunted::ui::simpleline(ansi::bold("Servers"));
 			for (pingpong::server *serv: parent->pp.servers) {
-				using pingpong::server;
-				serv->channels.sort([&](std::weak_ptr<pingpong::channel> left, std::weak_ptr<pingpong::channel> right)
-					-> bool {
-					return left.lock()->name < right.lock()->name;
-				});
-
-				if (serv->status != server::stage::dead && serv->status != server::stage::unconnected) {					
-					*overlay += haunted::ui::simpleline("- "_d + std::string(*serv));
-
+				serv->sort_channels();
+				if (serv->is_active()) {
+					*overlay += lines::status_server_line(serv);
 					for (std::shared_ptr<pingpong::channel> chan: serv->channels)
-						*overlay += haunted::ui::simpleline("  - "_d + chan->name);
+						*overlay += lines::status_channel_line(chan);
 				}
 			}
+
 			return;
 		}
 

@@ -42,7 +42,8 @@ const options = minimist(process.argv.slice(2), {
 });
 
 let [name, type] = options._;
-if (!type) type = "auto";
+if (!type)
+	type = "auto";
 let {namespace, nosrc, inherit, keyword, noclass, visibility, preview, makevar, noheader, base, usebase, filename} = options;
 
 const isBad = () => {
@@ -97,7 +98,7 @@ if (type == "core") {
 	%	#ifndef SPJALLA_CORE_${upper()}_H_
 	%	#define SPJALLA_CORE_${upper()}_H_
 	%	
-	%	namespace ${fullNamespace} {
+	%	namespace spjalla {
 	%		class ${name} {
 	%			
 	%		};
@@ -108,7 +109,7 @@ if (type == "core") {
 	sourcetext = prepare(`
 	%	#include "core/${name}.h"
 	%	
-	%	namespace ${fullNamespace} {
+	%	namespace spjalla {
 	%		
 	%	}`);
 
@@ -132,7 +133,7 @@ if (type == "core") {
 	sourcetext = prepare(`
 	%	#include "${headerIncl()}"
 	%	
-	%	namespace ${fullNamespace} {
+	%	namespace spjalla::${fullNamespace} {
 	%		
 	%	}`);
 
@@ -142,7 +143,7 @@ if (type == "core") {
 	%	#ifndef ${guard}
 	%	#define ${guard}
 	%	
-	%	namespace ${fullNamespace} {
+	%	namespace spjalla::${fullNamespace} {
 	%		${noclass? "" : classDef}
 	%	}
 	%	
