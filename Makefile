@@ -20,6 +20,9 @@ endif
 
 .PHONY: all test clean depend spotless count
 
+all: $(OBJECTS) $(OUTPUT)
+
+
 INCLUDE_PP		:= -Ipingpong/include
 SOURCES_PP		:= $(shell find pingpong/src -name '*.cpp' | sed -nE '/(tests?|test_.+|ansi)\.cpp$$/!p')
 OBJECTS_PP		:= $(patsubst pingpong/src/%.cpp,pingpong/build/%.o, $(SOURCES_PP))
@@ -34,10 +37,9 @@ OBJECTS_SP		:= $(patsubst src/%.cpp,build/%.o, $(SOURCES_SP))
 INCLUDE_LIBS	:= $(INCLUDE_PP) $(INCLUDE_HN)
 
 OBJECTS			= $(OBJECTS_PP) $(OBJECTS_HN) $(OBJECTS_SP)
+
 sinclude $(shell find src -name 'targets.mk')
 
-
-all: $(OBJECTS) $(OUTPUT)
 
 pingpong/build/%.o: pingpong/src/%.cpp
 	@ mkdir -p "$(shell dirname "$@")"
