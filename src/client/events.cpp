@@ -23,6 +23,7 @@
 
 #include "lines/join.h"
 #include "lines/kick.h"
+#include "lines/mode.h"
 #include "lines/nick_change.h"
 #include "lines/part.h"
 #include "lines/privmsg.h"
@@ -67,7 +68,16 @@ namespace spjalla {
 		});
 
 		pingpong::events::listen<pingpong::mode_event>([&](pingpong::mode_event *ev) {
-			
+			lines::mode_line mline {*ev};
+
+			ui::window *win;
+			if (ev->is_channel()) {
+				win = try_window(ev->get_channel(ev->serv));
+			} else if (ev->is_user()) {
+				win = try_window(ev->get_user(ev->serv));
+			}
+
+			ui.log(mline, win);
 		});
 
 		pingpong::events::listen<pingpong::names_updated_event>([&](pingpong::names_updated_event *ev) {
@@ -78,7 +88,7 @@ namespace spjalla {
 		});
 
 		pingpong::events::listen<pingpong::nick_event>([&](pingpong::nick_event *ev) {
-			lines::nick_change_line nline = lines::nick_change_line(*ev);
+			lines::nick_change_line nline {*ev};
 			for (ui::window *win: ui.windows_for_user(ev->who))
 				*win += nline;
 		});
