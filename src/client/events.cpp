@@ -14,6 +14,7 @@
 #include "pingpong/events/quit.h"
 #include "pingpong/events/raw.h"
 #include "pingpong/events/server_status.h"
+#include "pingpong/events/user_appeared.h"
 
 #include "pingpong/messages/join.h"
 #include "pingpong/messages/numeric.h"
@@ -50,15 +51,15 @@ namespace spjalla {
 			*win += lines::join_line(*ev);
 
 			if (ev->who->is_self()) {
+				win->resurrect();
 				ui.focus_window(win);
-				win->data.dead = false;
 			}
 		});
 
 		pingpong::events::listen<pingpong::kick_event>([&](pingpong::kick_event *ev) {
 			if (ui::window *win = ui.get_window(ev->chan, false)) {
 				if (ev->whom->is_self()) {
-					win->data.dead = true;
+					win->kill();
 					if (win == ui.active_window)
 						ui.update_statusbar();
 				}
@@ -98,7 +99,7 @@ namespace spjalla {
 			if (ui::window *win = try_window(ev->chan)) {
 				*win += lines::part_line(*ev);
 				if (ev->who->is_self())
-					win->data.dead = true;
+					win->kill();
 			}
 		});
 
@@ -138,6 +139,15 @@ namespace spjalla {
 			ui.update_statusbar();
 			if (ui.active_window == ui.overlay)
 				ui.update_overlay();
+		});
+
+		pingpong::events::listen<pingpong::user_appeared_event>([&](pingpong::user_appeared_event *ev) {
+			DBG("User appeared on server " << ev->serv->hostname << ": " << ev->who->name);
+			for (ui::window *win: ui.windows_for_user(ev->who)) {
+				win->resurrect();
+				if (win == ui.active_window)
+					ui.update_statusbar();
+			}
 		});
 	}
 }
