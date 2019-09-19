@@ -4,14 +4,7 @@
 .dep
 ._*
 node_modules
-formicine
-spjalla
 build
-
-conanbuildinfo.mak
-conanbuildinfo.txt
-graph_info.json
-conaninfo.txt
 
 # Prerequisites
 *.d
