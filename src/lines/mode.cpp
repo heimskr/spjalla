@@ -6,11 +6,11 @@ namespace spjalla::lines {
 			throw std::logic_error("Unknown mode type: " + std::to_string(static_cast<int>(mset.type)));
 
 		const std::string prefix = lines::render_time(stamp) + lines::notice;
-		const std::string suffix = " were adjusted " + "("_d + ansi::bold(mset) + ")"_d;
+		const std::string suffix = " ("_d + std::string(mset) + ")"_d;
 
 		if (mset.type == pingpong::modeset::mode_type::self)
-			return prefix + "Your usermodes" + suffix;
+			return prefix + "Your usermodes were adjusted" + suffix;
 
-		return prefix + "Modes for " + ansi::bold(where) + suffix;
+		return prefix + ansi::cyan(who->name) + " set modes for " + ansi::bold(where) + suffix;
 	}
 }
