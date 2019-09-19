@@ -114,9 +114,16 @@ namespace spjalla {
 		});
 
 		pingpong::events::listen<pingpong::quit_event>([&](pingpong::quit_event *ev) {
-			lines::quit_line qline = lines::quit_line(ev->who, ev->content, ev->stamp);
-			for (ui::window *win: ui.windows_for_user(ev->who))
+			std::shared_ptr<pingpong::user> who = ev->who;
+			lines::quit_line qline = lines::quit_line(who, ev->content, ev->stamp);
+			for (ui::window *win: ui.windows_for_user(who)) {
 				*win += qline;
+				if (win->data.user == who) {
+					win->kill();
+					if (win == ui.active_window)
+						ui.update_statusbar();
+				}
+			}
 		});
 
 		pingpong::events::listen<pingpong::raw_in_event>([&](pingpong::raw_in_event *ev) {
