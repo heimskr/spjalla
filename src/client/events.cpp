@@ -57,7 +57,12 @@ namespace spjalla {
 
 		pingpong::events::listen<pingpong::kick_event>([&](pingpong::kick_event *ev) {
 			if (ui::window *win = ui.get_window(ev->chan, false)) {
-				win->data.dead = true;
+				if (ev->whom->is_self()) {
+					win->data.dead = true;
+					if (win == ui.active_window)
+						ui.update_statusbar();
+				}
+
 				*win += lines::kick_line(*ev);
 			}
 		});
