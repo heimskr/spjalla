@@ -91,6 +91,9 @@ namespace spjalla::ui {
 			/** Returns whether it's okay to immediately remove a given window. */
 			bool can_remove(window * = nullptr) const;
 
+			/** Styles a window based on whether it's dead. */
+			std::string colorize_if_dead(const std::string &, window *) const;
+
 		public:
 			interface(haunted::terminal *, client * = nullptr);
 

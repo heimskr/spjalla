@@ -187,6 +187,10 @@ namespace spjalla::ui {
 		return !(win->is_status() || win->is_overlay() || (win->is_channel() && !win->is_dead()));
 	}
 
+	std::string interface::colorize_if_dead(const std::string &str, window *win) const {
+		return win->data.dead? ansi::red(str) : ansi::bold(str);
+	}
+
 
 // Public instance methods
 
@@ -310,7 +314,12 @@ namespace spjalla::ui {
 		} else if (win->is_channel()) {
 
 			statusbar->set_text("[" + ansi::bold(parent->active_server_name()) + "] [" +
-				ansi::bold(win->data.chan->name) + "]");
+				colorize_if_dead(win->data.chan->name, win) + "]");
+
+		} else if (win->is_user()) {
+
+			statusbar->set_text("[" + ansi::bold(parent->active_server_name()) + "] [" +
+				colorize_if_dead(win->data.user->name, win) + "]");
 
 		} else {
 			statusbar->set_text("[" + ansi::bold(win->window_name) + "]");
