@@ -14,6 +14,7 @@
 #include "pingpong/events/quit.h"
 #include "pingpong/events/raw.h"
 #include "pingpong/events/server_status.h"
+#include "pingpong/events/topic.h"
 #include "pingpong/events/topic_updated.h"
 #include "pingpong/events/user_appeared.h"
 
@@ -30,6 +31,7 @@
 #include "lines/part.h"
 #include "lines/privmsg.h"
 #include "lines/quit.h"
+#include "lines/topic.h"
 
 namespace spjalla {
 	void client::add_events() {
@@ -144,6 +146,11 @@ namespace spjalla {
 			ui.update_statusbar();
 			if (ui.active_window == ui.overlay)
 				ui.update_overlay();
+		});
+
+		pingpong::events::listen<pingpong::topic_event>([&](pingpong::topic_event *ev) {
+			if (ui::window *win = try_window(ev->chan))
+				*win += lines::topic_line(*ev);
 		});
 
 		pingpong::events::listen<pingpong::topic_updated_event>([&](pingpong::topic_updated_event *ev) {
