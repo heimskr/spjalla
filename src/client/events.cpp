@@ -63,19 +63,15 @@ namespace spjalla {
 		});
 
 		pingpong::events::listen<pingpong::message_event>([&](pingpong::message_event *ev) {
-			if (!ev->msg->is<pingpong::numeric_message>() && !ev->msg->is<pingpong::ping_message>())
-				ui.log(*(ev->msg));
+			ui.log(*(ev->msg));
 		});
 
 		pingpong::events::listen<pingpong::mode_event>([&](pingpong::mode_event *ev) {
 			lines::mode_line mline {*ev};
 
 			ui::window *win = nullptr;
-			if (ev->is_channel()) {
+			if (ev->is_channel())
 				win = try_window(ev->get_channel(ev->serv));
-			} else if (ev->is_user()) {
-				win = try_window(ev->get_user(ev->serv));
-			}
 
 			ui.log(mline, win);
 		});
