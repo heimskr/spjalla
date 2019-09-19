@@ -3,6 +3,7 @@
 .vscode
 .dep
 ._*
+strace_out
 node_modules
 build
 
