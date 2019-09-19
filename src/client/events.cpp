@@ -70,7 +70,7 @@ namespace spjalla {
 		pingpong::events::listen<pingpong::mode_event>([&](pingpong::mode_event *ev) {
 			lines::mode_line mline {*ev};
 
-			ui::window *win;
+			ui::window *win = nullptr;
 			if (ev->is_channel()) {
 				win = try_window(ev->get_channel(ev->serv));
 			} else if (ev->is_user()) {
