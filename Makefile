@@ -27,7 +27,7 @@ INCLUDE_PP		:= -Ipingpong/include
 SOURCES_PP		:= $(shell find pingpong/src -name '*.cpp' | sed -nE '/(tests?|test_.+|ansi)\.cpp$$/!p')
 OBJECTS_PP		:= $(patsubst pingpong/src/%.cpp,pingpong/build/%.o, $(SOURCES_PP))
 
-INCLUDE_HN		:= -Ihaunted/include -Ihaunted/src
+INCLUDE_HN		:= -Ihaunted/include
 SOURCES_HN		:= $(shell find haunted/src -name '*.cpp' | sed -nE '/(tests?|test_.+|ansi)\.cpp$$/!p')
 OBJECTS_HN		:= $(patsubst haunted/src/%.cpp,haunted/build/%.o, $(SOURCES_HN))
 
