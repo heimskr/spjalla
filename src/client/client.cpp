@@ -10,6 +10,7 @@
 #include "pingpong/core/irc.h"
 #include "pingpong/core/server.h"
 
+#include "pingpong/commands/mode.h"
 #include "pingpong/commands/privmsg.h"
 
 #include "pingpong/net/resolution_error.h"
@@ -60,6 +61,35 @@ namespace spjalla {
 
 	std::string client::active_server_name() {
 		return pp.active_server? pp.active_server->hostname : "none";
+	}
+
+	void client::ban(pingpong::server *serv, const input_line &il, const std::string &type) {
+		std::shared_ptr<pingpong::channel> chan = ui.get_active_channel();
+		std::string target;
+
+		if (il.args.size() == 2) {
+			if (il.args[0].front() != '#') {
+				ui.warn("Invalid channel name: " + il.args[0]);
+				return;
+			}
+
+			chan = serv->get_channel(il.args[0], false);
+			if (!chan) {
+				ui.warn("Channel not found: " + il.args[0]);
+				return;
+			}
+
+			target = il.args[1];
+		} else {
+			target = il.args[0];
+		}
+
+		if (!chan) {
+			ui.warn("Cannot ban: no channel specified.");
+			return;
+		}
+
+		pingpong::mode_command(chan, type, target).send();
 	}
 
 

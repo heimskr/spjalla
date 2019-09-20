@@ -71,6 +71,8 @@ namespace spjalla {
 				return false;
 			}
 
+			void ban(pingpong::server *, const input_line &, const std::string &type = "+b");
+
 		public:
 			client(): out_stream(ansi::out), term(haunted::terminal(std::cin, out_stream)), ui(&term, this) {}
 

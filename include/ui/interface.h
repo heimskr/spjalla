@@ -21,6 +21,8 @@
 
 #include "pingpong/core/ppdefs.h"
 
+#include "lines/warning.h"
+
 #include "ui/window.h"
 
 namespace spjalla {
@@ -130,6 +132,15 @@ namespace spjalla::ui {
 
 			/** Logs an exception to the status window. */
 			void log(const std::exception &);
+
+			void warn(const std::string &warning) {
+				log(lines::warning_line(warning));
+			}
+
+			template <typename W, typename D>
+			void warn(const W &warning, const D &destination) {
+				log(lines::warning_line(warning), destination);
+			}
 
 			/** Focuses a window. Note that this method will swap the active window and the given window, so the pointer
 			 *  given will point to a different window after the method is called (assuming the given window isn't

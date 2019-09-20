@@ -20,6 +20,10 @@ namespace spjalla {
 		using sptr = pingpong::server *;
 		using line = const input_line &;
 
+		add({"ban", {1, 2, true, [&](sptr serv, line il) {
+			ban(serv, il, "+b");
+		}}});
+
 		add({"clear", {0, 0, false, [&](sptr, line) {
 			if (ui::window *win = ui.get_active_window()) {
 				// TODO: find out why changing the voffset has seemingly no effect.
@@ -127,35 +131,35 @@ namespace spjalla {
 				char front = arg.front();
 				if (front == '#') {
 					if (!chan_str.empty()) {
-						ui.log(lines::warning_line("You cannot set modes for multiple channels in one /mode command."));
+						ui.warn("You cannot set modes for multiple channels in one /mode command.");
 						return;
 					}
 
 					chan_str = arg;
 				} else if (front == '+' || front == '-') {
 					if (arg.find_first_not_of(pingpong::util::flag_chars) != std::string::npos) {
-						ui.log(lines::warning_line("Invalid flags for mode command: " + arg));
+						ui.warn("Invalid flags for mode command: " + arg);
 						return;
 					}
 
 					if (flags.empty()) {
 						flags = arg;
 					} else {
-						ui.log(lines::warning_line("You cannot set multiple sets of flags in one /mode command."));
+						ui.warn("You cannot set multiple sets of flags in one /mode command.");
 						return;
 					}
 				} else if (extra.empty()) {
 					extra = arg;
 				} else {
 					// No overwriting the extra parameters.
-					ui.log(lines::warning_line("You cannot set flags for multiple targets in one /mode command."));
+					ui.warn("You cannot set flags for multiple targets in one /mode command.");
 					return;
 				}
 			}
 
 			// You can't set modes without flags.
 			if (flags.empty()) {
-				ui.log(lines::warning_line("No flags specified for /mode."));
+				ui.warn("No flags specified for /mode.");
 				return;
 			}
 
@@ -163,13 +167,12 @@ namespace spjalla {
 			// trying to set user flags on yourself, then what are you even trying to do? You can't set flags on someone
 			// who isn't you.
 			if (!win_chan && chan_str.empty() && extra != serv->get_nick()) {
-				ui.log(lines::warning_line("Invalid arguments for /mode."));
+				ui.warn("Invalid arguments for /mode.");
 				return;
 			}
 
 			// If there's no channel and we're setting arguments on ourself, it's a regular user mode command.
 			if (!win_chan && chan_str.empty() && extra == serv->get_nick() && !flags.empty()) {
-				DBG("Sending mode_command for self: flags[" << flags << "]");
 				pingpong::mode_command(serv->get_self(), flags).send();
 				return;
 			}
@@ -179,7 +182,6 @@ namespace spjalla {
 
 			// At this point, I think it's safe to assume that you're setting channel flags. The extra parameter, if
 			// present, is what/whom you're setting the flags on.
-			DBG("Sending mode_command for channel " << chan_str << ": flags[" << flags << "], extra[" << extra << "]");
 			pingpong::mode_command(chan_str, serv, flags, extra).send();
 		}}});
 
@@ -244,6 +246,10 @@ namespace spjalla {
 
 			for (long i = 1; i <= max; ++i)
 				ui.log(std::to_string(i));
+		}}});
+
+		add({"unban", {1, 2, true, [&](sptr serv, line il) {
+			ban(serv, il, "-b");
 		}}});
 
 		add({"wc", {0, 0, false, [&](sptr, line) {
