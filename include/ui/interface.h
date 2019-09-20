@@ -126,7 +126,7 @@ namespace spjalla::ui {
 
 			/** Logs a line of output for a given target name. This can be `status` for the main window,
 			 *  `networkname/#channel` for a channel or `networkname/nickname` for a private conversation. */
-			void log(const std::string &, const std::string &);
+			void log(const std::string &line, const std::string &window_name);
 
 			/** Logs an exception to the status window. */
 			void log(const std::exception &);
@@ -167,7 +167,8 @@ namespace spjalla::ui {
 			/** Returns the active window. ¯\_(ツ)_/¯ */
 			window * get_active_window() { return active_window; }
 
-			/** If the active window is for a channel, this returns the pointer to the relevant channel. */
+			/** If the active window (or the window below the overlay, if the overlay is active) is for a channel,
+			 *  this returns the pointer to the relevant channel. */
 			std::shared_ptr<pingpong::channel> get_active_channel() const;
 
 			/** If the active window is for a user, this returns the pointer to the relevant user. */

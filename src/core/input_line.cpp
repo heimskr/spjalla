@@ -48,4 +48,8 @@ namespace spjalla {
 		
 		return "Body[" + body + "]";
 	}
+
+	std::ostream & operator<<(std::ostream &os, const input_line &line) {
+		return os << std::string(line);
+	}
 }

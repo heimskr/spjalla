@@ -21,6 +21,8 @@ namespace spjalla {
 			std::string first() const;
 			std::string rest() const;
 			operator std::string() const;
+
+			friend std::ostream & operator<<(std::ostream &, const input_line &);
 	};
 }
 

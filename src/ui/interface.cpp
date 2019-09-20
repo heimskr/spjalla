@@ -420,8 +420,9 @@ namespace spjalla::ui {
 	}
 
 	std::shared_ptr<pingpong::channel> interface::get_active_channel() const {
-		if (active_window->is_channel())
-			return active_window->data.chan;
+		window *win = before_overlay? before_overlay : active_window;
+		if (win->is_channel())
+			return win->data.chan;
 		return nullptr;
 	}
 

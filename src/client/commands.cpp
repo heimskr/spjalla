@@ -2,6 +2,7 @@
 
 #include "pingpong/commands/join.h"
 #include "pingpong/commands/kick.h"
+#include "pingpong/commands/mode.h"
 #include "pingpong/commands/nick.h"
 #include "pingpong/commands/part.h"
 #include "pingpong/commands/privmsg.h"
@@ -11,6 +12,8 @@
 
 #include "core/client.h"
 #include "lines/lines.h"
+#include "lines/warning.h"
+#include "formicine/futil.h"
 
 namespace spjalla {
 	void client::add_commands() {
@@ -85,6 +88,8 @@ namespace spjalla {
 			ui.log("Unknown option: " + first);
 		}}});
 
+		add<pingpong::join_command>("join");
+
 		add({"kick", {1, -1, true, [&](sptr serv, line il) {
 			if (triple_command<pingpong::kick_command>(serv, il, ui.get_active_channel()))
 				no_channel();
@@ -102,11 +107,85 @@ namespace spjalla {
 				pingpong::privmsg_command(win->data.user, msg).send();
 		}}});
 
+		add({"mode", {1, -1, true, [&](sptr serv, line il) {
+			std::shared_ptr<pingpong::channel> win_chan = ui.get_active_channel();
+
+			if (il.args.size() == 1 && il.first().find_first_of("+-") == 0) {
+				// The only argument is a set of flags. If the active window is a channel, this sets the flags on the
+				// channel. Otherwise, the flags are set on yourself.
+				if (win_chan)
+					pingpong::mode_command(win_chan, il.first()).send();
+				else
+					pingpong::mode_command(serv->get_nick(), serv, il.first()).send();
+				return;
+			}
+
+			std::string chan_str {}, flags {}, extra {};
+
+			// Look through all the arguments.
+			for (const std::string &arg: il.args) {
+				char front = arg.front();
+				if (front == '#') {
+					if (!chan_str.empty()) {
+						ui.log(lines::warning_line("You cannot set modes for multiple channels in one /mode command."));
+						return;
+					}
+
+					chan_str = arg;
+				} else if (front == '+' || front == '-') {
+					if (arg.find_first_not_of(pingpong::util::flag_chars) != std::string::npos) {
+						ui.log(lines::warning_line("Invalid flags for mode command: " + arg));
+						return;
+					}
+
+					if (flags.empty()) {
+						flags = arg;
+					} else {
+						ui.log(lines::warning_line("You cannot set multiple sets of flags in one /mode command."));
+						return;
+					}
+				} else if (extra.empty()) {
+					extra = arg;
+				} else {
+					// No overwriting the extra parameters.
+					ui.log(lines::warning_line("You cannot set flags for multiple targets in one /mode command."));
+					return;
+				}
+			}
+
+			// You can't set modes without flags.
+			if (flags.empty()) {
+				ui.log(lines::warning_line("No flags specified for /mode."));
+				return;
+			}
+
+			// If there's no channel indicated either in the command arguments or by the active window and you're not
+			// trying to set user flags on yourself, then what are you even trying to do? You can't set flags on someone
+			// who isn't you.
+			if (!win_chan && chan_str.empty() && extra != serv->get_nick()) {
+				ui.log(lines::warning_line("Invalid arguments for /mode."));
+				return;
+			}
+
+			// If there's no channel and we're setting arguments on ourself, it's a regular user mode command.
+			if (!win_chan && chan_str.empty() && extra == serv->get_nick() && !flags.empty()) {
+				DBG("Sending mode_command for self: flags[" << flags << "]");
+				pingpong::mode_command(serv->get_self(), flags).send();
+				return;
+			}
+
+			if (chan_str.empty() && win_chan)
+				chan_str = win_chan->name;
+
+			// At this point, I think it's safe to assume that you're setting channel flags. The extra parameter, if
+			// present, is what/whom you're setting the flags on.
+			DBG("Sending mode_command for channel " << chan_str << ": flags[" << flags << "], extra[" << extra << "]");
+			pingpong::mode_command(chan_str, serv, flags, extra).send();
+		}}});
+
 		add({"msg", {2, -1, true, [&](sptr serv, line il) {
 			pingpong::privmsg_command(serv, il.first(), il.rest()).send();
 		}}});
-
-		add<pingpong::join_command>("join");
 
 		add({"nick", {0,  1, true, [&](sptr serv, line il) {
 			if (il.args.size() == 0)

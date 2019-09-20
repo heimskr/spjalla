@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include "pingpong/core/pputil.h"
 #include "haunted/ui/textbox.h"
 #include "formicine/ansi.h"
 
