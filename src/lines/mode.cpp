@@ -10,7 +10,7 @@ namespace spjalla::lines {
 		const std::string prefix  {lines::render_time(stamp) + lines::notice};
 		const std::string suffix  {" ("_d + std::string(mset) + ")"_d};
 
-		if (mset.type == pingpong::modeset::mode_type::self)
+		if (mset.type == pingpong::modeset::mode_type::self && (where.empty() || where.front() != '#'))
 			return prefix + "Your usermodes were adjusted" + suffix;
 
 		const std::string modestr = mset.mode_str();
