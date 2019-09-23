@@ -6,4 +6,7 @@
 // Whether the keyboard shortcuts to switch windows should be ignored while the overlay is visible.
 #define OVERLAY_PREVENTS_SWAPPING
 
+// The name of the global variable in which the plugin instance is stored within a shared library.
+#define PLUGIN_GLOBAL_VARIABLE_NAME "ext_plugin"
+
 #endif

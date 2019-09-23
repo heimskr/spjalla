@@ -10,6 +10,7 @@
 #include "core/input_line.h"
 #include "core/irc.h"
 #include "messages/message.h"
+#include "plugins/plugin.h"
 #include "ui/interface.h"
 
 namespace spjalla {
@@ -29,6 +30,10 @@ namespace spjalla {
 			ansi::ansistream &out_stream;
 			haunted::terminal term;
 			ui::interface ui;
+
+			std::vector<plugins::plugin *> plugins {};
+			// std::map<std:: std::function<plugins::command_result(const T &, bool /* enabled */)>
+
 
 			/** Prints debug information about the server list to the log file. */
 			void debug_servers();
@@ -82,6 +87,8 @@ namespace spjalla {
 			client & operator=(client &&) = delete;
 			~client();
 
+// client/client.cpp
+
 			/**
 			 * Adds a command handler.
 			 * @param p A pair signifying the name of the command as typed by the user plus a handler tuple.
@@ -117,12 +124,6 @@ namespace spjalla {
 			/** Processes a line of user input and returns whether the line was recognized as a valid input. */
 			bool handle_line(const input_line &line);
 
-			/** Adds listeners for pingpong events. */
-			void add_events();
-
-			/** Adds the built-in command handlers. */
-			void add_commands();
-
 			/** Updates the interface to accommodate the removal of a server. */
 			void server_removed(pingpong::server *);
 
@@ -137,6 +138,29 @@ namespace spjalla {
 
 			/** Returns the nickname in use on the active server if possible, or a blank string otherwise. */
 			std::string active_nick();
+
+// client/commands.cpp
+
+			/** Adds the built-in command handlers. */
+			void add_commands();
+
+// client/events.cpp
+
+			/** Adds listeners for pingpong events. */
+			void add_events();
+
+// client/plugins.cpp
+
+			/** Loads a plugin from a given shared object. */
+			plugins::plugin * load_plugin(const std::string &path);
+
+			/** Loads all plugins in a given directory. */
+			void load_plugins(const std::string &path);
+
+			template <typename T, typename = std::enable_if_t<std::is_base_of<pingpong::command, T>::value>>
+			void handle(const std::function<plugins::command_result(const T &, bool)> &, plugins::priority) {
+				
+			}
 	};
 }
 

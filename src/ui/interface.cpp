@@ -5,7 +5,10 @@
 
 #include <csignal>
 
-#include "ui/interface.h"
+#include "core/client.h"
+#include "core/config.h"
+#include "core/spopt.h"
+
 #include "lib/haunted/core/hdefs.h"
 #include "lib/haunted/core/key.h"
 #include "lib/pingpong/core/ppdefs.h"
@@ -14,10 +17,8 @@
 #include "lines/chanlist.h"
 #include "lines/overlay.h"
 #include "lines/userlist.h"
+#include "ui/interface.h"
 
-#include "core/client.h"
-#include "core/config.h"
-#include "core/spopt.h"
 
 namespace spjalla::ui {
 	interface::interface(haunted::terminal *term_, client *parent_): term(term_), parent(parent_) {
