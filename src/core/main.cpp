@@ -10,7 +10,7 @@
 // #define MAIN_CATCH
 
 namespace spjalla {
-	void run(int argc, char **argv) {
+	void run() {
 		haunted::dbgstream << "--------------------------------\n";
 		haunted::dbgstream.clear().jump().flush();
 		DBG("PID: " << getpid());
@@ -21,9 +21,6 @@ namespace spjalla {
 
 		// spjalla::client instance;
 		instance->init();
-
-		std::string hostname = 1 < argc? argv[1] : "localhost";
-
 		instance->join();
 
 		// std::shared_ptr<server> sserv = std::make_shared<server>(pp, hostname);
@@ -34,14 +31,14 @@ namespace spjalla {
 	}
 }
 
-int main(int argc, char **argv) {
+int main(int, char **) {
 #ifdef MAIN_CATCH
 	try {
-		spjalla::run(argc, argv);
+		spjalla::run();
 	} catch (std::exception &exc) {
 		DBG("Caught " << haunted::util::demangle_object(exc));
 	}
 #else
-	spjalla::run(argc, argv);
+	spjalla::run();
 #endif
 }
