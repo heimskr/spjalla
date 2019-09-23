@@ -108,7 +108,7 @@ namespace spjalla::ui {
 		if (!chan)
 			return nullptr;
 
-		const std::string name = chan->serv->hostname + "/" + chan->name;
+		const std::string name = chan->serv->id + "/" + chan->name;
 		window *win = get_window(name, false);
 
 		if (create && !win) {
@@ -124,7 +124,7 @@ namespace spjalla::ui {
 		if (!user)
 			return nullptr;
 
-		const std::string name = user->serv->hostname + "/" + user->name;
+		const std::string name = user->serv->id + "/" + user->name;
 		window *win = get_window(name, false);
 
 		if (create && !win) {
@@ -262,7 +262,7 @@ namespace spjalla::ui {
 		if (++iter == servers.end())
 			iter = servers.begin();
 		parent->pp.active_server = *iter;
-		log(lines::notice + "Switched to " + ansi::bold((*iter)->hostname) + ".");
+		log(lines::notice + "Switched to " + ansi::bold((*iter)->id) + ".");
 		update_statusbar();
 		update_titlebar();
 	}

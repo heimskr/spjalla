@@ -167,7 +167,7 @@ namespace spjalla {
 		});
 
 		pingpong::events::listen<pingpong::user_appeared_event>([&](pingpong::user_appeared_event *ev) {
-			DBG("User appeared on server " << ev->serv->hostname << ": " << ev->who->name);
+			DBG("User appeared on server " << ev->serv->id << ": " << ev->who->name);
 			for (ui::window *win: ui.windows_for_user(ev->who)) {
 				win->resurrect();
 				if (win == ui.active_window) {

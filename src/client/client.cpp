@@ -39,7 +39,7 @@ namespace spjalla {
 
 		for (const auto &pair: pp.servers) {
 			pingpong::server *serv = pair.second;
-			DBG(ansi::bold(serv->hostname));
+			DBG(ansi::bold(serv->id) << " (" << serv->hostname << ")");
 			for (std::shared_ptr<pingpong::channel> chan: serv->channels) {
 				DBG("    " << ansi::wrap(chan->name, ansi::style::underline) << " [" << chan->mode_str() << "]");
 				for (std::shared_ptr<pingpong::user> user: chan->users) {
