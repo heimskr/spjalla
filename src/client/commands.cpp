@@ -257,4 +257,58 @@ namespace spjalla {
 				ui.remove_window(ui.active_window);
 		}}});
 	}
+
+	void client::ban(pingpong::server *serv, const input_line &il, const std::string &type) {
+		std::shared_ptr<pingpong::channel> chan = ui.get_active_channel();
+		std::string target;
+
+		if (il.args.size() == 2) {
+			if (il.args[0].front() != '#') {
+				ui.warn("Invalid channel name: " + il.args[0]);
+				return;
+			}
+
+			chan = serv->get_channel(il.args[0], false);
+			if (!chan) {
+				ui.warn("Channel not found: " + il.args[0]);
+				return;
+			}
+
+			target = il.args[1];
+		} else {
+			target = il.args[0];
+		}
+
+		if (!chan) {
+			ui.warn("Cannot ban: no channel specified.");
+			return;
+		}
+
+		pingpong::mode_command(chan, type, target).send();
+	}
+
+	void client::debug_servers() {
+		if (pp.servers.empty()) {
+			DBG("No servers.");
+			return;
+		}
+
+		for (const auto &pair: pp.servers) {
+			pingpong::server *serv = pair.second;
+			DBG(ansi::bold(serv->id) << " (" << serv->hostname << ")");
+			for (std::shared_ptr<pingpong::channel> chan: serv->channels) {
+				DBG("    " << ansi::wrap(chan->name, ansi::style::underline) << " [" << chan->mode_str() << "]");
+				for (std::shared_ptr<pingpong::user> user: chan->users) {
+					std::string chans = "";
+					for (std::weak_ptr<pingpong::channel> user_chan: user->channels)
+						chans += " " + user_chan.lock()->name;
+
+					if (chans.empty())
+						DBG("        " << user->name);
+					else
+						DBG("        " << user->name << ":" << chans);
+				}
+			}
+		}
+	}
 }

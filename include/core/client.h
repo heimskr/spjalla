@@ -32,11 +32,9 @@ namespace spjalla {
 			ui::interface ui;
 
 			std::vector<plugins::plugin *> plugins {};
-			// std::map<std:: std::function<plugins::command_result(const T &, bool /* enabled */)>
-
-
-			/** Prints debug information about the server list to the log file. */
-			void debug_servers();
+			std::map<plugins::priority, std::vector<std::function<plugins::command_result(pingpong::command *, bool)>>>
+				plugin_command_handlers = // The bool argument indicates whether the result hasn't been disabled.
+				{{plugins::priority::high, {}}, {plugins::priority::normal, {}}, {plugins::priority::low, {}}};
 
 			template <typename T>
 			ui::window * try_window(const T &where) {
@@ -49,7 +47,11 @@ namespace spjalla {
 			/** Logs a message indicated that there is no active channel. */
 			void no_channel();
 
-			std::string active_server_name();
+			/** Returns the ID of the active server. */
+			std::string active_server_id();
+
+			/** Returns the hostname of the active server. */
+			std::string active_server_hostname();
 
 			/** Handles commands like /kick that take a user and an optional longer string and an optional channel.
 			 *  If no channel is specified, the command must be issued from a channel window.
@@ -62,21 +64,22 @@ namespace spjalla {
 				if (first.front() == '#') {
 					const std::string &where = first;
 					if (spaces == 1) {
-						T(serv, where, rest).send();
+						T to_send {serv, where, rest};
+						send_command(to_send);
 					} else {
 						const size_t found = rest.find(' ');
-						T(serv, where, rest.substr(0, found), rest.substr(found + 1)).send();
+						T to_send {serv, where, rest.substr(0, found), rest.substr(found + 1)};
+						send_command(to_send);
 					}
 				} else if (chan) {
-					T(serv, chan, first, rest).send();
+					T to_send {serv, chan, first, rest};
+					send_command(to_send);
 				} else {
 					return true;
 				}
 
 				return false;
 			}
-
-			void ban(pingpong::server *, const input_line &, const std::string &type = "+b");
 
 		public:
 			client(): out_stream(ansi::out), term(haunted::terminal(std::cin, out_stream)), ui(&term, this) {}
@@ -105,7 +108,8 @@ namespace spjalla {
 			template <typename T>
 			void add(const std::string &cmd, bool needs_serv = true) {
 				*this += {cmd, {1, 1, needs_serv, [&](pingpong::server *serv, const input_line &il) {
-					T(serv, il.args[0]).send();
+					T to_send {serv, il.args[0]};
+					send_command(to_send);
 				}}};
 			}
 
@@ -139,8 +143,21 @@ namespace spjalla {
 			/** Returns the nickname in use on the active server if possible, or a blank string otherwise. */
 			std::string active_nick();
 
+// client/input_listener.cpp
+
+			/** Adds a listener to the textinput that processes its contents. */
+			void add_input_listener();
+
 // client/commands.cpp
 
+		private:
+			/** Handles the parsing for the /ban command. */
+			void ban(pingpong::server *, const input_line &, const std::string &type = "+b");
+
+			/** Prints debug information about the server list to the log file. */
+			void debug_servers();
+
+		public:
 			/** Adds the built-in command handlers. */
 			void add_commands();
 
@@ -154,12 +171,15 @@ namespace spjalla {
 			/** Loads a plugin from a given shared object. */
 			plugins::plugin * load_plugin(const std::string &path);
 
+			/** Tries to send a command. Returns true if the command was sent, or false if a plugin blocked it. */
+			bool send_command(pingpong::command &);
+
 			/** Loads all plugins in a given directory. */
 			void load_plugins(const std::string &path);
 
 			template <typename T, typename = std::enable_if_t<std::is_base_of<pingpong::command, T>::value>>
-			void handle(const std::function<plugins::command_result(const T &, bool)> &, plugins::priority) {
-				
+			void handle(const std::function<plugins::command_result(const T &, bool)> &fn, plugins::priority priority) {
+				plugin_command_handlers[priority].push_back(fn);
 			}
 	};
 }

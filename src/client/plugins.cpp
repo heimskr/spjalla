@@ -2,11 +2,39 @@
 
 #include <dlfcn.h>
 
-#include "client/plugins.h"
+#include "core/client.h"
 #include "core/spopt.h"
+#include "plugins/plugin.h"
 
-namespace spjalla::mixins {
-	plugins::plugin * client_plugins::load_plugin(const std::string &path) {
+namespace spjalla {
+	bool client::send_command(pingpong::command &command) {
+		bool should_send = true;
+		[&] {
+			for (const plugins::priority priority: {plugins::priority::high, plugins::priority::normal,
+			     plugins::priority::low}) {
+				for (auto &function: plugin_command_handlers.at(priority)) {
+					plugins::command_result result = function(&command, should_send);
+
+					if (result == plugins::command_result::kill || result == plugins::command_result::disable) {
+						should_send = false;
+					} else if (result == plugins::command_result::approve
+					        || result == plugins::command_result::enable) {
+						should_send = true;
+					}
+
+					if (result == plugins::command_result::kill || result == plugins::command_result::approve)
+						return;
+				}
+			}
+		}();
+
+		if (should_send)
+			command.send();
+
+		return should_send;
+	}
+	
+	plugins::plugin * client::load_plugin(const std::string &path) {
 		void *lib = dlopen(path.c_str(), RTLD_NOW | RTLD_LOCAL);
 		if (lib == nullptr)
 			throw std::runtime_error("dlopen returned nullptr");
@@ -19,7 +47,7 @@ namespace spjalla::mixins {
 		return plugin;
 	}
 
-	void client_plugins::load_plugins(const std::string &path) {
+	void client::load_plugins(const std::string &path) {
 		for (const auto &entry: std::filesystem::directory_iterator(path))
 			load_plugin(entry.path().c_str());
 	}

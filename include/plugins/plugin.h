@@ -12,7 +12,8 @@ namespace spjalla {
 
 namespace spjalla::plugins {
 	/**
-	 * Represents the priority of a plugin's handler for an event.
+	 * Represents the priority of a plugin's handler for an event. Right now, there's no guarantee for how plugins with
+	 * the same priority are ordered.
 	 */
 	enum class priority: int {high = 3, normal = 2, low = 1};
 

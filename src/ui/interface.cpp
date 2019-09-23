@@ -323,16 +323,16 @@ namespace spjalla::ui {
 		} else if (win->is_status()) {
 
 			statusbar->set_text("[" + ansi::bold(win->window_name) + "] [" +
-				ansi::bold(parent->active_server_name()) + "]");
+				ansi::bold(parent->active_server_id()) + "]");
 
 		} else if (win->is_channel()) {
 
-			statusbar->set_text("[" + ansi::bold(parent->active_server_name()) + "] [" +
+			statusbar->set_text("[" + ansi::bold(parent->active_server_id()) + "] [" +
 				colorize_if_dead(win->data.chan->name, win) + "]");
 
 		} else if (win->is_user()) {
 
-			statusbar->set_text("[" + ansi::bold(parent->active_server_name()) + "] [" +
+			statusbar->set_text("[" + ansi::bold(parent->active_server_id()) + "] [" +
 				colorize_if_dead(win->data.user->name, win) + "]");
 
 		} else {
@@ -451,7 +451,7 @@ namespace spjalla::ui {
 			previous_window();
 		} else if (k == haunted::kmod::ctrl) {
 			switch (k.type) {
-				case haunted::ktype::g: log("Active server: " + parent->active_server_name()); break;
+				case haunted::ktype::g: log("Active server: " + parent->active_server_id()); break;
 				case haunted::ktype::r:
 					if (active_window)
 						DBG("v = " << active_window->get_voffset() << ", e = " << active_window->effective_voffset());
