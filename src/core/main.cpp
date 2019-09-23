@@ -15,19 +15,10 @@ namespace spjalla {
 		haunted::dbgstream.clear().jump().flush();
 		DBG("PID: " << getpid());
 
-		std::shared_ptr<pingpong::irc> pp = std::make_shared<pingpong::irc>();
 		std::shared_ptr<spjalla::client> instance = std::make_shared<spjalla::client>();
 
-
-		// spjalla::client instance;
 		instance->init();
 		instance->join();
-
-		// std::shared_ptr<server> sserv = std::make_shared<server>(pp, hostname);
-		// server_ptr serv = sserv.get();
-		// serv->start();
-		// serv->set_nick("pingpong");
-		// instance += serv;
 	}
 }
 
