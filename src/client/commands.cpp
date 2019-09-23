@@ -218,10 +218,10 @@ namespace spjalla {
 
 		add({"quit", {0, -1, false, [&](sptr, line il) {
 			if (il.args.empty()) {
-				for (auto serv: pp.servers)
+				for (auto serv: pp.server_order)
 					pingpong::quit_command(serv).send();
 			} else {
-				for (auto serv: pp.servers)
+				for (auto serv: pp.server_order)
 					pingpong::quit_command(serv, il.body).send();
 			}
 

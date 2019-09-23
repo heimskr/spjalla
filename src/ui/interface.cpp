@@ -257,8 +257,8 @@ namespace spjalla::ui {
 		if (active_window != status_window || parent->pp.servers.size() < 2)
 			return;
 
-		const std::set<pingpong::server *> &servers = parent->pp.servers;
-		auto iter = servers.find(parent->active_server());
+		const auto &servers = parent->pp.server_order;
+		auto iter = std::find(servers.begin(), servers.end(), parent->active_server());
 		if (++iter == servers.end())
 			iter = servers.begin();
 		parent->pp.active_server = *iter;
@@ -347,7 +347,7 @@ namespace spjalla::ui {
 
 		if (before_overlay == status_window) {
 			*overlay += haunted::ui::simpleline(ansi::bold("Servers"));
-			for (pingpong::server *serv: parent->pp.servers) {
+			for (pingpong::server *serv: parent->pp.server_order) {
 				serv->sort_channels();
 				if (serv->is_active()) {
 					*overlay += lines::status_server_line(serv);
