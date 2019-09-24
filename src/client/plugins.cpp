@@ -7,7 +7,7 @@
 #include "plugins/plugin.h"
 
 namespace spjalla {
-	bool client::send_command(pingpong::command &command) {
+	bool client::before_send(pingpong::command &command) {
 		bool should_send = true;
 		[&] {
 			for (const plugins::priority priority: {plugins::priority::high, plugins::priority::normal,
@@ -27,9 +27,6 @@ namespace spjalla {
 				}
 			}
 		}();
-
-		if (should_send)
-			command.send();
 
 		return should_send;
 	}

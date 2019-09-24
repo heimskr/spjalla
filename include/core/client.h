@@ -64,16 +64,13 @@ namespace spjalla {
 				if (first.front() == '#') {
 					const std::string &where = first;
 					if (spaces == 1) {
-						T to_send {serv, where, rest};
-						send_command(to_send);
+						T(serv, where, rest).send();
 					} else {
 						const size_t found = rest.find(' ');
-						T to_send {serv, where, rest.substr(0, found), rest.substr(found + 1)};
-						send_command(to_send);
+						T(serv, where, rest.substr(0, found), rest.substr(found + 1)).send();
 					}
 				} else if (chan) {
-					T to_send {serv, chan, first, rest};
-					send_command(to_send);
+					T(serv, chan, first, rest).send();
 				} else {
 					return true;
 				}
@@ -108,8 +105,7 @@ namespace spjalla {
 			template <typename T>
 			void add(const std::string &cmd, bool needs_serv = true) {
 				*this += {cmd, {1, 1, needs_serv, [&](pingpong::server *serv, const input_line &il) {
-					T to_send {serv, il.args[0]};
-					send_command(to_send);
+					T(serv, il.args[0]).send();
 				}}};
 			}
 
@@ -143,6 +139,16 @@ namespace spjalla {
 			/** Returns the nickname in use on the active server if possible, or a blank string otherwise. */
 			std::string active_nick();
 
+			template <typename T>
+			void log(const T &obj) {
+				ui.log(obj);
+			}
+
+			template <typename T, typename P>
+			void log(const T &obj, const P *ptr) {
+				ui.log(obj, ptr);
+			}
+
 // client/input_listener.cpp
 
 			/** Adds a listener to the textinput that processes its contents. */
@@ -171,8 +177,9 @@ namespace spjalla {
 			/** Loads a plugin from a given shared object. */
 			plugins::plugin * load_plugin(const std::string &path);
 
-			/** Tries to send a command. Returns true if the command was sent, or false if a plugin blocked it. */
-			bool send_command(pingpong::command &);
+			/** Determines whether a command can be sent. Returns true if the command should be sent, or false if a
+			 *  plugin chose to block it. */
+			bool before_send(pingpong::command &);
 
 			/** Loads all plugins in a given directory. */
 			void load_plugins(const std::string &path);

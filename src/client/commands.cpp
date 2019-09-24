@@ -20,6 +20,8 @@ namespace spjalla {
 		using sptr = pingpong::server *;
 		using line = const input_line &;
 
+		pingpong::command::before_send = [&](pingpong::command &cmd) { return before_send(cmd); };
+
 		add({"ban", {1, 2, true, [&](sptr serv, line il) {
 			ban(serv, il, "+b");
 		}}});
