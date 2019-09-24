@@ -7,9 +7,13 @@ CC				 = $(COMPILER) $(strip $(CFLAGS) $(CHECKFLAGS))
 CHECKFLAGS		:=
 MKBUILD			:= mkdir -p build
 OUTPUT			:= build/spjalla
+SHARED_EXT		:= so
+SHARED_FLAG		:= -fPIC -shared
 
 ifeq ($(shell uname -s), Darwin)
 	SDKFLAGS	:= --sysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
+	SHARED_EXT	:= dylib
+	SHARED_FLAG	:= -fPIC -dynamiclib
 endif
 
 ifeq ($(CHECK), asan)
@@ -32,29 +36,42 @@ SOURCES_HN		:= $(shell find haunted/src -name '*.cpp' | sed -nE '/(tests?|test_.
 OBJECTS_HN		:= $(patsubst haunted/src/%.cpp,haunted/build/%.o, $(SOURCES_HN))
 
 INCLUDE_SP		:= -Iinclude -Iinclude/lib
-SOURCES_SP		:= $(shell find -L src -name '*.cpp' | sed -nE '/(tests?|test_.+)\.cpp$$/!p')
+SOURCES_SP		:= $(shell find -L src -name '*.cpp' | sed -nE '/(^src\/plugins\/)|((tests?|test_.+)\.cpp$$)/!p')
 OBJECTS_SP		:= $(patsubst src/%.cpp,build/%.o, $(SOURCES_SP))
 INCLUDE_LIBS	:= $(INCLUDE_PP) $(INCLUDE_HN)
+
+SOURCES_PL		:= $(shell find -L src/plugins -name '*.cpp')
+OBJECTS_PL		:= $(patsubst src/plugins/%.cpp,build/plugins/%.$(SHARED_EXT), $(SOURCES_PL))
 
 OBJECTS			= $(OBJECTS_PP) $(OBJECTS_HN) $(OBJECTS_SP)
 
 sinclude $(shell find src -name 'targets.mk')
 
+ALLFLAGS		 = $(SDKFLAGS) $(CPPFLAGS) $(CXXFLAGS)
+
+plugins: $(OBJECTS_PL)
 
 pingpong/build/%.o: pingpong/src/%.cpp
 	@ mkdir -p "$(shell dirname "$@")"
-	$(CC) $(strip $(SDKFLAGS) $(CPPFLAGS) $(CXXFLAGS) $(INCLUDE_PP)) -c $< -o $@
+	$(CC) $(strip $(ALLFLAGS) $(INCLUDE_PP)) -c $< -o $@
 
 haunted/build/%.o: haunted/src/%.cpp
 	@ mkdir -p "$(shell dirname "$@")"
-	$(CC) $(strip $(SDKFLAGS) $(CPPFLAGS) $(CXXFLAGS) $(INCLUDE_HN)) -c $< -o $@
+	$(CC) $(strip $(ALLFLAGS) $(INCLUDE_HN)) -c $< -o $@
 
 build/%.o: src/%.cpp
 	@ mkdir -p "$(shell dirname "$@")"
-	$(CC) $(strip $(SDKFLAGS) $(CPPFLAGS) $(CXXFLAGS) $(INCLUDE_LIBS) $(INCLUDE_SP)) -c $< -o $@
+	$(CC) $(strip $(ALLFLAGS) $(INCLUDE_LIBS) $(INCLUDE_SP)) -c $< -o $@
+
+build/plugins/%.$(SHARED_EXT): src/plugins/%.cpp
+	@ mkdir -p build/plugins
+	$(CC) $(strip $(ALLFLAGS) $(INCLUDE_LIBS) $(INCLUDE_SP)) -c $< -o $(addsuffix .o, $(basename $@))
+	$(CC) $(SHARED_FLAG) $(addsuffix .o, $(basename $@)) -o $@
+	@ rm $(addsuffix .o, $(basename $@))
+
 
 test: $(OUTPUT)
-	./$(OUTPUT)
+	./$(OUTPUT) --plugins build/plugins
 
 grind: $(OUTPUT)
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=no ./$(OUTPUT)
