@@ -12,10 +12,12 @@ namespace spjalla {
 		public:
 			std::string command, body;
 			std::vector<std::string> args;
+			std::string original;
 
 			input_line() = delete;
-			input_line(std::string command_, std::string body_): command(command_), body(body_) {}
-			input_line(std::string full);
+			input_line(const std::string &command_, const std::string &body_):
+				command(command_), body(body_), original("/" + command_ + " " + body_) {}
+			input_line(const std::string &full);
 
 			inline bool is_command() const { return minimal || !command.empty(); }
 			std::string first() const;

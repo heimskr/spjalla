@@ -487,4 +487,8 @@ namespace spjalla::ui {
 
 		return false;
 	}
+
+	void interface::set_input(const std::string &str) {
+		input->set_text(str);
+	}
 }

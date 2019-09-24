@@ -7,6 +7,7 @@
 
 #include "haunted/core/key.h"
 
+#include "core/input_line.h"
 #include "plugins/plugin.h"
 
 namespace spjalla::plugins {
@@ -32,6 +33,14 @@ namespace spjalla::plugins {
 			/** Holds posthandlers for keypresses. Note that keypresses handled by the textinput aren't passed on to
 			 *  pre- or posthandlers. */
 			std::vector<post_function<haunted::key>> keyhandlers_post {};
+
+			/** Holds prehandlers for input lines. Note that input lines handled by the textinput aren't passed on to
+			 *  pre- or posthandlers. */
+			std::vector<pre_function<input_line>>  inputhandlers_pre  {};
+
+			/** Holds posthandlers for input lines. Note that input lines handled by the textinput aren't passed on to
+			 *  pre- or posthandlers. */
+			std::vector<post_function<input_line>> inputhandlers_post {};
 
 			/** Determines whether a pre-event should go through. */
 			template <typename T>
@@ -62,6 +71,12 @@ namespace spjalla::plugins {
 				return {should_send, handler_result::pass};
 			}
 
+			template <typename T>
+			void after(const T &obj, const std::vector<post_function<T>> &funcs) {
+				for (auto &func: funcs)
+					func(obj);
+			}
+
 		public:
 			virtual ~plugin_host() = 0;
 
@@ -80,7 +95,17 @@ namespace spjalla::plugins {
 
 			/** Determines whether a key should be processed by the client. Returns true if so, or false if a plugin
 			 *  chose to block the key. Can modify the input. */
-			bool before_key(haunted::key &);
+			bool before_key(haunted::key &key) {
+				return before(key, keyhandlers_pre);
+			}
+
+			bool before_input(input_line &il) {
+				return before(il, inputhandlers_pre);
+			}
+
+			void after_input(const input_line &il) {
+				return after(il, inputhandlers_post);
+			}
 
 			/** If a plugin was loaded from a given path, a pointer to its corresponding plugin object is returned. */
 			plugins::plugin * plugin_for_path(const std::string &path) const;
@@ -98,7 +123,19 @@ namespace spjalla::plugins {
 
 			/** Registers a handler to handle keypresses after the client has handled them. */
 			void handle_post(const post_function<haunted::key> &func) {
+				// TODO: implement posthandlers for keypresses.
 				keyhandlers_post.push_back(func);
+			}
+
+			/** Registers a handler to handle input lines before the client handles them and determine whether the
+			 *  client will handle them. */
+			void handle_pre(const pre_function<input_line> &func) {
+				inputhandlers_pre.push_back(func);
+			}
+
+			/** Registers a handler to handle keypresses after the client has handled them. */
+			void handle_post(const post_function<input_line> &func) {
+				inputhandlers_post.push_back(func);
 			}
 	};
 }

@@ -2,7 +2,7 @@
 #include "core/input_line.h"
 
 namespace spjalla {
-	input_line::input_line(std::string full) {
+	input_line::input_line(const std::string &full): original(full) {
 		if (full[0] == '/') {
 			size_t index, length = full.size();
 			if (1 < length) {

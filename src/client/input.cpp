@@ -4,11 +4,14 @@
 
 namespace spjalla {
 	void client::add_input_listener() {
-		ui.input->listen(haunted::ui::textinput::event::submit, [&](const haunted::superstring &sstr, int) {
+		ui.input->listen(haunted::ui::textinput::event::submit, [&](const haunted::superstring &sstr, int) -> void {
 			if (sstr.empty()) return;
 			std::string str = sstr.str();
 			ui.input->clear();
 			input_line il = input_line(str);
+
+			if (!before_input(il))
+				return;
 
 			if (il.is_command()) {
 				try {
@@ -31,9 +34,7 @@ namespace spjalla {
 							for (const std::string &match: matches)
 								joined += "/" + match + " ";
 							DBG("Matches: " << joined);
-						} else {
-							if (!matches.empty() && handle_line("/" + matches[0] + " " + il.body))
-								return;
+						} else if (matches.empty() || !handle_line("/" + matches[0] + " " + il.body)) {
 							ui.log("Unknown command: /" + cmd);
 						}
 					}
@@ -49,6 +50,8 @@ namespace spjalla {
 					no_channel();
 				}
 			}
+
+			after_input(il);
 		});
 	}
 
