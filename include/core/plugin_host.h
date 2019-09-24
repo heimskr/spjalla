@@ -25,8 +25,13 @@ namespace spjalla::plugins {
 			std::map<plugins::priority, std::vector<pre_function<pingpong::command>>> plugin_command_handlers =
 				{{plugins::priority::high, {}}, {plugins::priority::normal, {}}, {plugins::priority::low, {}}};
 
-			std::vector<pre_function<haunted::key>>  key_handlers_pre  {};
-			std::vector<post_function<haunted::key>> key_handlers_post {};
+			/** Holds prehandlers for keypresses. Note that keypresses handled by the textinput aren't passed on to pre-
+			 *  or posthandlers. */
+			std::vector<pre_function<haunted::key>>  keyhandlers_pre  {};
+
+			/** Holds posthandlers for keypresses. Note that keypresses handled by the textinput aren't passed on to
+			 *  pre- or posthandlers. */
+			std::vector<post_function<haunted::key>> keyhandlers_post {};
 
 			/** Determines whether a pre-event should go through. */
 			template <typename T>
@@ -69,33 +74,26 @@ namespace spjalla::plugins {
 			bool before_send(pingpong::command &);
 
 			/** Determines whether a key should be processed by the client. Returns true if so, or false if a plugin
-			 *  chose to block the key. */
-			bool before_key(const haunted::key &);
+			 *  chose to block the key. Can modify the input. */
+			bool before_key(haunted::key &);
 
 			/** If a plugin was loaded from a given path, a pointer to its corresponding plugin object is returned. */
 			plugins::plugin * plugin_for_path(const std::string &path) const;
 
+			/** Registers a handler for commands. */
 			void handle(const pre_function<pingpong::command> &func, plugins::priority priority) {
 				plugin_command_handlers[priority].push_back(func);
-			}
-
-			void handle_pre(const pre_function<pingpong::command> &func) {
-				plugin_command_handlers[plugins::priority::high].push_back(func);
-			}
-
-			void handle_post(const pre_function<pingpong::command> &func) {
-				plugin_command_handlers[plugins::priority::low].push_back(func);
 			}
 
 			/** Registers a handler to handle keypresses before the client handles them and determine whether the client
 			 *  will handle them. */
 			void handle_pre(const pre_function<haunted::key> &func) {
-				key_handlers_pre.push_back(func);
+				keyhandlers_pre.push_back(func);
 			}
 
 			/** Registers a handler to handle keypresses after the client has handled them. */
 			void handle_post(const post_function<haunted::key> &func) {
-				key_handlers_post.push_back(func);
+				keyhandlers_post.push_back(func);
 			}
 	};
 }

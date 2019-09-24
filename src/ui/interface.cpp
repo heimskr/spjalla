@@ -440,17 +440,21 @@ namespace spjalla::ui {
 		return active_window == win || before_overlay == win;
 	}
 
-	bool interface::on_key(const haunted::key &k) {
-		if (k == config::keys::toggle_overlay) {
+	bool interface::on_key(const haunted::key &key) {
+		haunted::key copy {key};
+		if (!parent->before_key(copy))
+			return false;
+
+		if (copy == config::keys::toggle_overlay) {
 			toggle_overlay();
-		} else if (k == config::keys::switch_server) {
+		} else if (copy == config::keys::switch_server) {
 			next_server();
-		} else if (k == config::keys::next_window) {
+		} else if (copy == config::keys::next_window) {
 			next_window();
-		} else if (k == config::keys::previous_window) {
+		} else if (copy == config::keys::previous_window) {
 			previous_window();
-		} else if (k == haunted::kmod::ctrl) {
-			switch (k.type) {
+		} else if (copy == haunted::kmod::ctrl) {
+			switch (copy.type) {
 				case haunted::ktype::g: log("Active server: " + parent->active_server_id()); break;
 				case haunted::ktype::r:
 					if (active_window)
@@ -460,11 +464,11 @@ namespace spjalla::ui {
 			}
 
 			return true;
-		} else if (k == haunted::kmod::shift) {
+		} else if (copy == haunted::kmod::shift) {
 			if (!active_window)
 				return false;
 			
-			switch (k.type) {
+			switch (copy.type) {
 				case haunted::ktype::up_arrow: active_window->vscroll(-1); break;
 				case haunted::ktype::down_arrow: {
 					active_window->vscroll(1); 

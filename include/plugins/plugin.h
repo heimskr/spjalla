@@ -45,10 +45,10 @@ namespace spjalla::plugins {
 		virtual std::string get_version() const = 0;
 
 		/** Called when the plugin first loads. */
-		virtual void startup() {}
+		virtual void startup(client &) {}
 
 		/** Called when the client is shutting down. */
-		virtual void cleanup() {}
+		virtual void cleanup(client &) {}
 	};
 }
 

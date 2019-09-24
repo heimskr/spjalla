@@ -41,4 +41,8 @@ namespace spjalla::plugins {
 
 		return iter == plugins.end()? nullptr : iter->second;
 	}
+
+	bool plugin_host::before_key(haunted::key &key) {
+		return before(key, keyhandlers_pre);
+	}
 }

@@ -29,19 +29,19 @@ all: $(OBJECTS) $(OUTPUT) plugins
 
 INCLUDE_PP		:= -Ipingpong/include
 SOURCES_PP		:= $(shell find pingpong/src -name '*.cpp' | sed -nE '/(tests?|test_.+|ansi)\.cpp$$/!p')
-OBJECTS_PP		:= $(patsubst pingpong/src/%.cpp,pingpong/build/%.o, $(SOURCES_PP))
+OBJECTS_PP		:= $(patsubst pingpong/src/%.cpp,pingpong/build/%.o,$(SOURCES_PP))
 
 INCLUDE_HN		:= -Ihaunted/include
 SOURCES_HN		:= $(shell find haunted/src -name '*.cpp' | sed -nE '/(tests?|test_.+|ansi)\.cpp$$/!p')
-OBJECTS_HN		:= $(patsubst haunted/src/%.cpp,haunted/build/%.o, $(SOURCES_HN))
+OBJECTS_HN		:= $(patsubst haunted/src/%.cpp,haunted/build/%.o,$(SOURCES_HN))
 
 INCLUDE_SP		:= -Iinclude -Iinclude/lib
 SOURCES_SP		:= $(shell find -L src -name '*.cpp' | sed -nE '/(^src\/plugins\/)|((tests?|test_.+)\.cpp$$)/!p')
-OBJECTS_SP		:= $(patsubst src/%.cpp,build/%.o, $(SOURCES_SP))
+OBJECTS_SP		:= $(patsubst src/%.cpp,build/%.o,$(SOURCES_SP))
 INCLUDE_LIBS	:= $(INCLUDE_PP) $(INCLUDE_HN)
 
 SOURCES_PL		:= $(shell find -L src/plugins -name '*.cpp')
-OBJECTS_PL		:= $(patsubst src/plugins/%.cpp,build/plugins/%.$(SHARED_EXT), $(SOURCES_PL))
+OBJECTS_PL		:= $(patsubst src/plugins/%.cpp,build/plugins/%.$(SHARED_EXT),$(SOURCES_PL))
 
 OBJECTS			= $(OBJECTS_PP) $(OBJECTS_HN) $(OBJECTS_SP)
 
@@ -63,11 +63,11 @@ build/%.o: src/%.cpp
 	@ mkdir -p "$(shell dirname "$@")"
 	$(CC) $(strip $(ALLFLAGS) $(INCLUDE_LIBS) $(INCLUDE_SP)) -c $< -o $@
 
-build/plugins/%.$(SHARED_EXT): src/plugins/%.cpp
+build/plugins/%.$(SHARED_EXT): src/plugins/%.cpp build/lib/formicine/ansi.o
 	@ mkdir -p build/plugins
-	$(CC) $(strip $(ALLFLAGS) $(INCLUDE_LIBS) $(INCLUDE_SP)) -c $< -o $(addsuffix .o, $(basename $@))
-	$(CC) $(SHARED_FLAG) $(addsuffix .o, $(basename $@)) -o $@
-	@ rm $(addsuffix .o, $(basename $@))
+	$(CC) $(strip $(ALLFLAGS) $(INCLUDE_LIBS) $(INCLUDE_SP)) -c $< -o $(addsuffix .o,$(basename $@))
+	$(CC) $(SHARED_FLAG) $(addsuffix .o,$(basename $@)) $(filter-out $<,$^) -o $@
+	@ rm $(addsuffix .o,$(basename $@))
 
 
 test: $(OUTPUT)
@@ -75,6 +75,9 @@ test: $(OUTPUT)
 
 grind: $(OUTPUT)
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=no ./$(OUTPUT)
+
+strip:
+	strip -x {$(OUTPUT),build/plugins/*.$(SHARED_EXT)}
 
 clean:
 	rm -rf build
