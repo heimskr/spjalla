@@ -7,6 +7,7 @@ CC				 = $(COMPILER) $(strip $(CFLAGS) $(CHECKFLAGS))
 CHECKFLAGS		:=
 MKBUILD			:= mkdir -p build
 OUTPUT			:= build/spjalla
+MAINLIB			 = build/libspjalla.$(SHARED_EXT)
 SHARED_EXT		:= so
 SHARED_FLAG		:= -fPIC -shared
 
@@ -63,10 +64,10 @@ build/%.o: src/%.cpp
 	@ mkdir -p "$(shell dirname "$@")"
 	$(CC) $(strip $(ALLFLAGS) $(INCLUDE_LIBS) $(INCLUDE_SP)) -c $< -o $@
 
-build/plugins/%.$(SHARED_EXT): src/plugins/%.cpp build/lib/formicine/ansi.o
+build/plugins/%.$(SHARED_EXT): src/plugins/%.cpp $(MAINLIB)
 	@ mkdir -p build/plugins
 	$(CC) $(strip $(ALLFLAGS) $(INCLUDE_LIBS) $(INCLUDE_SP)) -c $< -o $(addsuffix .o,$(basename $@))
-	$(CC) $(SHARED_FLAG) $(addsuffix .o,$(basename $@)) $(filter-out $<,$^) -o $@
+	$(CC) $(SHARED_FLAG) $(addsuffix .o,$(basename $@)) $(MAINLIB) -o $@
 	@ rm $(addsuffix .o,$(basename $@))
 
 
@@ -77,7 +78,7 @@ grind: $(OUTPUT)
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=no ./$(OUTPUT)
 
 strip:
-	strip -x {$(OUTPUT),build/plugins/*.$(SHARED_EXT)}
+	strip -x {$(OUTPUT),$(MAINLIB),build/plugins/*.$(SHARED_EXT)}
 
 clean:
 	rm -rf build

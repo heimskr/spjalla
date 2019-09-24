@@ -11,6 +11,8 @@ namespace spjalla {
 }
 
 namespace spjalla::plugins {
+	class plugin_host;
+
 	/**
 	 * Represents the priority of a plugin's handler for an event. Right now, there's no guarantee for how plugins with
 	 * the same priority are ordered.
@@ -45,10 +47,10 @@ namespace spjalla::plugins {
 		virtual std::string get_version() const = 0;
 
 		/** Called when the plugin first loads. */
-		virtual void startup(client &) {}
+		virtual void startup(plugin_host *) {}
 
 		/** Called when the client is shutting down. */
-		virtual void cleanup(client &) {}
+		virtual void cleanup(plugin_host *) {}
 	};
 }
 

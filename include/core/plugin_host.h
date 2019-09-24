@@ -63,11 +63,16 @@ namespace spjalla::plugins {
 			}
 
 		public:
+			virtual ~plugin_host() = 0;
+
 			/** Loads a plugin from a given shared object. */
 			plugin_pair load_plugin(const std::string &path);
 
 			/** Loads all plugins in a given directory. */
 			void load_plugins(const std::string &path);
+
+			/** Initializes all loaded plugins. */
+			void init_plugins();
 
 			/** Determines whether a command can be sent. Returns true if the command should be sent, or false if a
 			 *  plugin chose to block it. */

@@ -4,6 +4,8 @@
 #include "core/plugin_host.h"
 
 namespace spjalla::plugins {
+	plugin_host::~plugin_host() = default;
+
 	plugin_host::plugin_pair plugin_host::load_plugin(const std::string &path) {
 		void *lib = dlopen(path.c_str(), RTLD_NOW | RTLD_LOCAL);
 		if (lib == nullptr)
@@ -20,6 +22,12 @@ namespace spjalla::plugins {
 	void plugin_host::load_plugins(const std::string &path) {
 		for (const auto &entry: std::filesystem::directory_iterator(path))
 			load_plugin(entry.path().c_str());
+	}
+
+	void plugin_host::init_plugins() {
+		for (const plugin_pair &pair: plugins) {
+			pair.second->startup(this);
+		}
 	}
 
 	bool plugin_host::before_send(pingpong::command &command) {
