@@ -22,18 +22,18 @@ namespace spjalla::plugins {
 	 * - `pass` indicates that the plugin has chosen not to do anything with the event.
 	 * - `kill` indicates that propagation to other plugins should be stopped.
 	 */
-	enum class handle_result {pass, kill};
+	enum class handler_result {pass, kill};
 
 	/**
-	 * Indicates what should be done after handling a command.
+	 * Indicates what should be done after handling a cancelable event.
 	 * - `pass` indicates that the plugin has chosen not to do anything with the event.
-	 * - `kill` indicates that propagation to other plugins should be stopped. For commands, it indicates that the
-	 *   command shouldn't go through (like disable).
-	 * - `disable` indicates that the command shouldn't go through but continues propagation.
-	 * - `enable` indicates that the command should go through and continues propagation.
-	 * - `approve` indicates that the command should go through (like enable) and stops propagation.
+	 * - `kill` indicates that propagation to other plugins should be stopped. It also indicates that the cancelable
+	 *   event shouldn't go through (like disable).
+	 * - `disable` indicates that the cancelable event shouldn't go through but continues propagation.
+	 * - `enable`  indicates that the cancelable event should go through and continues propagation.
+	 * - `approve` indicates that the cancelable event should go through (like enable) and stops propagation.
 	 */
-	enum class command_result {pass, kill, disable, enable, approve};
+	enum class cancelable_result {pass, kill, disable, enable, approve};
 
 	/**
 	 * Plugins modify the client's behavior. They reside in shared objects within a global variable called "ext_plugin".

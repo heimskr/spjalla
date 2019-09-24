@@ -24,24 +24,12 @@ namespace spjalla::plugins {
 
 	bool plugin_host::before_send(pingpong::command &command) {
 		bool should_send = true;
-		[&] {
-			for (const plugins::priority priority: {plugins::priority::high, plugins::priority::normal,
-			     plugins::priority::low}) {
-				for (auto &function: plugin_command_handlers.at(priority)) {
-					plugins::command_result result = function(&command, should_send);
-
-					if (result == plugins::command_result::kill || result == plugins::command_result::disable) {
-						should_send = false;
-					} else if (result == plugins::command_result::approve
-					        || result == plugins::command_result::enable) {
-						should_send = true;
-					}
-
-					if (result == plugins::command_result::kill || result == plugins::command_result::approve)
-						return;
-				}
-			}
-		}();
+		for (auto priority: {plugins::priority::high, plugins::priority::normal, plugins::priority::low}) {
+			handler_result result = handler_result::pass;
+			std::tie(should_send, result) = before_multi(command, plugin_command_handlers.at(priority), should_send);
+			if (result == handler_result::kill)
+				break;
+		}
 
 		return should_send;
 	}

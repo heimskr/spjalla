@@ -5,17 +5,57 @@
 #include <string>
 #include <vector>
 
+#include "haunted/core/key.h"
+
 #include "plugins/plugin.h"
 
 namespace spjalla::plugins {
 	class plugin_host {
 		using plugin_pair = std::pair<std::string, plugins::plugin *>; // path, plugin
 
+		template <typename T>
+		// The bool argument indicates whether the result hasn't been disabled.
+		using pre_function = std::function<plugins::cancelable_result(T &, bool)>;
+
+		template <typename T>
+		using post_function = std::function<void(const T &)>;
+
 		private:
 			std::vector<plugin_pair> plugins {};
-			std::map<plugins::priority, std::vector<std::function<plugins::command_result(pingpong::command *, bool)>>>
-				plugin_command_handlers = // The bool argument indicates whether the result hasn't been disabled.
+			std::map<plugins::priority, std::vector<pre_function<pingpong::command>>> plugin_command_handlers =
 				{{plugins::priority::high, {}}, {plugins::priority::normal, {}}, {plugins::priority::low, {}}};
+
+			std::vector<pre_function<haunted::key>>  key_handlers_pre  {};
+			std::vector<post_function<haunted::key>> key_handlers_post {};
+
+			/** Determines whether a pre-event should go through. */
+			template <typename T>
+			bool before(T &obj, const std::vector<pre_function<T>> &funcs) {
+				return before_multi(obj, funcs).first;
+			}
+
+			/** Determines whether a pre-event should go through. Used inside functions like plugin_host::before_send
+			 *  that process sets of sets of handler functions. */
+			template <typename T>
+			std::pair<bool, handler_result> before_multi(T &obj, const std::vector<pre_function<T>> &funcs,
+			bool initial = true) {
+				bool should_send = initial;
+				for (auto &func: funcs) {
+					plugins::cancelable_result result = func(obj, should_send);
+
+					if (result == plugins::cancelable_result::kill || result == plugins::cancelable_result::disable) {
+						should_send = false;
+					} else if (result == plugins::cancelable_result::approve
+					        || result == plugins::cancelable_result::enable) {
+						should_send = true;
+					}
+
+					if (result == plugins::cancelable_result::kill || result == plugins::cancelable_result::approve)
+						return {should_send, handler_result::kill};
+				}
+
+				return {should_send, handler_result::pass};
+			}
 
 		public:
 			/** Loads a plugin from a given shared object. */
@@ -28,12 +68,34 @@ namespace spjalla::plugins {
 			 *  plugin chose to block it. */
 			bool before_send(pingpong::command &);
 
+			/** Determines whether a key should be processed by the client. Returns true if so, or false if a plugin
+			 *  chose to block the key. */
+			bool before_key(const haunted::key &);
+
 			/** If a plugin was loaded from a given path, a pointer to its corresponding plugin object is returned. */
 			plugins::plugin * plugin_for_path(const std::string &path) const;
 
-			template <typename T, typename = std::enable_if_t<std::is_base_of<pingpong::command, T>::value>>
-			void handle(const std::function<plugins::command_result(const T &, bool)> &fn, plugins::priority priority) {
-				plugin_command_handlers[priority].push_back(fn);
+			void handle(const pre_function<pingpong::command> &func, plugins::priority priority) {
+				plugin_command_handlers[priority].push_back(func);
+			}
+
+			void handle_pre(const pre_function<pingpong::command> &func) {
+				plugin_command_handlers[plugins::priority::high].push_back(func);
+			}
+
+			void handle_post(const pre_function<pingpong::command> &func) {
+				plugin_command_handlers[plugins::priority::low].push_back(func);
+			}
+
+			/** Registers a handler to handle keypresses before the client handles them and determine whether the client
+			 *  will handle them. */
+			void handle_pre(const pre_function<haunted::key> &func) {
+				key_handlers_pre.push_back(func);
+			}
+
+			/** Registers a handler to handle keypresses after the client has handled them. */
+			void handle_post(const post_function<haunted::key> &func) {
+				key_handlers_post.push_back(func);
 			}
 	};
 }
