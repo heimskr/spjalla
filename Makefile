@@ -24,7 +24,7 @@ endif
 
 .PHONY: all test clean depend spotless count
 
-all: $(OBJECTS) $(OUTPUT)
+all: $(OBJECTS) $(OUTPUT) plugins
 
 
 INCLUDE_PP		:= -Ipingpong/include

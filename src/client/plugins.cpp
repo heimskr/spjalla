@@ -31,7 +31,7 @@ namespace spjalla {
 		return should_send;
 	}
 	
-	plugins::plugin * client::load_plugin(const std::string &path) {
+	client::plugin_pair client::load_plugin(const std::string &path) {
 		void *lib = dlopen(path.c_str(), RTLD_NOW | RTLD_LOCAL);
 		if (lib == nullptr)
 			throw std::runtime_error("dlopen returned nullptr");
@@ -40,12 +40,20 @@ namespace spjalla {
 		if (plugin == nullptr)
 			throw std::runtime_error("Plugin is null");
 		
-		plugins.push_back(plugin);
-		return plugin;
+		plugins.push_back({path, plugin});
+		return {path, plugin};
 	}
 
 	void client::load_plugins(const std::string &path) {
 		for (const auto &entry: std::filesystem::directory_iterator(path))
 			load_plugin(entry.path().c_str());
+	}
+
+	plugins::plugin * client::plugin_for_path(const std::string &path) const {
+		auto iter = std::find_if(plugins.begin(), plugins.end(), [&](const plugin_pair &pair) {
+			return pair.first == path;
+		});
+
+		return iter == plugins.end()? nullptr : iter->second;
 	}
 }

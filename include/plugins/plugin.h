@@ -41,8 +41,6 @@ namespace spjalla::plugins {
 	struct plugin {
 		client *parent;
 
-		virtual ~plugin();
-
 		virtual std::string get_name()    const = 0;
 		virtual std::string get_version() const = 0;
 
