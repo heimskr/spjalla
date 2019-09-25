@@ -40,6 +40,7 @@ namespace spjalla::ui {
 	void interface::init_basic() {
 		input = new haunted::ui::textinput(term);
 		input->set_name("input");
+		input->set_prefix(ansi::dim(">> "));
 	
 		titlebar = new haunted::ui::label(term);
 		titlebar->set_name("titlebar");
