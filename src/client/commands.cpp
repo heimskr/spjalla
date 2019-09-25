@@ -28,7 +28,6 @@ namespace spjalla {
 
 		add({"clear", {0, 0, false, [&](sptr, line) {
 			if (ui::window *win = ui.get_active_window()) {
-				// TODO: find out why changing the voffset has seemingly no effect.
 				win->set_voffset(win->total_rows());
 			} else {
 				DBG(lines::red_notice + "No window.");
