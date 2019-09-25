@@ -20,6 +20,7 @@
 #include "ui/interface.h"
 
 
+
 namespace spjalla::ui {
 	interface::interface(haunted::terminal *term_, client *parent_): term(term_), parent(parent_) {
 		init_basic();
@@ -80,8 +81,8 @@ namespace spjalla::ui {
 
 	void interface::init_colors() {
 		overlay->set_colors(ansi::color::white, ansi::color::verydark);
-		titlebar->set_colors(ansi::color::white, ansi::color::blue);
-		statusbar->set_colors(ansi::color::white, ansi::color::blue);
+		titlebar->set_colors(ansi::color::white, ansi::color::blood);
+		statusbar->set_colors(ansi::color::white, ansi::color::blood);
 		// input->set_colors(ansi::color::normal, ansi::color::red);
 		// active_window->set_colors(ansi::color::normal, ansi::color::magenta);
 	}
@@ -200,7 +201,7 @@ namespace spjalla::ui {
 	}
 
 	std::string interface::colorize_if_dead(const std::string &str, window *win) const {
-		return win->data.dead? ansi::red(str) : ansi::bold(str);
+		return win->data.dead? ansi::red(str) : str;
 	}
 
 
@@ -317,24 +318,15 @@ namespace spjalla::ui {
 		window *win = active_window == overlay? before_overlay : active_window;
 
 		if (!win) {
-
 			statusbar->set_text("[?]");
-
 		} else if (win->is_status()) {
-
-			statusbar->set_text("[" + ansi::bold(win->window_name) + "] [" +
-				ansi::bold(parent->active_server_id()) + "]");
-
+			statusbar->set_text("["_d + win->window_name + "] ["_d + parent->active_server_id() + "]"_d);
 		} else if (win->is_channel()) {
-
-			statusbar->set_text("[" + ansi::bold(parent->active_server_id()) + "] [" +
-				colorize_if_dead(win->data.chan->name, win) + "]");
-
+			statusbar->set_text("["_d + parent->active_server_id() + "] ["_d + colorize_if_dead(win->data.chan->name,
+				win) + "]"_d);
 		} else if (win->is_user()) {
-
-			statusbar->set_text("[" + ansi::bold(parent->active_server_id()) + "] [" +
-				colorize_if_dead(win->data.user->name, win) + "]");
-
+			statusbar->set_text("["_d + parent->active_server_id() + "] ["_d + colorize_if_dead(win->data.user->name,
+				win) + "]"_d);
 		} else {
 			statusbar->set_text("[" + ansi::bold(win->window_name) + "]");
 		}
