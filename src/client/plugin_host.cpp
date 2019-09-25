@@ -1,3 +1,5 @@
+#include <filesystem>
+
 #include <dlfcn.h>
 
 #include "core/spopt.h"

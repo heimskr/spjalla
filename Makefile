@@ -1,8 +1,8 @@
 COMPILER		:= g++
-CFLAGS			:= -std=c++2a -g -O0 -Wall -Wextra
+CFLAGS			:= -std=c++2a -g -O0 -Wall -Wextra -fPIC
 CFLAGS_ORIG		:= $(CFLAGS)
 INCLUDE			:= 
-LDFLAGS			:= -pthread
+LDFLAGS			:= -pthread -ldl
 CC				 = $(COMPILER) $(strip $(CFLAGS) $(CHECKFLAGS))
 CHECKFLAGS		:=
 MKBUILD			:= mkdir -p build
