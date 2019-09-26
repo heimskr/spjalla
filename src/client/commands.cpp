@@ -35,21 +35,25 @@ namespace spjalla {
 		}}});
 
 		add({"connect", {1, 2, false, [&](sptr, line il) {
-			const std::string &hostname = il.first();
+			const std::string &where = il.first();
 
 			std::string nick(pingpong::irc::default_nick);
 			if (il.args.size() > 1)
 				nick = il.args[1];
 
-			pingpong::server *serv = new pingpong::server(&pp, hostname);
-			try {
-				serv->start();
-				serv->set_nick(nick);
-				pp += serv;
-			} catch (pingpong::net::resolution_error &err) {
-				delete serv;
-				throw;
-			}
+			std::string hostname;
+			long port = 0;
+
+			std::tie(hostname, port) = pp.connect(where, nick, 6667, [&](const std::function<void()> &fn) {
+				try {
+					fn();
+				} catch (const std::exception &err) {
+					ui.log(lines::warning_line("Couldn't connect to " + ansi::bold(hostname) + " on port " +
+						ansi::bold(std::to_string(port)) + ": " + err.what()));
+				}
+			});
+
+			ui.log("Connecting to " + ansi::bold(hostname) + " on port " + ansi::bold(std::to_string(port)) + "...");
 		}}});
 		
 		add({"dbg", {0, 0, false, [&](sptr, line) {
