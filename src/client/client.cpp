@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <thread>
 
 #include "haunted/core/util.h"
 
@@ -68,6 +67,7 @@ namespace spjalla {
 		add_commands();
 		term.start_input();
 		add_input_listener();
+		init_heartbeat();
 	}
 
 	void client::stop() {
@@ -88,6 +88,10 @@ namespace spjalla {
 
 	void client::join() {
 		term.join();
+		if (heartbeat.joinable()) {
+			heartbeat_alive = false;
+			heartbeat.join();
+		}
 	}
 
 	pingpong::server * client::active_server() {

@@ -2,6 +2,7 @@
 #define SPJALLA_CORE_CLIENT_H_
 
 #include <functional>
+#include <list>
 #include <map>
 #include <thread>
 #include <tuple>
@@ -76,7 +77,9 @@ namespace spjalla {
 			}
 
 		public:
-			client(): out_stream(ansi::out), term(haunted::terminal(std::cin, out_stream)), ui(&term, this) {}
+			client(int heartbeat_period_ = 100):
+				out_stream(ansi::out), term(haunted::terminal(std::cin, out_stream)), ui(&term, this),
+				heartbeat_period(heartbeat_period_) {}
 
 			client(const client &) = delete;
 			client(client &&) = delete;
@@ -145,6 +148,31 @@ namespace spjalla {
 			void log(const T &obj, P *ptr) {
 				ui.log(obj, ptr);
 			}
+
+// client/heartbeat.cpp
+
+		private:
+			bool heartbeat_alive = false;
+
+			/** A thread that executes actions at regular intervals. */
+			std::thread heartbeat;
+
+			/** The number of milliseconds to wait between heartbeats. */
+			int heartbeat_period;
+
+			/** Contains all the functions to execute on each heartbeat. */
+			std::list<std::function<void(int)>> heartbeat_listeners {};
+
+			/** Keeps executing all the heartbeat listeners and waiting for the heartbeat period. Stops when
+			 *  heartbeat_alive turns false. */
+			void heartbeat_loop();
+
+		public:
+			/** Adds a function to the list of heartbeat listeners. The heartbeat period is passed as an argument. */
+			void add_heartbeat_listener(const std::function<void(int)> &);
+
+			/** Starts the heartbeat thread, which executes all the heartbeat listeners at regular intervals. */
+			void init_heartbeat();
 
 // client/input_listener.cpp
 
