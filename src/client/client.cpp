@@ -68,6 +68,7 @@ namespace spjalla {
 		term.start_input();
 		add_input_listener();
 		init_heartbeat();
+		init_statusbar();
 	}
 
 	void client::stop() {

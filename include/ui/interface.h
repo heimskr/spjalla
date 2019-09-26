@@ -100,6 +100,8 @@ namespace spjalla::ui {
 			std::string colorize_if_dead(const std::string &, window *) const;
 
 		public:
+			std::function<void(window *)> update_statusbar_fn;
+
 			interface(haunted::terminal *, client * = nullptr);
 
 			/** Redraws the interface. */
@@ -187,6 +189,9 @@ namespace spjalla::ui {
 
 			/** Returns true if the window is active or currently covered by the overlay. */
 			bool is_active(window *) const;
+
+			/** Returns whether the overlay is currently visible. */
+			bool overlay_visible() const;
 
 			/** Handles keypresses that aren't handled by the textinput. */
 			bool on_key(const haunted::key &);

@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include "ui/window.h"
+
 namespace spjalla {
 	class client;
 }
@@ -26,10 +28,13 @@ namespace spjalla::ui {
 			virtual std::string surround(const std::string &middle) const;
 
 			/** Called whenever the widget should update its state. */
-			virtual void update() = 0;
+			virtual void update();
 
 			/** Returns a string to be displayed in the status bar. */
 			virtual std::string render() const = 0;
+
+			/** Returns whether the widget should be displayed when the given window is the current window. */
+			virtual bool visible_for(const window *, bool overlay_visible) const;
 	};
 }
 

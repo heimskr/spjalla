@@ -15,6 +15,7 @@
 #include "core/plugin_host.h"
 #include "plugins/plugin.h"
 #include "ui/interface.h"
+#include "ui/status_widget.h"
 
 namespace spjalla {
 	class client: public plugins::plugin_host {
@@ -149,6 +150,24 @@ namespace spjalla {
 				ui.log(obj, ptr);
 			}
 
+// client/commands.cpp
+
+		private:
+			/** Handles the parsing for the /ban command. */
+			void ban(pingpong::server *, const input_line &, const std::string &type = "+b");
+
+			/** Prints debug information about the server list to the log file. */
+			void debug_servers();
+
+		public:
+			/** Adds the built-in command handlers. */
+			void add_commands();
+
+// client/events.cpp
+
+			/** Adds listeners for pingpong events. */
+			void add_events();
+
 // client/heartbeat.cpp
 
 		private:
@@ -179,23 +198,20 @@ namespace spjalla {
 			/** Adds a listener to the textinput that processes its contents. */
 			void add_input_listener();
 
-// client/commands.cpp
+// client/statusbar.cpp
 
 		private:
-			/** Handles the parsing for the /ban command. */
-			void ban(pingpong::server *, const input_line &, const std::string &type = "+b");
+			std::deque<std::shared_ptr<ui::status_widget>> status_widgets;
 
-			/** Prints debug information about the server list to the log file. */
-			void debug_servers();
+			/** Sorts all the statusbar widgets by priority. */
+			void sort_widgets();
 
 		public:
-			/** Adds the built-in command handlers. */
-			void add_commands();
+			void add_status_widget(std::shared_ptr<ui::status_widget> widget);
 
-// client/events.cpp
+			void init_statusbar();
 
-			/** Adds listeners for pingpong events. */
-			void add_events();
+			void render_statusbar();
 	};
 }
 

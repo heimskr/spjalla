@@ -318,7 +318,9 @@ namespace spjalla::ui {
 	void interface::update_statusbar() {
 		window *win = active_window == overlay? before_overlay : active_window;
 
-		if (!win) {
+		if (update_statusbar_fn) {
+			update_statusbar_fn(win);
+		} else if (!win) {
 			statusbar->set_text("[?]");
 		} else if (win->is_status()) {
 			statusbar->set_text("["_d + win->window_name + "] ["_d + parent->active_server_id() + "]"_d);
@@ -431,6 +433,10 @@ namespace spjalla::ui {
 			return false;
 
 		return active_window == win || before_overlay == win;
+	}
+
+	bool interface::overlay_visible() const {
+		return active_window == overlay;
 	}
 
 	bool interface::on_key(const haunted::key &key) {
