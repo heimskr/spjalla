@@ -9,11 +9,12 @@
 #include "formicine/ansi.h"
 
 namespace spjalla::plugins {
-	struct history_plugin: plugin {
-		virtual ~history_plugin() {}
+	struct history_plugin: public plugin {
+		~history_plugin() {}
 
-		std::string get_name() const override { return "History"; }
-		std::string get_version() const override { return "0.0.0"; }
+		std::string get_name()        const override { return "History"; }
+		std::string get_description() const override { return "Lets you repeat old inputs with the up and down keys."; }
+		std::string get_version()     const override { return "0.1.0"; }
 
 		int command_index = 0;
 		size_t max_length = 4096;
