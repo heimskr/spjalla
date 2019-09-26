@@ -66,7 +66,7 @@ namespace spjalla::ui {
 		status_window->data = {window_type::status};
 		status_window->set_terminal(term);
 		status_window->set_name("status_window");
-		status_window->set_voffset(-1);
+		status_window->set_autoscroll(true);
 		active_window = status_window;
 		windows.push_front(status_window);
 
@@ -147,7 +147,7 @@ namespace spjalla::ui {
 		win->data.type = type;
 		win->set_name("window" + std::to_string(++win_count));
 		win->set_terminal(nullptr); // inactive windows are marked by their null terminals
-		win->set_voffset(-1);
+		win->set_autoscroll(true);
 		return win;
 	}
 
@@ -455,8 +455,17 @@ namespace spjalla::ui {
 				case haunted::ktype::g: log("Active server: " + parent->active_server_id()); break;
 				case haunted::ktype::r:
 					if (active_window)
-						DBG("v = " << active_window->get_voffset() << ", e = " << active_window->effective_voffset());
+						DBG("v == " << active_window->get_voffset() << ", autoscroll == "
+							<< (active_window->get_autoscroll()? "true" : "false"));
 					break;
+				case haunted::ktype::m: {
+					if (active_window->get_autoscroll())
+						DBG("autoscroll: true -> false");
+					else
+						DBG("autoscroll: false -> true");
+					active_window->set_autoscroll(!active_window->get_autoscroll());
+					break;
+				}
 				default: return false;
 			}
 
@@ -470,12 +479,12 @@ namespace spjalla::ui {
 				case haunted::ktype::down_arrow: {
 					active_window->vscroll(1); 
 					const int total = active_window->total_rows(), height = active_window->get_position().height,
-					          effective = active_window->effective_voffset();
-					if (total == height + effective)
-						active_window->set_voffset(-1);
+					          voffset = active_window->get_voffset();
+					if (total == height + voffset)
+						active_window->set_autoscroll(true);
 					break;
 				}
-				case haunted::ktype::left_arrow: active_window->set_voffset(-1); break;
+				case haunted::ktype::left_arrow: active_window->set_autoscroll(true); break;
 				default: return false;
 			}
 
