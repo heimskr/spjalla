@@ -17,6 +17,7 @@
 #include "lib/pingpong/core/user.h"
 #include "lines/chanlist.h"
 #include "lines/overlay.h"
+#include "lines/timed.h"
 #include "lines/userlist.h"
 #include "ui/interface.h"
 
@@ -163,7 +164,7 @@ namespace spjalla::ui {
 
 	void interface::update_overlay(const std::shared_ptr<pingpong::channel> &chan) {
 		overlay->clear_lines();
-		*overlay += haunted::ui::simpleline(ansi::bold(chan->name) + " [" + chan->mode_str() + "]");
+		*overlay += lines::timed_line(ansi::bold(chan->name) + " [" + chan->mode_str() + "]");
 		chan->users.sort([&](std::shared_ptr<pingpong::user> left, std::shared_ptr<pingpong::user> right) -> bool {
 			return left->name < right->name;
 		});
@@ -174,7 +175,7 @@ namespace spjalla::ui {
 
 	void interface::update_overlay(const std::shared_ptr<pingpong::user> &user) {
 		overlay->clear_lines();
-		*overlay += haunted::ui::simpleline(ansi::bold(user->name));
+		*overlay += lines::timed_line(ansi::bold(user->name));
 		for (std::weak_ptr<pingpong::channel> chan: user->channels)
 			*overlay += spjalla::lines::chanlist_line(user, chan.lock());
 	}
@@ -215,11 +216,11 @@ namespace spjalla::ui {
 	}
 
 	void interface::log(const std::string &line, window *win) {
-		log(haunted::ui::simpleline(line, 0), win);
+		log(lines::timed_line(line, 0), win);
 	}
 
 	void interface::log(const std::string &line, const std::string &window_name) {
-		log(haunted::ui::simpleline(line, 0), window_name);
+		log(lines::timed_line(line, 0), window_name);
 	}
 
 	void interface::log(const std::exception &err) {
@@ -339,7 +340,7 @@ namespace spjalla::ui {
 			return;
 
 		if (before_overlay == status_window) {
-			*overlay += haunted::ui::simpleline(ansi::bold("Servers"));
+			*overlay += lines::timed_line(ansi::bold("Servers"));
 			for (pingpong::server *serv: parent->pp.server_order) {
 				serv->sort_channels();
 				if (serv->is_active()) {
