@@ -9,12 +9,12 @@ MKBUILD			:= mkdir -p build
 OUTPUT			:= build/spjalla
 MAINLIB			 = build/libspjalla.$(SHARED_EXT)
 SHARED_EXT		:= so
-SHARED_FLAG		:= -fPIC -shared
+SHARED_FLAG		:= -shared
 
 ifeq ($(shell uname -s), Darwin)
 	SDKFLAGS	:= --sysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
 	SHARED_EXT	:= dylib
-	SHARED_FLAG	:= -fPIC -dynamiclib
+	SHARED_FLAG	:= -dynamiclib
 endif
 
 ifeq ($(CHECK), asan)
