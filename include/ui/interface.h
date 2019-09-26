@@ -96,9 +96,6 @@ namespace spjalla::ui {
 			/** Returns whether it's okay to immediately remove a given window. */
 			bool can_remove(window * = nullptr) const;
 
-			/** Styles a window based on whether it's dead. */
-			std::string colorize_if_dead(const std::string &, window *) const;
-
 		public:
 			std::function<void(window *)> update_statusbar_fn;
 
@@ -188,7 +185,7 @@ namespace spjalla::ui {
 			std::shared_ptr<pingpong::user> get_active_user() const;
 
 			/** Returns true if the window is active or currently covered by the overlay. */
-			bool is_active(window *) const;
+			bool is_active(const window *) const;
 
 			/** Returns whether the overlay is currently visible. */
 			bool overlay_visible() const;

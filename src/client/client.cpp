@@ -33,6 +33,9 @@ namespace spjalla {
 		ui.log(lines::red_notice + "No active channel.");
 	}
 
+
+// Public instance methods
+
 	std::string client::active_server_id() {
 		return pp.active_server? pp.active_server->id : "";
 	}
@@ -40,9 +43,6 @@ namespace spjalla {
 	std::string client::active_server_hostname() {
 		return pp.active_server? pp.active_server->hostname : "";
 	}
-
-
-// Public instance methods
 
 
 	client & client::operator+=(const command_pair &p) {
@@ -60,13 +60,12 @@ namespace spjalla {
 	}
 
 	void client::init() {
-		term.watch_size();
 		ui.start();
 		pp.init();
 		add_events();
 		add_commands();
-		term.start_input();
 		add_input_listener();
+		term.start_input();
 		init_heartbeat();
 		init_statusbar();
 	}

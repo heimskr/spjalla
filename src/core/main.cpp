@@ -36,6 +36,7 @@ namespace spjalla {
 		const std::string plugin_dir = get_plugin_dir(argc, argv);
 		try {
 			instance->load_plugins(plugin_dir);
+			DBG("Loaded plugins.");
 		} catch (const std::filesystem::filesystem_error &err) {
 			instance->log(lines::warning_line("Couldn't load plugins from " + ansi::bold(plugin_dir) + ": " +
 				err.code().message()));

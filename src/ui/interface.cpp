@@ -8,6 +8,7 @@
 #include "core/client.h"
 #include "core/config.h"
 #include "core/spopt.h"
+#include "core/sputil.h"
 
 #include "lib/haunted/core/hdefs.h"
 #include "lib/haunted/core/key.h"
@@ -201,10 +202,6 @@ namespace spjalla::ui {
 		return !(win->is_status() || win->is_overlay() || (win->is_channel() && !win->is_dead()));
 	}
 
-	std::string interface::colorize_if_dead(const std::string &str, window *win) const {
-		return win->data.dead? ansi::red(str) : str;
-	}
-
 
 // Public instance methods
 
@@ -325,11 +322,11 @@ namespace spjalla::ui {
 		} else if (win->is_status()) {
 			statusbar->set_text("["_d + win->window_name + "] ["_d + parent->active_server_id() + "]"_d);
 		} else if (win->is_channel()) {
-			statusbar->set_text("["_d + parent->active_server_id() + "] ["_d + colorize_if_dead(win->data.chan->name,
-				win) + "]"_d);
+			statusbar->set_text("["_d + parent->active_server_id() + "] ["_d
+			                    + util::colorize_if_dead(win->data.chan->name, win) + "]"_d);
 		} else if (win->is_user()) {
-			statusbar->set_text("["_d + parent->active_server_id() + "] ["_d + colorize_if_dead(win->data.user->name,
-				win) + "]"_d);
+			statusbar->set_text("["_d + parent->active_server_id() + "] ["_d
+			                    + util::colorize_if_dead(win->data.user->name, win) + "]"_d);
 		} else {
 			statusbar->set_text("[" + ansi::bold(win->window_name) + "]");
 		}
@@ -428,7 +425,7 @@ namespace spjalla::ui {
 		return nullptr;
 	}
 
-	bool interface::is_active(window *win) const {
+	bool interface::is_active(const window *win) const {
 		if (!win)
 			return false;
 

@@ -14,7 +14,7 @@ namespace spjalla::plugins {
 
 			virtual ~clock_widget() {}
 
-			std::string render() const {
+			std::string render(const ui::window *, bool) const {
 				std::chrono::system_clock::time_point tpoint {std::chrono::duration<long>(stamp)};
 				std::time_t time = std::chrono::system_clock::to_time_t(tpoint);
 				char str[64];
@@ -28,13 +28,13 @@ namespace spjalla::plugins {
 			}
 	};
 
-	class clock_plugin: public plugin {
+	class clock_widget_plugin: public plugin {
 		private:
 			std::shared_ptr<clock_widget> widget;
 			size_t ticks;
 
 		public:
-			virtual ~clock_plugin() {}
+			virtual ~clock_widget_plugin() {}
 
 			std::string get_name()        const override { return "Clock"; }
 			std::string get_description() const override { return "Shows a clock in the status bar."; }
@@ -59,4 +59,4 @@ namespace spjalla::plugins {
 	};
 }
 
-spjalla::plugins::clock_plugin ext_plugin {};
+spjalla::plugins::clock_widget_plugin ext_plugin {};

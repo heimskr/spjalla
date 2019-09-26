@@ -31,7 +31,7 @@ namespace spjalla::ui {
 			virtual void update();
 
 			/** Returns a string to be displayed in the status bar. */
-			virtual std::string render() const = 0;
+			virtual std::string render(const window *, bool overlay_visible) const = 0;
 
 			/** Returns whether the widget should be displayed when the given window is the current window. */
 			virtual bool visible_for(const window *, bool overlay_visible) const;

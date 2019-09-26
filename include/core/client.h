@@ -26,6 +26,8 @@ namespace spjalla {
 		using command_tuple = std::tuple<int, int, bool, command_handler>;
 		using command_pair = std::pair<std::string, command_tuple>;
 
+// client/client.cpp
+
 		private:
 			pingpong::irc pp;
 			std::multimap<std::string, command_tuple> command_handlers;
@@ -45,12 +47,6 @@ namespace spjalla {
 
 			/** Logs a message indicated that there is no active channel. */
 			void no_channel();
-
-			/** Returns the ID of the active server. */
-			std::string active_server_id();
-
-			/** Returns the hostname of the active server. */
-			std::string active_server_hostname();
 
 			/** Handles commands like /kick that take a user and an optional longer string and an optional channel.
 			 *  If no channel is specified, the command must be issued from a channel window.
@@ -88,7 +84,11 @@ namespace spjalla {
 			client & operator=(client &&) = delete;
 			~client();
 
-// client/client.cpp
+			/** Returns the ID of the active server. */
+			std::string active_server_id();
+
+			/** Returns the hostname of the active server. */
+			std::string active_server_hostname();
 
 			/**
 			 * Adds a command handler.

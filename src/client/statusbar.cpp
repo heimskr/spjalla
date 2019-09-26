@@ -7,6 +7,8 @@ namespace spjalla {
 				return first->priority < second->priority;
 			}
 		);
+
+		render_statusbar();
 	}
 
 	void client::add_status_widget(std::shared_ptr<ui::status_widget> widget) {
@@ -24,7 +26,7 @@ namespace spjalla {
 					if (!rendered.empty())
 						rendered.push_back(' ');
 					
-					rendered += widget->surround(widget->render());
+					rendered += widget->surround(widget->render(win, overlay_visible));
 				}
 			}
 
