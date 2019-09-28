@@ -31,66 +31,18 @@ namespace spjalla {
 		if (equals == std::string::npos)
 			throw std::invalid_argument("No equals sign found in key-value pair");
 
-		if (equals == 0)
+		if (equals == 0 || equals == str.find_first_not_of(" "))
 			throw std::invalid_argument("Empty key in key-value pair");
 
-		if (equals == str.length() - 1)
-			throw std::invalid_argument("Empty value in key-value pair");
-
 		std::string key = str.substr(0, equals);
+		util::trim(key);
+
 		for (char ch: key) {
 			if (!std::isalnum(ch))
 				throw std::invalid_argument("Key isn't alphanumeric in key-value pair");
 		}
 
 		return {key, str.substr(equals + 1)};
-	}
-
-	std::string config::escape(const std::string &str) {
-		std::ostringstream out;
-		for (char ch: str) {
-			switch (ch) {
-				case '\\': out << "\\\\"; break;
-				case '\n': out << "\\n"; break;
-				case '\r': out << "\\r"; break;
-				case '\t': out << "\\t"; break;
-				case '\0': out << "\\0"; break;
-				case '"':  out << "\""; break;
-				default:   out << ch;
-			}
-		}
-
-		return out.str();
-	}
-
-	std::string config::unescape(const std::string &str, const bool check_dquotes) {
-		std::ostringstream out;
-		for (size_t i = 0, length = str.length(); i < length; ++i) {
-			char ch = i;
-
-			// Looking at the next character when we're at the end of the string would be bad.
-			if (i == length - 1) {
-				out << ch;
-				break;
-			}
-
-			if (ch == '\\') {
-				switch (str[i + 1]) {
-					case '\\': out << "\\"; ++i; break;
-					case 'n':  out << "\n"; ++i; break;
-					case 'r':  out << "\r"; ++i; break;
-					case 't':  out << "\t"; ++i; break;
-					case '0':  out << "\0"; ++i; break;
-					case '"':  out << "\""; ++i; break;
-				}
-			} else if (check_dquotes && ch == '"') {
-				throw std::invalid_argument("String contains an unescaped double quote");
-			} else {
-				out << ch;
-			}
-		}
-
-		return out.str();
 	}
 
 	std::pair<std::string, long> config::parse_long_line(const std::string &str) {
@@ -134,7 +86,7 @@ namespace spjalla {
 		if (value.front() != '"' || value.back() != '"')
 			throw std::invalid_argument("Invalid quote placement in string value in key-value pair");
 
-		return {key, unescape(value.substr(1, vlength - 2))};
+		return {key, util::unescape(value.substr(1, vlength - 2))};
 
 	}
 }

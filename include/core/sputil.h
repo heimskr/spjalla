@@ -15,5 +15,16 @@ namespace spjalla {
 
 		/** Returns a path to the user's home directory. */
 		std::filesystem::path get_home();
+
+		/** Escapes a string by prepending all backslashes, newlines, carriage returns, tabs, nulls and double
+		 *  quotes with backslashes. */
+		std::string escape(const std::string &);
+
+		/** Unescapes a string (see spjalla::config::escape). If check_dquotes are true, the function will throw a
+		 *  std::invalid_argument exception if it finds an unescaped double quote. */
+		std::string unescape(const std::string &, const bool check_dquotes = true);
+
+		/** Trims spaces and tabs from both ends of a string. */
+		void trim(std::string &str);
 	}
 }

@@ -31,13 +31,16 @@ namespace spjalla {
 			 *  std::invalid_argument exception if it finds an unescaped double quote. */
 			static std::string unescape(const std::string &, const bool check_dquotes = true);
 
+			/** Trims spaces and tabs from both ends of a string. */
+			static void trim(std::string &str);
+
 			/** Attempts to parse a configuration line of the form /^\w+\s*=\s*\d+$/. */
 			static std::pair<std::string, long> parse_long_line(const std::string &);
 
 			/** Attempts to parse a configuration line of the form /^\w+\s*=\s*\d+\.\d*$/. */
 			static std::pair<std::string, double> parse_double_line(const std::string &);
 
-			/** Attempts to parse a configuration line of the form /^\w+\s*=\s*"[^\\\n\r\t\0"]*"$/. */
+			/** Attempts to parse a configuration line of the form /^\w+\s*=\s*("[^\\\n\r\t\0"]*")?$/. */
 			static std::pair<std::string, std::string> parse_string_line(const std::string &);
 	};
 }
