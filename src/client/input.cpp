@@ -8,6 +8,9 @@ namespace spjalla {
 			if (sstr.empty()) return;
 			std::string str = sstr.str();
 			ui.input->clear();
+			if (!str.empty() && ui.active_window == ui.status_window && str.front() != '/')
+				str.insert(0, "/");
+
 			input_line il = input_line(str);
 
 			if (!before_input(il))
