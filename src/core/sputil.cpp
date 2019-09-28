@@ -94,4 +94,9 @@ namespace spjalla::util {
 
 		return str;
 	}
+
+	std::string trim(const std::string &str) {
+		std::string copy {str};
+		return trim(copy);
+	}
 }

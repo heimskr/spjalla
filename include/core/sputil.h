@@ -37,6 +37,7 @@ namespace spjalla {
 
 		/** Trims spaces and tabs from both ends of a string. */
 		std::string & trim(std::string &str);
+		std::string trim(const std::string &str);
 	}
 }
 
