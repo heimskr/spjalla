@@ -111,6 +111,9 @@ namespace spjalla {
 		std::string key, value;
 		std::tie(key, value) = parse_kv_pair(str);
 
+		if (value == ".")
+			return {key, 0};
+
 		size_t idx;
 		double parsed = std::stod(value, &idx);
 		if (idx != value.length())
@@ -135,8 +138,11 @@ namespace spjalla {
 		if (value.find_first_not_of("0123456789") == std::string::npos)
 			return config_type::long_;
 
-		if (value.find_first_not_of("0123456789.") == std::string::npos)
+		if (value.find_first_not_of("0123456789.") == std::string::npos) {
+			if (value.find('.') != value.find_last_of("."))
+				return config_type::invalid;
 			return config_type::double_;
+		}
 
 		if (value.size() >= 2 && value.front() == '"' && value.back() == '"')
 			return config_type::string_;

@@ -50,5 +50,19 @@ namespace spjalla::tests {
 
 		unit.check("parse_string(\"\\\"\")", typeid(std::invalid_argument),
 			"Invalid length of string value", &config::parse_string, "\""s);
+
+		unit.check({
+			{{"42"}, config_type::long_},
+			{{"42."}, config_type::double_},
+			{{"\"foo\""}, config_type::string_},
+			{{""}, config_type::string_},
+			{{"\""}, config_type::invalid},
+			{{"."}, config_type::double_},
+			{{".."}, config_type::invalid},
+		}, &config::get_value_type, "config::get_value_type");
+
+		unit.check({
+			{{"key=42."s}, {"key", 42.0}},
+		}, &config::parse_double_line, "config::parse_double_line");
 	}
 }
