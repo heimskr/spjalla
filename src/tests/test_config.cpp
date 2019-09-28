@@ -34,10 +34,14 @@ namespace spjalla::tests {
 
 		unit.check({
 			{{"bar"s, false}, "bar"},
+			{{"\\\"\\\\\\\t"s, false}, "\"\\\t"},
 		}, &util::unescape, "util::unescape");
 
 		unit.check({
 			{{" \"bar\"  "s}, "bar"},
 		}, &config::parse_string, "config::parse_string");
+
+		unit.check("parse_string(\" \\\" bar\")", typeid(std::invalid_argument),
+			"Invalid quote placement in string value", &config::parse_string, " \" bar"s);
 	}
 }
