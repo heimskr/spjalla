@@ -1,3 +1,5 @@
+SOURCES_TESTS += src/tests/test_config.cpp
+
 build/test_config: build/tests/test_config.o $(filter-out build/core/main.o,$(OBJECTS))
 	@ $(MKBUILD)
 	$(CC) $^ -o $@ $(LDFLAGS) $(LDLIBS)
