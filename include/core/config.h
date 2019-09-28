@@ -46,13 +46,14 @@ namespace spjalla {
 			config_value & operator=(int n) { return *this = static_cast<long>(n); }
 			config_value & operator=(const char *s) { return *this = std::string(s); }
 
+			bool operator==(const config_value &) const;
 			bool operator==(long) const;
 			bool operator==(double) const;
 			bool operator==(const std::string &) const;
 			bool operator==(int n) const { return *this == static_cast<long>(n); }
 			bool operator==(const char *s) const { return *this == std::string(s); }
 
-			operator std::string() const;
+			explicit operator std::string() const;
 	};
 
 	/**

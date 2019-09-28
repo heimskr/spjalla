@@ -10,7 +10,7 @@ namespace spjalla::tests {
 	void test_config(haunted::tests::testing &unit) {
 		using namespace std::string_literals;
 
-		config cfg;
+		config cfg {true};
 		config::groupmap &reg = cfg.registered;
 
 		config::ensure_config_db();
@@ -69,5 +69,21 @@ namespace spjalla::tests {
 			{{"key=.9"s},  {"key", 0.9}},
 			{{"key=1."s},  {"key", 1.0}},
 		}, &config::parse_double_line, "config::parse_double_line");
+
+		unit.check(cfg.has_group("foo"), false, "has_group(\"foo\")");
+		ansi::out << ansi::info << "Inserting " << haunted::tests::testing::stringify({"foo", "bar", "hello"}) << "\n";
+		cfg.insert("foo", "bar", "hello");
+		unit.check(cfg.has_group("foo"), true, "has_group(\"foo\")");
+		unit.check(cfg.key_count("foo"), 1L, "key_count(\"foo\")");
+		unit.check(cfg.key_known("foo", "has_default"), false, "key_known(\"foo\", \"has_default\")");
+		ansi::out << ansi::info << "Registering " << ansi::bold("foo.has_default") << " with default "
+		          << ansi::bold("42") << "\n";
+		cfg.register_key("foo", "has_default", 42L);
+		unit.check(cfg.key_known("foo", "has_default"), true, "key_known(\"foo\", \"has_default\")");
+		config_value cv_42 {42L}, cv_hello {"hello"};
+		unit.check({
+			{{"foo"s, "has_default"s}, cv_42},
+			{{"foo"s, "bar"s}, cv_hello},
+		}, &config::get, &cfg, "cfg.get");
 	}
 }

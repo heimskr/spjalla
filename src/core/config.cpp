@@ -50,6 +50,12 @@ namespace spjalla {
 		return *this;
 	}
 
+	bool config_value::operator==(const config_value &other) const {
+		return type == other.type && ((type == config_type::long_ && long_value == other.long_value) ||
+			(type == config_type::double_ && double_value == other.double_value) ||
+			(type == config_type::string_ && string_value == other.string_value));
+	}
+
 	bool config_value::operator==(long other) const {
 		return type == config_type::long_ && long_value == other;
 	}
