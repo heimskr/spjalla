@@ -12,18 +12,18 @@ namespace spjalla::util {
 		return win->data.dead? ansi::red(str) : str;
 	}
 
-	std::string get_home_string() {
+	std::string get_home_string(bool append_slash) {
 		const char *home = getenv("HOME");
 		if (home == nullptr)
 			home = getpwuid(getuid())->pw_dir;
 		std::string str {home};
-		if (!str.empty() && str.back() != '/' && str.back() != '\\')
+		if (append_slash && !str.empty() && str.back() != '/' && str.back() != '\\')
 			str.push_back('/');
 		return str;
 	}
 
 	std::filesystem::path get_home() {
-		return {get_home_string()};
+		return {get_home_string(false)};
 	}
 
 	std::string escape(const std::string &str) {
