@@ -44,7 +44,11 @@ namespace spjalla {
 			/** Attempts to parse a string from a key-value pair. */
 			static std::string parse_string(const std::string &);
 
-			std::unordered_map<std::string, config_value> db;
+			std::unordered_map<std::string, config_value> db {};
+
+			/** Stores known option keys (the first element of the pair) under named groups (the key type of the
+			 *  unordered_map) with a config_value indicating the type and default value. */
+			std::unordered_map<std::string, std::pair<std::string, config_value>> options {};
 
 		public:
 
@@ -57,8 +61,8 @@ namespace spjalla {
 			/** Attempts to parse a configuration line of the form /^\w+\s*=\s*("[^\\\n\r\t\0"]*")?$/. */
 			static std::pair<std::string, std::string> parse_string_line(const std::string &);
 
-			/** Checks a line and returns its type. */
-			static config_type get_line_type(const std::string &) noexcept;
+			/** Checks a value and returns its type. */
+			static config_type get_value_type(std::string) noexcept;
 	};
 }
 

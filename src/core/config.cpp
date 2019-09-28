@@ -120,26 +120,21 @@ namespace spjalla {
 		return {key, parse_string(value)};
 	}
 
-	config_type config::get_line_type(const std::string &str) noexcept {
-		try {
-			std::string value;
-			std::tie(std::ignore, value) = parse_kv_pair(str);
+	config_type config::get_value_type(std::string value) noexcept {
+		util::trim(value);
 
-			if (value.empty())
-				return config_type::string_;
+		if (value.empty())
+			return config_type::string_;
 
-			if (value.find_first_not_of("0123456789") == std::string::npos)
-				return config_type::long_;
+		if (value.find_first_not_of("0123456789") == std::string::npos)
+			return config_type::long_;
 
-			if (value.find_first_not_of("0123456789.") == std::string::npos)
-				return config_type::double_;
+		if (value.find_first_not_of("0123456789.") == std::string::npos)
+			return config_type::double_;
 
-			if (value.size() >= 2 && value.front() == '"' && value.back() == '"')
-				return config_type::string_;
+		if (value.size() >= 2 && value.front() == '"' && value.back() == '"')
+			return config_type::string_;
 
-			return config_type::invalid;
-		} catch (const std::invalid_argument &) {
-			return config_type::invalid;
-		}
+		return config_type::invalid;
 	}
 }
