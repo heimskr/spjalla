@@ -23,17 +23,6 @@ namespace spjalla {
 		public:
 			enum class line_type {long_line, double_line, string_line};
 
-			/** Escapes a string by prepending all backslashes, newlines, carriage returns, tabs, nulls and double
-			 *  quotes with backslashes. */
-			static std::string escape(const std::string &);
-
-			/** Unescapes a string (see spjalla::config::escape). If check_dquotes are true, the function will throw a
-			 *  std::invalid_argument exception if it finds an unescaped double quote. */
-			static std::string unescape(const std::string &, const bool check_dquotes = true);
-
-			/** Trims spaces and tabs from both ends of a string. */
-			static void trim(std::string &str);
-
 			/** Attempts to parse a configuration line of the form /^\w+\s*=\s*\d+$/. */
 			static std::pair<std::string, long> parse_long_line(const std::string &);
 
