@@ -90,15 +90,6 @@ namespace spjalla {
 			static std::filesystem::path get_db_path(const std::string &dbname  = DEFAULT_CONFIG_DB,
 			                                         const std::string &dirname = DEFAULT_DATA_DIR);
 
-			/** Returns whether a group name is present in the config database. */
-			bool has_group(const std::string &) const;
-
-			/** Returns whether a key name is present within a given group in the config database. */
-			bool has_key(const std::string &group, const std::string &key) const;
-
-			/** Returns whether a group+key pair has been registered. */
-			bool key_known(const std::string &group, const std::string &key) const;
-
 			/** Throws a std::invalid_argument exception if a group+key pair is unknown and unknown group+key pairs
 			 *  aren't allowed. */
 			void ensure_known(const std::string &group, const std::string &key) const noexcept(false);
@@ -138,6 +129,19 @@ namespace spjalla {
 			/** Returns a value from the config database. If an unknown group+key pair is given and not present in the
 		 *  database, a std::out_of_range exception is thrown. */
 			config_value & get(const std::string &group, const std::string &key);
+
+			/** Returns whether a group name is present in the config database. */
+			bool has_group(const std::string &) const;
+
+			/** Returns whether a key name is present within a given group in the config database. */
+			bool has_key(const std::string &group, const std::string &key) const;
+
+			/** Returns whether a group+key pair has been registered. */
+			bool key_known(const std::string &group, const std::string &key) const;
+
+			/** Returns the number of keys present under a group. If the group doesn't exist in the config database, the
+			 *  function returns -1. */
+			ssize_t key_count(const std::string &group) const;
 
 			/** Stringifies the config database. */
 			operator std::string() const;

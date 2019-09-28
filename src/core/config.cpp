@@ -156,18 +156,6 @@ namespace spjalla {
 // Private instance methods (config)
 
 
-	bool config::has_group(const std::string &group) const {
-		return db.count(group) > 0;
-	}
-
-	bool config::has_key(const std::string &group, const std::string &key) const {
-		return has_group(group) && db.at(group).count(key) > 0;
-	}
-
-	bool config::key_known(const std::string &group, const std::string &key) const {
-		return registered.count(group) > 0 && registered.at(group).count(key) > 0;
-	}
-
 	void config::ensure_known(const std::string &group, const std::string &key) const {
 		if (!allow_unknown && !key_known(group, key))
 			throw std::invalid_argument("Unknown group+key pair");
@@ -285,6 +273,22 @@ namespace spjalla {
 			return registered.at(group).at(key);
 
 		throw std::out_of_range("No value for group+key pair");
+	}
+
+	bool config::has_group(const std::string &group) const {
+		return db.count(group) > 0;
+	}
+
+	bool config::has_key(const std::string &group, const std::string &key) const {
+		return has_group(group) && db.at(group).count(key) > 0;
+	}
+
+	bool config::key_known(const std::string &group, const std::string &key) const {
+		return registered.count(group) > 0 && registered.at(group).count(key) > 0;
+	}
+
+	ssize_t config::key_count(const std::string &group) const {
+		return has_group(group)? db.at(group).size() : -1;
 	}
 
 	config::operator std::string() const {
