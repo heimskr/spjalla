@@ -1,4 +1,7 @@
+#include <locale>
 #include <sstream>
+
+#include <cstdlib>
 
 #include "core/config.h"
 #include "core/sputil.h"
@@ -34,7 +37,13 @@ namespace spjalla {
 		if (equals == str.length() - 1)
 			throw std::invalid_argument("Empty value in key-value pair");
 
-		return {str.substr(0, equals), str.substr(equals + 1)};
+		std::string key = str.substr(0, equals);
+		for (char ch: key) {
+			if (!std::isalnum(ch))
+				throw std::invalid_argument("Key isn't alphanumeric in key-value pair");
+		}
+
+		return {key, str.substr(equals + 1)};
 	}
 
 	std::string config::escape(const std::string &str) {
@@ -83,6 +92,14 @@ namespace spjalla {
 	}
 
 	std::pair<std::string, long> config::parse_long_line(const std::string &str) {
+		std::string key, value;
+		std::tie(key, value) = parse_kv_pair(str);
+		const char *value_cstr = value.c_str();
+		const char *end;
+		long parsed = strtol(value_cstr, &end, 10);
+		if (end != value_cstr + value.size())
+			throw std::invalid_argument("Invalid value in key-value pair; expected a long");
 
+		return {key, parsed};
 	}
 }

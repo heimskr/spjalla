@@ -60,7 +60,7 @@ namespace spjalla::ui {
 		windows.push_front(overlay);
 		overlay->key_fn = [&](const haunted::key &k) {
 			toggle_overlay();
-			return k == config::keys::toggle_overlay || input->on_key(k);
+			return k == keys::toggle_overlay || input->on_key(k);
 		};
 
 		status_window = new window("status");
@@ -450,13 +450,13 @@ namespace spjalla::ui {
 		if (!parent->before_key(copy))
 			return false;
 
-		if (copy == config::keys::toggle_overlay) {
+		if (copy == keys::toggle_overlay) {
 			toggle_overlay();
-		} else if (copy == config::keys::switch_server) {
+		} else if (copy == keys::switch_server) {
 			next_server();
-		} else if (copy == config::keys::next_window) {
+		} else if (copy == keys::next_window) {
 			next_window();
-		} else if (copy == config::keys::previous_window) {
+		} else if (copy == keys::previous_window) {
 			previous_window();
 		} else if (copy == haunted::kmod::ctrl) {
 			switch (copy.type) {
