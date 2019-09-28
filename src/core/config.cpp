@@ -73,7 +73,8 @@ namespace spjalla {
 		return {key, util::trim(str.substr(equals + 1))};
 	}
 
-	std::string config::parse_string(const std::string &value) {
+	std::string config::parse_string(std::string value) {
+		util::trim(value);
 		const size_t vlength = value.length();
 
 		// Special case: an empty value represents an empty string, same as a pair of double quotes.

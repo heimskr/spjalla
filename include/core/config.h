@@ -58,7 +58,7 @@ namespace spjalla {
 			static std::pair<std::string, std::string> parse_kv_pair(const std::string &);
 
 			/** Attempts to parse a string from a key-value pair. */
-			static std::string parse_string(const std::string &);
+			static std::string parse_string(std::string);
 
 		public:
 			config() {}
