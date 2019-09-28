@@ -38,6 +38,10 @@ namespace spjalla {
 			double & double_();
 			std::string & string_();
 
+			config_value & operator=(long);
+			config_value & operator=(double);
+			config_value & operator=(const std::string &);
+
 			operator std::string() const;
 	};
 
@@ -91,6 +95,10 @@ namespace spjalla {
 			/** Returns whether a group+key pair has been registered. */
 			bool key_known(const std::string &group, const std::string &key) const;
 
+			/** Throws a std::invalid_argument exception if a group+key pair is unknown and unknown group+key pairs
+			 *  aren't allowed. */
+			void ensure_known(const std::string &group, const std::string &key) const noexcept(false);
+
 			/** Writes the database to the cached file path. */
 			void write_db();
 
@@ -122,6 +130,10 @@ namespace spjalla {
 
 			/** Inserts a value into the config database. Returns true if a preexisting value was overwritten. */
 			bool insert(const std::string &group, const std::string &key, const config_value &);
+
+			/** Returns a value from the config database. If an unknown group+key pair is given and not present in the
+		 *  database, a std::out_of_range exception is thrown. */
+			config_value & get(const std::string &group, const std::string &key);
 
 			/** Stringifies the config database. */
 			operator std::string() const;

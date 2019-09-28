@@ -32,6 +32,24 @@ namespace spjalla {
 		return string_value;
 	}
 
+	config_value & config_value::operator=(long new_long) {
+		type = config_type::long_;
+		long_value = new_long;
+		return *this;
+	}
+
+	config_value & config_value::operator=(double new_double) {
+		type = config_type::double_;
+		double_value = new_double;
+		return *this;
+	}
+
+	config_value & config_value::operator=(const std::string &new_string) {
+		type = config_type::string_;
+		string_value = new_string;
+		return *this;
+	}
+
 	config_value::operator std::string() const {
 		if (type == config_type::long_)
 			return std::to_string(long_value);
@@ -138,6 +156,11 @@ namespace spjalla {
 		return registered.count(group) > 0 && registered.at(group).count(key) > 0;
 	}
 
+	void config::ensure_known(const std::string &group, const std::string &key) const {
+		if (!allow_unknown && !key_known(group, key))
+			throw std::invalid_argument("Unknown group+key pair");
+	}
+
 	void config::write_db() {
 		
 	}
@@ -226,8 +249,7 @@ namespace spjalla {
 	}
 
 	bool config::insert(const std::string &group, const std::string &key, const config_value &value) {
-		if (!allow_unknown && !key_known(group, key))
-			throw std::out_of_range("Unknown group+key pair");
+		ensure_known(group, key);
 
 		submap &sub = db[group];
 		bool overwritten = false;
@@ -239,6 +261,18 @@ namespace spjalla {
 
 		sub.insert({key, value});
 		return overwritten;
+	}
+
+	config_value & config::get(const std::string &group, const std::string &key) {
+		ensure_known(group, key);
+
+		if (has_key(group, key))
+			return db.at(group).at(key);
+
+		if (key_known(group, key))
+			return registered.at(group).at(key);
+
+		throw std::out_of_range("No value for group+key pair");
 	}
 
 	config::operator std::string() const {
