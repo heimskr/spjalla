@@ -32,6 +32,17 @@ namespace spjalla {
 		return string_value;
 	}
 
+	config_value::operator std::string() const {
+		if (type == config_type::long_)
+			return std::to_string(long_value);
+		if (type == config_type::double_)
+			return std::to_string(double_value);
+		if (type == config_type::string_)
+			return "\"" + util::escape(string_value) + "\"";
+		throw std::invalid_argument("Invalid config_value type");
+	}
+
+
 // Private static fields (config)
 
 
@@ -53,7 +64,7 @@ namespace spjalla {
 
 	bool config::ensure_config_db(const std::string &dbname, const std::string &dirname) {
 		ensure_config_dir(dirname);
-		std::filesystem::path db_path = util::get_home() / dirname / dbname;
+		std::filesystem::path db_path = get_db_path(dbname, dirname);
 
 		if (!std::filesystem::exists(db_path)) {
 			std::ofstream(db_path).close();
@@ -101,6 +112,22 @@ namespace spjalla {
 			throw std::invalid_argument("Invalid quote placement in string value");
 
 		return util::unescape(value.substr(1, vlength - 2));
+	}
+
+	std::filesystem::path config::get_db_path(const std::string &dbname, const std::string &dirname) {
+		return util::get_home() / dirname / dbname;
+	}
+
+
+// Private instance methods (config)
+
+
+	void config::write_db() {
+		
+	}
+
+	void config::read_db() {
+		
 	}
 
 
@@ -173,5 +200,31 @@ namespace spjalla {
 
 		keys.insert({key, default_value});
 		return true;
+	}
+
+
+// Public instance methods (config)
+
+
+	void config::set_path(const std::string &dbname, const std::string &dirname) {
+		ensure_config_db(dbname, dirname);
+		filepath = get_db_path(dbname, dirname);
+		read_db();
+	}
+
+	config::operator std::string() const {
+		std::ostringstream out;
+		for (const auto &gpair: db) {
+			const std::string &group = gpair.first;
+			const submap &sub = gpair.second;
+
+			for (const auto &spair: sub) {
+				const std::string &key = spair.first;
+				const config_value &value = spair.second;
+				out << group << "." << key << "=" << value << "\n";
+			}
+		}
+
+		return out.str();
 	}
 }

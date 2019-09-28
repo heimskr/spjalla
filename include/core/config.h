@@ -1,6 +1,7 @@
 #ifndef SPJALLA_CORE_CONFIG_H_
 #define SPJALLA_CORE_CONFIG_H_
 
+#include <filesystem>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -36,6 +37,8 @@ namespace spjalla {
 			long & long_();
 			double & double_();
 			std::string & string_();
+
+			operator std::string() const;
 	};
 
 	/**
@@ -47,6 +50,7 @@ namespace spjalla {
 
 		private:
 			groupmap db {};
+			std::filesystem::path filepath;
 
 			/** Stores known option keys (the first element of the pair) under named groups (the key type of the
 			 *  unordered_map) with a config_value indicating the type and default value. */
@@ -67,6 +71,17 @@ namespace spjalla {
 			/** Attempts to parse a string from a key-value pair. */
 			static std::string parse_string(std::string);
 
+			/** Given a data directory name and a config database name, this returns the full path of the config
+			 *  database. */
+			static std::filesystem::path get_db_path(const std::string &dbname  = DEFAULT_CONFIG_DB,
+			                                         const std::string &dirname = DEFAULT_DATA_DIR);
+
+			/** Writes the database to the cached file path. */
+			void write_db();
+
+			/** Read the database from the cached file path. */
+			void read_db();
+
 		public:
 			config() {}
 
@@ -85,6 +100,13 @@ namespace spjalla {
 			/** Attempts to register a key. If the key already exists, the function simply returns false; otherwise, it
 			 *  registers the key and returns true. */
 			static bool register_key(const std::string &group, const std::string &key, const config_value &default_val);
+
+			/** Sets the cached config database path and replaces the cached database with the one stored at the path.
+			 */
+			void set_path(const std::string &dbname = DEFAULT_CONFIG_DB, const std::string &dirname = DEFAULT_DATA_DIR);
+
+			/** Stringifies the config database. */
+			operator std::string() const;
 
 			friend void spjalla::tests::test_config(haunted::tests::testing &);
 	};
