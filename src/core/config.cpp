@@ -70,7 +70,7 @@ namespace spjalla {
 				throw std::invalid_argument("Key isn't alphanumeric in key-value pair");
 		}
 
-		return {key, str.substr(equals + 1)};
+		return {key, util::trim(str.substr(equals + 1))};
 	}
 
 	std::string config::parse_string(const std::string &value) {
