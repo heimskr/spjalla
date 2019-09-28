@@ -31,6 +31,11 @@ namespace spjalla {
 		return string_value;
 	}
 
+// Private static fields (config)
+
+
+	std::unordered_map<std::string, std::unordered_map<std::string, config_value>> config::options = {};
+
 
 // Private static methods (config)
 
@@ -136,5 +141,17 @@ namespace spjalla {
 			return config_type::string_;
 
 		return config_type::invalid;
+	}
+
+	bool config::register_key(const std::string &group, const std::string &key, const config_value &default_value) {
+		if (options.count(group) == 0)
+			options.insert({group, {}});
+
+		config::submap &keys = options.at(group);
+		if (keys.count(key) > 0)
+			return false;
+
+		keys.insert({key, default_value});
+		return true;
 	}
 }

@@ -32,7 +32,13 @@ namespace spjalla {
 			std::string & string_();
 	};
 
+	/**
+	 * Represents an instance of a configuration database.
+	 */
 	class config {
+		using   submap = std::unordered_map<std::string, config_value>;
+		using groupmap = std::unordered_map<std::string, submap>;
+
 		private:
 			/** Creates a config directory in the user's home directory if one doesn't already exist.
 			 *  Returns true if the directory had to be created. */
@@ -44,14 +50,13 @@ namespace spjalla {
 			/** Attempts to parse a string from a key-value pair. */
 			static std::string parse_string(const std::string &);
 
-			std::unordered_map<std::string, config_value> db {};
-
 			/** Stores known option keys (the first element of the pair) under named groups (the key type of the
 			 *  unordered_map) with a config_value indicating the type and default value. */
-			std::unordered_map<std::string, std::pair<std::string, config_value>> options {};
+			static groupmap options;
+
+			groupmap db {};
 
 		public:
-
 			/** Attempts to parse a configuration line of the form /^\w+\s*=\s*\d+$/. */
 			static std::pair<std::string, long> parse_long_line(const std::string &);
 
@@ -63,6 +68,10 @@ namespace spjalla {
 
 			/** Checks a value and returns its type. */
 			static config_type get_value_type(std::string) noexcept;
+
+			/** Attempts to register a key. If the key already exists, the function simply returns false; otherwise, it
+			 *  registers the key and returns true. */
+			static bool register_key(const std::string &group, const std::string &key, const config_value &default_val);
 	};
 }
 
