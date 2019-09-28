@@ -42,6 +42,10 @@ namespace spjalla {
 			config_value & operator=(double);
 			config_value & operator=(const std::string &);
 
+			bool operator==(long) const;
+			bool operator==(double) const;
+			bool operator==(const std::string &) const;
+
 			operator std::string() const;
 	};
 
