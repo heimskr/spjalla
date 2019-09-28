@@ -86,7 +86,7 @@ namespace spjalla {
 // Private static fields (config)
 
 
-	std::unordered_map<std::string, std::unordered_map<std::string, config_value>> config::registered = {};
+	config::groupmap config::registered = {};
 
 
 // Private static methods (config)

@@ -3,7 +3,7 @@
 
 #include <filesystem>
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <utility>
 
 #include "haunted/core/key.h"
@@ -60,8 +60,8 @@ namespace spjalla {
 	 * Represents an instance of a configuration database.
 	 */
 	class config {
-		using   submap = std::unordered_map<std::string, config_value>;
-		using groupmap = std::unordered_map<std::string, submap>;
+		using   submap = std::map<std::string, config_value>;
+		using groupmap = std::map<std::string, submap>;
 
 		private:
 			/** The in-memory copy of the config database. */
@@ -73,8 +73,8 @@ namespace spjalla {
 			/** Whether to allow unknown group+key combinations to be inserted into the database. */
 			bool allow_unknown;
 
-			/** Stores known option keys (the first element of the pair) under named groups (the key type of the
-			 *  unordered_map) with a config_value indicating the type and default value. */
+			/** Stores known option keys (the first element of the pair) under named groups (the key type of the map)
+			 *  with a config_value indicating the type and default value. */
 			static groupmap registered;
 
 			/** Creates a config directory in the user's home directory if one doesn't already exist.
