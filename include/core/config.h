@@ -23,9 +23,9 @@ namespace spjalla {
 			std::string string_value {};
 
 		public:
-			config_value(long long_):       type(config_type::long_),   long_value(long_) {}
-			config_value(double double_):   type(config_type::double_), double_value(double_) {}
-			config_value(std::string str_): type(config_type::string_), string_value(str_) {}
+			config_value(long long_):     type(config_type::long_),   long_value(long_) {}
+			config_value(double double_): type(config_type::double_), double_value(double_) {}
+			config_value(const std::string &str_): type(config_type::string_), string_value(str_) {}
 
 			long & long_();
 			double & double_();
