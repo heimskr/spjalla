@@ -76,10 +76,10 @@ namespace spjalla {
 			} else if (max != -1 && max < nargs) {
 				DBG("/" << name << " expects at most " << std::to_string(max) << " argument"
 				      << (min == 1? "." : "s."));
-			} else if (needs_serv && !pp.active_server) {
+			} else if (needs_serv && !irc.active_server) {
 				ui.log(lines::red_notice + "No server is selected.");
 			} else {
-				fn(pp.active_server, il);
+				fn(irc.active_server, il);
 			}
 		}
 

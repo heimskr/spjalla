@@ -44,7 +44,7 @@ namespace spjalla {
 			std::string hostname;
 			long port = 0;
 
-			std::tie(hostname, port) = pp.connect(where, nick, 6667, [&](const std::function<void()> &fn) {
+			std::tie(hostname, port) = irc.connect(where, nick, 6667, [&](const std::function<void()> &fn) {
 				try {
 					fn();
 				} catch (const std::exception &err) {
@@ -89,7 +89,7 @@ namespace spjalla {
 
 		add({"info", {0, 1, false, [&](sptr, line il) {
 			if (il.args.size() == 0) {
-				pingpong::debug::print_all(pp);
+				pingpong::debug::print_all(irc);
 				return;
 			}
 			
@@ -223,14 +223,12 @@ namespace spjalla {
 
 		add({"quit", {0, -1, false, [&](sptr, line il) {
 			if (il.args.empty()) {
-				for (auto serv: pp.server_order)
+				for (auto serv: irc.server_order)
 					pingpong::quit_command(serv).send();
 			} else {
-				for (auto serv: pp.server_order)
+				for (auto serv: irc.server_order)
 					pingpong::quit_command(serv, il.body).send();
 			}
-
-			stop();
 		}}});
 
 		add({"quote", {1, -1, true, [&](sptr serv, line il) {
@@ -293,12 +291,12 @@ namespace spjalla {
 	}
 
 	void client::debug_servers() {
-		if (pp.servers.empty()) {
+		if (irc.servers.empty()) {
 			DBG("No servers.");
 			return;
 		}
 
-		for (const auto &pair: pp.servers) {
+		for (const auto &pair: irc.servers) {
 			pingpong::server *serv = pair.second;
 			DBG(ansi::bold(serv->id) << " (" << serv->hostname << ")");
 			for (std::shared_ptr<pingpong::channel> chan: serv->channels) {

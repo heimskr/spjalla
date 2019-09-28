@@ -37,11 +37,11 @@ namespace spjalla {
 // Public instance methods
 
 	std::string client::active_server_id() {
-		return pp.active_server? pp.active_server->id : "";
+		return irc.active_server? irc.active_server->id : "";
 	}
 
 	std::string client::active_server_hostname() {
-		return pp.active_server? pp.active_server->hostname : "";
+		return irc.active_server? irc.active_server->hostname : "";
 	}
 
 
@@ -51,7 +51,7 @@ namespace spjalla {
 	}
 	
 	client & client::operator+=(pingpong::server *ptr) {
-		pp += ptr;
+		irc += ptr;
 		return *this;
 	}
 
@@ -61,17 +61,13 @@ namespace spjalla {
 
 	void client::init() {
 		ui.start();
-		pp.init();
+		irc.init();
 		add_events();
 		add_commands();
 		add_input_listener();
 		term.start_input();
 		init_heartbeat();
 		init_statusbar();
-	}
-
-	void client::stop() {
-		alive = false;
 	}
 
 	void client::server_removed(pingpong::server *serv) {
@@ -95,7 +91,7 @@ namespace spjalla {
 	}
 
 	pingpong::server * client::active_server() {
-		return pp.active_server;
+		return irc.active_server;
 	}
 
 	std::string client::active_nick() {

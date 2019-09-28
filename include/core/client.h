@@ -29,10 +29,9 @@ namespace spjalla {
 // client/client.cpp
 
 		private:
-			pingpong::irc pp;
+			pingpong::irc irc;
 			std::multimap<std::string, command_tuple> command_handlers;
-			std::mutex pp_mux;
-			bool alive = true;
+			std::mutex irc_mutex;
 			ansi::ansistream &out_stream;
 			haunted::terminal term;
 			ui::interface ui;
@@ -118,9 +117,6 @@ namespace spjalla {
 
 			/** Initializes the client. */
 			void init();
-
-			/** Stops the client. */
-			void stop();
 
 			/** Processes a line of user input and returns whether the line was recognized as a valid input. */
 			bool handle_line(const input_line &line);

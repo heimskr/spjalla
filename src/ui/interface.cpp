@@ -255,14 +255,14 @@ namespace spjalla::ui {
 	}
 
 	void interface::next_server() {
-		if (active_window != status_window || parent->pp.servers.size() < 2)
+		if (active_window != status_window || parent->irc.servers.size() < 2)
 			return;
 
-		const auto &servers = parent->pp.server_order;
+		const auto &servers = parent->irc.server_order;
 		auto iter = std::find(servers.begin(), servers.end(), parent->active_server());
 		if (++iter == servers.end())
 			iter = servers.begin();
-		parent->pp.active_server = *iter;
+		parent->irc.active_server = *iter;
 		log(lines::notice + "Switched to " + ansi::bold((*iter)->id) + ".");
 		update_statusbar();
 		update_titlebar();
@@ -341,7 +341,7 @@ namespace spjalla::ui {
 
 		if (before_overlay == status_window) {
 			*overlay += haunted::ui::simpleline(ansi::bold("Servers"));
-			for (pingpong::server *serv: parent->pp.server_order) {
+			for (pingpong::server *serv: parent->irc.server_order) {
 				serv->sort_channels();
 				if (serv->is_active()) {
 					*overlay += lines::status_server_line(serv);
