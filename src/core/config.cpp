@@ -42,6 +42,10 @@ namespace spjalla {
 		throw std::invalid_argument("Invalid config_value type");
 	}
 
+	std::ostream & operator<<(std::ostream &os, const config_value &value) {
+		return os << std::string(value);
+	}
+
 
 // Private static fields (config)
 
