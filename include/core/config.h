@@ -2,6 +2,7 @@
 #define SPJALLA_CORE_CONFIG_H_
 
 #include <string>
+#include <unordered_map>
 #include <utility>
 
 #include "haunted/core/key.h"
@@ -9,6 +10,26 @@
 namespace spjalla {
 	struct keys {
 		static haunted::key toggle_overlay, switch_server, next_window, previous_window;
+	};
+
+	enum class config_type {long_, double_, string_, invalid};
+
+	class config_value {
+		// Boost? Never heard of it.
+		private:
+			config_type type;
+			long long_value {0};
+			double double_value {0.};
+			std::string string_value {};
+
+		public:
+			config_value(long long_):       type(config_type::long_),   long_value(long_) {}
+			config_value(double double_):   type(config_type::double_), double_value(double_) {}
+			config_value(std::string str_): type(config_type::string_), string_value(str_) {}
+
+			long & long_();
+			double & double_();
+			std::string & string_();
 	};
 
 	class config {
@@ -23,8 +44,9 @@ namespace spjalla {
 			/** Attempts to parse a string from a key-value pair. */
 			static std::string parse_string(const std::string &);
 
+			std::unordered_map<std::string, config_value> db;
+
 		public:
-			enum class line_type {long_, double_, string_, invalid};
 
 			/** Attempts to parse a configuration line of the form /^\w+\s*=\s*\d+$/. */
 			static std::pair<std::string, long> parse_long_line(const std::string &);
@@ -36,7 +58,7 @@ namespace spjalla {
 			static std::pair<std::string, std::string> parse_string_line(const std::string &);
 
 			/** Checks a line and returns its type. */
-			static line_type get_line_type(const std::string &) noexcept;
+			static config_type get_line_type(const std::string &) noexcept;
 	};
 }
 

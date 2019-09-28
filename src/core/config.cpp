@@ -13,8 +13,26 @@ namespace spjalla {
 	haunted::key keys::next_window     = {haunted::ktype::n,         haunted::kmod::ctrl};
 	haunted::key keys::previous_window = {haunted::ktype::p,         haunted::kmod::ctrl};
 
+	long & config_value::long_() {
+		if (type != config_type::long_)
+			throw std::runtime_error("Underlying type of config_value isn't long");
+		return long_value;
+	}
 
-// Private static methods
+	double & config_value::double_() {
+		if (type != config_type::double_)
+			throw std::runtime_error("Underlying type of config_value isn't double");
+		return double_value;
+	}
+
+	std::string & config_value::string_() {
+		if (type != config_type::string_)
+			throw std::runtime_error("Underlying type of config_value isn't string");
+		return string_value;
+	}
+
+
+// Private static methods (config)
 
 
 	bool config::ensure_config_dir(const std::string &name) {
@@ -67,7 +85,7 @@ namespace spjalla {
 	}
 
 
-// Public static methods
+// Public static methods (config)
 
 
 	std::pair<std::string, long> config::parse_long_line(const std::string &str) {
@@ -102,26 +120,26 @@ namespace spjalla {
 		return {key, parse_string(value)};
 	}
 
-	config::line_type config::get_line_type(const std::string &str) noexcept {
+	config_type config::get_line_type(const std::string &str) noexcept {
 		try {
 			std::string value;
 			std::tie(std::ignore, value) = parse_kv_pair(str);
 
 			if (value.empty())
-				return config::line_type::string_;
+				return config_type::string_;
 
 			if (value.find_first_not_of("0123456789") == std::string::npos)
-				return config::line_type::long_;
+				return config_type::long_;
 
 			if (value.find_first_not_of("0123456789.") == std::string::npos)
-				return config::line_type::double_;
+				return config_type::double_;
 
 			if (value.size() >= 2 && value.front() == '"' && value.back() == '"')
-				return config::line_type::string_;
+				return config_type::string_;
 
-			return config::line_type::invalid;
+			return config_type::invalid;
 		} catch (const std::invalid_argument &) {
-			return config::line_type::invalid;
+			return config_type::invalid;
 		}
 	}
 }
