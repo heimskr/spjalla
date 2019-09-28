@@ -15,7 +15,7 @@ namespace spjalla {
 		static haunted::key toggle_overlay, switch_server, next_window, previous_window;
 	};
 
-	enum class config_type {long_, double_, string_, invalid};
+	enum class config_type {invalid, long_, double_, string_};
 
 	class config_value {
 		// Boost? Never heard of it.
@@ -30,6 +30,7 @@ namespace spjalla {
 			config_value(double double_): type(config_type::double_), double_value(double_) {}
 			config_value(const std::string &str_): type(config_type::string_), string_value(str_) {}
 
+			config_type get_type() { return type; }
 			long & long_();
 			double & double_();
 			std::string & string_();
@@ -47,7 +48,7 @@ namespace spjalla {
 
 			/** Stores known option keys (the first element of the pair) under named groups (the key type of the
 			 *  unordered_map) with a config_value indicating the type and default value. */
-			static groupmap options;
+			static groupmap registered;
 
 			/** Creates a config directory in the user's home directory if one doesn't already exist.
 			 *  Returns true if the directory had to be created. */
