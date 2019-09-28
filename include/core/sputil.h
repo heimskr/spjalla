@@ -1,5 +1,16 @@
+#ifndef SPJALLA_CORE_SPUTIL_H_
+#define SPJALLA_CORE_SPUTIL_H_
+
 #include <filesystem>
+#include <locale>
 #include <string>
+
+#ifdef VSCODE
+// VS Code, please stop pretending these don't exist.
+namespace std { bool isalnum(char ch) { return isalnum(ch, std::locale()); } }
+long strtol(const char *, char **, int);
+char * getenv(const char *);
+#endif
 
 namespace spjalla {
 	namespace ui {
@@ -28,3 +39,5 @@ namespace spjalla {
 		void trim(std::string &str);
 	}
 }
+
+#endif
