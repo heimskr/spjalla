@@ -47,10 +47,10 @@ namespace spjalla::tests {
 			{{"\"\""s}, ""},
 		}, &config::parse_string, "config::parse_string");
 
-		unit.check("parse_string(\" \\\" bar\")", typeid(std::invalid_argument),
+		unit.check("config::parse_string(\" \\\" bar\")", typeid(std::invalid_argument),
 			"Invalid quote placement in string value", &config::parse_string, " \" bar"s);
 
-		unit.check("parse_string(\"\\\"\")", typeid(std::invalid_argument),
+		unit.check("config::parse_string(\"\\\"\")", typeid(std::invalid_argument),
 			"Invalid length of string value", &config::parse_string, "\""s);
 
 		unit.check({
@@ -85,5 +85,21 @@ namespace spjalla::tests {
 			{{"foo"s, "has_default"s}, cv_42},
 			{{"foo"s, "bar"s}, cv_hello},
 		}, &config::get, &cfg, "cfg.get");
+
+		unit.check({{{"foo.bar"s}, {"foo"s, "bar"s}}}, &config::parse_pair, "config::parse_pair");
+		unit.check("config::parse_pair(\"\")", typeid(std::invalid_argument), "Invalid group+key pair",
+			&config::parse_pair, ""s);
+		unit.check("config::parse_pair(\".\")", typeid(std::invalid_argument), "Invalid group+key pair",
+			&config::parse_pair, "."s);
+		unit.check("config::parse_pair(\"foo.\")", typeid(std::invalid_argument), "Invalid group+key pair",
+			&config::parse_pair, "foo."s);
+		unit.check("config::parse_pair(\".bar\")", typeid(std::invalid_argument), "Invalid group+key pair",
+			&config::parse_pair, ".bar"s);
+		unit.check("config::parse_pair(\"foo..bar\")", typeid(std::invalid_argument), "Invalid group+key pair",
+			&config::parse_pair, "foo..bar"s);
+		unit.check("config::parse_pair(\"foo.bar.baz\")", typeid(std::invalid_argument), "Invalid group+key pair",
+			&config::parse_pair, "foo.bar.baz"s);
+		unit.check("config::parse_pair(\"..\")", typeid(std::invalid_argument), "Invalid group+key pair",
+			&config::parse_pair, ".."s);
 	}
 }

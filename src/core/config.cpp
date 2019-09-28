@@ -214,6 +214,13 @@ namespace spjalla {
 		return {key, parse_string(value)};
 	}
 
+	std::pair<std::string, std::string> config::parse_pair(const std::string &str) {
+		size_t period = str.find('.');
+		if (period == std::string::npos || period == 0 || period == str.length() - 1 || period != str.find_last_of("."))
+			throw std::invalid_argument("Invalid group+key pair");
+		return {str.substr(0, period), str.substr(period + 1)};
+	}
+
 	config_type config::get_value_type(std::string value) noexcept {
 		util::trim(value);
 
@@ -224,6 +231,7 @@ namespace spjalla {
 			return config_type::long_;
 
 		if (value.find_first_not_of("0123456789.") == std::string::npos) {
+			// Don't allow multiple periods in the string.
 			if (value.find('.') != value.find_last_of("."))
 				return config_type::invalid;
 			return config_type::double_;

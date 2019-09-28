@@ -119,6 +119,10 @@ namespace spjalla {
 			/** Attempts to parse a configuration line of the form /^\w+\s*=\s*("[^\\\n\r\t\0"]*")?$/. */
 			static std::pair<std::string, std::string> parse_string_line(const std::string &);
 
+			/** Attempts to split a "group.key" pair. Throws std::invalid_argument if there isn't exactly one period in
+			 *  the string or if the area before or after the period contains nothing. */
+			static std::pair<std::string, std::string> parse_pair(const std::string &);
+
 			/** Checks a value and returns its type. */
 			static config_type get_value_type(std::string) noexcept;
 
@@ -134,7 +138,7 @@ namespace spjalla {
 			bool insert(const std::string &group, const std::string &key, const config_value &);
 
 			/** Returns a value from the config database. If an unknown group+key pair is given and not present in the
-		 *  database, a std::out_of_range exception is thrown. */
+			 *  database, a std::out_of_range exception is thrown. */
 			config_value & get(const std::string &group, const std::string &key);
 
 			/** Returns whether a group name is present in the config database. */
