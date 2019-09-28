@@ -82,10 +82,6 @@ namespace spjalla {
 			}
 		});
 
-		pingpong::events::listen<pingpong::message_event>([&](pingpong::message_event *ev) {
-			ui.log(*(ev->msg));
-		});
-
 		pingpong::events::listen<pingpong::mode_event>([&](pingpong::mode_event *ev) {
 			lines::mode_line mline {*ev};
 
