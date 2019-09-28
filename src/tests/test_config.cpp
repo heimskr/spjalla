@@ -63,6 +63,9 @@ namespace spjalla::tests {
 
 		unit.check({
 			{{"key=42."s}, {"key", 42.0}},
+			{{"key=."s},   {"key", 0.0}},
+			{{"key=.9"s},  {"key", 0.9}},
+			{{"key=1."s},  {"key", 1.0}},
 		}, &config::parse_double_line, "config::parse_double_line");
 	}
 }
