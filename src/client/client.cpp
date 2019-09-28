@@ -14,6 +14,7 @@
 #include "pingpong/net/resolution_error.h"
 
 #include "core/client.h"
+#include "core/config.h"
 #include "core/input_line.h"
 
 #include "lines/lines.h"
@@ -21,6 +22,13 @@
 #include "formicine/ansi.h"
 
 namespace spjalla {
+	client::client(int heartbeat_period_): out_stream(ansi::out), term(haunted::terminal(std::cin, out_stream)),
+	ui(&term, this), heartbeat_period(heartbeat_period_) {
+		config::register_defaults();
+		configs.read_if_empty();
+	}
+
+
 	client::~client() {
 		term.join();
 	}

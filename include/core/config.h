@@ -77,15 +77,6 @@ namespace spjalla {
 			 *  with a config_value indicating the type and default value. */
 			static groupmap registered;
 
-			/** Creates a config directory in the user's home directory if one doesn't already exist.
-			 *  Returns true if the directory had to be created. */
-			static bool ensure_config_dir(const std::string &name = DEFAULT_DATA_DIR);
-
-			/** Ensures the config directory exists and creates a blank config database inside it if one doesn't already
-			 *  exist. Returns true if the config database had to be created. */
-			static bool ensure_config_db(const std::string &dbname  = DEFAULT_CONFIG_DB,
-			                             const std::string &dirname = DEFAULT_DATA_DIR);
-
 			/** Attempts to parse a keyvalue pair of the form /^(\w+)=(.+)$/. */
 			static std::pair<std::string, std::string> parse_kv_pair(const std::string &);
 
@@ -130,9 +121,25 @@ namespace spjalla {
 			 *  registers the key and returns true. */
 			static bool register_key(const std::string &group, const std::string &key, const config_value &default_val);
 
+			/** Registers the standard Spjalla configuration keys. */
+			static void register_defaults();
+
+			/** Creates a config directory in the user's home directory if one doesn't already exist.
+			 *  Returns true if the directory had to be created. */
+			static bool ensure_config_dir(const std::string &name = DEFAULT_DATA_DIR);
+
+			/** Ensures the config directory exists and creates a blank config database inside it if one doesn't already
+			 *  exist. Returns true if the config database had to be created. */
+			static bool ensure_config_db(const std::string &dbname,
+			                             const std::string &dirname);
+
 			/** Sets the cached config database path and replaces the cached database with the one stored at the path.
 			 */
 			void set_path(const std::string &dbname = DEFAULT_CONFIG_DB, const std::string &dirname = DEFAULT_DATA_DIR);
+
+			/** Reads the config database from the filesystem if the in-memory copy is empty. */
+			void read_if_empty(const std::string &dbname  = DEFAULT_CONFIG_DB,
+			                   const std::string &dirname = DEFAULT_DATA_DIR);
 
 			/** Inserts a value into the config database. Returns true if a preexisting value was overwritten. */
 			bool insert(const std::string &group, const std::string &key, const config_value &);
@@ -154,8 +161,14 @@ namespace spjalla {
 			 *  function returns -1. */
 			ssize_t key_count(const std::string &group) const;
 
+			/** Returns a copy of the config database with all default keys filled in if not already present. */
+			groupmap with_defaults() const;
+
 			/** Stringifies the config database. */
 			operator std::string() const;
+
+			groupmap::iterator begin() { return db.begin(); }
+			groupmap::iterator end() { return db.end(); }
 
 			friend void spjalla::tests::test_config(haunted::tests::testing &);
 	};

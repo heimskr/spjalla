@@ -5,6 +5,8 @@
 
 #include <cstdlib>
 
+#include "pingpong/core/irc.h"
+
 #include "core/config.h"
 #include "core/sputil.h"
 
@@ -91,28 +93,6 @@ namespace spjalla {
 
 // Private static methods (config)
 
-
-	bool config::ensure_config_dir(const std::string &name) {
-		std::filesystem::path config_path = util::get_home() / name;
-		if (!std::filesystem::exists(config_path)) {
-			std::filesystem::create_directory(config_path);
-			return true;
-		}
-
-		return false;
-	}
-
-	bool config::ensure_config_db(const std::string &dbname, const std::string &dirname) {
-		ensure_config_dir(dirname);
-		std::filesystem::path db_path = get_db_path(dbname, dirname);
-
-		if (!std::filesystem::exists(db_path)) {
-			std::ofstream(db_path).close();
-			return true;
-		}
-
-		return false;
-	}
 
 	std::pair<std::string, std::string> config::parse_kv_pair(const std::string &str) {
 		if (str.empty())
@@ -252,6 +232,35 @@ namespace spjalla {
 		return true;
 	}
 
+	void config::register_defaults() {
+		register_key("server", "default_nick", pingpong::irc::default_nick);
+		register_key("server", "default_user", pingpong::irc::default_user);
+		register_key("server", "default_real", pingpong::irc::default_realname);
+	}
+
+	bool config::ensure_config_dir(const std::string &name) {
+		std::filesystem::path config_path = util::get_home() / name;
+		if (!std::filesystem::exists(config_path)) {
+			std::filesystem::create_directory(config_path);
+			return true;
+		}
+
+		return false;
+	}
+
+	bool config::ensure_config_db(const std::string &dbname, const std::string &dirname) {
+		ensure_config_dir(dirname);
+		std::filesystem::path db_path = get_db_path(dbname, dirname);
+
+		bool created = false;
+		if (!std::filesystem::exists(db_path)) {
+			std::ofstream(db_path).close();
+			created = true;
+		}
+
+		return created;
+	}
+
 
 // Public instance methods (config)
 
@@ -260,6 +269,13 @@ namespace spjalla {
 		ensure_config_db(dbname, dirname);
 		filepath = get_db_path(dbname, dirname);
 		read_db();
+	}
+
+	void config::read_if_empty(const std::string &dbname, const std::string &dirname) {
+		if (filepath.empty())
+			set_path(dbname, dirname);
+		else if (db.empty())
+			read_db();
 	}
 
 	bool config::insert(const std::string &group, const std::string &key, const config_value &value) {
@@ -303,6 +319,25 @@ namespace spjalla {
 
 	ssize_t config::key_count(const std::string &group) const {
 		return has_group(group)? db.at(group).size() : -1;
+	}
+
+	config::groupmap config::with_defaults() const {
+		groupmap copy {db};
+		for (const auto &gpair: registered) {
+			const std::string &group = gpair.first;
+			const submap &sub = gpair.second;
+			if (copy.count(group) == 0) {
+				copy.insert({group, sub});
+			} else {
+				submap &csub = copy.at(group);
+				for (const auto &spair: sub) {
+					if (csub.count(spair.first) == 0)
+						csub.insert(spair);
+				}
+			}
+		}
+
+		return copy;
 	}
 
 	config::operator std::string() const {

@@ -11,6 +11,7 @@
 #include "pingpong/messages/message.h"
 #include "pingpong/core/irc.h"
 
+#include "core/config.h"
 #include "core/input_line.h"
 #include "core/plugin_host.h"
 #include "plugins/plugin.h"
@@ -35,6 +36,8 @@ namespace spjalla {
 			ansi::ansistream &out_stream;
 			haunted::terminal term;
 			ui::interface ui;
+			config configs {false};
+
 
 			template <typename T>
 			ui::window * try_window(const T &where) {
@@ -73,9 +76,7 @@ namespace spjalla {
 			}
 
 		public:
-			client(int heartbeat_period_ = 100):
-				out_stream(ansi::out), term(haunted::terminal(std::cin, out_stream)), ui(&term, this),
-				heartbeat_period(heartbeat_period_) {}
+			client(int heartbeat_period_ = 100);
 
 			client(const client &) = delete;
 			client(client &&) = delete;

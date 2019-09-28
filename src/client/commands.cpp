@@ -11,6 +11,9 @@
 #include "pingpong/net/resolution_error.h"
 
 #include "core/client.h"
+#include "core/config.h"
+#include "lines/config_group.h"
+#include "lines/config_key.h"
 #include "lines/lines.h"
 #include "lines/warning.h"
 #include "formicine/futil.h"
@@ -233,6 +236,18 @@ namespace spjalla {
 
 		add({"quote", {1, -1, true, [&](sptr serv, line il) {
 			serv->quote(il.body);
+		}}});
+
+		add({"set", {0, -1, false, [&](sptr, line il) {
+			configs.read_if_empty();
+
+			if (il.args.empty()) {
+				for (const auto &gpair: configs.with_defaults()) {
+					ui.log(lines::config_group_line(gpair.first));
+					for (const auto &spair: gpair.second)
+						ui.log(lines::config_key_line(spair));
+				}
+			}
 		}}});
 
 		add({"spam", {0, 1, false, [&](sptr, line il) {
