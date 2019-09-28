@@ -7,6 +7,8 @@
 
 #include "haunted/core/key.h"
 
+#include "core/spopt.h"
+
 namespace haunted::tests { class testing; }
 namespace spjalla::tests { void test_config(haunted::tests::testing &); }
 
@@ -52,7 +54,12 @@ namespace spjalla {
 
 			/** Creates a config directory in the user's home directory if one doesn't already exist.
 			 *  Returns true if the directory had to be created. */
-			static bool ensure_config_dir(const std::string &name = ".spjalla");
+			static bool ensure_config_dir(const std::string &name = DEFAULT_DATA_DIR);
+
+			/** Ensures the config directory exists and creates a blank config database inside it if one doesn't already
+			 *  exist. Returns true if the config database had to be created. */
+			static bool ensure_config_db(const std::string &dbname  = DEFAULT_CONFIG_DB,
+			                             const std::string &dirname = DEFAULT_DATA_DIR);
 
 			/** Attempts to parse a keyvalue pair of the form /^(\w+)=(.+)$/. */
 			static std::pair<std::string, std::string> parse_kv_pair(const std::string &);

@@ -13,6 +13,8 @@ namespace spjalla::tests {
 		config cfg;
 		config::groupmap &reg = cfg.registered;
 
+		config::ensure_config_db();
+
 		unit.check(reg.size(), 0UL, "registered.count()");
 		cfg.register_key("group", "one", {"string"});
 		unit.check(reg.size(), 1UL, "registered.count()");

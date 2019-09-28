@@ -1,3 +1,4 @@
+#include <fstream>
 #include <locale>
 #include <sstream>
 #include <stdexcept>
@@ -44,6 +45,18 @@ namespace spjalla {
 		std::filesystem::path config_path = util::get_home() / name;
 		if (!std::filesystem::exists(config_path)) {
 			std::filesystem::create_directory(config_path);
+			return true;
+		}
+
+		return false;
+	}
+
+	bool config::ensure_config_db(const std::string &dbname, const std::string &dirname) {
+		ensure_config_dir(dirname);
+		std::filesystem::path db_path = util::get_home() / dirname / dbname;
+
+		if (!std::filesystem::exists(db_path)) {
+			std::ofstream(db_path).close();
 			return true;
 		}
 

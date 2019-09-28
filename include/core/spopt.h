@@ -9,4 +9,9 @@
 // The name of the global variable in which the plugin instance is stored within a shared library.
 #define PLUGIN_GLOBAL_VARIABLE_NAME "ext_plugin"
 
+// The name of the folder in the user's home directory in which data is stored.
+#define DEFAULT_DATA_DIR ".spjalla"
+
+#define DEFAULT_CONFIG_DB "client.conf"
+
 #endif
