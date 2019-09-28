@@ -6,6 +6,8 @@ namespace spjalla::lines {
 		haunted::ui::textline(0), pingpong::local(where_), speaker(speaker_), name(speaker_->name), message(message_),
 		stamp(stamp_) {
 
+		is_self = speaker_->is_self();
+
 		if (is_channel()) {
 			std::shared_ptr<pingpong::channel> chan = get_channel(speaker->serv);
 			if (chan->hats.count(speaker) != 0)
@@ -40,12 +42,13 @@ namespace spjalla::lines {
 	}
 
 	privmsg_line::operator std::string() const {
-		if (is_channel()) {
-			return is_action()? (lines::render_time(stamp) + "* "_b + ansi::bold(hat_str() + name) + " " +
-				trimmed_message()) : (lines::render_time(stamp) + "<"_d + hat_str() + name + "> "_d + message);
-		} else {
-			return is_action()? (lines::render_time(stamp) + "* "_b + ansi::bold(name) + " " + trimmed_message())
-							: (lines::render_time(stamp) + "<"_d + name + "> "_d + message);
-		}
+		std::string name_fmt = is_action() || is_self? ansi::bold(name) : name;
+		if (is_channel())
+			name_fmt.insert(0, hat_str());
+
+		if (is_action())
+			return lines::render_time(stamp) + "* "_b + name_fmt + " " + trimmed_message();
+
+		return lines::render_time(stamp) + "<"_d + name_fmt + "> "_d + message;
 	}
 }

@@ -12,6 +12,8 @@
 namespace spjalla::lines {
 	class privmsg_line: public haunted::ui::textline, public pingpong::local {
 		private:
+			bool is_self = false;
+
 			/** Returns whether the message is an action (CTCP ACTION). */
 			bool is_action() const;
 
