@@ -6,8 +6,8 @@ namespace spjalla {
 		class window;
 	}
 
-	struct util {
+	namespace util {
 		/** Styles a window based on whether it's dead. */
-		static std::string colorize_if_dead(const std::string &, const ui::window *);
-	};
+		std::string colorize_if_dead(const std::string &, const ui::window *);
+	}
 }
