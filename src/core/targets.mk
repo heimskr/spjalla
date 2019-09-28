@@ -1,7 +1,7 @@
 build/libspjalla.$(SHARED_EXT): $(OBJECTS)
 	@ $(MKBUILD)
-	$(CC) $< $(filter-out $<,$+) $(SHARED_FLAG) -o $@ $(LDFLAGS) $(LDLIBS)
+	cd build && $(CC) $(addprefix ../,$+) $(SHARED_FLAG) -o $(notdir $@) $(LDFLAGS) $(LDLIBS)
 
 build/spjalla: build/core/main.o build/libspjalla.$(SHARED_EXT)
 	@ $(MKBUILD)
-	$(CC) $< $(filter-out $<,$+) -o $@ $(LDFLAGS) $(LDLIBS)
+	cd build && $(CC) core/main.o libspjalla.$(SHARED_EXT) -o $(notdir $@) $(LDFLAGS) $(LDLIBS)

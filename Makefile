@@ -10,11 +10,13 @@ OUTPUT			:= build/spjalla
 MAINLIB			 = build/libspjalla.$(SHARED_EXT)
 SHARED_EXT		:= so
 SHARED_FLAG		:= -shared
+LIBPATHVAR		:= LD_LIBRARY_PATH
 
 ifeq ($(shell uname -s), Darwin)
 	SDKFLAGS	:= --sysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
 	SHARED_EXT	:= dylib
 	SHARED_FLAG	:= -dynamiclib
+	LIBPATHVAR	:= DYLD_LIBRARY_PATH
 endif
 
 ifeq ($(CHECK), asan)
@@ -29,11 +31,11 @@ all: $(OBJECTS) $(OUTPUT) plugins
 
 
 INCLUDE_PP		:= -Ipingpong/include
-SOURCES_PP		:= $(shell find pingpong/src -name '*.cpp' | sed -nE '/(tests?|test_.+|ansi)\.cpp$$/!p')
+SOURCES_PP		:= $(shell find pingpong/src -name '*.cpp' | sed -nE '/(tests?|test_.+|ansi|futil)\.cpp$$/!p')
 OBJECTS_PP		:= $(patsubst pingpong/src/%.cpp,pingpong/build/%.o,$(SOURCES_PP))
 
 INCLUDE_HN		:= -Ihaunted/include
-SOURCES_HN		:= $(shell find haunted/src -name '*.cpp' | sed -nE '/(tests?|test_.+|ansi)\.cpp$$/!p')
+SOURCES_HN		:= $(shell find haunted/src -name '*.cpp' | sed -nE '/(tests?|test_.+|ansi|futil)\.cpp$$/!p')
 OBJECTS_HN		:= $(patsubst haunted/src/%.cpp,haunted/build/%.o,$(SOURCES_HN))
 
 INCLUDE_SP		:= -Iinclude -Iinclude/lib
@@ -72,7 +74,7 @@ build/plugins/%.$(SHARED_EXT): src/plugins/%.cpp $(MAINLIB)
 
 
 test: $(OUTPUT)
-	./$(OUTPUT) --plugins build/plugins
+	$(LIBPATHVAR)="`pwd`/build" ./$(OUTPUT) --plugins build/plugins
 
 grind: $(OUTPUT)
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=no ./$(OUTPUT)
