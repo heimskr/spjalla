@@ -39,9 +39,16 @@ namespace spjalla::tests {
 
 		unit.check({
 			{{" \"bar\"  "s}, "bar"},
+			{{" \"foo\\\"\"  "s}, "foo\""},
+			{{" \"f\too\\\"\"  "s}, "f\too\""},
+			{{""s}, ""},
+			{{"\"\""s}, ""},
 		}, &config::parse_string, "config::parse_string");
 
 		unit.check("parse_string(\" \\\" bar\")", typeid(std::invalid_argument),
 			"Invalid quote placement in string value", &config::parse_string, " \" bar"s);
+
+		unit.check("parse_string(\"\\\"\")", typeid(std::invalid_argument),
+			"Invalid length of string value", &config::parse_string, "\""s);
 	}
 }
