@@ -126,6 +126,18 @@ namespace spjalla {
 // Private instance methods (config)
 
 
+	bool config::has_group(const std::string &group) const {
+		return db.count(group) > 0;
+	}
+
+	bool config::has_key(const std::string &group, const std::string &key) const {
+		return has_group(group) && db.at(group).count(key) > 0;
+	}
+
+	bool config::key_known(const std::string &group, const std::string &key) const {
+		return registered.count(group) > 0 && registered.at(group).count(key) > 0;
+	}
+
 	void config::write_db() {
 		
 	}
@@ -195,10 +207,7 @@ namespace spjalla {
 	}
 
 	bool config::register_key(const std::string &group, const std::string &key, const config_value &default_value) {
-		if (registered.count(group) == 0)
-			registered.insert({group, {}});
-
-		config::submap &keys = registered.at(group);
+		config::submap &keys = registered[group];
 		if (keys.count(key) > 0)
 			return false;
 
@@ -214,6 +223,22 @@ namespace spjalla {
 		ensure_config_db(dbname, dirname);
 		filepath = get_db_path(dbname, dirname);
 		read_db();
+	}
+
+	bool config::insert(const std::string &group, const std::string &key, const config_value &value) {
+		if (!allow_unknown && !key_known(group, key))
+			throw std::out_of_range("Unknown group+key pair");
+
+		submap &sub = db[group];
+		bool overwritten = false;
+
+		if (sub.count(key) > 0) {
+			sub.erase(key);
+			overwritten = true;
+		}
+
+		sub.insert({key, value});
+		return overwritten;
 	}
 
 	config::operator std::string() const {

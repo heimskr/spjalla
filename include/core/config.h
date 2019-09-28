@@ -49,8 +49,14 @@ namespace spjalla {
 		using groupmap = std::unordered_map<std::string, submap>;
 
 		private:
+			/** The in-memory copy of the config database. */
 			groupmap db {};
+
+			/** The path where the config database will be read from and written to. */
 			std::filesystem::path filepath;
+
+			/** Whether to allow unknown group+key combinations to be inserted into the database. */
+			bool allow_unknown;
 
 			/** Stores known option keys (the first element of the pair) under named groups (the key type of the
 			 *  unordered_map) with a config_value indicating the type and default value. */
@@ -76,6 +82,15 @@ namespace spjalla {
 			static std::filesystem::path get_db_path(const std::string &dbname  = DEFAULT_CONFIG_DB,
 			                                         const std::string &dirname = DEFAULT_DATA_DIR);
 
+			/** Returns whether a group name is present in the config database. */
+			bool has_group(const std::string &) const;
+
+			/** Returns whether a key name is present within a given group in the config database. */
+			bool has_key(const std::string &group, const std::string &key) const;
+
+			/** Returns whether a group+key pair has been registered. */
+			bool key_known(const std::string &group, const std::string &key) const;
+
 			/** Writes the database to the cached file path. */
 			void write_db();
 
@@ -83,7 +98,7 @@ namespace spjalla {
 			void read_db();
 
 		public:
-			config() {}
+			config(bool allow_unknown_): allow_unknown(allow_unknown_) {}
 
 			/** Attempts to parse a configuration line of the form /^\w+\s*=\s*\d+$/. */
 			static std::pair<std::string, long> parse_long_line(const std::string &);
@@ -104,6 +119,9 @@ namespace spjalla {
 			/** Sets the cached config database path and replaces the cached database with the one stored at the path.
 			 */
 			void set_path(const std::string &dbname = DEFAULT_CONFIG_DB, const std::string &dirname = DEFAULT_DATA_DIR);
+
+			/** Inserts a value into the config database. Returns true if a preexisting value was overwritten. */
+			bool insert(const std::string &group, const std::string &key, const config_value &);
 
 			/** Stringifies the config database. */
 			operator std::string() const;
