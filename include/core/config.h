@@ -32,6 +32,8 @@ namespace spjalla {
 			config_value(long long_):     type(config_type::long_),   long_value(long_) {}
 			config_value(double double_): type(config_type::double_), double_value(double_) {}
 			config_value(const std::string &str_): type(config_type::string_), string_value(str_) {}
+			config_value(int int_): config_value(static_cast<long>(int_)) {}
+			config_value(const char *str_): config_value(std::string(str_)) {}
 
 			config_type get_type() { return type; }
 			long & long_();
@@ -41,10 +43,14 @@ namespace spjalla {
 			config_value & operator=(long);
 			config_value & operator=(double);
 			config_value & operator=(const std::string &);
+			config_value & operator=(int n) { return *this = static_cast<long>(n); }
+			config_value & operator=(const char *s) { return *this = std::string(s); }
 
 			bool operator==(long) const;
 			bool operator==(double) const;
 			bool operator==(const std::string &) const;
+			bool operator==(int n) const { return *this == static_cast<long>(n); }
+			bool operator==(const char *s) const { return *this == std::string(s); }
 
 			operator std::string() const;
 	};
