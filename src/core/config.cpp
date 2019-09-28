@@ -94,11 +94,24 @@ namespace spjalla {
 	std::pair<std::string, long> config::parse_long_line(const std::string &str) {
 		std::string key, value;
 		std::tie(key, value) = parse_kv_pair(str);
+
 		const char *value_cstr = value.c_str();
-		const char *end;
+		char *end;
 		long parsed = strtol(value_cstr, &end, 10);
 		if (end != value_cstr + value.size())
 			throw std::invalid_argument("Invalid value in key-value pair; expected a long");
+
+		return {key, parsed};
+	}
+
+	std::pair<std::string, double> config::parse_double_line(const std::string &str) {
+		std::string key, value;
+		std::tie(key, value) = parse_kv_pair(str);
+
+		size_t idx;
+		double parsed = std::stod(value, &idx);
+		if (idx != value.length())
+			throw std::invalid_argument("Invalid value in key-value pair; expected a double");
 
 		return {key, parsed};
 	}
