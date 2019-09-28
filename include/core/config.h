@@ -20,8 +20,11 @@ namespace spjalla {
 			/** Attempts to parse a keyvalue pair of the form /^(\w+)=(.+)$/. */
 			static std::pair<std::string, std::string> parse_kv_pair(const std::string &);
 
+			/** Attempts to parse a string from a key-value pair. */
+			static std::string parse_string(const std::string &);
+
 		public:
-			enum class line_type {long_line, double_line, string_line};
+			enum class line_type {long_, double_, string_, invalid};
 
 			/** Attempts to parse a configuration line of the form /^\w+\s*=\s*\d+$/. */
 			static std::pair<std::string, long> parse_long_line(const std::string &);
@@ -31,6 +34,9 @@ namespace spjalla {
 
 			/** Attempts to parse a configuration line of the form /^\w+\s*=\s*("[^\\\n\r\t\0"]*")?$/. */
 			static std::pair<std::string, std::string> parse_string_line(const std::string &);
+
+			/** Checks a line and returns its type. */
+			static line_type get_line_type(const std::string &) noexcept;
 	};
 }
 

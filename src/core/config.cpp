@@ -1,5 +1,6 @@
 #include <locale>
 #include <sstream>
+#include <stdexcept>
 
 #include <cstdlib>
 
@@ -11,6 +12,10 @@ namespace spjalla {
 	haunted::key keys::switch_server   = {haunted::ktype::x,         haunted::kmod::ctrl};
 	haunted::key keys::next_window     = {haunted::ktype::n,         haunted::kmod::ctrl};
 	haunted::key keys::previous_window = {haunted::ktype::p,         haunted::kmod::ctrl};
+
+
+// Private static methods
+
 
 	bool config::ensure_config_dir(const std::string &name) {
 		std::filesystem::path config_path = util::get_home() / name;
@@ -45,6 +50,26 @@ namespace spjalla {
 		return {key, str.substr(equals + 1)};
 	}
 
+	std::string config::parse_string(const std::string &value) {
+		const size_t vlength = value.length();
+
+		// Special case: an empty value represents an empty string, same as a pair of double quotes.
+		if (vlength == 0)
+			return "";
+
+		if (vlength < 2)
+			throw std::invalid_argument("Invalid length of string value");
+
+		if (value.front() != '"' || value.back() != '"')
+			throw std::invalid_argument("Invalid quote placement in string value");
+
+		return util::unescape(value.substr(1, vlength - 2));
+	}
+
+
+// Public static methods
+
+
 	std::pair<std::string, long> config::parse_long_line(const std::string &str) {
 		std::string key, value;
 		std::tie(key, value) = parse_kv_pair(str);
@@ -74,19 +99,29 @@ namespace spjalla {
 		std::string key, value;
 		std::tie(key, value) = parse_kv_pair(str);
 
-		const size_t vlength = value.length();
+		return {key, parse_string(value)};
+	}
 
-		// Special case: an empty value represents an empty string, same as a pair double quotes.
-		if (vlength == 0)
-			return {key, ""};
+	config::line_type config::get_line_type(const std::string &str) noexcept {
+		try {
+			std::string value;
+			std::tie(std::ignore, value) = parse_kv_pair(str);
 
-		if (vlength < 2)
-			throw std::invalid_argument("Invalid length of string value in key-value pair");
+			if (value.empty())
+				return config::line_type::string_;
 
-		if (value.front() != '"' || value.back() != '"')
-			throw std::invalid_argument("Invalid quote placement in string value in key-value pair");
+			if (value.find_first_not_of("0123456789") == std::string::npos)
+				return config::line_type::long_;
 
-		return {key, util::unescape(value.substr(1, vlength - 2))};
+			if (value.find_first_not_of("0123456789.") == std::string::npos)
+				return config::line_type::double_;
 
+			if (value.size() >= 2 && value.front() == '"' && value.back() == '"')
+				return config::line_type::string_;
+
+			return config::line_type::invalid;
+		} catch (const std::invalid_argument &) {
+			return config::line_type::invalid;
+		}
 	}
 }
