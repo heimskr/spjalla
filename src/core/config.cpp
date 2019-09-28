@@ -63,7 +63,7 @@ namespace spjalla {
 		return out.str();
 	}
 
-	std::string config::unescape(const std::string &str) {
+	std::string config::unescape(const std::string &str, const bool check_dquotes) {
 		std::ostringstream out;
 		for (size_t i = 0, length = str.length(); i < length; ++i) {
 			char ch = i;
@@ -83,6 +83,8 @@ namespace spjalla {
 					case '0':  out << "\0"; ++i; break;
 					case '"':  out << "\""; ++i; break;
 				}
+			} else if (check_dquotes && ch == '"') {
+				throw std::invalid_argument("String contains an unescaped double quote");
 			} else {
 				out << ch;
 			}
@@ -114,5 +116,25 @@ namespace spjalla {
 			throw std::invalid_argument("Invalid value in key-value pair; expected a double");
 
 		return {key, parsed};
+	}
+
+	std::pair<std::string, std::string> config::parse_string_line(const std::string &str) {
+		std::string key, value;
+		std::tie(key, value) = parse_kv_pair(str);
+
+		const size_t vlength = value.length();
+
+		// Special case: an empty value represents an empty string, same as a pair double quotes.
+		if (vlength == 0)
+			return {key, ""};
+
+		if (vlength < 2)
+			throw std::invalid_argument("Invalid length of string value in key-value pair");
+
+		if (value.front() != '"' || value.back() != '"')
+			throw std::invalid_argument("Invalid quote placement in string value in key-value pair");
+
+		return {key, unescape(value.substr(1, vlength - 2))};
+
 	}
 }

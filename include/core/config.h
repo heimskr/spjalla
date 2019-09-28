@@ -27,8 +27,9 @@ namespace spjalla {
 			 *  quotes with backslashes. */
 			static std::string escape(const std::string &);
 
-			/** Unescapes a string (see spjalla::config::escape). */
-			static std::string unescape(const std::string &);
+			/** Unescapes a string (see spjalla::config::escape). If check_dquotes are true, the function will throw a
+			 *  std::invalid_argument exception if it finds an unescaped double quote. */
+			static std::string unescape(const std::string &, const bool check_dquotes = true);
 
 			/** Attempts to parse a configuration line of the form /^\w+\s*=\s*\d+$/. */
 			static std::pair<std::string, long> parse_long_line(const std::string &);
