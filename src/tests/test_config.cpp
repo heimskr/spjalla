@@ -1,4 +1,5 @@
 #include "tests/config.h"
+#include "core/sputil.h"
 
 int main(int, char **) {
 	haunted::tests::testing unit;
@@ -23,8 +24,20 @@ namespace spjalla::tests {
 		unit.check(one.get_type(), config_type::string_, "group.one.type");
 
 		unit.check({
-			{{"foo=bar"s}, {"foo", "bar"}},
-			{{" foo = bar "s}, {"foo", "bar"}},
+			{{"foo=bar"s},    {"foo", "bar"}},
+			{{"foo=bar"s},    {"foo", "bar"}},
+			{{"foo = bar "s}, {"foo", "bar"}},
+			{{"foo = bar"s},  {"foo", "bar"}},
+			{{"foo =bar "s},  {"foo", "bar"}},
+			{{" foo=bar "s},  {"foo", "bar"}},
 		}, &config::parse_kv_pair, "config::parse_kv_pair");
+
+		unit.check({
+			{{"bar"s, false}, "bar"},
+		}, &util::unescape, "util::unescape");
+
+		unit.check({
+			{{" \"bar\"  "s}, "bar"},
+		}, &config::parse_string, "config::parse_string");
 	}
 }

@@ -46,7 +46,7 @@ namespace spjalla::util {
 	std::string unescape(const std::string &str, const bool check_dquotes) {
 		std::ostringstream out;
 		for (size_t i = 0, length = str.length(); i < length; ++i) {
-			char ch = i;
+			char ch = str[i];
 
 			// Looking at the next character when we're at the end of the string would be bad.
 			if (i == length - 1) {
