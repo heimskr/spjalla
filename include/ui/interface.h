@@ -190,6 +190,9 @@ namespace spjalla::ui {
 			/** Returns whether the overlay is currently visible. */
 			bool overlay_visible() const;
 
+			/** Scrolls the active window (unless it's the overlay) by half a page. */
+			void scroll_page(bool up);
+
 			/** Handles keypresses that aren't handled by the textinput. */
 			bool on_key(const haunted::key &);
 

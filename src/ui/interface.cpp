@@ -15,11 +15,12 @@
 #include "lib/pingpong/core/ppdefs.h"
 #include "lib/pingpong/core/channel.h"
 #include "lib/pingpong/core/user.h"
+
 #include "lines/chanlist.h"
 #include "lines/overlay.h"
 #include "lines/timed.h"
 #include "lines/userlist.h"
-#include "ui/interface.h"
+
 
 
 
@@ -437,6 +438,13 @@ namespace spjalla::ui {
 		return active_window == overlay;
 	}
 
+	void interface::scroll_page(bool up) {
+		if (active_window == overlay)
+			return;
+
+		active_window->vscroll(std::max(1, active_window->get_position().height / 2) * (up? -1 : 1));
+	}
+
 	bool interface::on_key(const haunted::key &key) {
 		haunted::key copy {key};
 		if (!parent->before_key(copy))
@@ -489,6 +497,14 @@ namespace spjalla::ui {
 			}
 
 			return true;
+		} else if (copy.mods.none()) {
+			switch (copy.type) {
+				case haunted::ktype::page_down:
+				case haunted::ktype::page_up:
+					scroll_page(copy == haunted::ktype::page_up);
+					break;
+				default:;
+			}
 		}
 
 		return false;
