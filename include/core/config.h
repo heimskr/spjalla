@@ -7,6 +7,9 @@
 
 #include "haunted/core/key.h"
 
+namespace haunted::tests { class testing; }
+namespace spjalla::tests { void test_config(haunted::tests::testing &); }
+
 namespace spjalla {
 	struct keys {
 		static haunted::key toggle_overlay, switch_server, next_window, previous_window;
@@ -40,6 +43,12 @@ namespace spjalla {
 		using groupmap = std::unordered_map<std::string, submap>;
 
 		private:
+			groupmap db {};
+
+			/** Stores known option keys (the first element of the pair) under named groups (the key type of the
+			 *  unordered_map) with a config_value indicating the type and default value. */
+			static groupmap options;
+
 			/** Creates a config directory in the user's home directory if one doesn't already exist.
 			 *  Returns true if the directory had to be created. */
 			static bool ensure_config_dir(const std::string &name = ".spjalla");
@@ -50,13 +59,9 @@ namespace spjalla {
 			/** Attempts to parse a string from a key-value pair. */
 			static std::string parse_string(const std::string &);
 
-			/** Stores known option keys (the first element of the pair) under named groups (the key type of the
-			 *  unordered_map) with a config_value indicating the type and default value. */
-			static groupmap options;
-
-			groupmap db {};
-
 		public:
+			config() {}
+
 			/** Attempts to parse a configuration line of the form /^\w+\s*=\s*\d+$/. */
 			static std::pair<std::string, long> parse_long_line(const std::string &);
 
@@ -72,6 +77,8 @@ namespace spjalla {
 			/** Attempts to register a key. If the key already exists, the function simply returns false; otherwise, it
 			 *  registers the key and returns true. */
 			static bool register_key(const std::string &group, const std::string &key, const config_value &default_val);
+
+			friend void spjalla::tests::test_config(haunted::tests::testing &);
 	};
 }
 
