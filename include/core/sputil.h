@@ -36,7 +36,7 @@ namespace spjalla {
 		std::string unescape(const std::string &, const bool check_dquotes = true);
 
 		/** Trims spaces and tabs from both ends of a string. */
-		void trim(std::string &str);
+		std::string & trim(std::string &str);
 	}
 }
 

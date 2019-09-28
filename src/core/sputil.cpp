@@ -73,9 +73,9 @@ namespace spjalla::util {
 		return out.str();
 	}
 
-	void trim(std::string &str) {
+	std::string & trim(std::string &str) {
 		if (str.empty())
-			return;
+			return str;
 
 		char ch = str.back();
 		while (ch == ' ' || ch == '\t') {
@@ -84,13 +84,14 @@ namespace spjalla::util {
 		}
 
 		if (str.empty())
-			return;
+			return str;
 
-		size_t first = str.find_first_not_of(" \t");
-		if (first == std::string::npos) {
+		const size_t first = str.find_first_not_of(" \t");
+		if (first == std::string::npos)
 			str.clear();
-		} else {
+		else
 			str.erase(0, first);
-		}
+
+		return str;
 	}
 }
