@@ -20,15 +20,8 @@ namespace spjalla {
 					if (!handle_line(il)) {
 						// If the command isn't an exact match, try partial matches (e.g., "/j" for "/join").
 						const std::string &cmd = il.command;
-						size_t cmd_length = cmd.length();
 
-						std::vector<std::string> matches;
-
-						for (std::pair<std::string, command_tuple> pair: command_handlers) {
-							const std::string &candidate_name = pair.first;
-							if (candidate_name.substr(0, cmd_length) == cmd)
-								matches.push_back(candidate_name);
-						}
+						std::vector<std::string> matches = complete_command(cmd);
 
 						if (1 < matches.size()) {
 							ui.log("Ambiguous command: /" + cmd);
@@ -55,6 +48,20 @@ namespace spjalla {
 
 			after_input(il);
 		});
+	}
+
+	std::vector<std::string> client::complete_command(const std::string &command_name) {
+		std::vector<std::string> matches;
+
+		const size_t command_length = command_name.length();
+
+		for (std::pair<std::string, command_tuple> pair: command_handlers) {
+			const std::string &candidate_name = pair.first;
+			if (candidate_name.substr(0, command_length) == command_name)
+				matches.push_back(candidate_name);
+		}
+
+		return matches;
 	}
 
 	input_line client::get_input_line(const std::string &str) const {
@@ -113,5 +120,9 @@ namespace spjalla {
 		ssize_t windex, sindex;
 		std::tie(windex, sindex) = util::word_indices(text, cursor);
 		DBG("Command[" << il.command << "], windex[" << windex << ":" << sindex << "]");
+
+		if (il.is_command() && 0 < windex) {
+			// The user has entered a command and the cursor is at or past the first argument.
+		}
 	}
 }

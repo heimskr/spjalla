@@ -195,6 +195,9 @@ namespace spjalla {
 			/** Adds a listener to the textinput that processes its contents. */
 			void add_input_listener();
 
+			/** Tries to expand a command (e.g., "mod" → "mode"). Returns a vector of all matches. */
+			std::vector<std::string> complete_command(const std::string &);
+
 			input_line get_input_line(const std::string &) const;
 
 			void tab_complete();
