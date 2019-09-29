@@ -44,6 +44,7 @@ namespace spjalla {
 
 // Public instance methods
 
+
 	std::string client::active_server_id() {
 		return irc.active_server? irc.active_server->id : "";
 	}

@@ -277,8 +277,8 @@ namespace spjalla {
 			} else {
 				std::string joined = util::join(il.args.begin() + 1, il.args.end());
 
-				// Special case: setting a value to "!" removes it from the database.
-				if (joined == "!") {
+				// Special case: setting a value to "-" removes it from the database.
+				if (joined == "-") {
 					if (configs.remove(parsed.first, parsed.second, true, true)) {
 						ui.log("Removed " + ansi::bold(parsed.first) + "."_bd + ansi::bold(parsed.second) + ".");
 					} else {
