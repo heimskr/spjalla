@@ -6,6 +6,8 @@
 #include "core/input_line.h"
 
 namespace spjalla {
+	class client;
+
 	/**
 	 * Carries out the tab completion logic for a given input line. The raw string is passed as a reference that can
 	 * be modified to add completion data. The cursor index is also passed too, and it should also be updated.
@@ -13,10 +15,13 @@ namespace spjalla {
 	 * argument. If either of them doesn't apply, they'll be negative.
 	 */
 	using completer =
-		std::function<void(const input_line &, std::string &raw, size_t &index, long arg_index, long arg_subindex)>;
+		std::function<void(client &, const input_line &, std::string &raw, size_t &cursor, long arg_index, long sub)>;
 
 	namespace completions {
-		void set_complete(const input_line &, std::string &raw, size_t &index, long arg_index, long arg_subindex);
+		void complete_command(client &, const input_line &, std::string &raw, size_t &cursor, long arg_index, long sub);
+
+		/** Completes the /set command. */
+		void complete_set(client &, const input_line &, std::string &raw, size_t &cursor, long arg_index, long sub);
 	}
 }
 

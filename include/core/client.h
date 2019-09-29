@@ -196,7 +196,7 @@ namespace spjalla {
 			void add_input_listener();
 
 			/** Tries to expand a command (e.g., "mod" → "mode"). Returns a vector of all matches. */
-			std::vector<std::string> complete_command(const std::string &);
+			std::vector<std::string> command_matches(const std::string &);
 
 			input_line get_input_line(const std::string &) const;
 

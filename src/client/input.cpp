@@ -21,7 +21,7 @@ namespace spjalla {
 						// If the command isn't an exact match, try partial matches (e.g., "/j" for "/join").
 						const std::string &cmd = il.command;
 
-						std::vector<std::string> matches = complete_command(cmd);
+						std::vector<std::string> matches = command_matches(cmd);
 
 						if (1 < matches.size()) {
 							ui.log("Ambiguous command: /" + cmd);
@@ -50,7 +50,7 @@ namespace spjalla {
 		});
 	}
 
-	std::vector<std::string> client::complete_command(const std::string &command_name) {
+	std::vector<std::string> client::command_matches(const std::string &command_name) {
 		std::vector<std::string> matches;
 
 		const size_t command_length = command_name.length();
