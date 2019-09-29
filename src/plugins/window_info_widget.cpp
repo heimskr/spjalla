@@ -18,14 +18,17 @@ namespace spjalla::plugins {
 			virtual ~window_info_left_widget() {}
 
 			std::string render(const ui::window *win, bool) const {
-				if (!win) {
+				if (!win)
 					return "null?";
-				} else if (win->is_status()) {
-					return win->window_name;
+
+				std::string index = ansi::dim(ansi::bold(std::to_string(win->get_index()))) + " ";
+
+				if (win->is_status()) {
+					return index + "status";
 				} else if (win->is_channel()) {
-					return parent->active_server_id();
+					return index + util::colorize_if_dead(win->data.chan->name, win);
 				} else if (win->is_user()) {
-					return parent->active_server_id();
+					return index + util::colorize_if_dead(win->data.user->name, win);
 				} else {
 					return ansi::bold(win->window_name);
 				}
@@ -44,13 +47,10 @@ namespace spjalla::plugins {
 			std::string render(const ui::window *win, bool) const {
 				if (!win) {
 					return "null?";
-				} else if (win->is_status()) {
+				} else if (win->is_status() || win->is_channel() || win->is_user()) {
 					const std::string id = parent->active_server_id();
 					return id.empty()? "none"_i : id;
-				} else if (win->is_channel()) {
-					return util::colorize_if_dead(win->data.chan->name, win);
-				} else if (win->is_user()) {
-					return util::colorize_if_dead(win->data.user->name, win);
+					return parent->active_server_id();
 				} else {
 					return "~";
 				}
