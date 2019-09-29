@@ -13,12 +13,15 @@
 #include "pingpong/net/resolution_error.h"
 
 #include "core/client.h"
-#include "core/config.h"
 #include "core/sputil.h"
+
+#include "config/config.h"
+
 #include "lines/config_group.h"
 #include "lines/config_key.h"
 #include "lines/lines.h"
 #include "lines/warning.h"
+
 #include "formicine/futil.h"
 
 #include "haunted/tests/test.h"
@@ -219,7 +222,7 @@ namespace spjalla {
 		add({"set", {0, -1, false, [&](sptr, line il) {
 			configs.read_if_empty();
 
-			config::groupmap with_defaults = configs.with_defaults();
+			config::database::groupmap with_defaults = configs.with_defaults();
 
 			if (il.args.empty()) {
 				for (const auto &gpair: with_defaults) {
@@ -249,7 +252,7 @@ namespace spjalla {
 				}
 			} else {
 				try {
-					parsed = config::parse_pair(first);
+					parsed = config::database::parse_pair(first);
 				} catch (const std::invalid_argument &) {
 					ui.warn("Couldn't parse setting " + ansi::bold(first));
 					return;
@@ -258,15 +261,15 @@ namespace spjalla {
 
 			if (il.args.size() == 1) {
 				try {
-					const config_value &value = configs.get(parsed);
+					const config::value &value = configs.get(parsed);
 					ui.log(lines::config_key_line(parsed.first + "." + parsed.second, value, false));
 				} catch (const std::out_of_range &) {
 					ui.log("No configuration option for " + ansi::bold(first) + ".");
 				}
 			} else {
 				std::string joined = util::join(il.args.begin() + 1, il.args.end());
-				config_type type = config::get_value_type(joined);
-				if (type == config_type::invalid) {
+				config::value_type type = config::database::get_value_type(joined);
+				if (type == config::value_type::invalid) {
 					configs.insert(parsed.first, parsed.second, {joined});
 				} else {
 					configs.insert_any(parsed.first, parsed.second, joined);

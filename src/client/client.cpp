@@ -14,8 +14,8 @@
 #include "pingpong/net/resolution_error.h"
 
 #include "core/client.h"
-#include "core/config.h"
 #include "core/input_line.h"
+#include "config/config.h"
 
 #include "lines/lines.h"
 
@@ -24,7 +24,7 @@
 namespace spjalla {
 	client::client(int heartbeat_period_): out_stream(ansi::out), term(haunted::terminal(std::cin, out_stream)),
 	ui(&term, this), heartbeat_period(heartbeat_period_) {
-		config::register_defaults();
+		config::database::register_defaults();
 		configs.read_if_empty();
 	}
 

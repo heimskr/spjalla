@@ -11,9 +11,9 @@
 #include "pingpong/messages/message.h"
 #include "pingpong/core/irc.h"
 
-#include "core/config.h"
 #include "core/input_line.h"
 #include "core/plugin_host.h"
+#include "config/config.h"
 #include "plugins/plugin.h"
 #include "ui/interface.h"
 #include "ui/status_widget.h"
@@ -36,7 +36,7 @@ namespace spjalla {
 			ansi::ansistream &out_stream;
 			haunted::terminal term;
 			ui::interface ui;
-			config configs {false};
+			config::database configs {false};
 
 			template <typename T>
 			ui::window * try_window(const T &where) {

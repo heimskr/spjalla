@@ -1,5 +1,5 @@
-#ifndef SPJALLA_CORE_CONFIG_H_
-#define SPJALLA_CORE_CONFIG_H_
+#ifndef SPJALLA_CONFIG_CONFIG_H_
+#define SPJALLA_CONFIG_CONFIG_H_
 
 #include <filesystem>
 #include <functional>
@@ -7,84 +7,24 @@
 #include <string>
 #include <utility>
 
-#include "haunted/core/key.h"
-
 #include "core/spopt.h"
+
+#include "config/keys.h"
+#include "config/validation.h"
+#include "config/value.h"
 
 namespace haunted::tests { class testing; }
 namespace spjalla::tests { void test_config(haunted::tests::testing &); }
 
-namespace spjalla {
-	struct keys {
-		static haunted::key toggle_overlay, switch_server, next_window, previous_window;
-	};
-
-	enum class config_type {invalid, long_, double_, string_};
-	enum class config_validation {valid, bad_type, bad_value};
-
-	class config_value {
-		// Boost? Never heard of it.
-		private:
-			config_type type;
-			long long_value {0};
-			double double_value {0.};
-			std::string string_value {};
-
-		public:
-			config_value(long long_):     type(config_type::long_),   long_value(long_) {}
-			config_value(double double_): type(config_type::double_), double_value(double_) {}
-			config_value(const std::string &str_): type(config_type::string_), string_value(str_) {}
-			config_value(int int_): config_value(static_cast<long>(int_)) {}
-			config_value(const char *str_): config_value(std::string(str_)) {}
-
-			config_type get_type() const { return type; }
-			long & long_();
-			double & double_();
-			std::string & string_();
-
-			bool is_long()   const { return type == config_type::long_;   }
-			bool is_double() const { return type == config_type::double_; }
-			bool is_string() const { return type == config_type::string_; }
-
-			config_value & operator=(long);
-			config_value & operator=(double);
-			config_value & operator=(const std::string &);
-			config_value & operator=(int n) { return *this = static_cast<long>(n); }
-			config_value & operator=(const char *s) { return *this = std::string(s); }
-
-			bool operator==(const config_value &) const;
-			bool operator==(long) const;
-			bool operator==(double) const;
-			bool operator==(const std::string &) const;
-			bool operator==(int n) const { return *this == static_cast<long>(n); }
-			bool operator==(const char *s) const { return *this == std::string(s); }
-
-			explicit operator std::string() const;
-			std::string escaped() const;
-	};
-
-	struct validation_failure: public std::exception {
-		config_validation result;
-		validation_failure(config_validation result_): result(result_) {}
-
-		const char * what() const noexcept {
-			switch (result) {
-				case config_validation::valid: return "Configuration validated successfully but threw anyway, somehow?";
-				case config_validation::bad_type: return "Invalid value type";
-				case config_validation::bad_value: return "Invalid value";
-				default: return "???";
-			}
-		}
-	};
-
+namespace spjalla::config {
 	/**
 	 * Represents an instance of a configuration database.
 	 */
-	class config {
+	class database {
 		public:
-			using   submap  = std::map<std::string, config_value>;
+			using   submap  = std::map<std::string, value>;
 			using groupmap  = std::map<std::string, submap>;
-			using validator = std::function<config_validation(const config_value &)>;
+			using validator = std::function<validation_result(const value &)>;
 
 		private:
 			/** The in-memory copy of the config database. */
@@ -97,7 +37,7 @@ namespace spjalla {
 			bool allow_unknown;
 
 			/** Stores known option keys (the first element of the pair) under named groups (the key type of the map)
-			 *  with a config_value indicating the type and default value. */
+			 *  with a value indicating the type and default value. */
 			static groupmap registered;
 
 			static std::map<std::string, validator> validators;
@@ -123,7 +63,7 @@ namespace spjalla {
 			void read_db(bool clear = true);
 
 		public:
-			config(bool allow_unknown_): allow_unknown(allow_unknown_) {}
+			database(bool allow_unknown_): allow_unknown(allow_unknown_) {}
 
 			/** Attempts to parse a configuration line of the form /^\w+\s*=\s*\d+$/. */
 			static std::pair<std::string, long> parse_long_line(const std::string &);
@@ -142,11 +82,11 @@ namespace spjalla {
 			static std::string parse_string(std::string);
 
 			/** Checks a value and returns its type. */
-			static config_type get_value_type(std::string) noexcept;
+			static value_type get_value_type(std::string) noexcept;
 
 			/** Attempts to register a key. If the key already exists, the function simply returns false; otherwise, it
 			 *  registers the key and returns true. */
-			static bool register_key(const std::string &group, const std::string &key, const config_value &default_val,
+			static bool register_key(const std::string &group, const std::string &key, const value &default_val,
 				const validator &validator_fn = {});
 
 			/** Registers the standard Spjalla configuration keys. */
@@ -170,15 +110,15 @@ namespace spjalla {
 			                   const std::string &dirname = DEFAULT_DATA_DIR);
 
 			/** Inserts a value into the config database. Returns true if a preexisting value was overwritten. */
-			bool insert(const std::string &group, const std::string &key, const config_value &, bool save = true);
+			bool insert(const std::string &group, const std::string &key, const value &, bool save = true);
 
 			/** Inserts a value into the config database. Returns true if a preexisting value was overwritten. */
 			bool insert_any(const std::string &group, const std::string &key, const std::string &, bool save = true);
 
 			/** Returns a value from the config database. If an unknown group+key pair is given and not present in the
 			 *  database, a std::out_of_range exception is thrown. */
-			config_value & get(const std::string &group, const std::string &key);
-			config_value & get(const std::pair<std::string, std::string> &pair) { return get(pair.first, pair.second); }
+			value & get(const std::string &group, const std::string &key);
+			value & get(const std::pair<std::string, std::string> &pair) { return get(pair.first, pair.second); }
 
 			/** Returns whether a group name is present in the config database. */
 			bool has_group(const std::string &) const;
