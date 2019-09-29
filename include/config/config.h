@@ -16,6 +16,10 @@
 namespace haunted::tests { class testing; }
 namespace spjalla::tests { void test_config(haunted::tests::testing &); }
 
+namespace spjalla {
+	class client;
+}
+
 namespace spjalla::config {
 	/**
 	 * Represents an instance of a configuration database.
@@ -26,6 +30,8 @@ namespace spjalla::config {
 			using groupmap  = std::map<std::string, submap>;
 
 		private:
+			client &parent;
+
 			/** The in-memory copy of the config database. */
 			groupmap db {};
 
@@ -54,7 +60,7 @@ namespace spjalla::config {
 			void read_db(bool clear = true);
 
 		public:
-			database(bool allow_unknown_): allow_unknown(allow_unknown_) {}
+			database(client &parent_, bool allow_unknown_): parent(parent_), allow_unknown(allow_unknown_) {}
 
 			/** Attempts to parse a configuration line of the form /^\w+\s*=\s*\d+$/. */
 			static std::pair<std::string, long> parse_long_line(const std::string &);
@@ -124,6 +130,8 @@ namespace spjalla::config {
 
 			groupmap::iterator begin() { return db.begin(); }
 			groupmap::iterator end() { return db.end(); }
+
+			client & get_parent() { return parent; }
 
 			friend void spjalla::tests::test_config(haunted::tests::testing &);
 	};

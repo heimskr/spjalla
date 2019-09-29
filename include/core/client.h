@@ -36,7 +36,7 @@ namespace spjalla {
 			ansi::ansistream &out_stream;
 			haunted::terminal term;
 			ui::interface ui;
-			config::database configs {false};
+			config::database configs;
 
 			template <typename T>
 			ui::window * try_window(const T &where) {

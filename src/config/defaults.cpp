@@ -1,5 +1,6 @@
 #include "pingpong/core/irc.h"
 
+#include "core/client.h"
 #include "config/config.h"
 #include "config/defaults.h"
 
@@ -31,7 +32,6 @@ namespace spjalla::config {
 		return validation_result::bad_value;
 	}
 
-
 	bool register_key(const std::string &group, const std::string &key, const value &default_value,
 	const validator &validator_fn, const applicator &on_set) {
 		std::string combined = group + "." + key;
@@ -48,7 +48,8 @@ namespace spjalla::config {
 		register_key("server", "default_user", pingpong::irc::default_user);
 		register_key("server", "default_real", pingpong::irc::default_realname);
 
-		register_key("appearance", "bar_color", "blood", validate_color, [](const value &new_value) {
+		register_key("appearance", "bar_color", "blood", validate_color, [](database &db, const value &new_value) {
+			// db.get_parent().get_ui().
 			DBG("New value: " << new_value.string_());
 		});
 	}

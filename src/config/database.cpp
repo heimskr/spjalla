@@ -233,7 +233,7 @@ namespace spjalla::config {
 			write_db();
 
 		if (is_registered)
-			iter->second.apply(value);
+			iter->second.apply(*this, value);
 
 		return overwritten;
 	}
