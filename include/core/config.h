@@ -63,6 +63,20 @@ namespace spjalla {
 			std::string escaped() const;
 	};
 
+	struct validation_failure: public std::exception {
+		config_validation result;
+		validation_failure(config_validation result_): result(result_) {}
+
+		const char * what() const noexcept {
+			switch (result) {
+				case config_validation::valid: return "Configuration validated successfully but threw anyway, somehow?";
+				case config_validation::bad_type: return "Invalid value type";
+				case config_validation::bad_value: return "Invalid value";
+				default: return "???";
+			}
+		}
+	};
+
 	/**
 	 * Represents an instance of a configuration database.
 	 */

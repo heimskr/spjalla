@@ -328,6 +328,12 @@ namespace spjalla {
 		submap &sub = db[group];
 		bool overwritten = false;
 
+		if (validator validator_fn = validators[group + "." + key]) {
+			config_validation result = validator_fn(value);
+			if (result != config_validation::valid)
+				throw validation_failure(result);
+		}
+
 		if (sub.count(key) > 0) {
 			sub.erase(key);
 			overwritten = true;
