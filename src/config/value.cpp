@@ -3,19 +3,37 @@
 #include "config/value.h"
 
 namespace spjalla::config {
-	long & value::long_() {
+	long & value::long_ref() {
 		if (type != value_type::long_)
 			throw std::runtime_error("Underlying type of value isn't long");
 		return long_value;
 	}
 
-	double & value::double_() {
+	double & value::double_ref() {
 		if (type != value_type::double_)
 			throw std::runtime_error("Underlying type of value isn't double");
 		return double_value;
 	}
 
-	std::string & value::string_() {
+	std::string & value::string_ref() {
+		if (type != value_type::string_)
+			throw std::runtime_error("Underlying type of value isn't string");
+		return string_value;
+	}
+
+	long value::long_() const {
+		if (type != value_type::long_)
+			throw std::runtime_error("Underlying type of value isn't long");
+		return long_value;
+	}
+
+	double value::double_() const {
+		if (type != value_type::double_)
+			throw std::runtime_error("Underlying type of value isn't double");
+		return double_value;
+	}
+
+	const std::string & value::string_() const {
 		if (type != value_type::string_)
 			throw std::runtime_error("Underlying type of value isn't string");
 		return string_value;

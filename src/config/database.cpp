@@ -11,22 +11,6 @@
 namespace spjalla::config {
 
 
-// Private static fields
-
-
-	database::groupmap database::registered = {};
-
-	std::map<std::string, database::validator> database::validators {};
-
-	database::validator long_validator = [](const value &val) {
-		return val.get_type() == value_type::long_? validation_result::valid : validation_result::bad_type;
-	};
-
-	database::validator string_validator = [](const value &val) {
-		return val.get_type() == value_type::string_? validation_result::valid : validation_result::bad_type;
-	};
-
-
 // Private static methods
 
 

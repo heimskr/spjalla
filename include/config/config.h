@@ -42,8 +42,6 @@ namespace spjalla::config {
 
 			static std::map<std::string, validator> validators;
 
-			static validator long_validator, string_validator;
-
 			/** Attempts to parse a keyvalue pair of the form /^(\w+)=(.+)$/. */
 			static std::pair<std::string, std::string> parse_kv_pair(const std::string &);
 

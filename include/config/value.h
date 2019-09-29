@@ -22,9 +22,13 @@ namespace spjalla::config {
 			value(const char *str_): value(std::string(str_)) {}
 
 			value_type get_type() const { return type; }
-			long & long_();
-			double & double_();
-			std::string & string_();
+			long & long_ref();
+			double & double_ref();
+			std::string & string_ref();
+
+			long long_() const;
+			double double_() const;
+			const std::string & string_() const;
 
 			bool is_long()   const { return type == value_type::long_;   }
 			bool is_double() const { return type == value_type::double_; }
