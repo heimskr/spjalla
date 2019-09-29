@@ -196,7 +196,14 @@ namespace spjalla::ui {
 			/** Handles keypresses that aren't handled by the textinput. */
 			bool on_key(const haunted::key &);
 
+			/** Sets the content of the textinput. */
 			void set_input(const std::string &);
+
+			/** Sets the foreground color of the titlebar and statusbar. */
+			void set_bar_foreground(ansi::color);
+
+			/** Sets the background color of the titlebar and statusbar. */
+			void set_bar_background(ansi::color);
 	};
 }
 

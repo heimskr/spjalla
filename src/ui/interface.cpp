@@ -514,4 +514,18 @@ namespace spjalla::ui {
 	void interface::set_input(const std::string &str) {
 		input->set_text(str);
 	}
+
+	void interface::set_bar_foreground(ansi::color fg) {
+		statusbar->set_foreground(fg);
+		titlebar->set_foreground(fg);
+		statusbar->draw();
+		titlebar->draw();
+	}
+
+	void interface::set_bar_background(ansi::color bg) {
+		statusbar->set_background(bg);
+		titlebar->set_background(bg);
+		statusbar->draw();
+		titlebar->draw();
+	}
 }
