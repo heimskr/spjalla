@@ -100,43 +100,49 @@ namespace spjalla::util {
 		return trim(copy);
 	}
 
-	ssize_t word_index(const std::string &str, size_t cursor) {
+	std::pair<ssize_t, ssize_t> word_indices(const std::string &str, size_t cursor) {
 		const size_t length = str.length();
 
 		ssize_t word_index = -1;
+		ssize_t sub_index  = -1;
 		char prev_char = '\0', next_char = '\0';
 
 		if (cursor == 0)
-			return str[0] == ' '? -1 : 0;
+			return str[0] == ' '? std::pair(-1, -1) : std::pair(0, 0);
 
 		for (size_t i = 0; i < length; ++i) {
 			char ch = str[i];
 			next_char = i == length - 1? '\0' : str[i + 1];
 
-			if (ch != ' ' && (prev_char == '\0' || prev_char == ' '))
+			if (ch != ' ' && (prev_char == '\0' || prev_char == ' ')) {
 				++word_index;
+				sub_index = 0;
+			}
 
 			if (ch == ' ') {
 				if (prev_char != ' ') {
 					// We've reached the end of a word. If this is where the cursor is, we're done.
 					// Otherwise, it's time to increment the word index.
 					if (i == cursor)
-						return word_index;
+						return {word_index, sub_index};
 				} else if (i == cursor) {
 					// If we're within a group of spaces and this is the where the cursor is, return a negative number
 					// because that means the cursor isn't in a word.
-					return -word_index - 2;
+					return {-word_index - 2, -1};
 				}
-			} else if (i == cursor) {
-				return word_index;
+			} else {
+				if (i == cursor)
+					return {word_index, sub_index};
+
+				++sub_index;
 			}
 
 			prev_char = ch;
 		}
 
 		if (cursor == length && prev_char != ' ')
-			return word_index;
+			return {word_index, sub_index};
 
-		return -word_index - 2;
+		return {-word_index - 2, -1};
 	}
 }

@@ -5,6 +5,7 @@
 #include <locale>
 #include <sstream>
 #include <string>
+#include <utility>
 
 #ifdef VSCODE
 // VS Code, please stop pretending these don't exist.
@@ -58,10 +59,11 @@ namespace spjalla {
 			return oss.str();
 		}
 
-		/** Returns the index of the word that a given index is in. If the cursor is within a group of multiple spaces
-		 *  between two words, the function returns a negative number. A return value of -1 means the cursor is before
-		 *  the first word, -2 indicates that the cursor is before the second word, and so on. */
-		ssize_t word_index(const std::string &, size_t);
+		/** Returns the index of the word that a given index is in in addition to the index within the word.
+		 *  If the cursor is within a group of multiple spaces between two words, the first value will be negative.
+		 *  If the first value is -1, the cursor is before the first word. -2 indicates that the cursor is before the
+		 *  second word, -3 before the third, and so on. The second value will be -1 if the first value is negative. */
+		std::pair<ssize_t, ssize_t> word_indices(const std::string &, size_t);
 	}
 }
 

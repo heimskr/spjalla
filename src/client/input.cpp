@@ -110,8 +110,8 @@ namespace spjalla {
 		}
 
 		input_line il = get_input_line(text);
-		ssize_t windex = util::word_index(text, cursor);
-		DBG("Command[" << il.command << "], windex[" << windex << "]");
-
+		ssize_t windex, sindex;
+		std::tie(windex, sindex) = util::word_indices(text, cursor);
+		DBG("Command[" << il.command << "], windex[" << windex << ":" << sindex << "]");
 	}
 }
