@@ -147,6 +147,9 @@ namespace spjalla::ui {
 			void focus_window(window * = nullptr);
 			void focus_window(const std::string &);
 
+			/** Tries to focus a window at a given index. Returns true if a window was found at the index. */
+			bool focus_window(size_t);
+
 			/** Switches to the next server in the list. */
 			void next_server();
 

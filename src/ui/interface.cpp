@@ -250,6 +250,18 @@ namespace spjalla::ui {
 		focus_window(get_window(window_name));
 	}
 
+	bool interface::focus_window(size_t index) {
+		for (haunted::ui::control *ctrl: swappo->get_children()) {
+			ssize_t control_index = ctrl->get_index();
+			if (0 <= control_index && static_cast<size_t>(control_index) == index) {
+				focus_window(dynamic_cast<window *>(ctrl));
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	void interface::next_server() {
 		if (active_window != status_window || parent->irc.servers.size() < 2)
 			return;
@@ -492,6 +504,30 @@ namespace spjalla::ui {
 			}
 
 			return true;
+		} else if (copy == haunted::kmod::alt) {
+			switch (copy.type) {
+				case haunted::ktype::_1: focus_window(static_cast<size_t>(0)); return true;
+				case haunted::ktype::_2: focus_window(1); return true;
+				case haunted::ktype::_3: focus_window(2); return true;
+				case haunted::ktype::_4: focus_window(3); return true;
+				case haunted::ktype::_5: focus_window(4); return true;
+				case haunted::ktype::_6: focus_window(5); return true;
+				case haunted::ktype::_7: focus_window(6); return true;
+				case haunted::ktype::_8: focus_window(7); return true;
+				case haunted::ktype::_9: focus_window(8); return true;
+				case haunted::ktype::_0: focus_window(9); return true;
+				case haunted::ktype::q:  focus_window(10); return true;
+				case haunted::ktype::w:  focus_window(11); return true;
+				case haunted::ktype::e:  focus_window(12); return true;
+				case haunted::ktype::r:  focus_window(13); return true;
+				case haunted::ktype::t:  focus_window(14); return true;
+				case haunted::ktype::y:  focus_window(15); return true;
+				case haunted::ktype::u:  focus_window(16); return true;
+				case haunted::ktype::i:  focus_window(17); return true;
+				case haunted::ktype::o:  focus_window(18); return true;
+				case haunted::ktype::p:  focus_window(19); return true;
+				default: return false;
+			}
 		} else if (copy.mods.none()) {
 			switch (copy.type) {
 				case haunted::ktype::page_down:
