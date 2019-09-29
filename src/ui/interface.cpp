@@ -549,4 +549,14 @@ namespace spjalla::ui {
 		statusbar->draw();
 		titlebar->draw();
 	}
+
+	void interface::set_overlay_foreground(ansi::color fg) {
+		overlay->set_foreground(fg);
+		overlay->draw();
+	}
+
+	void interface::set_overlay_background(ansi::color bg) {
+		overlay->set_background(bg);
+		overlay->draw();
+	}
 }

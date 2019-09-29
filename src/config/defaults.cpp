@@ -43,6 +43,11 @@ namespace spjalla::config {
 		return true;
 	}
 
+	void apply_defaults(database &db) {
+		for (auto &pair: registered)
+			pair.second.apply(db, pair.second.default_value);
+	}
+
 	void register_defaults() {
 		register_key("server", "default_nick", pingpong::irc::default_nick, validate_string);
 		register_key("server", "default_user", pingpong::irc::default_user, validate_string);
@@ -54,6 +59,18 @@ namespace spjalla::config {
 
 		register_key("appearance", "bar_foreground", "normal", validate_color, [](database &db, const value &new_val) {
 			db.get_parent().get_ui().set_bar_foreground(ansi::get_color(new_val.string_()));
+		});
+
+		register_key("appearance", "overlay_background", "verydark", validate_color,
+		             [](database &db, const value &new_val) {
+			DBG("Apply overlay background: " << new_val.string_());
+			db.get_parent().get_ui().set_overlay_background(ansi::get_color(new_val.string_()));
+		});
+
+		register_key("appearance", "overlay_foreground", "white", validate_color,
+		             [](database &db, const value &new_val) {
+			DBG("Apply overlay foreground: " << new_val.string_());
+			db.get_parent().get_ui().set_overlay_foreground(ansi::get_color(new_val.string_()));
 		});
 	}
 }

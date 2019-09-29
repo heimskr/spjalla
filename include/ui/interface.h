@@ -201,9 +201,12 @@ namespace spjalla::ui {
 
 			/** Sets the foreground color of the titlebar and statusbar. */
 			void set_bar_foreground(ansi::color);
-
 			/** Sets the background color of the titlebar and statusbar. */
 			void set_bar_background(ansi::color);
+			/** Sets the foreground color of the overlay. */
+			void set_overlay_foreground(ansi::color);
+			/** Sets the background color of the overlay. */
+			void set_overlay_background(ansi::color);
 	};
 }
 

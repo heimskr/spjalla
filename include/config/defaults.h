@@ -44,6 +44,9 @@ namespace spjalla::config {
 	bool register_key(const std::string &group, const std::string &key, const value &default_val,
 		const validator &validator_fn = {}, const applicator &on_set = {});
 
+	/** Runs the applicators of all registered defaults with their default values. */
+	void apply_defaults(database &db);
+
 	/** Registers the standard Spjalla configuration keys. */
 	void register_defaults();
 

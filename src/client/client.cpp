@@ -27,6 +27,7 @@ namespace spjalla {
 	ui(&term, this), configs({*this, false}), heartbeat_period(heartbeat_period_) {
 		config::register_defaults();
 		configs.read_if_empty();
+		config::apply_defaults(configs);
 	}
 
 	client::~client() {
