@@ -98,8 +98,8 @@ namespace spjalla::config {
 
 			/** Ensures the config directory exists and creates a blank config database inside it if one doesn't already
 			 *  exist. Returns true if the config database had to be created. */
-			static bool ensure_config_db(const std::string &dbname,
-			                             const std::string &dirname);
+			static bool ensure_config_db(const std::string &dbname  = DEFAULT_CONFIG_DB,
+			                             const std::string &dirname = DEFAULT_DATA_DIR);
 
 			/** Sets the cached config database path and replaces the cached database with the one stored at the path.
 			 */
@@ -118,7 +118,7 @@ namespace spjalla::config {
 			/** Returns a value from the config database. If an unknown group+key pair is given and not present in the
 			 *  database, a std::out_of_range exception is thrown. */
 			value & get(const std::string &group, const std::string &key);
-			value & get(const std::pair<std::string, std::string> &pair) { return get(pair.first, pair.second); }
+			value & get_pair(const std::pair<std::string, std::string> &pair) { return get(pair.first, pair.second); }
 
 			/** Returns whether a group name is present in the config database. */
 			bool has_group(const std::string &) const;

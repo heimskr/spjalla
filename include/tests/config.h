@@ -3,7 +3,7 @@
 
 #include "lib/haunted/tests/test.h"
 
-#include "core/config.h"
+#include "config/config.h"
 
 namespace spjalla::tests {
 	void test_config(haunted::tests::testing &);
