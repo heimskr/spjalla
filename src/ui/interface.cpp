@@ -559,4 +559,14 @@ namespace spjalla::ui {
 		overlay->set_background(bg);
 		overlay->draw();
 	}
+
+	void interface::set_input_foreground(ansi::color fg) {
+		input->set_foreground(fg);
+		input->draw();
+	}
+
+	void interface::set_input_background(ansi::color bg) {
+		input->set_background(bg);
+		input->draw();
+	}
 }

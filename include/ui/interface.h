@@ -207,6 +207,10 @@ namespace spjalla::ui {
 			void set_overlay_foreground(ansi::color);
 			/** Sets the background color of the overlay. */
 			void set_overlay_background(ansi::color);
+			/** Sets the foreground color of the textinput. */
+			void set_input_foreground(ansi::color);
+			/** Sets the background color of the textinput. */
+			void set_input_background(ansi::color);
 	};
 }
 

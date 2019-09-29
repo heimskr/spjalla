@@ -63,14 +63,22 @@ namespace spjalla::config {
 
 		register_key("appearance", "overlay_background", "verydark", validate_color,
 		             [](database &db, const value &new_val) {
-			DBG("Apply overlay background: " << new_val.string_());
 			db.get_parent().get_ui().set_overlay_background(ansi::get_color(new_val.string_()));
 		});
 
 		register_key("appearance", "overlay_foreground", "white", validate_color,
 		             [](database &db, const value &new_val) {
-			DBG("Apply overlay foreground: " << new_val.string_());
 			db.get_parent().get_ui().set_overlay_foreground(ansi::get_color(new_val.string_()));
+		});
+
+		register_key("appearance", "input_background", "normal", validate_color,
+		             [](database &db, const value &new_val) {
+			db.get_parent().get_ui().set_input_background(ansi::get_color(new_val.string_()));
+		});
+
+		register_key("appearance", "input_foreground", "normal", validate_color,
+		             [](database &db, const value &new_val) {
+			db.get_parent().get_ui().set_input_foreground(ansi::get_color(new_val.string_()));
 		});
 	}
 }
