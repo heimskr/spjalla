@@ -35,7 +35,7 @@ namespace spjalla {
 
 		add({"_dbg", {0, 0, false, [&](sptr, line) {
 			debug_servers();
-		}}});
+		}, {}}});
 
 		add({"_index", {0, 0, false, [&](sptr, line) {
 			if (ui.active_window == nullptr) {
@@ -43,7 +43,7 @@ namespace spjalla {
 			} else {
 				DBG("Active window index: " << ui.active_window->get_index());
 			}
-		}}});
+		}, {}}});
 
 		add({"_info", {0, 1, false, [&](sptr, line il) {
 			if (il.args.size() == 0) {
@@ -53,11 +53,11 @@ namespace spjalla {
 
 			const std::string &first = il.first();
 			ui.log("Unknown option: " + first);
-		}}});
+		}, {}}});
 
 		add({"ban", {1, 2, true, [&](sptr serv, line il) {
 			ban(serv, il, "+b");
-		}}});
+		}, {}}});
 
 		add({"clear", {0, 0, false, [&](sptr, line) {
 			if (ui::window *win = ui.get_active_window()) {
@@ -65,7 +65,7 @@ namespace spjalla {
 			} else {
 				DBG(lines::red_notice + "No window.");
 			}
-		}}});
+		}, {}}});
 
 		add({"connect", {1, 2, false, [&](sptr, line il) {
 			const std::string &where = il.first();
@@ -87,14 +87,14 @@ namespace spjalla {
 			});
 
 			ui.log("Connecting to " + ansi::bold(hostname) + " on port " + ansi::bold(std::to_string(port)) + "...");
-		}}});
+		}, {}}});
 
 		add<pingpong::join_command>("join");
 
 		add({"kick", {1, -1, true, [&](sptr serv, line il) {
 			if (triple_command<pingpong::kick_command>(serv, il, ui.get_active_channel()))
 				no_channel();
-		}}});
+		}, {}}});
 
 		add({"me", {1, -1, true, [&](sptr, line il) {
 			const ui::window *win = ui.active_window;
@@ -106,7 +106,7 @@ namespace spjalla {
 				pingpong::privmsg_command(win->data.chan, msg).send();
 			else if (win->is_user())
 				pingpong::privmsg_command(win->data.user, msg).send();
-		}}});
+		}, {}}});
 
 		add({"mode", {1, -1, true, [&](sptr serv, line il) {
 			std::shared_ptr<pingpong::channel> win_chan = ui.get_active_channel();
@@ -180,22 +180,22 @@ namespace spjalla {
 			// At this point, I think it's safe to assume that you're setting channel flags. The extra parameter, if
 			// present, is what/whom you're setting the flags on.
 			pingpong::mode_command(chan_str, serv, flags, extra).send();
-		}}});
+		}, {}}});
 
 		add({"msg", {2, -1, true, [&](sptr serv, line il) {
 			pingpong::privmsg_command(serv, il.first(), il.rest()).send();
-		}}});
+		}, {}}});
 
 		add({"nick", {0,  1, true, [&](sptr serv, line il) {
 			if (il.args.size() == 0)
 				ui.log("Current nick: " + serv->get_nick());
 			else
 				pingpong::nick_command(serv, il.first()).send();
-		}}});
+		}, {}}});
 
 		add({"overlay", {0, 0, false, [&](sptr, line) {
 			ui.update_overlay();
-		}}});
+		}, {}}});
 
 		add({"part", {0, -1, true, [&](sptr serv, line il) {
 			std::shared_ptr<pingpong::channel> active_channel = ui.get_active_channel();
@@ -211,7 +211,7 @@ namespace spjalla {
 			} else {
 				ui.log(il.first() + ": no such channel.");
 			}
-		}}});
+		}, {}}});
 
 		add({"quit", {0, -1, false, [&](sptr, line il) {
 			if (il.args.empty()) {
@@ -221,11 +221,11 @@ namespace spjalla {
 				for (auto serv: irc.server_order)
 					pingpong::quit_command(serv, il.body).send();
 			}
-		}}});
+		}, {}}});
 
 		add({"quote", {1, -1, true, [&](sptr serv, line il) {
 			serv->quote(il.body);
-		}}});
+		}, {}}});
 
 		add({"set", {0, -1, false, [&](sptr, line il) {
 			configs.read_if_empty();
@@ -296,7 +296,7 @@ namespace spjalla {
 						ansi::bold(joined) + ".");
 				}
 			}
-		}}});
+		}, {}}});
 
 		add({"spam", {0, 1, false, [&](sptr, line il) {
 			long max = 64;
@@ -312,16 +312,16 @@ namespace spjalla {
 
 			for (long i = 1; i <= max; ++i)
 				ui.log(std::to_string(i));
-		}}});
+		}, {}}});
 
 		add({"unban", {1, 2, true, [&](sptr serv, line il) {
 			ban(serv, il, "-b");
-		}}});
+		}, {}}});
 
 		add({"wc", {0, 0, false, [&](sptr, line) {
 			if (ui.can_remove())
 				ui.remove_window(ui.active_window);
-		}}});
+		}, {}}});
 	}
 
 	void client::ban(pingpong::server *serv, const input_line &il, const std::string &type) {

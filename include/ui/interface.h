@@ -196,6 +196,9 @@ namespace spjalla::ui {
 			/** Handles keypresses that aren't handled by the textinput. */
 			bool on_key(const haunted::key &);
 
+			/** Handles tab completion. */
+			void tab_complete();
+
 			/** Sets the content of the textinput. */
 			void set_input(const std::string &);
 

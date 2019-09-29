@@ -13,6 +13,7 @@
 
 #include "core/input_line.h"
 #include "core/plugin_host.h"
+#include "core/tab_completion.h"
 #include "config/config.h"
 #include "plugins/plugin.h"
 #include "ui/interface.h"
@@ -24,7 +25,7 @@ namespace spjalla {
 
 		using command_handler = std::function<void(pingpong::server *, const input_line &)>;
 		// Tuple: (minimum args, maximum args, needs server, function)
-		using command_tuple = std::tuple<int, int, bool, command_handler>;
+		using command_tuple = std::tuple<int, int, bool, command_handler, completer>;
 		using command_pair = std::pair<std::string, command_tuple>;
 
 // client/client.cpp
@@ -106,7 +107,7 @@ namespace spjalla {
 			void add(const std::string &cmd, bool needs_serv = true) {
 				*this += {cmd, {1, 1, needs_serv, [&](pingpong::server *serv, const input_line &il) {
 					T(serv, il.args[0]).send();
-				}}};
+				}, {}}};
 			}
 
 			/**
@@ -189,10 +190,14 @@ namespace spjalla {
 			/** Starts the heartbeat thread, which executes all the heartbeat listeners at regular intervals. */
 			void init_heartbeat();
 
-// client/input_listener.cpp
+// client/input.cpp
 
 			/** Adds a listener to the textinput that processes its contents. */
 			void add_input_listener();
+
+			input_line get_input_line(const std::string &) const;
+
+			void tab_complete();
 
 // client/statusbar.cpp
 

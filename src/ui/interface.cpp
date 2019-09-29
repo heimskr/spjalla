@@ -524,7 +524,10 @@ namespace spjalla::ui {
 				case haunted::ktype::page_down:
 				case haunted::ktype::page_up:
 					scroll_page(copy == haunted::ktype::page_up);
-					break;
+					return true;
+				case haunted::ktype::tab:
+					parent->tab_complete();
+					return true;
 				default:;
 			}
 		}

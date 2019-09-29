@@ -8,10 +8,8 @@ namespace spjalla {
 			if (sstr.empty()) return;
 			std::string str = sstr.str();
 			ui.input->clear();
-			if (!str.empty() && ui.active_window == ui.status_window && str.front() != '/')
-				str.insert(0, "/");
 
-			input_line il = input_line(str);
+			input_line il = get_input_line(str);
 
 			if (!before_input(il))
 				return;
@@ -58,6 +56,13 @@ namespace spjalla {
 		});
 	}
 
+	input_line client::get_input_line(const std::string &str) const {
+		if (!str.empty() && ui.active_window == ui.status_window && str.front() != '/')
+			return input_line("/" + str);
+
+		return input_line(str);
+	}
+
 	bool client::handle_line(const input_line &il) {
 		const int nargs = static_cast<int>(il.args.size());
 		const std::string &name = il.command;
@@ -68,7 +73,7 @@ namespace spjalla {
 			return false;
 
 		for (auto it = range.first; it != range.second; ++it) {
-			auto [min, max, needs_serv, fn] = it->second;
+			auto [min, max, needs_serv, fn, comp_fn] = it->second;
 			if (max == 0 && nargs != 0) {
 				DBG("/" << name << " doesn't accept any arguments.");
 			} else if (min == max && nargs != min) {
@@ -87,5 +92,9 @@ namespace spjalla {
 		}
 
 		return true;
+	}
+
+	void client::tab_complete() {
+		DBG("Hello from client::tab_complete().");
 	}
 }
