@@ -54,6 +54,7 @@ namespace spjalla {
 			bool operator==(const char *s) const { return *this == std::string(s); }
 
 			explicit operator std::string() const;
+			std::string escaped() const;
 	};
 
 	/**

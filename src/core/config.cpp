@@ -76,8 +76,14 @@ namespace spjalla {
 		if (type == config_type::double_)
 			return std::to_string(double_value);
 		if (type == config_type::string_)
-			return "\"" + util::escape(string_value) + "\"";
+			return string_value;
 		throw std::invalid_argument("Invalid config_value type");
+	}
+
+	std::string config_value::escaped() const {
+		if (type == config_type::string_)
+			return "\"" + util::escape(string_value) + "\"";
+		return std::string(*this);
 	}
 
 	std::ostream & operator<<(std::ostream &os, const config_value &value) {
@@ -376,7 +382,7 @@ namespace spjalla {
 			for (const auto &spair: sub) {
 				const std::string &key = spair.first;
 				const config_value &value = spair.second;
-				out << group << "." << key << "=" << value << "\n";
+				out << group << "." << key << "=" << value.escaped() << "\n";
 			}
 		}
 

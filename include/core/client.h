@@ -38,7 +38,6 @@ namespace spjalla {
 			ui::interface ui;
 			config configs {false};
 
-
 			template <typename T>
 			ui::window * try_window(const T &where) {
 				ui::window *win = ui.get_window(where, false);
