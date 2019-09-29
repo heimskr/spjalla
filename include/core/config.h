@@ -94,7 +94,7 @@ namespace spjalla {
 			void write_db();
 
 			/** Read the database from the cached file path. */
-			void read_db();
+			void read_db(bool clear = true);
 
 		public:
 			config(bool allow_unknown_): allow_unknown(allow_unknown_) {}
@@ -144,6 +144,9 @@ namespace spjalla {
 
 			/** Inserts a value into the config database. Returns true if a preexisting value was overwritten. */
 			bool insert(const std::string &group, const std::string &key, const config_value &, bool save = true);
+
+			/** Inserts a value into the config database. Returns true if a preexisting value was overwritten. */
+			bool insert_any(const std::string &group, const std::string &key, const std::string &, bool save = true);
 
 			/** Returns a value from the config database. If an unknown group+key pair is given and not present in the
 			 *  database, a std::out_of_range exception is thrown. */

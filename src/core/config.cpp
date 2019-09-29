@@ -110,8 +110,8 @@ namespace spjalla {
 		util::trim(key);
 
 		for (char ch: key) {
-			if (!std::isalnum(ch))
-				throw std::invalid_argument("Key isn't alphanumeric in key-value pair");
+			if (!std::isalnum(ch) && ch != '.' && ch != '_')
+				throw std::invalid_argument("Key isn't alphanumeric, '.' or '_' in key-value pair");
 		}
 
 		return {key, util::trim(str.substr(equals + 1))};
@@ -136,8 +136,18 @@ namespace spjalla {
 		out.close();
 	}
 
-	void config::read_db() {
-		DBG("read_db()");
+	void config::read_db(bool clear) {
+		if (clear)
+			db.clear();
+
+		std::ifstream in {filepath};
+		std::string line;
+		while (std::getline(in, line)) {
+			std::string group, key, gk, value;
+			std::tie(gk, value) = parse_kv_pair(line);
+			std::tie(group, key) = parse_pair(gk);
+			insert_any(group, key, value);
+		}
 	}
 
 
@@ -280,6 +290,18 @@ namespace spjalla {
 			read_db();
 	}
 
+	config_value & config::get(const std::string &group, const std::string &key) {
+		ensure_known(group, key);
+
+		if (has_key(group, key))
+			return db.at(group).at(key);
+
+		if (key_known(group, key))
+			return registered.at(group).at(key);
+
+		throw std::out_of_range("No value for group+key pair");
+	}
+
 	bool config::insert(const std::string &group, const std::string &key, const config_value &value, bool save) {
 		ensure_known(group, key);
 
@@ -299,16 +321,15 @@ namespace spjalla {
 		return overwritten;
 	}
 
-	config_value & config::get(const std::string &group, const std::string &key) {
-		ensure_known(group, key);
-
-		if (has_key(group, key))
-			return db.at(group).at(key);
-
-		if (key_known(group, key))
-			return registered.at(group).at(key);
-
-		throw std::out_of_range("No value for group+key pair");
+	bool config::insert_any(const std::string &group, const std::string &key, const std::string &value, bool save) {
+		const config_type type = config::get_value_type(value);
+		switch (type) {
+			case config_type::long_:   return insert(group, key, {strtol(value.c_str(), nullptr, 10)}, save);
+			case config_type::double_: return insert(group, key, {std::stod(value)}, save);
+			case config_type::string_: return insert(group, key, {config::parse_string(value)}, save);
+			default:
+				throw std::invalid_argument("Invalid value type");
+		}
 	}
 
 	bool config::has_group(const std::string &group) const {

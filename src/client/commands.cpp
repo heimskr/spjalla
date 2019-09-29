@@ -293,23 +293,10 @@ namespace spjalla {
 			} else {
 				std::string joined = util::join(il.args.begin() + 1, il.args.end());
 				config_type type = config::get_value_type(joined);
-				switch (type) {
-					case config_type::long_:
-						configs.insert(parsed.first, parsed.second, {strtol(joined.c_str(), nullptr, 10)});
-						break;
-					case config_type::double_:
-						configs.insert(parsed.first, parsed.second, {std::stod(joined)});
-						break;
-					case config_type::string_:
-						try {
-							configs.insert(parsed.first, parsed.second, {config::parse_string(joined)});
-						} catch (const std::invalid_argument &) {
-							ui.warn("Invalid string: " + ansi::bold(joined));
-							return;
-						}
-						break;
-					default:
-						configs.insert(parsed.first, parsed.second, {joined});
+				if (type == config_type::invalid) {
+					configs.insert(parsed.first, parsed.second, {joined});
+				} else {
+					configs.insert_any(parsed.first, parsed.second, joined);
 				}
 
 				ui.log("Set " + ansi::bold(parsed.first) + "."_bd + ansi::bold(parsed.second) + " to " +
