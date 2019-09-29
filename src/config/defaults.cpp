@@ -48,9 +48,12 @@ namespace spjalla::config {
 		register_key("server", "default_user", pingpong::irc::default_user);
 		register_key("server", "default_real", pingpong::irc::default_realname);
 
-		register_key("appearance", "bar_color", "blood", validate_color, [](database &db, const value &new_value) {
+		register_key("appearance", "bar_background", "blood", validate_color, [](database &db, const value &new_value) {
 			db.get_parent().get_ui().set_bar_background(ansi::get_color(new_value.string_()));
-			DBG("New value: " << new_value.string_());
+		});
+
+		register_key("appearance", "bar_foreground", "normal", validate_color, [](database &db, const value &new_value) {
+			db.get_parent().get_ui().set_bar_foreground(ansi::get_color(new_value.string_()));
 		});
 	}
 }
