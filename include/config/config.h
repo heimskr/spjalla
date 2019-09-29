@@ -104,6 +104,10 @@ namespace spjalla::config {
 			/** Inserts a value into the config database. Returns true if a preexisting value was overwritten. */
 			bool insert_any(const std::string &group, const std::string &key, const std::string &, bool save = true);
 
+			/** Removes a value from the config database and optionally applies the default value for the key if one has
+			 *  been registered. Returns true if a value was present and removed, or false if no match was found. */
+			bool remove(const std::string &group, const std::string &key, bool apply_default = true, bool save = true);
+
 			/** Returns a value from the config database. If an unknown group+key pair is given and not present in the
 			 *  database, a std::out_of_range exception is thrown. */
 			value & get(const std::string &group, const std::string &key);

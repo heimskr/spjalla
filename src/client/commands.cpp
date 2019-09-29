@@ -276,15 +276,25 @@ namespace spjalla {
 				}
 			} else {
 				std::string joined = util::join(il.args.begin() + 1, il.args.end());
-				config::value_type type = config::database::get_value_type(joined);
-				if (type == config::value_type::invalid) {
-					configs.insert(parsed.first, parsed.second, {joined});
-				} else {
-					configs.insert_any(parsed.first, parsed.second, joined);
-				}
 
-				ui.log("Set " + ansi::bold(parsed.first) + "."_bd + ansi::bold(parsed.second) + " to " +
-					ansi::bold(joined) + ".");
+				// Special case: setting a value to "!" removes it from the database.
+				if (joined == "!") {
+					if (configs.remove(parsed.first, parsed.second, true, true)) {
+						ui.log("Removed " + ansi::bold(parsed.first) + "."_bd + ansi::bold(parsed.second) + ".");
+					} else {
+						ui.log("Couldn't find " + ansi::bold(parsed.first) + "."_bd + ansi::bold(parsed.second) + ".");
+					}
+				} else {
+					config::value_type type = config::database::get_value_type(joined);
+					if (type == config::value_type::invalid) {
+						configs.insert(parsed.first, parsed.second, {joined});
+					} else {
+						configs.insert_any(parsed.first, parsed.second, joined);
+					}
+
+					ui.log("Set " + ansi::bold(parsed.first) + "."_bd + ansi::bold(parsed.second) + " to " +
+						ansi::bold(joined) + ".");
+				}
 			}
 		}}});
 

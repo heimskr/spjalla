@@ -249,6 +249,24 @@ namespace spjalla::config {
 		}
 	}
 
+	bool database::remove(const std::string &group, const std::string &key, bool apply_default, bool save) {
+		if (!has_key(group, key))
+			return false;
+
+		db[group].erase(key);
+
+		if (apply_default) {
+			const std::string combined {group + "." + key};
+			if (registered.count(combined) == 1)
+				registered.at(combined).apply(*this);
+		}
+
+		if (save)
+			write_db();
+
+		return true;
+	}
+
 	bool database::has_group(const std::string &group) const {
 		return db.count(group) > 0;
 	}

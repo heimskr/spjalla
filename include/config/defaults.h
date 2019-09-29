@@ -35,6 +35,8 @@ namespace spjalla::config {
 			if (on_set)
 				on_set(db, new_value);
 		}
+
+		void apply(database &db) { apply(db, default_value); }
 	};
 
 	using registered_map = std::unordered_map<std::string, default_key>;
@@ -49,7 +51,6 @@ namespace spjalla::config {
 
 	/** Registers the standard Spjalla configuration keys. */
 	void register_defaults();
-
 
 	extern registered_map registered;
 }
