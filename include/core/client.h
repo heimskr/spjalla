@@ -8,6 +8,7 @@
 #include <tuple>
 
 #include "haunted/core/hdefs.h"
+#include "haunted/core/key.h"
 #include "pingpong/messages/message.h"
 #include "pingpong/core/irc.h"
 
@@ -25,7 +26,7 @@ namespace spjalla {
 
 		using command_handler = std::function<void(pingpong::server *, const input_line &)>;
 		// Tuple: (minimum args, maximum args, needs server, function)
-		using command_tuple = std::tuple<int, int, bool, command_handler, completer>;
+		using command_tuple = std::tuple<int, int, bool, command_handler, completion_fn>;
 		using command_pair = std::pair<std::string, command_tuple>;
 
 // client/client.cpp
@@ -38,6 +39,7 @@ namespace spjalla {
 			haunted::terminal term;
 			ui::interface ui;
 			config::database configs;
+			completions::completer completer;
 
 			template <typename T>
 			ui::window * try_window(const T &where) {
@@ -201,6 +203,8 @@ namespace spjalla {
 			input_line get_input_line(const std::string &) const;
 
 			void tab_complete();
+
+			void key_postlistener(const haunted::key &);
 
 // client/statusbar.cpp
 

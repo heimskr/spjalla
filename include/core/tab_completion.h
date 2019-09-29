@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include "lib/haunted/core/key.h"
 #include "core/input_line.h"
 
 namespace spjalla {
@@ -14,7 +15,7 @@ namespace spjalla {
 	 * For convenience, the index of the argument the cursor is in is provided, as well as the index within the
 	 * argument. If either of them doesn't apply, they'll be negative.
 	 */
-	using completer =
+	using completion_fn =
 		std::function<void(client &, const input_line &, std::string &raw, size_t &cursor, long arg_index, long sub)>;
 
 	namespace completions {
@@ -23,6 +24,24 @@ namespace spjalla {
 		/** Completes the /set command. */
 		void complete_set(client &, const input_line &, std::string &raw, size_t &cursor, long arg_index, long sub);
 	}
+}
+
+namespace spjalla::completions {
+	/** Contains the state data and logic for dealing with some parts of tab completion. Clients keep an instance of
+	 *  this and pass keypresses to it. */
+	class completer {
+		private:
+			client &parent;
+
+			/** When the user types a partial command and presses tab, it's stored here. If they press any key other
+			 *  than tab, it's cleared. */
+			std::string partial;
+
+		public:
+			completer(client &parent_): parent(parent_) {}
+
+			void on_key(const haunted::key &);
+	};
 }
 
 #endif

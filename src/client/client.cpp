@@ -24,9 +24,10 @@
 
 namespace spjalla {
 	client::client(int heartbeat_period_): out_stream(ansi::out), term(haunted::terminal(std::cin, out_stream)),
-	ui(&term, this), configs({*this, false}), heartbeat_period(heartbeat_period_) {
+	ui(&term, this), configs({*this, false}), completer(*this), heartbeat_period(heartbeat_period_) {
 		config::register_defaults();
 		configs.read_if_empty(true);
+		term.key_postlistener = [&](const haunted::key &k) { key_postlistener(k); };
 	}
 
 	client::~client() {

@@ -1,3 +1,4 @@
+#include "lib/haunted/core/key.h"
 #include "core/client.h"
 #include "core/input_line.h"
 #include "core/sputil.h"
@@ -6,40 +7,9 @@
 #include "lib/formicine/futil.h"
 
 namespace spjalla::completions {
-	void complete_command(client &client_, const input_line &line, std::string &raw, size_t &cursor, long arg_index,
-	long) {
-		if (arg_index != 0)
-			return;
-
-		std::vector<std::string> split = formicine::util::split(raw, " ", true);
-		std::string &first = split[0];
-		std::vector<std::string> matches = client_.command_matches(first.substr(1));
-
-		// Don't bother doing anything if there are no matches.
-		if (matches.size() == 0)
-			return;
-
-		if (matches.size() == 1) {
-			const std::string rest = raw.substr(util::last_index_of_word(raw, 0));
-			raw = "/" + matches[0] + rest;
-			cursor = matches[0].length() + 1;
-
-			if (cursor == raw.length())
-				raw.push_back(' ');
-
-			++cursor;
-			return;
-		}
-
-		for (std::string &match: matches)
-			match.insert(0, "/");
-
-		client_.log("Matches: " + util::join(matches.begin(), matches.end(), " "));
+	void completer::on_key(const haunted::key &) {
+		
 	}
-
-	// void complete_set(const input_line &line, std::string &raw, size_t &index, long arg_index, long arg_subindex) {
-
-	// }
 }
 
 namespace spjalla {
@@ -81,4 +51,45 @@ namespace spjalla {
 			ui.input->jump_cursor();
 		}
 	}
+
+	void client::key_postlistener(const haunted::key &k) {
+		completer.on_key(k);
+	}
+}
+
+namespace spjalla::completions {
+	void complete_command(client &client_, const input_line &line, std::string &raw, size_t &cursor, long arg_index,
+	long) {
+		if (arg_index != 0)
+			return;
+
+		std::vector<std::string> split = formicine::util::split(raw, " ", true);
+		std::string &first = split[0];
+		std::vector<std::string> matches = client_.command_matches(first.substr(1));
+
+		// Don't bother doing anything if there are no matches.
+		if (matches.size() == 0)
+			return;
+
+		if (matches.size() == 1) {
+			const std::string rest = raw.substr(util::last_index_of_word(raw, 0));
+			raw = "/" + matches[0] + rest;
+			cursor = matches[0].length() + 1;
+
+			if (cursor == raw.length())
+				raw.push_back(' ');
+
+			++cursor;
+			return;
+		}
+
+		for (std::string &match: matches)
+			match.insert(0, "/");
+
+		client_.log("Matches: " + util::join(matches.begin(), matches.end(), " "));
+	}
+
+	// void complete_set(const input_line &line, std::string &raw, size_t &index, long arg_index, long arg_subindex) {
+
+	// }
 }
