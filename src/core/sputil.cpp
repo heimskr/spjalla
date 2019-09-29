@@ -171,4 +171,25 @@ namespace spjalla::util {
 
 		return length;
 	}
+
+	size_t last_index_of_word(const std::string &str, size_t n) {
+		const size_t length = str.length();
+		size_t word_index = 0;
+
+		char prev_char = '\0';
+		for (size_t i = 0; i < length; ++i) {
+			char ch = str[i];
+
+			if (ch == ' ' && (prev_char != ' ' && prev_char != '\0')) {
+				// We're at a space and the previous character wasn't a space (or the beginning of the string).
+				// This means we've just left a word, so check whether we're at the requested word index.
+				if (word_index++ == n)
+					return i;
+			}
+
+			prev_char = ch;
+		}
+
+		return length;
+	}
 }

@@ -52,5 +52,19 @@ namespace spjalla::tests {
 			{{"  "s,          0},  2},
 			{{"  "s,          1},  2},
 		}, &util::index_of_word, "util::index_of_word");
+
+		unit.check({
+			{{"foo bar baz"s, 0},  3},
+			{{"foo bar baz"s, 1},  7},
+			{{"foo bar baz"s, 2}, 11},
+			{{"foo bar baz"s, 3}, 11},
+			{{"foo bar baz"s, 4}, 11},
+			{{"foo"s,         0},  3},
+			{{"foo"s,         1},  3},
+			{{" "s,           0},  1},
+			{{" "s,           1},  1},
+			{{"  "s,          0},  2},
+			{{"  "s,          1},  2},
+		}, &util::last_index_of_word, "util::last_index_of_word");
 	}
 }

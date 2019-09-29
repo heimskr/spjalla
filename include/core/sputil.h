@@ -68,6 +68,10 @@ namespace spjalla {
 		/** Returns the index of the first character in the n-th word of a string. If n is greater than the number of
 		 *  words in the string, the length of the string is returned. */
 		size_t index_of_word(const std::string &, size_t n);
+
+		/** Returns the index of first character after the n-th word of a string. If n is greater than the number of
+		 *  words in the string, the length of the string is returned. */
+		size_t last_index_of_word(const std::string &, size_t n);
 	}
 }
 
