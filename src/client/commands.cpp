@@ -18,6 +18,8 @@
 #include "lines/warning.h"
 #include "formicine/futil.h"
 
+#include "haunted/tests/test.h"
+
 namespace spjalla {
 	void client::add_commands() {
 		using sptr = pingpong::server *;
@@ -40,7 +42,7 @@ namespace spjalla {
 		add({"connect", {1, 2, false, [&](sptr, line il) {
 			const std::string &where = il.first();
 
-			std::string nick(pingpong::irc::default_nick);
+			std::string nick(configs.get("server", "default_nick"));
 			if (il.args.size() > 1)
 				nick = il.args[1];
 
@@ -241,12 +243,33 @@ namespace spjalla {
 		add({"set", {0, -1, false, [&](sptr, line il) {
 			configs.read_if_empty();
 
+			config::groupmap with_defaults = configs.with_defaults();
+
 			if (il.args.empty()) {
 				for (const auto &gpair: configs.with_defaults()) {
 					ui.log(lines::config_group_line(gpair.first));
 					for (const auto &spair: gpair.second)
 						ui.log(lines::config_key_line(spair));
 				}
+
+				return;
+			}
+
+			const std::string &first = il.first();
+
+			std::pair<std::string, std::string> parsed;
+			try {
+				parsed = config::parse_pair(first);
+			} catch (const std::invalid_argument &) {
+				ui.log(lines::warning_line("Couldn't parse setting " + ansi::bold(first)));
+				return;
+			}
+
+			try {
+				const config_value &value = configs.get(parsed);
+				ui.log(lines::config_key_line(parsed.second, value, false));
+			} catch (const std::out_of_range &) {
+				ui.log("No configuration option for " + ansi::bold(first) + ".");
 			}
 		}}});
 

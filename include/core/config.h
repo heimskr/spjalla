@@ -60,8 +60,9 @@ namespace spjalla {
 	 * Represents an instance of a configuration database.
 	 */
 	class config {
-		using   submap = std::map<std::string, config_value>;
-		using groupmap = std::map<std::string, submap>;
+		public:
+			using   submap = std::map<std::string, config_value>;
+			using groupmap = std::map<std::string, submap>;
 
 		private:
 			/** The in-memory copy of the config database. */
@@ -147,6 +148,7 @@ namespace spjalla {
 			/** Returns a value from the config database. If an unknown group+key pair is given and not present in the
 			 *  database, a std::out_of_range exception is thrown. */
 			config_value & get(const std::string &group, const std::string &key);
+			config_value & get(const std::pair<std::string, std::string> &pair) { return get(pair.first, pair.second); }
 
 			/** Returns whether a group name is present in the config database. */
 			bool has_group(const std::string &) const;
