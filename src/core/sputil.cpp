@@ -105,12 +105,18 @@ namespace spjalla::util {
 		if (length < cursor)
 			return -1;
 
-		size_t word_index = 0;
-		char prev_char = '\0';
-		char next_char = '\0';
+		ssize_t word_index = -1;
+		char prev_char = '\0', next_char = '\0';
+
+		if (cursor == 0)
+			return str[0] == ' '? -1 : 0;
+
 		for (size_t i = 0; i < length; ++i) {
 			char ch = str[i];
 			next_char = i == length - 1? '\0' : str[i + 1];
+
+			if (ch != ' ' && (prev_char == '\0' || prev_char == ' '))
+				++word_index;
 
 			if (ch == ' ') {
 				if (prev_char != ' ') {
@@ -118,7 +124,6 @@ namespace spjalla::util {
 					// Otherwise, it's time to increment the word index.
 					if (i == cursor)
 						return word_index;
-					++word_index;
 				} else if (next_char == ' ' && i == cursor) {
 					// If we're within a group of spaces and this is the where the cursor is, return -1 because that
 					// means the cursor isn't in a word.
@@ -131,7 +136,7 @@ namespace spjalla::util {
 			prev_char = ch;
 		}
 
-		if (cursor == length)
+		if (cursor == length && prev_char != ' ')
 			return word_index;
 
 		return -1;
