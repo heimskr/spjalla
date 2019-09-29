@@ -261,7 +261,7 @@ namespace spjalla {
 
 			if (il.args.size() == 1) {
 				try {
-					const config::value &value = configs.get(parsed);
+					const config::value &value = configs.get_pair(parsed);
 					ui.log(lines::config_key_line(parsed.first + "." + parsed.second, value, false));
 				} catch (const std::out_of_range &) {
 					ui.log("No configuration option for " + ansi::bold(first) + ".");
