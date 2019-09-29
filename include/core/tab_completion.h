@@ -27,9 +27,9 @@ namespace spjalla {
 }
 
 namespace spjalla::completions {
-	/** Contains the state data and logic for dealing with some parts of tab completion. Clients keep an instance of
-	 *  this and pass keypresses to it. */
-	class completer {
+	/** Contains the state data and logic for dealing with some parts of tab completion for commands. Clients keep an
+	 *  instance of this and pass keypresses to it. */
+	class command_completer {
 		private:
 			client &parent;
 
@@ -38,7 +38,7 @@ namespace spjalla::completions {
 			std::string partial;
 
 		public:
-			completer(client &parent_): parent(parent_) {}
+			command_completer(client &parent_): parent(parent_) {}
 
 			void on_key(const haunted::key &);
 	};

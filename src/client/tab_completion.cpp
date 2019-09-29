@@ -7,8 +7,8 @@
 #include "lib/formicine/futil.h"
 
 namespace spjalla::completions {
-	void completer::on_key(const haunted::key &) {
-		
+	void command_completer::on_key(const haunted::key &k) {
+		partial = k == haunted::ktype::tab? parent.get_input_line(parent.get_ui().get_input()).command : "";
 	}
 }
 

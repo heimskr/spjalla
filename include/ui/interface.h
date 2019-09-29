@@ -202,6 +202,9 @@ namespace spjalla::ui {
 			/** Sets the content of the textinput. */
 			void set_input(const std::string &);
 
+			/** Gets the content of the textinput. */
+			std::string get_input() const;
+
 			/** Sets the foreground color of the titlebar and statusbar. */
 			void set_bar_foreground(ansi::color);
 			/** Sets the background color of the titlebar and statusbar. */

@@ -39,7 +39,7 @@ namespace spjalla {
 			haunted::terminal term;
 			ui::interface ui;
 			config::database configs;
-			completions::completer completer;
+			completions::command_completer completer;
 
 			template <typename T>
 			ui::window * try_window(const T &where) {
