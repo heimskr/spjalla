@@ -37,10 +37,13 @@ namespace spjalla::completions {
 			 *  than tab, it's cleared. */
 			std::string partial;
 
+			bool has_partial = false;
+
 		public:
 			command_completer(client &parent_): parent(parent_) {}
 
 			void on_key(const haunted::key &);
+			void complete(std::string &, size_t &);
 	};
 }
 

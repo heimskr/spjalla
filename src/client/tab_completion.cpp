@@ -8,8 +8,61 @@
 
 namespace spjalla::completions {
 	void command_completer::on_key(const haunted::key &k) {
-		partial = k == haunted::ktype::tab? parent.get_input_line(parent.get_ui().get_input()).command : "";
+		// If tab is pressed, complete is called before on_key, so we don't handle filling in partial here.
+		if (k != haunted::ktype::tab) {
+			partial.clear();
+			has_partial = false;
+		}
 	}
+
+	void command_completer::complete(std::string &raw, size_t &cursor) {
+		std::vector<std::string> split = formicine::util::split(raw, " ", true);
+		std::string first = split[0].substr(1);
+
+		if (!has_partial) {
+			partial = first;
+			has_partial = true;
+		}
+
+		std::vector<std::string> matches = parent.command_matches(partial);
+
+		// Don't bother doing anything if there are no matches.
+		if (matches.size() == 0)
+			return;
+
+		const std::string rest = raw.substr(util::last_index_of_word(raw, 0));
+
+		if (matches.size() == 1) {
+			raw = "/" + matches[0] + rest;
+			cursor = matches[0].length() + 1;
+
+			if (cursor == raw.length())
+				raw.push_back(' ');
+
+			++cursor;
+			return;
+		}
+
+
+		for (auto iter = matches.begin(), end = matches.end(); iter != end; ++iter) {
+			if (*iter == first) {
+				// The user has pressed tab again after one of the completions has been filled in. Fill in the next
+				// match.
+				auto next = iter == end - 1? matches.begin() : iter + 1;
+				raw = "/" + *next + rest;
+				cursor = next->length() + 1;
+				return;
+			}
+		}
+
+		// There are multiple matches but none has been filled in yet. Start with the first.
+		raw = "/" + matches[0] + rest;
+		cursor = matches[0].length() + 1;
+	}
+
+	// void complete_set(const input_line &line, std::string &raw, size_t &index, long arg_index, long arg_subindex) {
+
+	// }
 }
 
 namespace spjalla {
@@ -37,7 +90,7 @@ namespace spjalla {
 		if (il.is_command()) {
 			if (windex == 0) {
 				// The user wants to complete a command name.
-				completions::complete_command(*this, il, text, cursor, windex, sindex);
+				completer.complete(text, cursor);
 			} else if (0 < windex) {
 				// The user has entered a command and the cursor is at or past the first argument.
 			}
@@ -55,41 +108,4 @@ namespace spjalla {
 	void client::key_postlistener(const haunted::key &k) {
 		completer.on_key(k);
 	}
-}
-
-namespace spjalla::completions {
-	void complete_command(client &client_, const input_line &line, std::string &raw, size_t &cursor, long arg_index,
-	long) {
-		if (arg_index != 0)
-			return;
-
-		std::vector<std::string> split = formicine::util::split(raw, " ", true);
-		std::string &first = split[0];
-		std::vector<std::string> matches = client_.command_matches(first.substr(1));
-
-		// Don't bother doing anything if there are no matches.
-		if (matches.size() == 0)
-			return;
-
-		if (matches.size() == 1) {
-			const std::string rest = raw.substr(util::last_index_of_word(raw, 0));
-			raw = "/" + matches[0] + rest;
-			cursor = matches[0].length() + 1;
-
-			if (cursor == raw.length())
-				raw.push_back(' ');
-
-			++cursor;
-			return;
-		}
-
-		for (std::string &match: matches)
-			match.insert(0, "/");
-
-		client_.log("Matches: " + util::join(matches.begin(), matches.end(), " "));
-	}
-
-	// void complete_set(const input_line &line, std::string &raw, size_t &index, long arg_index, long arg_subindex) {
-
-	// }
 }
