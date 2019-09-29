@@ -95,6 +95,18 @@ namespace spjalla {
 	}
 
 	void client::tab_complete() {
-		DBG("Hello from client::tab_complete().");
+		std::string text = ui.input->get_text();
+		if (text.empty())
+			return;
+
+		const size_t cursor = ui.input->get_cursor();
+
+		if (ui.active_window == ui.status_window && text.front() != '/') {
+			ui.input->set_text("/" + text);
+			ui.input->move_to(cursor + 1);
+			ui.input->jump_cursor();
+		}
+
+		// input_line il = get_input_line(text);
 	}
 }
