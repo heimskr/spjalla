@@ -48,6 +48,7 @@ namespace spjalla::ui {
 
 	void interface::init_swappo() {
 		overlay = new window("overlay");
+		overlay->ignore_index = true;
 		overlay->data = {window_type::overlay};
 		overlay->set_terminal(term);
 		overlay->set_name("overlay_window");
