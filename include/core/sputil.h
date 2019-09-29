@@ -57,6 +57,10 @@ namespace spjalla {
 
 			return oss.str();
 		}
+
+		/** Returns the index of the word that a given index is in. If the cursor is within a group of multiple spaces
+		 *  between two words, the function returns -1. */
+		ssize_t word_index(const std::string &, size_t);
 	}
 }
 

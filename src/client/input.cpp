@@ -99,14 +99,16 @@ namespace spjalla {
 		if (text.empty())
 			return;
 
-		const size_t cursor = ui.input->get_cursor();
+		size_t cursor = ui.input->get_cursor();
 
 		if (ui.active_window == ui.status_window && text.front() != '/') {
-			ui.input->set_text("/" + text);
-			ui.input->move_to(cursor + 1);
+			text.insert(0, "/");
+			ui.input->set_text(text);
+			ui.input->move_to(++cursor);
 			ui.input->jump_cursor();
 		}
 
-		// input_line il = get_input_line(text);
+		input_line il = get_input_line(text);
+		DBG("Command[" << il.command << "]");
 	}
 }

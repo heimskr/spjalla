@@ -99,4 +99,41 @@ namespace spjalla::util {
 		std::string copy {str};
 		return trim(copy);
 	}
+
+	ssize_t word_index(const std::string &str, size_t cursor) {
+		const size_t length = str.length();
+		if (length < cursor)
+			return -1;
+
+		size_t word_index = 0;
+		char prev_char = '\0';
+		char next_char = '\0';
+		for (size_t i = 0; i < length; ++i) {
+			char ch = str[i];
+			next_char = i == length - 1? '\0' : str[i + 1];
+
+			if (ch == ' ') {
+				if (prev_char != ' ') {
+					// We've reached the end of a word. If this is where the cursor is, we're done.
+					// Otherwise, it's time to increment the word index.
+					if (i == cursor)
+						return word_index;
+					++word_index;
+				} else if (next_char == ' ' && i == cursor) {
+					// If we're within a group of spaces and this is the where the cursor is, return -1 because that
+					// means the cursor isn't in a word.
+					return -1;
+				}
+			} else if (cursor == i) {
+				return word_index;
+			}
+
+			prev_char = ch;
+		}
+
+		if (cursor == length)
+			return word_index;
+
+		return -1;
+	}
 }
