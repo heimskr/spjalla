@@ -3,6 +3,7 @@
 
 #include <filesystem>
 #include <locale>
+#include <sstream>
 #include <string>
 
 #ifdef VSCODE
@@ -38,6 +39,24 @@ namespace spjalla {
 		/** Trims spaces and tabs from both ends of a string. */
 		std::string & trim(std::string &str);
 		std::string trim(const std::string &str);
+
+		template <typename Iter>
+		std::string join(Iter begin, Iter end, const std::string &delim = " ") {
+			std::ostringstream oss;
+			bool first = true;
+			while (begin != end) {
+				if (!first) {
+					oss << delim;
+				} else {
+					first = false;
+				}
+
+				oss << *begin;
+				++begin;
+			}
+
+			return oss.str();
+		}
 	}
 }
 
