@@ -26,8 +26,7 @@ namespace spjalla {
 	client::client(int heartbeat_period_): out_stream(ansi::out), term(haunted::terminal(std::cin, out_stream)),
 	ui(&term, this), configs({*this, false}), heartbeat_period(heartbeat_period_) {
 		config::register_defaults();
-		configs.read_if_empty();
-		config::apply_defaults(configs);
+		configs.read_if_empty(true);
 	}
 
 	client::~client() {

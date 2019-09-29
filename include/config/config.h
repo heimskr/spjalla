@@ -57,7 +57,7 @@ namespace spjalla::config {
 			void write_db();
 
 			/** Read the database from the cached file path. */
-			void read_db(bool clear = true);
+			void read_db(bool apply = true, bool clear = true);
 
 		public:
 			database(client &parent_, bool allow_unknown_): parent(parent_), allow_unknown(allow_unknown_) {}
@@ -92,10 +92,11 @@ namespace spjalla::config {
 
 			/** Sets the cached config database path and replaces the cached database with the one stored at the path.
 			 */
-			void set_path(const std::string &dbname = DEFAULT_CONFIG_DB, const std::string &dirname = DEFAULT_DATA_DIR);
+			void set_path(bool apply = true,const std::string &dbname = DEFAULT_CONFIG_DB,
+			              const std::string &dirname = DEFAULT_DATA_DIR);
 
 			/** Reads the config database from the filesystem if the in-memory copy is empty. */
-			void read_if_empty(const std::string &dbname  = DEFAULT_CONFIG_DB,
+			void read_if_empty(bool apply = true, const std::string &dbname  = DEFAULT_CONFIG_DB,
 			                   const std::string &dirname = DEFAULT_DATA_DIR);
 
 			/** Inserts a value into the config database. Returns true if a preexisting value was overwritten. */
@@ -107,6 +108,9 @@ namespace spjalla::config {
 			/** Removes a value from the config database and optionally applies the default value for the key if one has
 			 *  been registered. Returns true if a value was present and removed, or false if no match was found. */
 			bool remove(const std::string &group, const std::string &key, bool apply_default = true, bool save = true);
+
+			/** Applies all settings, optionally with default settings where not overridden. */
+			void apply_all(bool with_defaults = true);
 
 			/** Returns a value from the config database. If an unknown group+key pair is given and not present in the
 			 *  database, a std::out_of_range exception is thrown. */

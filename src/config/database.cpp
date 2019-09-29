@@ -57,7 +57,7 @@ namespace spjalla::config {
 		out.close();
 	}
 
-	void database::read_db(bool clear) {
+	void database::read_db(bool apply, bool clear) {
 		if (clear)
 			db.clear();
 
@@ -69,6 +69,9 @@ namespace spjalla::config {
 			std::tie(group, key) = parse_pair(gk);
 			insert_any(group, key, value);
 		}
+
+		if (apply)
+			apply_all();
 	}
 
 
@@ -183,17 +186,17 @@ namespace spjalla::config {
 // Public instance methods
 
 
-	void database::set_path(const std::string &dbname, const std::string &dirname) {
+	void database::set_path(bool apply, const std::string &dbname, const std::string &dirname) {
 		ensure_config_db(dbname, dirname);
 		filepath = get_db_path(dbname, dirname);
-		read_db();
+		read_db(apply);
 	}
 
-	void database::read_if_empty(const std::string &dbname, const std::string &dirname) {
+	void database::read_if_empty(bool apply, const std::string &dbname, const std::string &dirname) {
 		if (filepath.empty())
-			set_path(dbname, dirname);
+			set_path(apply, dbname, dirname);
 		else if (db.empty())
-			read_db();
+			read_db(apply);
 	}
 
 	value & database::get(const std::string &group, const std::string &key) {
@@ -265,6 +268,18 @@ namespace spjalla::config {
 			write_db();
 
 		return true;
+	}
+
+	void database::apply_all(bool with_defaults) {
+		for (auto &pair: registered) {
+			std::string group, key;
+			std::tie(group, key) = parse_pair(pair.first);
+			if (has_key(group, key)) {
+				pair.second.apply(*this, get(group, key));
+			} else if (with_defaults) {
+				pair.second.apply(*this);
+			}
+		}
 	}
 
 	bool database::has_group(const std::string &group) const {
