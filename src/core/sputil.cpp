@@ -107,6 +107,9 @@ namespace spjalla::util {
 		ssize_t sub_index  = -1;
 		char prev_char = '\0', next_char = '\0';
 
+		if (str.empty())
+			return {-1, -1};
+
 		if (cursor == 0)
 			return str[0] == ' '? std::pair(-1, -1) : std::pair(0, 0);
 
