@@ -1,9 +1,5 @@
 #include <iomanip>
-#include <memory>
 #include <set>
-#include <thread>
-
-#include <csignal>
 
 #include "core/client.h"
 #include "core/spopt.h"
@@ -21,9 +17,6 @@
 #include "lines/overlay.h"
 #include "lines/timed.h"
 #include "lines/userlist.h"
-
-
-
 
 namespace spjalla::ui {
 	interface::interface(haunted::terminal *term_, client *parent_): term(term_), parent(parent_) {
@@ -182,7 +175,7 @@ namespace spjalla::ui {
 			*overlay += spjalla::lines::chanlist_line(user, chan.lock());
 	}
 
-	std::vector<haunted::ui::control *>::iterator interface::window_iterator() const {
+	haunted::ui::container::type::iterator interface::window_iterator() const {
 		auto iter = std::find(swappo->begin(), swappo->end(), active_window);
 		if (iter == swappo->end())
 			throw std::runtime_error("The active window isn't a child of swappo");
@@ -387,11 +380,11 @@ namespace spjalla::ui {
 		return before_overlay;
 	}
 
-	std::vector<window *> interface::windows_for_user(std::shared_ptr<pingpong::user> user) const {
+	std::deque<window *> interface::windows_for_user(std::shared_ptr<pingpong::user> user) const {
 		if (swappo->empty())
 			return {};
 
-		std::vector<window *> found {};
+		std::deque<window *> found {};
 
 		for (haunted::ui::control *ctrl: swappo->get_children()) {
 			window *win = dynamic_cast<window *>(ctrl);

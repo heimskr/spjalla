@@ -33,6 +33,28 @@ namespace spjalla {
 
 		pingpong::command::before_send = [&](pingpong::command &cmd) { return before_send(cmd); };
 
+		add({"_dbg", {0, 0, false, [&](sptr, line) {
+			debug_servers();
+		}}});
+
+		add({"_index", {0, 0, false, [&](sptr, line) {
+			if (ui.active_window == nullptr) {
+				DBG("No active window.");
+			} else {
+				DBG("Active window index: " << ui.active_window->get_index());
+			}
+		}}});
+
+		add({"_info", {0, 1, false, [&](sptr, line il) {
+			if (il.args.size() == 0) {
+				pingpong::debug::print_all(irc);
+				return;
+			}
+
+			const std::string &first = il.first();
+			ui.log("Unknown option: " + first);
+		}}});
+
 		add({"ban", {1, 2, true, [&](sptr serv, line il) {
 			ban(serv, il, "+b");
 		}}});
@@ -65,20 +87,6 @@ namespace spjalla {
 			});
 
 			ui.log("Connecting to " + ansi::bold(hostname) + " on port " + ansi::bold(std::to_string(port)) + "...");
-		}}});
-		
-		add({"dbg", {0, 0, false, [&](sptr, line) {
-			debug_servers();
-		}}});
-
-		add({"info", {0, 1, false, [&](sptr, line il) {
-			if (il.args.size() == 0) {
-				pingpong::debug::print_all(irc);
-				return;
-			}
-			
-			const std::string &first = il.first();
-			ui.log("Unknown option: " + first);
 		}}});
 
 		add<pingpong::join_command>("join");

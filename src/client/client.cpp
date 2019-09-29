@@ -81,7 +81,7 @@ namespace spjalla {
 	void client::server_removed(pingpong::server *serv) {
 		// We need to check the windows in reverse because we're removing some along the way. Removing elements while
 		// looping through a vector causes all kinds of problems unless you loop in reverse.
-		std::vector<haunted::ui::control *> &windows = ui.swappo->get_children();
+		haunted::ui::container::type &windows = ui.swappo->get_children();
 		for (auto iter = windows.rbegin(), rend = windows.rend(); iter != rend; ++iter) {
 			ui::window *win = dynamic_cast<ui::window *>(*iter);
 			if (win->data.serv == serv) {

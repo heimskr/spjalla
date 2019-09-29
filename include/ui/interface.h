@@ -91,7 +91,7 @@ namespace spjalla::ui {
 			void update_titlebar(const std::shared_ptr<pingpong::channel> &);
 
 			/** Returns the iterator pointing to the active window in swappo's children. */
-			std::vector<haunted::ui::control *>::iterator window_iterator() const;
+			haunted::ui::container::type::iterator window_iterator() const;
 
 			/** Returns whether it's okay to immediately remove a given window. */
 			bool can_remove(window * = nullptr) const;
@@ -169,7 +169,7 @@ namespace spjalla::ui {
 			window * toggle_overlay();
 
 			/** Returns all windows (for channels or private conversations) where a given user is present. */
-			std::vector<window *> windows_for_user(std::shared_ptr<pingpong::user>) const;
+			std::deque<window *> windows_for_user(std::shared_ptr<pingpong::user>) const;
 
 			/** Returns the window for a given channel. */
 			window * window_for_channel(std::shared_ptr<pingpong::channel>) const;
