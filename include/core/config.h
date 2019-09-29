@@ -81,9 +81,6 @@ namespace spjalla {
 			/** Attempts to parse a keyvalue pair of the form /^(\w+)=(.+)$/. */
 			static std::pair<std::string, std::string> parse_kv_pair(const std::string &);
 
-			/** Attempts to parse a string from a key-value pair. */
-			static std::string parse_string(std::string);
-
 			/** Given a data directory name and a config database name, this returns the full path of the config
 			 *  database. */
 			static std::filesystem::path get_db_path(const std::string &dbname  = DEFAULT_CONFIG_DB,
@@ -115,6 +112,9 @@ namespace spjalla {
 			 *  the string or if the area before or after the period contains nothing. */
 			static std::pair<std::string, std::string> parse_pair(const std::string &);
 
+			/** Attempts to parse a string from a key-value pair. */
+			static std::string parse_string(std::string);
+
 			/** Checks a value and returns its type. */
 			static config_type get_value_type(std::string) noexcept;
 
@@ -143,7 +143,7 @@ namespace spjalla {
 			                   const std::string &dirname = DEFAULT_DATA_DIR);
 
 			/** Inserts a value into the config database. Returns true if a preexisting value was overwritten. */
-			bool insert(const std::string &group, const std::string &key, const config_value &);
+			bool insert(const std::string &group, const std::string &key, const config_value &, bool save = true);
 
 			/** Returns a value from the config database. If an unknown group+key pair is given and not present in the
 			 *  database, a std::out_of_range exception is thrown. */

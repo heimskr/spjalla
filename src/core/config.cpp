@@ -117,23 +117,6 @@ namespace spjalla {
 		return {key, util::trim(str.substr(equals + 1))};
 	}
 
-	std::string config::parse_string(std::string value) {
-		util::trim(value);
-		const size_t vlength = value.length();
-
-		// Special case: an empty value represents an empty string, same as a pair of double quotes.
-		if (vlength == 0)
-			return "";
-
-		if (vlength < 2)
-			throw std::invalid_argument("Invalid length of string value");
-
-		if (value.front() != '"' || value.back() != '"')
-			throw std::invalid_argument("Invalid quote placement in string value");
-
-		return util::unescape(value.substr(1, vlength - 2));
-	}
-
 	std::filesystem::path config::get_db_path(const std::string &dbname, const std::string &dirname) {
 		return util::get_home() / dirname / dbname;
 	}
@@ -148,11 +131,13 @@ namespace spjalla {
 	}
 
 	void config::write_db() {
-		
+		std::ofstream out {filepath};
+		out << std::string(*this);
+		out.close();
 	}
 
 	void config::read_db() {
-		
+		DBG("read_db()");
 	}
 
 
@@ -199,6 +184,23 @@ namespace spjalla {
 		if (period == std::string::npos || period == 0 || period == str.length() - 1 || period != str.find_last_of("."))
 			throw std::invalid_argument("Invalid group+key pair");
 		return {str.substr(0, period), str.substr(period + 1)};
+	}
+
+	std::string config::parse_string(std::string value) {
+		util::trim(value);
+		const size_t vlength = value.length();
+
+		// Special case: an empty value represents an empty string, same as a pair of double quotes.
+		if (vlength == 0)
+			return "";
+
+		if (vlength < 2)
+			throw std::invalid_argument("Invalid length of string value");
+
+		if (value.front() != '"' || value.back() != '"')
+			throw std::invalid_argument("Invalid quote placement in string value");
+
+		return util::unescape(value.substr(1, vlength - 2));
 	}
 
 	config_type config::get_value_type(std::string value) noexcept {
@@ -278,7 +280,7 @@ namespace spjalla {
 			read_db();
 	}
 
-	bool config::insert(const std::string &group, const std::string &key, const config_value &value) {
+	bool config::insert(const std::string &group, const std::string &key, const config_value &value, bool save) {
 		ensure_known(group, key);
 
 		submap &sub = db[group];
@@ -290,6 +292,10 @@ namespace spjalla {
 		}
 
 		sub.insert({key, value});
+
+		if (save)
+			write_db();
+
 		return overwritten;
 	}
 

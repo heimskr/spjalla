@@ -1,3 +1,5 @@
+#include <cstdlib>
+
 #include "pingpong/core/debug.h"
 
 #include "pingpong/commands/join.h"
@@ -12,6 +14,7 @@
 
 #include "core/client.h"
 #include "core/config.h"
+#include "core/sputil.h"
 #include "lines/config_group.h"
 #include "lines/config_key.h"
 #include "lines/lines.h"
@@ -280,11 +283,37 @@ namespace spjalla {
 				}
 			}
 
-			try {
-				const config_value &value = configs.get(parsed);
-				ui.log(lines::config_key_line(parsed.first + "." + parsed.second, value, false));
-			} catch (const std::out_of_range &) {
-				ui.log("No configuration option for " + ansi::bold(first) + ".");
+			if (il.args.size() == 1) {
+				try {
+					const config_value &value = configs.get(parsed);
+					ui.log(lines::config_key_line(parsed.first + "." + parsed.second, value, false));
+				} catch (const std::out_of_range &) {
+					ui.log("No configuration option for " + ansi::bold(first) + ".");
+				}
+			} else {
+				std::string joined = util::join(il.args.begin() + 1, il.args.end());
+				config_type type = config::get_value_type(joined);
+				switch (type) {
+					case config_type::long_:
+						configs.insert(parsed.first, parsed.second, {strtol(joined.c_str(), nullptr, 10)});
+						break;
+					case config_type::double_:
+						configs.insert(parsed.first, parsed.second, {std::stod(joined)});
+						break;
+					case config_type::string_:
+						try {
+							configs.insert(parsed.first, parsed.second, {config::parse_string(joined)});
+						} catch (const std::invalid_argument &) {
+							ui.warn("Invalid string: " + ansi::bold(joined));
+							return;
+						}
+						break;
+					default:
+						configs.insert(parsed.first, parsed.second, {joined});
+				}
+
+				ui.log("Set " + ansi::bold(parsed.first) + "."_bd + ansi::bold(parsed.second) + " to " +
+					ansi::bold(joined) + ".");
 			}
 		}}});
 
