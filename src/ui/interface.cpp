@@ -507,15 +507,15 @@ namespace spjalla::ui {
 		} else if (copy == haunted::kmod::alt) {
 			switch (copy.type) {
 				case haunted::ktype::_1: focus_window(static_cast<size_t>(0)); return true;
-				case haunted::ktype::_2: focus_window(1); return true;
-				case haunted::ktype::_3: focus_window(2); return true;
-				case haunted::ktype::_4: focus_window(3); return true;
-				case haunted::ktype::_5: focus_window(4); return true;
-				case haunted::ktype::_6: focus_window(5); return true;
-				case haunted::ktype::_7: focus_window(6); return true;
-				case haunted::ktype::_8: focus_window(7); return true;
-				case haunted::ktype::_9: focus_window(8); return true;
-				case haunted::ktype::_0: focus_window(9); return true;
+				case haunted::ktype::_2: focus_window(1);  return true;
+				case haunted::ktype::_3: focus_window(2);  return true;
+				case haunted::ktype::_4: focus_window(3);  return true;
+				case haunted::ktype::_5: focus_window(4);  return true;
+				case haunted::ktype::_6: focus_window(5);  return true;
+				case haunted::ktype::_7: focus_window(6);  return true;
+				case haunted::ktype::_8: focus_window(7);  return true;
+				case haunted::ktype::_9: focus_window(8);  return true;
+				case haunted::ktype::_0: focus_window(9);  return true;
 				case haunted::ktype::q:  focus_window(10); return true;
 				case haunted::ktype::w:  focus_window(11); return true;
 				case haunted::ktype::e:  focus_window(12); return true;
