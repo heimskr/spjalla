@@ -24,7 +24,6 @@ namespace spjalla::config {
 		public:
 			using   submap  = std::map<std::string, value>;
 			using groupmap  = std::map<std::string, submap>;
-			using validator = std::function<validation_result(const value &)>;
 
 		private:
 			/** The in-memory copy of the config database. */
@@ -35,12 +34,6 @@ namespace spjalla::config {
 
 			/** Whether to allow unknown group+key combinations to be inserted into the database. */
 			bool allow_unknown;
-
-			/** Stores known option keys (the first element of the pair) under named groups (the key type of the map)
-			 *  with a value indicating the type and default value. */
-			static groupmap registered;
-
-			static std::map<std::string, validator> validators;
 
 			/** Attempts to parse a keyvalue pair of the form /^(\w+)=(.+)$/. */
 			static std::pair<std::string, std::string> parse_kv_pair(const std::string &);
@@ -81,14 +74,6 @@ namespace spjalla::config {
 
 			/** Checks a value and returns its type. */
 			static value_type get_value_type(std::string) noexcept;
-
-			/** Attempts to register a key. If the key already exists, the function simply returns false; otherwise, it
-			 *  registers the key and returns true. */
-			static bool register_key(const std::string &group, const std::string &key, const value &default_val,
-				const validator &validator_fn = {});
-
-			/** Registers the standard Spjalla configuration keys. */
-			static void register_defaults();
 
 			/** Creates a config directory in the user's home directory if one doesn't already exist.
 			 *  Returns true if the directory had to be created. */

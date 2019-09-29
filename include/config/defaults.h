@@ -8,24 +8,47 @@
 
 namespace spjalla::config {
 	using applicator = std::function<void()>;
+	using validator  = std::function<validation_result(const value &)>;
 
 	struct default_key {
-		database::validator validator;
 		value default_value;
+		validator validator;
 		applicator on_set;
 
-		default_key(const database::validator &validator_, const value &default_value_, const applicator &on_set_):
-			validator(validator_), default_value(default_value_), on_set(on_set_) {}
+		default_key(const value &default_value_, const config::validator &validator_, const applicator &on_set_):
+			default_value(default_value_), validator(validator_), on_set(on_set_) {}
 
-		default_key(const database::validator &validator_, const value &default_value_):
-			default_key(validator_, default_value_, applicator([]() { })) {}
+		default_key(const value &default_value_, const config::validator &validator_):
+			default_key(default_value_, validator_, {}) {}
 
-		validation_result validate(const value &val) {
+		default_key(const value &default_value_, const config::applicator &on_set_):
+			default_key(default_value_, {}, on_set_) {}
+
+		default_key(const value &default_value_):
+			default_key(default_value_, {}, {}) {}
+
+		validation_result validate(const value &val) const {
 			return validator? validator(val) : validation_result::valid;
+		}
+
+		void apply() {
+			if (on_set)
+				on_set();
 		}
 	};
 
-	using registered_map = std::unordered_map<std::pair<std::string, std::string>, default_key>;
+	using registered_map = std::unordered_map<std::string, default_key>;
+
+	/** Attempts to register a key. If the key already exists, the function simply returns false; otherwise, it
+	 *  registers the key and returns true. */
+	bool register_key(const std::string &group, const std::string &key, const value &default_val,
+		const validator &validator_fn = {}, const applicator &on_set = {});
+
+	/** Registers the standard Spjalla configuration keys. */
+	void register_defaults();
+
+
+	extern registered_map registered;
 }
 
 #endif

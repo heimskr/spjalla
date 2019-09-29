@@ -7,9 +7,8 @@
 
 namespace spjalla::config {
 
-	database::groupmap database::registered = {};
-
-	std::map<std::string, database::validator> database::validators {};
+	registered_map registered {};
+	std::map<std::string, validator> validators {};
 
 	validation_result validate_long(const value &val) {
 		return val.get_type() == value_type::long_? validation_result::valid : validation_result::bad_type;
@@ -32,7 +31,19 @@ namespace spjalla::config {
 		return validation_result::bad_value;
 	}
 
-	void database::register_defaults() {
+
+	bool register_key(const std::string &group, const std::string &key, const value &default_value,
+	const validator &validator_fn, const applicator &on_set) {
+		std::string combined = group + "." + key;
+
+		if (registered.count(group + "." + key) > 0)
+			return false;
+
+		registered.insert({combined, default_key(default_value, validator_fn, on_set)});
+		return true;
+	}
+
+	void register_defaults() {
 		register_key("server", "default_nick", pingpong::irc::default_nick);
 		register_key("server", "default_user", pingpong::irc::default_user);
 		register_key("server", "default_real", pingpong::irc::default_realname);

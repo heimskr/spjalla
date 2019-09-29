@@ -7,6 +7,7 @@
 
 #include "core/sputil.h"
 #include "config/config.h"
+#include "config/defaults.h"
 
 namespace spjalla::config {
 
@@ -155,19 +156,6 @@ namespace spjalla::config {
 		return value_type::invalid;
 	}
 
-	bool database::register_key(const std::string &group, const std::string &key, const value &default_value,
-	const validator &validator_fn) {
-		database::submap &keys = registered[group];
-		if (keys.count(key) > 0)
-			return false;
-
-		if (validator_fn)
-			validators.insert({group + "." + key, validator_fn});
-
-		keys.insert({key, default_value});
-		return true;
-	}
-
 	bool database::ensure_config_dir(const std::string &name) {
 		std::filesystem::path config_path = util::get_home() / name;
 		if (!std::filesystem::exists(config_path)) {
@@ -215,7 +203,7 @@ namespace spjalla::config {
 			return db.at(group).at(key);
 
 		if (key_known(group, key))
-			return registered.at(group).at(key);
+			return registered.at(group + "." + key).default_value;
 
 		throw std::out_of_range("No value for group+key pair");
 	}
@@ -226,8 +214,10 @@ namespace spjalla::config {
 		submap &sub = db[group];
 		bool overwritten = false;
 
-		if (validator validator_fn = validators[group + "." + key]) {
-			validation_result result = validator_fn(value);
+		auto iter = registered.find(group + "." + key);
+		if (iter != registered.end()) {
+			const default_key &def = iter->second;
+			validation_result result = def.validate(value);
 			if (result != validation_result::valid)
 				throw validation_failure(result);
 		}
@@ -265,7 +255,7 @@ namespace spjalla::config {
 	}
 
 	bool database::key_known(const std::string &group, const std::string &key) const {
-		return registered.count(group) > 0 && registered.at(group).count(key) > 0;
+		return registered.count(group + "." + key) > 0;
 	}
 
 	ssize_t database::key_count(const std::string &group) const {
@@ -275,17 +265,13 @@ namespace spjalla::config {
 	database::groupmap database::with_defaults() const {
 		groupmap copy {db};
 		for (const auto &gpair: registered) {
-			const std::string &group = gpair.first;
-			const submap &sub = gpair.second;
-			if (copy.count(group) == 0) {
-				copy.insert({group, sub});
-			} else {
-				submap &csub = copy.at(group);
-				for (const auto &spair: sub) {
-					if (csub.count(spair.first) == 0)
-						csub.insert(spair);
-				}
-			}
+			const default_key &def = gpair.second;
+
+			std::string group, key;
+			const std::string &combined = gpair.first;
+			std::tie(group, key) = parse_pair(combined);
+
+			copy[group].insert({key, def.default_value});
 		}
 
 		return copy;
