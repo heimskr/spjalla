@@ -1,4 +1,6 @@
 #include "core/client.h"
+#include "core/input_line.h"
+#include "core/sputil.h"
 #include "core/tab_completion.h"
 
 namespace spjalla::completions {
@@ -7,7 +9,7 @@ namespace spjalla::completions {
 	}
 }
 
-namespace {
+namespace spjalla {
 	void client::tab_complete() {
 		std::string text = ui.input->get_text();
 		if (text.empty())
