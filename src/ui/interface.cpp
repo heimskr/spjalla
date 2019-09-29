@@ -23,7 +23,6 @@ namespace spjalla::ui {
 		init_basic();
 		init_swappo();
 		init_expando();
-		init_colors();
 
 		input->focus();
 		update_statusbar();
@@ -76,14 +75,6 @@ namespace spjalla::ui {
 		expando->set_name("expando");
 		term->set_root(expando);
 		expando->key_fn = [&](const haunted::key &k) { return on_key(k); };
-	}
-
-	void interface::init_colors() {
-		overlay->set_colors(ansi::color::white, ansi::color::verydark);
-		titlebar->set_colors(ansi::color::white, ansi::color::blood);
-		statusbar->set_colors(ansi::color::white, ansi::color::blood);
-		// input->set_colors(ansi::color::normal, ansi::color::red);
-		// active_window->set_colors(ansi::color::normal, ansi::color::magenta);
 	}
 
 	window * interface::get_window(const std::string &window_name, bool create, window_type type) {

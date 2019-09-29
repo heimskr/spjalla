@@ -60,9 +60,6 @@ namespace spjalla::ui {
 			/** Sets up the expandobox that serves as the program's root control. */
 			void init_expando();
 
-			/** Colors all the controls. */
-			void init_colors();
-
 			/** Returns a pointer to the window indicated by a given string. If no window is found, one will be created
 			 *  with that name if `create` is true. */
 			window * get_window(const std::string &, bool create = false, window_type = window_type::other);
