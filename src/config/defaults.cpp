@@ -1,6 +1,7 @@
 #include "pingpong/core/irc.h"
 
 #include "config/config.h"
+#include "config/defaults.h"
 
 #include "lib/formicine/ansi.h"
 
