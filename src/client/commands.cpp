@@ -161,7 +161,7 @@ namespace spjalla {
 			}
 
 			// If there's no channel and we're setting arguments on ourself, it's a regular user mode command.
-			if (!win_chan && chan_str.empty() && extra == serv->get_nick() && !flags.empty()) {
+			if (!win_chan && chan_str.empty() && extra == serv->get_nick()) {
 				pingpong::mode_command(serv->get_self(), flags).send();
 				return;
 			}
