@@ -214,10 +214,10 @@ namespace spjalla::config {
 		submap &sub = db[group];
 		bool overwritten = false;
 
-		auto iter = registered.find(group + "." + key);
-		if (iter != registered.end()) {
-			const default_key &def = iter->second;
-			validation_result result = def.validate(value);
+		const auto iter = registered.find(group + "." + key);
+		const bool is_registered = iter != registered.end();
+		if (is_registered) {
+			validation_result result = iter->second.validate(value);
 			if (result != validation_result::valid)
 				throw validation_failure(result);
 		}
@@ -231,6 +231,9 @@ namespace spjalla::config {
 
 		if (save)
 			write_db();
+
+		if (is_registered)
+			iter->second.apply(value);
 
 		return overwritten;
 	}

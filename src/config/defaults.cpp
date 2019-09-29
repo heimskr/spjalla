@@ -48,6 +48,8 @@ namespace spjalla::config {
 		register_key("server", "default_user", pingpong::irc::default_user);
 		register_key("server", "default_real", pingpong::irc::default_realname);
 
-		register_key("appearance", "bar_color", "blood", validate_color);
+		register_key("appearance", "bar_color", "blood", validate_color, [](const value &new_value) {
+			DBG("New value: " << new_value.string_());
+		});
 	}
 }

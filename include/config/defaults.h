@@ -7,7 +7,7 @@
 #include "config/config.h"
 
 namespace spjalla::config {
-	using applicator = std::function<void()>;
+	using applicator = std::function<void(const value &)>;
 	using validator  = std::function<validation_result(const value &)>;
 
 	struct default_key {
@@ -31,9 +31,9 @@ namespace spjalla::config {
 			return validator? validator(val) : validation_result::valid;
 		}
 
-		void apply() {
+		void apply(const value &new_value) {
 			if (on_set)
-				on_set();
+				on_set(new_value);
 		}
 	};
 
