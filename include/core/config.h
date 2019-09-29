@@ -2,8 +2,9 @@
 #define SPJALLA_CORE_CONFIG_H_
 
 #include <filesystem>
-#include <string>
+#include <functional>
 #include <map>
+#include <string>
 #include <utility>
 
 #include "haunted/core/key.h"
@@ -19,6 +20,7 @@ namespace spjalla {
 	};
 
 	enum class config_type {invalid, long_, double_, string_};
+	enum class config_validation {valid, bad_type, bad_value};
 
 	class config_value {
 		// Boost? Never heard of it.
@@ -35,10 +37,14 @@ namespace spjalla {
 			config_value(int int_): config_value(static_cast<long>(int_)) {}
 			config_value(const char *str_): config_value(std::string(str_)) {}
 
-			config_type get_type() { return type; }
+			config_type get_type() const { return type; }
 			long & long_();
 			double & double_();
 			std::string & string_();
+
+			bool is_long()   const { return type == config_type::long_;   }
+			bool is_double() const { return type == config_type::double_; }
+			bool is_string() const { return type == config_type::string_; }
 
 			config_value & operator=(long);
 			config_value & operator=(double);
@@ -62,8 +68,9 @@ namespace spjalla {
 	 */
 	class config {
 		public:
-			using   submap = std::map<std::string, config_value>;
-			using groupmap = std::map<std::string, submap>;
+			using   submap  = std::map<std::string, config_value>;
+			using groupmap  = std::map<std::string, submap>;
+			using validator = std::function<config_validation(const config_value &)>;
 
 		private:
 			/** The in-memory copy of the config database. */
@@ -78,6 +85,10 @@ namespace spjalla {
 			/** Stores known option keys (the first element of the pair) under named groups (the key type of the map)
 			 *  with a config_value indicating the type and default value. */
 			static groupmap registered;
+
+			static std::map<std::string, validator> validators;
+
+			static validator long_validator, string_validator;
 
 			/** Attempts to parse a keyvalue pair of the form /^(\w+)=(.+)$/. */
 			static std::pair<std::string, std::string> parse_kv_pair(const std::string &);
@@ -121,7 +132,8 @@ namespace spjalla {
 
 			/** Attempts to register a key. If the key already exists, the function simply returns false; otherwise, it
 			 *  registers the key and returns true. */
-			static bool register_key(const std::string &group, const std::string &key, const config_value &default_val);
+			static bool register_key(const std::string &group, const std::string &key, const config_value &default_val,
+				const validator &validator_fn = {});
 
 			/** Registers the standard Spjalla configuration keys. */
 			static void register_defaults();

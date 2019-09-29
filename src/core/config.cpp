@@ -96,6 +96,16 @@ namespace spjalla {
 
 	config::groupmap config::registered = {};
 
+	std::map<std::string, config::validator> config::validators {};
+
+	config::validator long_validator = [](const config_value &value) {
+		return value.get_type() == config_type::long_? config_validation::valid : config_validation::bad_type;
+	};
+
+	config::validator string_validator = [](const config_value &value) {
+		return value.get_type() == config_type::string_? config_validation::valid : config_validation::bad_type;
+	};
+
 
 // Private static methods (config)
 
@@ -241,10 +251,14 @@ namespace spjalla {
 		return config_type::invalid;
 	}
 
-	bool config::register_key(const std::string &group, const std::string &key, const config_value &default_value) {
+	bool config::register_key(const std::string &group, const std::string &key, const config_value &default_value,
+	const validator &validator_fn) {
 		config::submap &keys = registered[group];
 		if (keys.count(key) > 0)
 			return false;
+
+		if (validator_fn)
+			validators.insert({group + "." + key, validator_fn});
 
 		keys.insert({key, default_value});
 		return true;
