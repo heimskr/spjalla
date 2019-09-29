@@ -32,7 +32,7 @@ namespace spjalla::lines {
 			}
 		}
 
-		return prefix + styled_name + " set modes for " + ansi::bold(where) + suffix;
+		return prefix + styled_name + "set modes for " + ansi::bold(where) + suffix;
 	}
 
 	std::unordered_map<std::string, std::string> mode_line::verbs = {
