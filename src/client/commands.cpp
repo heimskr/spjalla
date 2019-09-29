@@ -246,7 +246,7 @@ namespace spjalla {
 			config::groupmap with_defaults = configs.with_defaults();
 
 			if (il.args.empty()) {
-				for (const auto &gpair: configs.with_defaults()) {
+				for (const auto &gpair: with_defaults) {
 					ui.log(lines::config_group_line(gpair.first));
 					for (const auto &spair: gpair.second)
 						ui.log(lines::config_key_line(spair));
@@ -258,16 +258,31 @@ namespace spjalla {
 			const std::string &first = il.first();
 
 			std::pair<std::string, std::string> parsed;
-			try {
-				parsed = config::parse_pair(first);
-			} catch (const std::invalid_argument &) {
-				ui.log(lines::warning_line("Couldn't parse setting " + ansi::bold(first)));
-				return;
+
+			if (first.find('.') == std::string::npos) {
+				parsed.second = first;
+				for (const auto &gpair: with_defaults) {
+					if (gpair.second.count(first) == 1) {
+						if (!parsed.first.empty()) {
+							ui.warn("Multiple groups contain the key " + ansi::bold(first) + ".");
+							return;
+						}
+
+						parsed.first = gpair.first;
+					}
+				}
+			} else {
+				try {
+					parsed = config::parse_pair(first);
+				} catch (const std::invalid_argument &) {
+					ui.warn("Couldn't parse setting " + ansi::bold(first));
+					return;
+				}
 			}
 
 			try {
 				const config_value &value = configs.get(parsed);
-				ui.log(lines::config_key_line(parsed.second, value, false));
+				ui.log(lines::config_key_line(parsed.first + "." + parsed.second, value, false));
 			} catch (const std::out_of_range &) {
 				ui.log("No configuration option for " + ansi::bold(first) + ".");
 			}
