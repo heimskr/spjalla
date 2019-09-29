@@ -1,6 +1,7 @@
 #include "pingpong/commands/privmsg.h"
 
 #include "core/client.h"
+#include "core/sputil.h"
 
 namespace spjalla {
 	void client::add_input_listener() {
@@ -109,6 +110,8 @@ namespace spjalla {
 		}
 
 		input_line il = get_input_line(text);
-		DBG("Command[" << il.command << "]");
+		ssize_t windex = util::word_index(text, cursor);
+		DBG("Command[" << il.command << "], windex[" << windex << "]");
+
 	}
 }

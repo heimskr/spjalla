@@ -59,7 +59,8 @@ namespace spjalla {
 		}
 
 		/** Returns the index of the word that a given index is in. If the cursor is within a group of multiple spaces
-		 *  between two words, the function returns -1. */
+		 *  between two words, the function returns a negative number. A return value of -1 means the cursor is before
+		 *  the first word, -2 indicates that the cursor is before the second word, and so on. */
 		ssize_t word_index(const std::string &, size_t);
 	}
 }

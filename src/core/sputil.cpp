@@ -102,8 +102,6 @@ namespace spjalla::util {
 
 	ssize_t word_index(const std::string &str, size_t cursor) {
 		const size_t length = str.length();
-		if (length < cursor)
-			return -1;
 
 		ssize_t word_index = -1;
 		char prev_char = '\0', next_char = '\0';
@@ -124,12 +122,12 @@ namespace spjalla::util {
 					// Otherwise, it's time to increment the word index.
 					if (i == cursor)
 						return word_index;
-				} else if (next_char == ' ' && i == cursor) {
-					// If we're within a group of spaces and this is the where the cursor is, return -1 because that
-					// means the cursor isn't in a word.
-					return -1;
+				} else if (i == cursor) {
+					// If we're within a group of spaces and this is the where the cursor is, return a negative number
+					// because that means the cursor isn't in a word.
+					return -word_index - 2;
 				}
-			} else if (cursor == i) {
+			} else if (i == cursor) {
 				return word_index;
 			}
 
@@ -139,6 +137,6 @@ namespace spjalla::util {
 		if (cursor == length && prev_char != ' ')
 			return word_index;
 
-		return -1;
+		return -word_index - 2;
 	}
 }
