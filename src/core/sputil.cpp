@@ -148,4 +148,27 @@ namespace spjalla::util {
 
 		return {-word_index - 2, -1};
 	}
+
+	size_t index_of_word(const std::string &str, size_t n) {
+		const size_t length = str.length();
+		size_t word_index = 0;
+
+		char prev_char = '\0';
+		for (size_t i = 0; i < length; ++i) {
+			char ch = str[i];
+
+			if (ch == ' ' && (prev_char != ' ' && prev_char != '\0')) {
+				// We're at a space and the previous character wasn't a space (or the beginning of the string).
+				// This means we've just left a word, so increment the word index.
+				++word_index;
+			}
+
+			if (ch != ' ' && (prev_char == ' ' || prev_char == '\0') && word_index == n)
+				return i;
+
+			prev_char = ch;
+		}
+
+		return length;
+	}
 }

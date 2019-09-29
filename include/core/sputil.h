@@ -64,6 +64,10 @@ namespace spjalla {
 		 *  If the first value is -1, the cursor is before the first word. -2 indicates that the cursor is before the
 		 *  second word, -3 before the third, and so on. The second value will be -1 if the first value is negative. */
 		std::pair<ssize_t, ssize_t> word_indices(const std::string &, size_t);
+
+		/** Returns the index of the first character in the n-th word of a string. If n is greater than the number of
+		 *  words in the string, the length of the string is returned. */
+		size_t index_of_word(const std::string &, size_t n);
 	}
 }
 
