@@ -14,6 +14,8 @@ namespace spjalla::completions {
 		if (k != haunted::ktype::tab) {
 			partial.clear();
 			has_partial = false;
+			for (auto &pair: parent.completion_states)
+				pair.second.reset();
 		}
 	}
 
@@ -65,10 +67,12 @@ namespace spjalla::completions {
 	void complete_set(client &client_, const input_line &line, std::string &raw, size_t &index, long arg_index,
 	long arg_subindex) {
 		DBG("complete_set([" << line << "] [" << raw << "] [" << index << "] [" << arg_index << "] [" << arg_subindex << "])");
+		DBG("State: " << client_.completion_states["set"]);
 	}
 
-	completion_state::completion_state(const std::vector<suggestor_fn> &suggestors_): suggestors(suggestors_) {
-		active_partials = std::vector(suggestors_.size(), false);
+	void completion_state::reset() {
+		partial.clear();
+		partial_index = -1;
 	}
 
 	completion_state::operator std::string() const {
