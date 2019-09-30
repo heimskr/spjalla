@@ -3,10 +3,10 @@
 
 #include <optional>
 
-#include "lib/haunted/core/hdefs.h"
-#include "lib/haunted/ui/container.h"
-#include "lib/haunted/ui/textbox.h"
-#include "lib/pingpong/core/ppdefs.h"
+#include "haunted/core/defs.h"
+#include "haunted/ui/container.h"
+#include "haunted/ui/textbox.h"
+#include "pingpong/core/defs.h"
 
 namespace spjalla::ui {
 

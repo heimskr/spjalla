@@ -1,7 +1,7 @@
 #ifndef SPJALLA_LINES_WARNING_H_
 #define SPJALLA_LINES_WARNING_H_
 
-#include "lines/lines.h"
+#include "spjalla/lines/lines.h"
 
 namespace spjalla::lines {
 	struct warning_line: public haunted::ui::textline {

@@ -1,8 +1,8 @@
 #include "pingpong/core/irc.h"
 
-#include "core/client.h"
-#include "config/config.h"
-#include "config/defaults.h"
+#include "spjalla/core/client.h"
+#include "spjalla/config/config.h"
+#include "spjalla/config/defaults.h"
 
 #include "lib/formicine/ansi.h"
 

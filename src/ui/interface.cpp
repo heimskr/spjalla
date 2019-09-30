@@ -1,22 +1,22 @@
 #include <iomanip>
 #include <set>
 
-#include "core/client.h"
-#include "core/spopt.h"
-#include "core/sputil.h"
+#include "spjalla/core/client.h"
+#include "spjalla/core/options.h"
+#include "spjalla/core/util.h"
 
-#include "config/config.h"
+#include "spjalla/config/config.h"
 
-#include "lib/haunted/core/hdefs.h"
-#include "lib/haunted/core/key.h"
-#include "lib/pingpong/core/ppdefs.h"
-#include "lib/pingpong/core/channel.h"
-#include "lib/pingpong/core/user.h"
+#include "haunted/core/defs.h"
+#include "haunted/core/key.h"
+#include "pingpong/core/defs.h"
+#include "pingpong/core/channel.h"
+#include "pingpong/core/user.h"
 
-#include "lines/chanlist.h"
-#include "lines/overlay.h"
-#include "lines/timed.h"
-#include "lines/userlist.h"
+#include "spjalla/lines/chanlist.h"
+#include "spjalla/lines/overlay.h"
+#include "spjalla/lines/timed.h"
+#include "spjalla/lines/userlist.h"
 
 namespace spjalla::ui {
 	interface::interface(haunted::terminal *term_, client *parent_): term(term_), parent(parent_) {

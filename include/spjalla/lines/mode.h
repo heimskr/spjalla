@@ -5,7 +5,7 @@
 
 #include "pingpong/events/mode.h"
 
-#include "lines/lines.h"
+#include "spjalla/lines/lines.h"
 
 namespace spjalla::lines {
 	class mode_line: public haunted::ui::textline {

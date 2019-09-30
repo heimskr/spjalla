@@ -1,6 +1,6 @@
 #include <chrono>
 
-#include "core/client.h"
+#include "spjalla/core/client.h"
 
 namespace spjalla {
 	void client::heartbeat_loop() {

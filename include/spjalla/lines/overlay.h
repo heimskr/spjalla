@@ -2,7 +2,7 @@
 #define SPJALLA_LINES_OVERLAY_H_
 
 #include "pingpong/core/server.h"
-#include "lines/lines.h"
+#include "spjalla/lines/lines.h"
 
 namespace spjalla::lines {
 	/**

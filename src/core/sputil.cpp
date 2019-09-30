@@ -4,8 +4,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "core/sputil.h"
-#include "ui/window.h"
+#include "spjalla/core/util.h"
+#include "spjalla/ui/window.h"
 
 namespace spjalla::util {
 	std::string colorize_if_dead(const std::string &str, const ui::window *win) {

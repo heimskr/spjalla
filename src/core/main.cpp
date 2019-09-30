@@ -6,10 +6,10 @@
 
 #include "pingpong/core/irc.h"
 
-#include "core/client.h"
-#include "core/util.h"
+#include "spjalla/core/client.h"
+#include "spjalla/core/util.h"
 
-#include "lines/warning.h"
+#include "spjalla/lines/warning.h"
 
 // #define MAIN_CATCH
 

@@ -1,4 +1,4 @@
-#include "lines/topic.h"
+#include "spjalla/lines/topic.h"
 
 namespace spjalla::lines {
 	topic_line::operator std::string() const {

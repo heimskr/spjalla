@@ -1,4 +1,4 @@
-#include "lines/part.h"
+#include "spjalla/lines/part.h"
 
 namespace spjalla::lines {
 	part_line::operator std::string() const {

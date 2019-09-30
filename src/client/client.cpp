@@ -5,7 +5,7 @@
 
 #include "pingpong/core/channel.h"
 #include "pingpong/core/debug.h"
-#include "pingpong/core/ppdefs.h"
+#include "pingpong/core/defs.h"
 #include "pingpong/core/irc.h"
 #include "pingpong/core/server.h"
 
@@ -13,14 +13,14 @@
 
 #include "pingpong/net/resolution_error.h"
 
-#include "core/client.h"
-#include "core/input_line.h"
-#include "config/config.h"
-#include "config/defaults.h"
+#include "spjalla/core/client.h"
+#include "spjalla/core/input_line.h"
+#include "spjalla/config/config.h"
+#include "spjalla/config/defaults.h"
 
-#include "lines/lines.h"
+#include "spjalla/lines/lines.h"
 
-#include "formicine/ansi.h"
+#include "lib/formicine/ansi.h"
 
 namespace spjalla {
 	client::client(int heartbeat_period_): out_stream(ansi::out), term(haunted::terminal(std::cin, out_stream)),
@@ -55,7 +55,7 @@ namespace spjalla {
 	}
 
 
-	client & client::operator+=(const command_pair &p) {
+	client & client::operator+=(const spjalla::commands::pair &p) {
 		add(p);
 		return *this;
 	}
@@ -65,8 +65,9 @@ namespace spjalla {
 		return *this;
 	}
 
-	void client::add(const command_pair &p) {
+	void client::add(const spjalla::commands::pair &p) {
 		command_handlers.insert(p);
+		completion_states.insert({p.first, completions::completion_state(p.second.suggestors)});
 	}
 
 	void client::init() {

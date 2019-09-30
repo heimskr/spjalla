@@ -12,17 +12,17 @@
 
 #include "pingpong/net/resolution_error.h"
 
-#include "core/client.h"
-#include "core/sputil.h"
+#include "spjalla/core/client.h"
+#include "spjalla/core/util.h"
 
-#include "config/config.h"
+#include "spjalla/config/config.h"
 
-#include "lines/config_group.h"
-#include "lines/config_key.h"
-#include "lines/lines.h"
-#include "lines/warning.h"
+#include "spjalla/lines/config_group.h"
+#include "spjalla/lines/config_key.h"
+#include "spjalla/lines/lines.h"
+#include "spjalla/lines/warning.h"
 
-#include "formicine/futil.h"
+#include "lib/formicine/futil.h"
 
 #include "haunted/tests/test.h"
 

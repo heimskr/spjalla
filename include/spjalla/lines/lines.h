@@ -3,9 +3,9 @@
 
 #include <string>
 
-#include "pingpong/core/pputil.h"
+#include "pingpong/core/util.h"
 #include "haunted/ui/textbox.h"
-#include "formicine/ansi.h"
+#include "lib/formicine/ansi.h"
 
 namespace spjalla::lines {
 	extern std::string notice;

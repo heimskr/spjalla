@@ -23,17 +23,17 @@
 #include "pingpong/messages/numeric.h"
 #include "pingpong/messages/ping.h"
 
-#include "core/client.h"
+#include "spjalla/core/client.h"
 
-#include "lines/join.h"
-#include "lines/kick.h"
-#include "lines/mode.h"
-#include "lines/nick_change.h"
-#include "lines/part.h"
-#include "lines/privmsg.h"
-#include "lines/quit.h"
-#include "lines/timed.h"
-#include "lines/topic.h"
+#include "spjalla/lines/join.h"
+#include "spjalla/lines/kick.h"
+#include "spjalla/lines/mode.h"
+#include "spjalla/lines/nick_change.h"
+#include "spjalla/lines/part.h"
+#include "spjalla/lines/privmsg.h"
+#include "spjalla/lines/quit.h"
+#include "spjalla/lines/timed.h"
+#include "spjalla/lines/topic.h"
 
 namespace spjalla {
 	void client::add_events() {

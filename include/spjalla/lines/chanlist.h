@@ -1,11 +1,11 @@
 #ifndef SPJALLA_LINES_CHANLIST_H_
 #define SPJALLA_LINES_CHANLIST_H_
 
-#include "pingpong/core/ppdefs.h"
+#include "pingpong/core/defs.h"
 #include "pingpong/core/channel.h"
 #include "pingpong/core/user.h"
 
-#include "lines/lines.h"
+#include "spjalla/lines/lines.h"
 
 namespace spjalla::lines {
 	struct chanlist_line: haunted::ui::textline {

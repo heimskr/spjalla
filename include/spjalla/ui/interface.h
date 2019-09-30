@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <thread>
 
-#include "haunted/core/hdefs.h"
+#include "haunted/core/defs.h"
 #include "haunted/core/key.h"
 #include "haunted/core/terminal.h"
 #include "haunted/ui/label.h"
@@ -19,11 +19,11 @@
 #include "haunted/ui/boxes/propobox.h"
 #include "haunted/ui/boxes/swapbox.h"
 
-#include "pingpong/core/ppdefs.h"
+#include "pingpong/core/defs.h"
 
-#include "lines/warning.h"
+#include "spjalla/lines/warning.h"
 
-#include "ui/window.h"
+#include "spjalla/ui/window.h"
 
 namespace spjalla {
 	class client;

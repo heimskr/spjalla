@@ -1,4 +1,4 @@
-#include "lines/nick_change.h"
+#include "spjalla/lines/nick_change.h"
 
 namespace spjalla::lines {
 	nick_change_line::operator std::string() const {

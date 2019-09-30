@@ -1,13 +1,13 @@
 #ifndef SPJALLA_LINES_part_H_
 #define SPJALLA_LINES_part_H_
 
-#include "pingpong/core/ppdefs.h"
+#include "pingpong/core/defs.h"
 #include "pingpong/core/user.h"
 #include "pingpong/core/channel.h"
 
 #include "pingpong/events/part.h"
 
-#include "lines/lines.h"
+#include "spjalla/lines/lines.h"
 
 namespace spjalla::lines {
 	struct part_line: public haunted::ui::textline {

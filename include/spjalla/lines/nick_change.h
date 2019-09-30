@@ -1,7 +1,7 @@
 #ifndef SPJALLA_LINES_NICK_CHANGE_H_
 #define SPJALLA_LINES_NICK_CHANGE_H_
 
-#include "pingpong/core/ppdefs.h"
+#include "pingpong/core/defs.h"
 #include "pingpong/core/user.h"
 #include "pingpong/core/channel.h"
 
@@ -9,7 +9,7 @@
 
 #include "pingpong/events/nick.h"
 
-#include "lines/lines.h"
+#include "spjalla/lines/lines.h"
 
 namespace spjalla::lines {
 	struct nick_change_line: public haunted::ui::textline {

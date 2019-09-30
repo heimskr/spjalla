@@ -1,4 +1,4 @@
-#include "lines/chanlist.h"
+#include "spjalla/lines/chanlist.h"
 
 namespace spjalla::lines {
 	chanlist_line::operator std::string() const {

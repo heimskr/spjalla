@@ -1,9 +1,9 @@
 #ifndef SPJALLA_LINES_CONFIG_GROUP_H_
 #define SPJALLA_LINES_CONFIG_GROUP_H_
 
-#include "pingpong/core/pputil.h"
+#include "pingpong/core/util.h"
 
-#include "lines/lines.h"
+#include "spjalla/lines/lines.h"
 
 namespace spjalla::lines {
 	struct config_group_line: public haunted::ui::textline {

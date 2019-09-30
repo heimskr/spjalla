@@ -1,5 +1,5 @@
 #include <iostream>
-#include "core/input_line.h"
+#include "spjalla/core/input_line.h"
 
 namespace spjalla {
 	input_line::input_line(const std::string &full): original(full) {

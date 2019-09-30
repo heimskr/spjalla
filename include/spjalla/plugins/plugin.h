@@ -3,8 +3,8 @@
 
 #include <functional>
 
-#include "commands/command.h"
-#include "core/util.h"
+#include "spjalla/commands/command.h"
+#include "spjalla/core/util.h"
 
 namespace spjalla {
 	class client;

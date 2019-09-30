@@ -1,4 +1,4 @@
-#include "config/keys.h"
+#include "spjalla/config/keys.h"
 
 namespace spjalla::config {
 	haunted::key keys::toggle_overlay  = {haunted::ktype::semicolon, haunted::kmod::ctrl};

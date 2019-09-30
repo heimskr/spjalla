@@ -1,8 +1,8 @@
 #include <chrono>
 #include <ctime>
 
-#include "lines/lines.h"
-#include "formicine/ansi.h"
+#include "spjalla/lines/lines.h"
+#include "lib/formicine/ansi.h"
 
 namespace spjalla::lines {
 	std::string notice = "\e[2m-\e[1m!\e[0;2m-\e[22m ";

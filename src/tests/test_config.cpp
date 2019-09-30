@@ -1,5 +1,5 @@
 #include "tests/config.h"
-#include "core/sputil.h"
+#include "spjalla/core/util.h"
 
 int main(int, char **) {
 	haunted::tests::testing unit;

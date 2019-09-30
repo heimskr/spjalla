@@ -1,4 +1,4 @@
-#include "lines/config_group.h"
+#include "spjalla/lines/config_group.h"
 
 namespace spjalla::lines {
 	config_group_line::operator std::string() const {

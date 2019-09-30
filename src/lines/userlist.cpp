@@ -1,4 +1,4 @@
-#include "lines/userlist.h"
+#include "spjalla/lines/userlist.h"
 
 namespace spjalla::lines {
 	userlist_line::operator std::string() const {

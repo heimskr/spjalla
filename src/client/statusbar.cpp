@@ -1,4 +1,4 @@
-#include "core/client.h"
+#include "spjalla/core/client.h"
 
 namespace spjalla {
 	void client::sort_widgets() {

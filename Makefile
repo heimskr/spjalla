@@ -38,7 +38,7 @@ INCLUDE_HN		:= -Ihaunted/include
 SOURCES_HN		:= $(shell find haunted/src -name '*.cpp' | sed -nE '/(tests?|test_.+|ansi|futil)\.cpp$$/!p')
 OBJECTS_HN		:= $(patsubst haunted/src/%.cpp,haunted/build/%.o,$(SOURCES_HN))
 
-INCLUDE_SP		:= -Iinclude -Iinclude/lib
+INCLUDE_SP		:= -Iinclude
 SOURCES_SP		:= $(shell find -L src -name '*.cpp' | sed -nE '/(^src\/plugins\/)|((tests?|test_.+)\.cpp$$)/!p')
 OBJECTS_SP		:= $(patsubst src/%.cpp,build/%.o,$(SOURCES_SP))
 INCLUDE_LIBS	:= $(INCLUDE_PP) $(INCLUDE_HN)

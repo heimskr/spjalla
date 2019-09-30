@@ -1,4 +1,4 @@
-#include "lines/warning.h"
+#include "spjalla/lines/warning.h"
 
 namespace spjalla::lines {
 	warning_line::operator std::string() const {

@@ -1,6 +1,6 @@
-#include "ui/status_widget.h"
+#include "spjalla/ui/status_widget.h"
 
-#include "formicine/ansi.h"
+#include "lib/formicine/ansi.h"
 
 namespace spjalla::ui {
 	std::string status_widget::surround(const std::string &middle) const {

@@ -7,8 +7,10 @@
 
 #include "haunted/core/key.h"
 
-#include "core/input_line.h"
-#include "plugins/plugin.h"
+#include "pingpong/commands/command.h"
+
+#include "spjalla/core/input_line.h"
+#include "spjalla/plugins/plugin.h"
 
 namespace spjalla::plugins {
 	class plugin_host {

@@ -7,11 +7,11 @@
 #include <string>
 #include <utility>
 
-#include "core/spopt.h"
+#include "spjalla/core/options.h"
 
-#include "config/keys.h"
-#include "config/validation.h"
-#include "config/value.h"
+#include "spjalla/config/keys.h"
+#include "spjalla/config/validation.h"
+#include "spjalla/config/value.h"
 
 namespace haunted::tests { class testing; }
 namespace spjalla::tests { void test_config(haunted::tests::testing &); }

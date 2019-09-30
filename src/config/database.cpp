@@ -5,9 +5,9 @@
 
 #include <cstdlib>
 
-#include "core/sputil.h"
-#include "config/config.h"
-#include "config/defaults.h"
+#include "spjalla/core/util.h"
+#include "spjalla/config/config.h"
+#include "spjalla/config/defaults.h"
 
 namespace spjalla::config {
 

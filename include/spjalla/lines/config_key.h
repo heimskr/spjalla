@@ -1,10 +1,10 @@
 #ifndef SPJALLA_LINES_CONFIG_KEY_H_
 #define SPJALLA_LINES_CONFIG_KEY_H_
 
-#include "pingpong/core/pputil.h"
+#include "pingpong/core/util.h"
 
-#include "config/config.h"
-#include "lines/lines.h"
+#include "spjalla/config/config.h"
+#include "spjalla/lines/lines.h"
 
 namespace spjalla::lines {
 	struct config_key_line: public haunted::ui::textline {

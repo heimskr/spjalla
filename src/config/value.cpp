@@ -1,6 +1,6 @@
-#include "core/sputil.h"
+#include "spjalla/core/util.h"
 
-#include "config/value.h"
+#include "spjalla/config/value.h"
 
 namespace spjalla::config {
 	long & value::long_ref() {

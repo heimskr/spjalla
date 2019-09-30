@@ -1,8 +1,10 @@
-#include "lib/haunted/core/key.h"
-#include "core/client.h"
-#include "core/input_line.h"
-#include "core/sputil.h"
-#include "core/tab_completion.h"
+#include <ostream>
+
+#include "haunted/core/key.h"
+#include "spjalla/core/client.h"
+#include "spjalla/core/input_line.h"
+#include "spjalla/core/util.h"
+#include "spjalla/core/tab_completion.h"
 
 #include "lib/formicine/futil.h"
 
@@ -64,6 +66,18 @@ namespace spjalla::completions {
 	long arg_subindex) {
 		DBG("complete_set([" << line << "] [" << raw << "] [" << index << "] [" << arg_index << "] [" << arg_subindex << "])");
 	}
+
+	completion_state::completion_state(const std::vector<suggestor_fn> &suggestors_): suggestors(suggestors_) {
+		active_partials = std::vector(suggestors_.size(), false);
+	}
+
+	completion_state::operator std::string() const {
+		return "[" + std::to_string(partial_index) + "] \"" + partial + "\"";
+	}
+
+	std::ostream & operator<<(std::ostream &os, const completion_state &state) {
+		return os << std::string(state);
+	}
 }
 
 namespace spjalla {
@@ -102,7 +116,7 @@ namespace spjalla {
 				// The user has entered a command and the cursor is at or past the first argument.
 				for (const auto &handler: command_handlers) {
 					const std::string &name = handler.first;
-					const command &cmd = handler.second;
+					const commands::command &cmd = handler.second;
 
 					if (name == il.command) {
 						if (cmd.completion_fn)

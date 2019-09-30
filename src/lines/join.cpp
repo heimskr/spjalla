@@ -1,4 +1,4 @@
-#include "lines/join.h"
+#include "spjalla/lines/join.h"
 
 namespace spjalla::lines {
 	join_line::operator std::string() const {

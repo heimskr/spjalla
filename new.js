@@ -107,7 +107,7 @@ if (type.match(/^c(ore)?$/i)) {
 	%	#endif`);
 
 	sourcetext = prepare(`
-	%	#include "core/${name}.h"
+	%	#include "spjalla/core/${name}.h"
 	%
 	%	namespace spjalla {
 	%		

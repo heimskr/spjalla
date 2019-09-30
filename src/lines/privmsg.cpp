@@ -1,4 +1,4 @@
-#include "lines/privmsg.h"
+#include "spjalla/lines/privmsg.h"
 
 namespace spjalla::lines {
 	privmsg_line::privmsg_line(std::shared_ptr<pingpong::user> speaker_, const std::string &where_,

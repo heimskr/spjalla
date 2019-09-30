@@ -1,8 +1,10 @@
-#include "core/client.h"
-#include "plugins/plugin.h"
-#include "ui/status_widget.h"
-#include "formicine/ansi.h"
-#include "pingpong/core/pputil.h"
+#include "pingpong/core/util.h"
+
+#include "spjalla/core/client.h"
+#include "spjalla/plugins/plugin.h"
+#include "spjalla/ui/status_widget.h"
+
+#include "lib/formicine/ansi.h"
 
 namespace spjalla::plugins {
 	class clock_widget: public spjalla::ui::status_widget {

@@ -1,11 +1,11 @@
-#include "pingpong/core/pputil.h"
+#include "pingpong/core/util.h"
 
-#include "core/client.h"
-#include "core/sputil.h"
-#include "plugins/plugin.h"
-#include "ui/status_widget.h"
+#include "spjalla/core/client.h"
+#include "spjalla/core/util.h"
+#include "spjalla/plugins/plugin.h"
+#include "spjalla/ui/status_widget.h"
 
-#include "formicine/ansi.h"
+#include "lib/formicine/ansi.h"
 
 namespace spjalla::plugins {
 	class window_info_left_widget: public spjalla::ui::status_widget {

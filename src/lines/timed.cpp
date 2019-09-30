@@ -1,4 +1,4 @@
-#include "lines/timed.h"
+#include "spjalla/lines/timed.h"
 
 namespace spjalla::lines {
 	timed_line::operator std::string() const {

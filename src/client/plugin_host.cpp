@@ -2,8 +2,8 @@
 
 #include <dlfcn.h>
 
-#include "core/spopt.h"
-#include "core/plugin_host.h"
+#include "spjalla/core/options.h"
+#include "spjalla/core/plugin_host.h"
 
 namespace spjalla::plugins {
 	plugin_host::~plugin_host() = default;

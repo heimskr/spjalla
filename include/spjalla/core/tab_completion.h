@@ -5,8 +5,8 @@
 #include <string>
 #include <vector>
 
-#include "lib/haunted/core/key.h"
-#include "core/input_line.h"
+#include "haunted/core/key.h"
+#include "spjalla/core/input_line.h"
 
 namespace spjalla {
 	class client;
@@ -47,12 +47,17 @@ namespace spjalla::completions {
 	};
 
 	struct completion_state {
-		std::deque<std::string> partials {};
-		std::vector<std::function<std::string(const std::vector<std::string>)>> suggestors {};
+		using suggestor_fn = std::function<std::string(const std::vector<std::string>)>;
 
-		completion_state(const std::deque<std::string> &partials_ = {},
-		const std::vector<std::function<std::string(const std::vector<std::string>)>> &suggestors_ = {}):
-			partials(partials_), suggestors(suggestors_) {}
+		std::string partial;
+		size_t partial_index = 0;
+
+		std::vector<bool> active_partials {};
+
+		std::vector<suggestor_fn> suggestors {};
+
+		completion_state(const std::vector<suggestor_fn> &suggestors_ = {});
+		operator std::string() const;
 	};
 }
 

@@ -1,4 +1,4 @@
-#include "lines/quit.h"
+#include "spjalla/lines/quit.h"
 
 namespace spjalla::lines {
 	quit_line::operator std::string() const {

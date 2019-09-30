@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "ui/window.h"
+#include "spjalla/ui/window.h"
 
 namespace spjalla {
 	class client;

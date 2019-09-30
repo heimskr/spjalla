@@ -6,40 +6,36 @@
 #include <map>
 #include <thread>
 #include <tuple>
+#include <unordered_map>
 
-#include "haunted/core/hdefs.h"
+#include "haunted/core/defs.h"
 #include "haunted/core/key.h"
+
 #include "pingpong/messages/message.h"
 #include "pingpong/core/irc.h"
 
-#include "core/input_line.h"
-#include "core/plugin_host.h"
-#include "core/tab_completion.h"
-#include "config/config.h"
-#include "plugins/plugin.h"
-#include "ui/interface.h"
-#include "ui/status_widget.h"
+#include "spjalla/commands/command.h"
+
+#include "spjalla/core/input_line.h"
+#include "spjalla/core/plugin_host.h"
+#include "spjalla/core/tab_completion.h"
+
+#include "spjalla/config/config.h"
+
+#include "spjalla/plugins/plugin.h"
+
+#include "spjalla/ui/interface.h"
+#include "spjalla/ui/status_widget.h"
 
 namespace spjalla {
-	struct command {
-		using command_handler = std::function<void(pingpong::server *, const input_line &)>;
-
-		int min_args, max_args;
-		bool needs_server;
-		command_handler handler_fn;
-		completions::completion_fn completion_fn;
-	};
-
 	class client: public plugins::plugin_host {
 		friend class ui::interface;
-
-		using command_pair = std::pair<std::string, command>;
 
 // client/client.cpp
 
 		private:
 			pingpong::irc irc;
-			std::multimap<std::string, command> command_handlers;
+			std::multimap<std::string, commands::command> command_handlers;
 			std::mutex irc_mutex;
 			ansi::ansistream &out_stream;
 			haunted::terminal term;
@@ -102,7 +98,7 @@ namespace spjalla {
 			 * Adds a command handler.
 			 * @param p A pair signifying the name of the command as typed by the user plus a handler tuple.
 			 */
-			client & operator+=(const command_pair &p);
+			client & operator+=(const spjalla::commands::pair &p);
 
 			/** Adds a server. */
 			client & operator+=(pingpong::server *ptr);
@@ -122,7 +118,7 @@ namespace spjalla {
 			 * Adds a command handler.
 			 * @param p A pair signifying the name of the command as typed by the user plus a handler tuple.
 			 */
-			void add(const command_pair &p);
+			void add(const spjalla::commands::pair &p);
 
 			/** Initializes the client. */
 			void init();
@@ -208,10 +204,6 @@ namespace spjalla {
 
 			input_line get_input_line(const std::string &) const;
 
-			void tab_complete();
-
-			void key_postlistener(const haunted::key &);
-
 // client/statusbar.cpp
 
 		private:
@@ -226,6 +218,14 @@ namespace spjalla {
 			void init_statusbar();
 
 			void render_statusbar();
+
+// client/tab_completion.cpp
+
+			std::unordered_map<std::string, completions::completion_state> completion_states;
+
+			void tab_complete();
+
+			void key_postlistener(const haunted::key &);
 	};
 }
 

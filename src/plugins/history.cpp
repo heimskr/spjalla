@@ -1,12 +1,12 @@
 #include "haunted/core/key.h"
 
-#include "core/client.h"
-#include "core/input_line.h"
-#include "core/plugin_host.h"
+#include "spjalla/core/client.h"
+#include "spjalla/core/input_line.h"
+#include "spjalla/core/plugin_host.h"
 
-#include "plugins/plugin.h"
+#include "spjalla/plugins/plugin.h"
 
-#include "formicine/ansi.h"
+#include "lib/formicine/ansi.h"
 
 namespace spjalla::plugins {
 	struct history_plugin: public plugin {

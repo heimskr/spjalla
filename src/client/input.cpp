@@ -1,7 +1,7 @@
 #include "pingpong/commands/privmsg.h"
 
-#include "core/client.h"
-#include "core/sputil.h"
+#include "spjalla/core/client.h"
+#include "spjalla/core/util.h"
 
 namespace spjalla {
 	void client::add_input_listener() {
@@ -55,7 +55,7 @@ namespace spjalla {
 
 		const size_t command_length = command_name.length();
 
-		for (const std::pair<std::string, command> &pair: command_handlers) {
+		for (const std::pair<std::string, commands::command> &pair: command_handlers) {
 			const std::string &candidate_name = pair.first;
 			if (candidate_name.substr(0, command_length) == command_name)
 				matches.push_back(candidate_name);
@@ -81,7 +81,7 @@ namespace spjalla {
 			return false;
 
 		for (auto it = range.first; it != range.second; ++it) {
-			auto [min, max, needs_serv, fn, comp_fn] = it->second;
+			auto & [min, max, needs_serv, fn, comp_fn, suggestion_fns] = it->second;
 			if (max == 0 && nargs != 0) {
 				DBG("/" << name << " doesn't accept any arguments.");
 			} else if (min == max && nargs != min) {

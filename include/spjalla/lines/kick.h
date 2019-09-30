@@ -1,13 +1,13 @@
 #ifndef SPJALLA_LINES_KICK_H_
 #define SPJALLA_LINES_KICK_H_
 
-#include "pingpong/core/ppdefs.h"
+#include "pingpong/core/defs.h"
 #include "pingpong/core/user.h"
 #include "pingpong/core/channel.h"
 
 #include "pingpong/events/kick.h"
 
-#include "lines/lines.h"
+#include "spjalla/lines/lines.h"
 
 namespace spjalla::lines {
 	struct kick_line: public haunted::ui::textline {

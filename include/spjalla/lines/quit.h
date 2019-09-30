@@ -2,10 +2,10 @@
 #define SPJALLA_LINES_QUIT_H_
 
 #include "pingpong/commands/quit.h"
-#include "pingpong/core/ppdefs.h"
+#include "pingpong/core/defs.h"
 #include "pingpong/core/user.h"
 
-#include "lines/lines.h"
+#include "spjalla/lines/lines.h"
 
 namespace spjalla::lines {
 	struct quit_line: haunted::ui::textline {

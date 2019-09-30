@@ -1,9 +1,9 @@
 #ifndef SPJALLA_LINES_TIMED_H_
 #define SPJALLA_LINES_TIMED_H_
 
-#include "pingpong/core/pputil.h"
+#include "pingpong/core/util.h"
 
-#include "lines/lines.h"
+#include "spjalla/lines/lines.h"
 
 namespace spjalla::lines {
 	struct timed_line: public haunted::ui::textline {

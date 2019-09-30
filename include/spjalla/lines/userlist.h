@@ -1,11 +1,11 @@
 #ifndef SPJALLA_LINES_USERLIST_H_
 #define SPJALLA_LINES_USERLIST_H_
 
-#include "pingpong/core/ppdefs.h"
+#include "pingpong/core/defs.h"
 #include "pingpong/core/channel.h"
 #include "pingpong/core/user.h"
 
-#include "lines/lines.h"
+#include "spjalla/lines/lines.h"
 
 namespace spjalla::lines {
 	struct userlist_line: haunted::ui::textline {

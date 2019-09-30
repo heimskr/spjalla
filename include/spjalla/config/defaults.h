@@ -4,7 +4,7 @@
 #include <functional>
 #include <unordered_map>
 
-#include "config/config.h"
+#include "spjalla/config/config.h"
 
 namespace spjalla::config {
 	using applicator = std::function<void(database &, const value &)>;

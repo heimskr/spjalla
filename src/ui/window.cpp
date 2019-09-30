@@ -1,4 +1,4 @@
-#include "ui/window.h"
+#include "spjalla/ui/window.h"
 
 namespace spjalla::ui {
 	void swap(window &left, window &right) {

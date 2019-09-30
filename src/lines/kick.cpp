@@ -1,4 +1,4 @@
-#include "lines/kick.h"
+#include "spjalla/lines/kick.h"
 
 namespace spjalla::lines {
 	kick_line::operator std::string() const {

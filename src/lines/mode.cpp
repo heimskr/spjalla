@@ -1,6 +1,6 @@
-#include "core/parse_error.h"
+#include "pingpong/core/parse_error.h"
 
-#include "lines/mode.h"
+#include "spjalla/lines/mode.h"
 
 namespace spjalla::lines {
 	mode_line::operator std::string() const {
