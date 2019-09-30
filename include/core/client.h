@@ -21,19 +21,25 @@
 #include "ui/status_widget.h"
 
 namespace spjalla {
+	struct command {
+		using command_handler = std::function<void(pingpong::server *, const input_line &)>;
+
+		int min_args, max_args;
+		bool needs_server;
+		command_handler handler_fn;
+		completions::completion_fn completion_fn;
+	};
+
 	class client: public plugins::plugin_host {
 		friend class ui::interface;
 
-		using command_handler = std::function<void(pingpong::server *, const input_line &)>;
-		// Tuple: (minimum args, maximum args, needs server, function)
-		using command_tuple = std::tuple<int, int, bool, command_handler, completion_fn>;
-		using command_pair = std::pair<std::string, command_tuple>;
+		using command_pair = std::pair<std::string, command>;
 
 // client/client.cpp
 
 		private:
 			pingpong::irc irc;
-			std::multimap<std::string, command_tuple> command_handlers;
+			std::multimap<std::string, command> command_handlers;
 			std::mutex irc_mutex;
 			ansi::ansistream &out_stream;
 			haunted::terminal term;

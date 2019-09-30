@@ -60,9 +60,10 @@ namespace spjalla::completions {
 		cursor = matches[0].length() + 1;
 	}
 
-	// void complete_set(const input_line &line, std::string &raw, size_t &index, long arg_index, long arg_subindex) {
-
-	// }
+	void complete_set(client &client_, const input_line &line, std::string &raw, size_t &index, long arg_index,
+	long arg_subindex) {
+		DBG("complete_set([" << line << "] [" << raw << "] [" << index << "] [" << arg_index << "] [" << arg_subindex << "])");
+	}
 }
 
 namespace spjalla {
@@ -88,11 +89,27 @@ namespace spjalla {
 		const size_t old_cursor = cursor;
 
 		if (il.is_command()) {
+			DBG("[" << windex << ":" << sindex << "]");
 			if (windex == 0) {
 				// The user wants to complete a command name.
 				completer.complete(text, cursor);
-			} else if (0 < windex) {
+			} else {
+				if (windex < 0) {
+					// We're not in a word, but we're where one should be.
+					windex = -windex - 1;
+				}
+
 				// The user has entered a command and the cursor is at or past the first argument.
+				for (const auto &handler: command_handlers) {
+					const std::string &name = handler.first;
+					const command &cmd = handler.second;
+
+					if (name == il.command) {
+						if (cmd.completion_fn)
+							cmd.completion_fn(*this, il, text, cursor, windex, sindex);
+						break;
+					}
+				}
 			}
 		}
 

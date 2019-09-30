@@ -55,7 +55,7 @@ namespace spjalla {
 
 		const size_t command_length = command_name.length();
 
-		for (std::pair<std::string, command_tuple> pair: command_handlers) {
+		for (const std::pair<std::string, command> &pair: command_handlers) {
 			const std::string &candidate_name = pair.first;
 			if (candidate_name.substr(0, command_length) == command_name)
 				matches.push_back(candidate_name);

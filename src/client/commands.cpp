@@ -296,7 +296,7 @@ namespace spjalla {
 						ansi::bold(joined) + ".");
 				}
 			}
-		}, {}}});
+		}, completions::complete_set}});
 
 		add({"spam", {0, 1, false, [&](sptr, line il) {
 			long max = 64;
