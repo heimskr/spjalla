@@ -72,6 +72,27 @@ namespace spjalla::ui {
 			/** Constructs a window with no parent and no contents. */
 			window(const std::string &window_name_): window(nullptr, std::vector<std::string> {}, window_name_) {}
 
+			template <typename T, typename std::enable_if<std::is_base_of<lines::line, T>::value>::type * = nullptr>
+			textbox & operator+=(const T &line) {
+				std::unique_ptr<T> line_copy = std::make_unique<T>(line);
+				lines.push_back(std::move(line_copy));
+				if (!do_scroll(line.num_rows(pos.width)))
+					draw_new_line(*lines.back(), true);
+				notify(line, line.get_notification_type());
+				return *this;
+			}
+
+			template <typename T,
+				typename std::enable_if<std::is_base_of<haunted::ui::textline, T>::value>::type * = nullptr,
+				typename std::enable_if<!std::is_base_of<lines::line, T>::value>::type * = nullptr>
+			textbox & operator+=(const T &line) {
+				std::unique_ptr<T> line_copy = std::make_unique<T>(line);
+				lines.push_back(std::move(line_copy));
+				if (!do_scroll(line.num_rows(pos.width)))
+					draw_new_line(*lines.back(), true);
+				return *this;
+			}
+
 			bool is_status() const;
 			bool is_overlay() const;
 			bool is_channel() const;
@@ -83,8 +104,8 @@ namespace spjalla::ui {
 			void kill();
 			void resurrect();
 
-			void notify(lines::line &, notification_type);
-			void notify(lines::line &);
+			void notify(const lines::line &, notification_type);
+			void notify(const lines::line &);
 
 			friend void swap(window &left, window &right);
 	};
