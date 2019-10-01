@@ -10,7 +10,7 @@
 #include "spjalla/lines/lines.h"
 
 namespace spjalla::lines {
-	struct part_line: public haunted::ui::textline {
+	struct part_line: public line {
 		std::shared_ptr<pingpong::channel> chan;
 		std::shared_ptr<pingpong::user> user;
 		const std::string name;
@@ -19,11 +19,12 @@ namespace spjalla::lines {
 
 		part_line(std::shared_ptr<pingpong::channel> chan_, std::shared_ptr<pingpong::user> user_,
 		const std::string &reason_, long stamp_):
-			haunted::ui::textline(0), chan(chan_), user(user_), name(user_->name), reason(reason_), stamp(stamp_) {}
+			line(0), chan(chan_), user(user_), name(user_->name), reason(reason_), stamp(stamp_) {}
 
 		part_line(const pingpong::part_event &ev): part_line(ev.chan, ev.who, ev.content, ev.stamp) {}
 
 		virtual operator std::string() const override;
+		virtual notification_type get_notification_type() const override { return notification_type::info; }
 	};
 }
 

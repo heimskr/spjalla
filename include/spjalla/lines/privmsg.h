@@ -10,7 +10,7 @@
 #include "spjalla/lines/lines.h"
 
 namespace spjalla::lines {
-	class privmsg_line: public haunted::ui::textline, public pingpong::local {
+	class privmsg_line: public line, public pingpong::local {
 		private:
 			bool is_self = false;
 
@@ -62,6 +62,7 @@ namespace spjalla::lines {
 				privmsg_line(ev.speaker, ev.where, ev.content, ev.stamp) {}
 
 			virtual operator std::string() const override;
+			virtual notification_type get_notification_type() const override;
 	};
 }
 

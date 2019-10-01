@@ -4,14 +4,15 @@
 #include "spjalla/lines/lines.h"
 
 namespace spjalla::lines {
-	struct warning_line: public haunted::ui::textline {
+	struct warning_line: public line {
 		std::string message;
 		long stamp;
 
 		warning_line(const std::string &message_, long stamp_ = pingpong::util::timestamp()):
-			haunted::ui::textline(0), message(message_), stamp(stamp_) {}
+			line(0), message(message_), stamp(stamp_) {}
 
 		virtual operator std::string() const override;
+		virtual notification_type get_notification_type() const override { return notification_type::info; }
 	};
 }
 

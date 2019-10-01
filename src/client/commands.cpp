@@ -37,13 +37,6 @@ namespace spjalla {
 			debug_servers();
 		}, {}}});
 
-		add({"_index", {0, 0, false, [&](sptr, line) {
-			if (ui.active_window == nullptr) {
-				DBG("No active window.");
-			} else {
-				DBG("Active window index: " << ui.active_window->get_index());
-			}
-		}, {}}});
 
 		add({"_info", {0, 1, false, [&](sptr, line il) {
 			if (il.args.size() == 0) {
@@ -55,9 +48,11 @@ namespace spjalla {
 			ui.log("Unknown option: " + first);
 		}, {}}});
 
+
 		add({"ban", {1, 2, true, [&](sptr serv, line il) {
 			ban(serv, il, "+b");
 		}, {}}});
+
 
 		add({"clear", {0, 0, false, [&](sptr, line) {
 			if (ui::window *win = ui.get_active_window()) {
@@ -66,6 +61,7 @@ namespace spjalla {
 				DBG(lines::red_notice + "No window.");
 			}
 		}, {}}});
+
 
 		add({"connect", {1, 2, false, [&](sptr, line il) {
 			const std::string &where = il.first();
@@ -91,10 +87,12 @@ namespace spjalla {
 
 		add<pingpong::join_command>("join");
 
+
 		add({"kick", {1, -1, true, [&](sptr serv, line il) {
 			if (triple_command<pingpong::kick_command>(serv, il, ui.get_active_channel()))
 				no_channel();
 		}, {}}});
+
 
 		add({"me", {1, -1, true, [&](sptr, line il) {
 			const ui::window *win = ui.active_window;
@@ -107,6 +105,7 @@ namespace spjalla {
 			else if (win->is_user())
 				pingpong::privmsg_command(win->data.user, msg).send();
 		}, {}}});
+
 
 		add({"mode", {1, -1, true, [&](sptr serv, line il) {
 			std::shared_ptr<pingpong::channel> win_chan = ui.get_active_channel();
@@ -182,9 +181,11 @@ namespace spjalla {
 			pingpong::mode_command(chan_str, serv, flags, extra).send();
 		}, {}}});
 
+
 		add({"msg", {2, -1, true, [&](sptr serv, line il) {
 			pingpong::privmsg_command(serv, il.first(), il.rest()).send();
 		}, {}}});
+
 
 		add({"nick", {0,  1, true, [&](sptr serv, line il) {
 			if (il.args.size() == 0)
@@ -193,9 +194,11 @@ namespace spjalla {
 				pingpong::nick_command(serv, il.first()).send();
 		}, {}}});
 
+
 		add({"overlay", {0, 0, false, [&](sptr, line) {
 			ui.update_overlay();
 		}, {}}});
+
 
 		add({"part", {0, -1, true, [&](sptr serv, line il) {
 			std::shared_ptr<pingpong::channel> active_channel = ui.get_active_channel();
@@ -213,6 +216,7 @@ namespace spjalla {
 			}
 		}, {}}});
 
+
 		add({"quit", {0, -1, false, [&](sptr, line il) {
 			if (il.args.empty()) {
 				for (auto serv: irc.server_order)
@@ -223,9 +227,11 @@ namespace spjalla {
 			}
 		}, {}}});
 
+
 		add({"quote", {1, -1, true, [&](sptr serv, line il) {
 			serv->quote(il.body);
 		}, {}}});
+
 
 		add({"set", {0, -1, false, [&](sptr, line il) {
 			configs.read_if_empty();
@@ -298,6 +304,7 @@ namespace spjalla {
 			}
 		}, completions::complete_set}});
 
+
 		add({"spam", {0, 1, false, [&](sptr, line il) {
 			long max = 64;
 
@@ -314,9 +321,11 @@ namespace spjalla {
 				ui.log(std::to_string(i));
 		}, {}}});
 
+
 		add({"unban", {1, 2, true, [&](sptr serv, line il) {
 			ban(serv, il, "-b");
 		}, {}}});
+
 
 		add({"wc", {0, 0, false, [&](sptr, line) {
 			if (ui.can_remove())

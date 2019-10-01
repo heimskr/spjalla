@@ -6,12 +6,12 @@
 #include "spjalla/lines/lines.h"
 
 namespace spjalla::lines {
-	struct timed_line: public haunted::ui::textline {
+	struct timed_line: public line {
 		std::string text;
 		long stamp;
 
 		timed_line(const std::string &text_, int continuation_ = 0, long stamp_ = pingpong::util::timestamp()):
-			haunted::ui::textline(continuation_ + 11), text(text_), stamp(stamp_) {}
+			line(continuation_ + 11), text(text_), stamp(stamp_) {}
 
 		virtual operator std::string() const override;
 	};

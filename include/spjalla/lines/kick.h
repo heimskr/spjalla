@@ -10,7 +10,7 @@
 #include "spjalla/lines/lines.h"
 
 namespace spjalla::lines {
-	struct kick_line: public haunted::ui::textline {
+	struct kick_line: public line {
 		std::shared_ptr<pingpong::channel> chan;
 		const std::string who;
 		const std::string whom;
@@ -20,7 +20,7 @@ namespace spjalla::lines {
 
 		kick_line(std::shared_ptr<pingpong::channel> chan_, const std::string &who_, const std::string &whom_,
 		const std::string &reason_, long stamp_, bool is_self_ = false):
-			haunted::ui::textline(0), chan(chan_), who(who_), whom(whom_), reason(reason_), stamp(stamp_),
+			line(0), chan(chan_), who(who_), whom(whom_), reason(reason_), stamp(stamp_),
 			is_self(is_self_) {}
 
 		kick_line(std::shared_ptr<pingpong::channel> chan_, std::shared_ptr<pingpong::user> who_,
@@ -30,6 +30,7 @@ namespace spjalla::lines {
 		kick_line(const pingpong::kick_event &ev): kick_line(ev.chan, ev.who, ev.whom, ev.content, ev.stamp) {}
 
 		virtual operator std::string() const override;
+		virtual notification_type get_notification_type() const override;
 	};
 }
 

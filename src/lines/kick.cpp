@@ -10,4 +10,8 @@ namespace spjalla::lines {
 				ansi::bold(chan->name) + " by " + ansi::bold(who) + " ["_d + reason + "]"_d;
 		}
 	}
+
+	notification_type kick_line::get_notification_type() const {
+		return is_self? notification_type::highlight : notification_type::info;
+	}
 }

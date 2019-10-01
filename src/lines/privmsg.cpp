@@ -3,8 +3,7 @@
 namespace spjalla::lines {
 	privmsg_line::privmsg_line(std::shared_ptr<pingpong::user> speaker_, const std::string &where_,
 	const std::string &message_, long stamp_):
-		haunted::ui::textline(0), pingpong::local(where_), speaker(speaker_), name(speaker_->name), message(message_),
-		stamp(stamp_) {
+		line(0), pingpong::local(where_), speaker(speaker_), name(speaker_->name), message(message_), stamp(stamp_) {
 
 		is_self = speaker_->is_self();
 
@@ -56,5 +55,10 @@ namespace spjalla::lines {
 
 	privmsg_line::operator std::string() const {
 		return processed;
+	}
+
+
+	notification_type privmsg_line::get_notification_type() const {
+		return notification_type::message;
 	}
 }
