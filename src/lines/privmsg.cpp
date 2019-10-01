@@ -18,37 +18,43 @@ namespace spjalla::lines {
 			continuation = ("[xx:xx:xx] * " + name + " ").length();
 		else
 			continuation = ("[xx:xx:xx] <." + name + "> ").length() - (is_user()? 1 : 0);
+
+		processed = process(message_);
 	}
 
 	bool privmsg_line::is_action() const {
 		return !message.empty() && message.find("\1ACTION ") == 0 && message.back() == '\1';
 	}
 
-	std::string privmsg_line::trimmed_message() const {
-		if (message.empty() || message.front() != '\1')
-			return message;
+	std::string privmsg_line::trimmed(const std::string &str) const {
+		if (str.empty() || str.front() != '\1')
+			return str;
 
-		std::string message_copy {message};
-		if (message_copy.back() == '\1')
-			message_copy.pop_back();
+		std::string str_copy {str};
+		if (str_copy.back() == '\1')
+			str_copy.pop_back();
 
-		size_t i, length = message_copy.length();
-		for (i = 0; i < length && message_copy.at(i) != ' '; ++i);
-		return message_copy.at(i) == ' '? message_copy.substr(i + 1) : message_copy;
+		size_t i, length = str_copy.length();
+		for (i = 0; i < length && str_copy.at(i) != ' '; ++i);
+		return str_copy.at(i) == ' '? str_copy.substr(i + 1) : str_copy;
 	}
 
 	std::string privmsg_line::hat_str() const {
 		return is_channel()? std::string(1, static_cast<char>(hat)) : "";
 	}
 
-	privmsg_line::operator std::string() const {
+	std::string privmsg_line::process(const std::string &str) const {
 		std::string name_fmt = is_action() || is_self? ansi::bold(name) : name;
 		if (is_channel())
 			name_fmt.insert(0, hat_str());
 
 		if (is_action())
-			return lines::render_time(stamp) + "* "_b + name_fmt + " " + trimmed_message();
+			return lines::render_time(stamp) + "* "_b + name_fmt + " " + pingpong::util::irc2ansi(trimmed(str));
 
-		return lines::render_time(stamp) + "<"_d + name_fmt + "> "_d + message;
+		return lines::render_time(stamp) + "<"_d + name_fmt + "> "_d + pingpong::util::irc2ansi(str);
+	}
+
+	privmsg_line::operator std::string() const {
+		return processed;
 	}
 }

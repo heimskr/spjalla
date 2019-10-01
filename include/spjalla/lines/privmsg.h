@@ -17,11 +17,14 @@ namespace spjalla::lines {
 			/** Returns whether the message is an action (CTCP ACTION). */
 			bool is_action() const;
 
-			/** Removes the CTCP verb from the message. */
-			std::string trimmed_message() const;
+			/** Removes the CTCP verb from a message. */
+			std::string trimmed(const std::string &) const;
 
 			/** Returns a string representing the user's hat (empty if the destination isn't a channel). */
 			std::string hat_str() const;
+
+			/** Formats a message by processing colors and actions and adding the user's name. */
+			std::string process(const std::string &) const;
 
 		public:
 			std::shared_ptr<pingpong::user> speaker;
@@ -29,10 +32,16 @@ namespace spjalla::lines {
 			// We need to store a copy of the speaker's name at the time the privmsg was sent—otherwise, if they were to
 			// change their name later, it would cause this line to render with the new name!
 			const std::string name;
+
 			// It's also necessary to store the user's hat at the time the message was sent (provided the message was to
 			// a channel and not directly to you).
 			pingpong::hat hat = pingpong::hat::none;
+
 			const std::string message;
+
+			/** The message after colors and actions have been processed. */
+			std::string processed;
+
 			const long stamp;
 
 			privmsg_line(std::shared_ptr<pingpong::user> speaker_, const std::string &where_,
