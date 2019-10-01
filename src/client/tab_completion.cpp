@@ -83,6 +83,8 @@ namespace spjalla::completions {
 			const std::string rest = raw.substr(util::last_index_of_word(raw, 1));
 			const std::string piece = first_arg.substr(0, arg_subindex);
 			std::vector<std::string> keys = config::starts_with(state.partial);
+			if (keys.empty())
+				return;
 			std::sort(keys.begin(), keys.end());
 			std::string next = util::next_in_sequence(keys.begin(), keys.end(), piece);
 			raw = "/set " + next + rest;
