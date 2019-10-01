@@ -54,7 +54,7 @@ const isBad = () => {
 };
 
 if (isBad()) {
-	yikes("Usage: new.js <name> [type=core,line,auto] [-n/--namespace] [-s/--nosrc] [-h/--noheader] [-c/--noclass] [-i/--inherit superclass] [-k/--keyword (struct|class)] [-v/--visibility inheritance visibility] [-b/--base base namespace] [-u/--usebase] [-f/--filename alt. filename]");
+	yikes("Usage: new.js <name> [type=core,line,event,auto] [-n/--namespace] [-s/--nosrc] [-h/--noheader] [-c/--noclass] [-i/--inherit superclass] [-k/--keyword (struct|class)] [-v/--visibility inheritance visibility] [-b/--base base namespace] [-u/--usebase] [-f/--filename alt. filename]");
 }
 
 if (!name.match(/^[\w_\d]+$/i)) {
@@ -144,6 +144,28 @@ if (type.match(/^c(ore)?$/i)) {
 	%			return lines::render_time(stamp);
 	%		}
 	%	}`);
+
+} else if (type.match(/^e(v(ents?)?)?$/)) {
+
+	setDirs("events");
+	setNames(name);
+
+	headertext = prepare(`
+	%	#ifndef SPJALLA_EVENTS_${upper()}_H_
+	%	#define SPJALLA_EVENTS_${upper()}_H_
+	%
+	%	#include "pingpong/events/event.h"
+	%
+	%	namespace spjalla::events {
+	%		/**
+	%		 * 
+	%		 */
+	%		struct ${name}_event: public pingpong::event {
+	%			
+	%		};
+	%	}
+	%
+	%	#endif`);
 
 } else if (type == "auto") {
 
