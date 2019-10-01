@@ -64,8 +64,16 @@ namespace spjalla::config {
 
 	void register_defaults() {
 		register_key("server", "default_nick", pingpong::irc::default_nick, validate_string);
-		register_key("server", "default_user", pingpong::irc::default_user, validate_string);
-		register_key("server", "default_real", pingpong::irc::default_realname, validate_string);
+
+		register_key("server", "default_user", pingpong::irc::default_user, validate_string,
+		             [](database &db, const value &new_val) {
+			db.get_parent().get_irc().username = new_val.string_();
+		});
+
+		register_key("server", "default_real", pingpong::irc::default_realname, validate_string,
+		             [](database &db, const value &new_val) {
+			db.get_parent().get_irc().realname = new_val.string_();
+		});
 
 		register_key("appearance", "bar_background", "blood", validate_color, [](database &db, const value &new_val) {
 			db.get_parent().get_ui().set_bar_background(ansi::get_color(new_val.string_()));

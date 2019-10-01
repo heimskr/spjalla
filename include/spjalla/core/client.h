@@ -135,6 +135,9 @@ namespace spjalla {
 			/** Returns the client's ui::interface instance. */
 			ui::interface & get_ui() { return ui; }
 
+			/** Returns a reference to the IRC object.. */
+			pingpong::irc & get_irc() { return irc; }
+
 			/** Returns a pointer to the active server. */
 			pingpong::server * active_server();
 
