@@ -83,17 +83,15 @@ namespace spjalla {
 		for (auto it = range.first; it != range.second; ++it) {
 			auto & [min, max, needs_serv, fn, comp_fn, suggestion_fns] = it->second;
 			if (max == 0 && nargs != 0) {
-				DBG("/" << name << " doesn't accept any arguments.");
+				ui.warn("/" + name + " doesn't accept any arguments.");
 			} else if (min == max && nargs != min) {
-				DBG("/" << name << " expects " << min << " argument" << (min == 1? "." : "s."));
+				ui.warn("/" + name + " expects " + std::to_string(min) + " argument" + (min == 1? "." : "s."));
 			} else if (nargs < min) {
-				DBG("/" << name << " expects at least " << std::to_string(min) << " argument"
-				      << (min == 1? "." : "s."));
+				ui.warn("/" + name + " expects at least " + std::to_string(min) + " argument" + (min == 1? "." : "s."));
 			} else if (max != -1 && max < nargs) {
-				DBG("/" << name << " expects at most " << std::to_string(max) << " argument"
-				      << (min == 1? "." : "s."));
+				ui.warn("/" + name + " expects at most " + std::to_string(max) + " argument" + (min == 1? "." : "s."));
 			} else if (needs_serv && !irc.active_server) {
-				ui.log(lines::red_notice + "No server is selected.");
+				ui.warn("No server is selected.");
 			} else {
 				fn(irc.active_server, il);
 			}
