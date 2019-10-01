@@ -11,7 +11,7 @@
 namespace spjalla::config {
 
 	registered_map registered {};
-	std::map<std::string, validator> validators {};
+	std::map<std::string, validator_fn> validators {};
 
 	validation_result validate_long(const value &val) {
 		return val.get_type() == value_type::long_? validation_result::valid : validation_result::bad_type;
@@ -39,13 +39,13 @@ namespace spjalla::config {
 	}
 
 	bool register_key(const std::string &group, const std::string &key, const value &default_value,
-	const validator &validator_fn, const applicator &on_set, const std::string &description) {
+	const validator_fn &validator, const applicator_fn &applicator, const std::string &description) {
 		std::string combined = group + "." + key;
 
 		if (registered.count(group + "." + key) > 0)
 			return false;
 
-		registered.insert({combined, default_key(combined, default_value, validator_fn, on_set, description)});
+		registered.insert({combined, default_key(combined, default_value, validator, applicator, description)});
 		return true;
 	}
 

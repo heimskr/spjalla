@@ -7,27 +7,27 @@
 #include "spjalla/config/config.h"
 
 namespace spjalla::config {
-	using applicator = std::function<void(database &, const value &)>;
-	using validator  = std::function<validation_result(const value &)>;
+	using applicator_fn = std::function<void(database &, const value &)>;
+	using validator_fn  = std::function<validation_result(const value &)>;
 
 	struct default_key {
 		std::string name, description;
 		value default_value;
-		validator validator;
-		applicator on_set;
+		validator_fn validator;
+		applicator_fn applicator;
 
-		default_key(const std::string &name_, const value &default_value_, const config::validator &validator_,
-		const applicator &on_set_, const std::string &description_ = ""):
+		default_key(const std::string &name_, const value &default_value_, const validator_fn &validator_,
+		const applicator_fn &applicator_, const std::string &description_ = ""):
 			name(name_), description(description_), default_value(default_value_), validator(validator_),
-			on_set(on_set_) {}
+			applicator(applicator_) {}
 
-		default_key(const std::string &name_, const value &default_value_, const config::validator &validator_,
+		default_key(const std::string &name_, const value &default_value_, const validator_fn &validator_,
 		const std::string &description_ = ""):
 			default_key(name_, default_value_, validator_, {}, description_) {}
 
-		default_key(const std::string &name_, const value &default_value_, const config::applicator &on_set_,
+		default_key(const std::string &name_, const value &default_value_, const applicator_fn &applicator_,
 		const std::string &description_ = ""):
-			default_key(name_, default_value_, {}, on_set_, description_) {}
+			default_key(name_, default_value_, {}, applicator_, description_) {}
 
 		default_key(const std::string &name_, const value &default_value_, const std::string &description_ = ""):
 			default_key(name_, default_value_, {}, {}, description_) {}
@@ -37,8 +37,8 @@ namespace spjalla::config {
 		}
 
 		void apply(database &db, const value &new_value) {
-			if (on_set)
-				on_set(db, new_value);
+			if (applicator)
+				applicator(db, new_value);
 		}
 
 		void apply(database &db) { apply(db, default_value); }
@@ -49,7 +49,7 @@ namespace spjalla::config {
 	/** Attempts to register a key. If the key already exists, the function simply returns false; otherwise, it
 	 *  registers the key and returns true. */
 	bool register_key(const std::string &group, const std::string &key, const value &default_val,
-		const validator &validator_fn = {}, const applicator &on_set = {}, const std::string &description = "");
+		const validator_fn & = {}, const applicator_fn & = {}, const std::string &description = "");
 
 	/** Runs the applicators of all registered defaults with their default values. */
 	void apply_defaults(database &db);
