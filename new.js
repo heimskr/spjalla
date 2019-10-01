@@ -63,7 +63,7 @@ if (!name.match(/^[\w_\d]+$/i)) {
 
 let allDir, sourcename, headername, sourcetext, headertext;
 
-const sourcebase = "src", headerbase = "include";
+const sourcebase = "src", headerbase = "include/spjalla";
 let sourcedirs = [], headerdirs = [];
 
 let fullNamespace;
