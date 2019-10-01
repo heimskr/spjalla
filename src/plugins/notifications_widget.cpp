@@ -102,7 +102,7 @@ namespace spjalla::plugins {
 
 				client->add_status_widget(widget);
 
-				pingpong::events::listen<events::window_changed_event> ([=](events::window_changed_event *ev) {
+				pingpong::events::listen<events::window_changed_event> ([=, this](events::window_changed_event *ev) {
 					widget->window_focused(ev->to);
 				});
 
