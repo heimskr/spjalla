@@ -85,7 +85,13 @@ namespace spjalla {
 			ui.log("Connecting to " + ansi::bold(hostname) + " on port " + ansi::bold(std::to_string(port)) + "...");
 		}, {}}});
 
-		add<pingpong::join_command>("join");
+
+		add({"join", {1, 1, true, [&](sptr serv, line il) {
+			const std::string &first = il.args[0];
+			wait_for_server(serv, pingpong::server::stage::ready, [=]() {
+				pingpong::join_command(serv, first).send();
+			});
+		}, {}}});
 
 
 		add({"kick", {1, -1, true, [&](sptr serv, line il) {

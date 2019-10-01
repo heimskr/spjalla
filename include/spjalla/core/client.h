@@ -172,8 +172,20 @@ namespace spjalla {
 
 // client/events.cpp
 
+		private:
+			using queue_fn = std::function<void()>;
+			using queue_pair = std::pair<pingpong::server::stage, queue_fn>;
+			std::unordered_map<pingpong::server *, std::list<queue_pair>> server_status_queue {};
+
+			/** Calls and removes all functions in the server status queue waiting for a given server and status. */
+			void call_in_queue(pingpong::server *, pingpong::server::stage);
+
+		public:
 			/** Adds listeners for pingpong events. */
 			void add_events();
+
+			/** Adds a function to a queue to be called when a server reaches a given stage. */
+			void wait_for_server(pingpong::server *, pingpong::server::stage, const queue_fn &);
 
 // client/heartbeat.cpp
 

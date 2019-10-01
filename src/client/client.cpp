@@ -82,6 +82,9 @@ namespace spjalla {
 	}
 
 	void client::server_removed(pingpong::server *serv) {
+		call_in_queue(serv, pingpong::server::stage::dead);
+		server_status_queue.erase(serv);
+
 		// We need to check the windows in reverse because we're removing some along the way. Removing elements while
 		// looping through a vector causes all kinds of problems unless you loop in reverse.
 		haunted::ui::container::type &windows = ui.swappo->get_children();

@@ -148,7 +148,9 @@ namespace spjalla {
 			ui.log(lines::timed_line(ansi::wrap(">> ", ansi::color::lightgray) + ev->raw_out, 3));
 		});
 
-		pingpong::events::listen<pingpong::server_status_event>([&](pingpong::server_status_event *) {
+		pingpong::events::listen<pingpong::server_status_event>([&](pingpong::server_status_event *ev) {
+			call_in_queue(ev->serv, ev->serv->get_status());
+
 			ui.update_statusbar();
 			if (ui.active_window == ui.overlay)
 				ui.update_overlay();
@@ -165,7 +167,6 @@ namespace spjalla {
 		});
 
 		pingpong::events::listen<pingpong::user_appeared_event>([&](pingpong::user_appeared_event *ev) {
-			DBG("User appeared on server " << ev->serv->id << ": " << ev->who->name);
 			for (ui::window *win: ui.windows_for_user(ev->who)) {
 				win->resurrect();
 				if (win == ui.active_window) {
@@ -174,5 +175,29 @@ namespace spjalla {
 				}
 			}
 		});
+	}
+
+	void client::call_in_queue(pingpong::server *server, pingpong::server::stage stage) {
+		if (server_status_queue.count(server) == 0)
+			return;
+
+		std::list<queue_pair> &list = server_status_queue.at(server);
+		for (auto iter = list.begin(), end = list.end(); iter != end; ++iter) {
+			const pingpong::server::stage requested_stage = iter->first;
+			const queue_fn &fn = iter->second;
+
+			if (requested_stage == stage) {
+				fn();
+				list.erase(iter++);
+			}
+		}
+	}
+
+	void client::wait_for_server(pingpong::server *server, pingpong::server::stage stage, const client::queue_fn &fn) {
+		if (server->get_status() == stage) {
+			fn();
+		} else {
+			server_status_queue[server].push_back({stage, fn});
+		}
 	}
 }
