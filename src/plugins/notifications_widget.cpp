@@ -106,8 +106,11 @@ namespace spjalla::plugins {
 					widget->window_focused(ev->to);
 				});
 
-				pingpong::events::listen<events::window_notification_event>([=](events::window_notification_event *) {
-					client->render_statusbar();
+				pingpong::events::listen<events::window_notification_event>([=](events::window_notification_event *ev) {
+					if (ev->window == client->get_ui().get_active_window())
+						ev->window->data.highest_notification = notification_type::none;
+					else
+						client->render_statusbar();
 				});
 			}
 	};
