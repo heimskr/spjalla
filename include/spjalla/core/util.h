@@ -1,11 +1,14 @@
 #ifndef SPJALLA_CORE_SPUTIL_H_
 #define SPJALLA_CORE_SPUTIL_H_
 
+#include <algorithm>
 #include <filesystem>
 #include <locale>
 #include <sstream>
 #include <string>
 #include <utility>
+
+#include "lib/formicine/ansi.h"
 
 #ifdef VSCODE
 // VS Code, please stop pretending these don't exist.
@@ -72,6 +75,30 @@ namespace spjalla {
 		/** Returns the index of first character after the n-th word of a string. If n is greater than the number of
 		 *  words in the string, the length of the string is returned. */
 		size_t last_index_of_word(const std::string &, size_t n);
+
+		/** Returns a vector of all elements in a range that begin with a given string. */
+		template <typename T, typename Iter>
+		std::vector<T> starts_with(Iter start, Iter end, const std::string &prefix) {
+			std::vector<T> out {};
+			std::copy_if(start, end, std::back_inserter(out), [&](const std::string &str) {
+				return str.find(prefix) == 0;
+			});
+			return out;
+		}
+
+		/** Treats a range like a circular buffer and finds the next value after a given value. If the given value isn't
+		 *  present in the range, the function returns the value at the beginning of the range. */
+		template <typename Iter>
+		std::string & next_in_sequence(Iter begin, Iter end, const std::string &str) {
+			for (Iter iter = begin; iter != end; ++iter) {
+				if (*iter == str) {
+					++iter;
+					return iter == end? *begin : *iter;
+				}
+			}
+
+			return *begin;
+		}
 	}
 }
 

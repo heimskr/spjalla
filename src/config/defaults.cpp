@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "pingpong/core/irc.h"
 
 #include "spjalla/core/client.h"
@@ -39,13 +41,25 @@ namespace spjalla::config {
 		if (registered.count(group + "." + key) > 0)
 			return false;
 
-		registered.insert({combined, default_key(default_value, validator_fn, on_set)});
+		registered.insert({combined, default_key(combined, default_value, validator_fn, on_set)});
 		return true;
 	}
 
 	void apply_defaults(database &db) {
 		for (auto &pair: registered)
 			pair.second.apply(db, pair.second.default_value);
+	}
+
+	std::vector<std::string> starts_with(const std::string &str) {
+		std::vector<std::string> out;
+		for (const std::pair<std::string, default_key> &pair: registered) {
+			const std::string &full = pair.first;
+			const std::string &key = full.substr(full.find('.') + 1);
+			if (key.find(str) == 0 || full.find(str) == 0)
+				out.push_back(full);
+		}
+
+		return out;
 	}
 
 	void register_defaults() {

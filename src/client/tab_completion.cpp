@@ -5,6 +5,7 @@
 #include "spjalla/core/input_line.h"
 #include "spjalla/core/util.h"
 #include "spjalla/core/tab_completion.h"
+#include "spjalla/config/defaults.h"
 
 #include "lib/formicine/futil.h"
 
@@ -64,10 +65,30 @@ namespace spjalla::completions {
 		cursor = matches[0].length() + 1;
 	}
 
-	void complete_set(client &client_, const input_line &line, std::string &raw, size_t &index, long arg_index,
+	void complete_set(client &client_, const input_line &line, std::string &raw, size_t &cursor, long arg_index,
 	long arg_subindex) {
-		DBG("complete_set([" << line << "] [" << raw << "] [" << index << "] [" << arg_index << "] [" << arg_subindex << "])");
-		DBG("State: " << client_.completion_states["set"]);
+		completion_state &state = client_.completion_states["set"];
+		// DBG("complete_set([" << line << "] [" << raw << "] [" << cursor << "] [" << arg_index << "] [" << arg_subindex << "])");
+		if (2 <= arg_index)
+			return;
+
+		const std::string first_arg = line.args.empty()? "" : line.args[0];
+
+		if (state.partial_index != arg_index) {
+			state.partial = first_arg;
+			state.partial_index = arg_index;
+		}
+
+		if (arg_index == 1) {
+			const std::string rest = raw.substr(util::last_index_of_word(raw, 1));
+			const std::string piece = first_arg.substr(0, arg_subindex);
+			std::vector<std::string> keys = config::starts_with(state.partial);
+			std::string next = util::next_in_sequence(keys.begin(), keys.end(), piece);
+			raw = "/set " + next + rest;
+			cursor = next.length() + 5;
+		} else if (arg_index == 2) {
+			
+		}
 	}
 
 	void completion_state::reset() {

@@ -26,8 +26,8 @@ namespace spjalla::config {
 	 */
 	class database {
 		public:
-			using   submap  = std::map<std::string, value>;
-			using groupmap  = std::map<std::string, submap>;
+			using   submap = std::map<std::string, value>;
+			using groupmap = std::map<std::string, submap>;
 
 		private:
 			client &parent;

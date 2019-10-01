@@ -11,21 +11,23 @@ namespace spjalla::config {
 	using validator  = std::function<validation_result(const value &)>;
 
 	struct default_key {
+		std::string name;
 		value default_value;
 		validator validator;
 		applicator on_set;
 
-		default_key(const value &default_value_, const config::validator &validator_, const applicator &on_set_):
-			default_value(default_value_), validator(validator_), on_set(on_set_) {}
+		default_key(const std::string &name_, const value &default_value_, const config::validator &validator_,
+		const applicator &on_set_):
+			name(name_), default_value(default_value_), validator(validator_), on_set(on_set_) {}
 
-		default_key(const value &default_value_, const config::validator &validator_):
-			default_key(default_value_, validator_, {}) {}
+		default_key(const std::string &name_, const value &default_value_, const config::validator &validator_):
+			default_key(name_, default_value_, validator_, {}) {}
 
-		default_key(const value &default_value_, const config::applicator &on_set_):
-			default_key(default_value_, {}, on_set_) {}
+		default_key(const std::string &name_, const value &default_value_, const config::applicator &on_set_):
+			default_key(name_, default_value_, {}, on_set_) {}
 
-		default_key(const value &default_value_):
-			default_key(default_value_, {}, {}) {}
+		default_key(const std::string &name_, const value &default_value_):
+			default_key(name_, default_value_, {}, {}) {}
 
 		validation_result validate(const value &val) const {
 			return validator? validator(val) : validation_result::valid;
@@ -48,6 +50,9 @@ namespace spjalla::config {
 
 	/** Runs the applicators of all registered defaults with their default values. */
 	void apply_defaults(database &db);
+
+	/** Returns a vector of the names of all default keys whose full name or key name begins with a given string. */
+	std::vector<std::string> starts_with(const std::string &);
 
 	/** Registers the standard Spjalla configuration keys. */
 	void register_defaults();
