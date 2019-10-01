@@ -20,14 +20,14 @@ namespace spjalla::plugins {
 		size_t max_length = 4096;
 		std::deque<std::string> input_history {};
 
-		void startup(plugin_host *host) override {
+		void postinit(plugin_host *host) override {
 			spjalla::client *client = dynamic_cast<spjalla::client *>(host);
 			if (!client) {
 				DBG("Error: expected client as plugin host");
 				return;
 			}
 
-			client->handle_pre([&](const haunted::key &key, bool) {
+			client->handle_pre([&, client](const haunted::key &key, bool) {
 				if (!input_history.empty()) {
 					if (key == haunted::ktype::up_arrow && 0 < command_index) {
 						client->get_ui().set_input(input_history[--command_index]);

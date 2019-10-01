@@ -3,6 +3,7 @@
 #include "pingpong/core/util.h"
 #include "pingpong/events/event.h"
 
+#include "spjalla/config/defaults.h"
 #include "spjalla/core/client.h"
 #include "spjalla/events/notification.h"
 #include "spjalla/events/window_changed.h"
@@ -15,6 +16,9 @@
 namespace spjalla::plugins {
 	class notifications_widget: public spjalla::ui::status_widget {
 		public:
+			ansi::color highlight_color = ansi::color::yellow;
+			bool highlight_bold = true;
+
 			using status_widget::status_widget;
 
 			virtual ~notifications_widget() {}
@@ -45,7 +49,10 @@ namespace spjalla::plugins {
 					switch (type) {
 						case notification_type::info:      indicators.push_back(ansi::dim(index_str)); break;
 						case notification_type::message:   indicators.push_back(index_str); break;
-						case notification_type::highlight: indicators.push_back(ansi::bold(index_str)); break;
+						case notification_type::highlight: 
+							indicators.push_back(ansi::wrap(highlight_bold? ansi::bold(index_str) : index_str,
+								highlight_color));
+							break;
 						default: throw std::invalid_argument("Invalid notification type");
 					}
 				}
@@ -69,21 +76,37 @@ namespace spjalla::plugins {
 			std::string get_description() const override { return "Shows a notifications widget in the status bar."; }
 			std::string get_version()     const override { return "0.1.0"; }
 
-			void startup(plugin_host *host) override {
+			void preinit(plugin_host *host) override {
+				DBG("notifications_widget preinit.");
 				spjalla::client *client = dynamic_cast<spjalla::client *>(host);
-				if (!client) {
-					DBG("Error: expected client as plugin host");
-					return;
-				}
+				if (!client) { DBG("Error: expected client as plugin host"); return; }
 
 				widget = std::make_shared<notifications_widget>(client, 20);
+
+				config::register_key("appearance", "highlight_color", "red", config::validate_color,
+					[&, client](config::database &, const config::value &value) {
+						widget->highlight_color = ansi::get_color(value.string_());
+						client->render_statusbar();
+					}, "The text color for highlight notifications.");
+
+				config::register_key("appearance", "highlight_bold", true, config::validate_bool,
+					[&, client](config::database &, const config::value &value) {
+						widget->highlight_bold = value.bool_();
+						client->render_statusbar();
+					}, "Whether to render highlight notifications in bold.");
+			}
+
+			void postinit(plugin_host *host) override {
+				spjalla::client *client = dynamic_cast<spjalla::client *>(host);
+				if (!client) { DBG("Error: expected client as plugin host"); return; }
+
 				client->add_status_widget(widget);
 
-				pingpong::events::listen<events::window_changed_event>([&](events::window_changed_event *ev) {
+				pingpong::events::listen<events::window_changed_event> ([=](events::window_changed_event *ev) {
 					widget->window_focused(ev->to);
 				});
 
-				pingpong::events::listen<events::window_notification_event>([&](events::window_notification_event *) {
+				pingpong::events::listen<events::window_notification_event>([=](events::window_notification_event *) {
 					client->render_statusbar();
 				});
 			}

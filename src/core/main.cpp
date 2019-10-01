@@ -42,8 +42,9 @@ namespace spjalla {
 				err.code().message()));
 		}
 
+		instance->preinit_plugins();
 		instance->init();
-		instance->init_plugins();
+		instance->postinit_plugins();
 		instance->join();
 	}
 }

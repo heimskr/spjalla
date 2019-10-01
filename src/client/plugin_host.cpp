@@ -26,9 +26,14 @@ namespace spjalla::plugins {
 			load_plugin(entry.path().c_str());
 	}
 
-	void plugin_host::init_plugins() {
+	void plugin_host::preinit_plugins() {
+		for (const plugin_pair &pair: plugins)
+			pair.second->preinit(this);
+	}
+
+	void plugin_host::postinit_plugins() {
 		for (const plugin_pair &pair: plugins) {
-			pair.second->startup(this);
+			pair.second->postinit(this);
 		}
 	}
 

@@ -40,7 +40,6 @@ namespace spjalla {
 			ansi::ansistream &out_stream;
 			haunted::terminal term;
 			ui::interface ui;
-			config::database configs;
 			completions::command_completer completer;
 
 			template <typename T>
@@ -80,6 +79,7 @@ namespace spjalla {
 			}
 
 		public:
+			config::database configs;
 			client(int heartbeat_period_ = 100);
 
 			client(const client &) = delete;

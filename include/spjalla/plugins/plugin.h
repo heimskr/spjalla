@@ -47,8 +47,11 @@ namespace spjalla::plugins {
 		virtual std::string get_description() const = 0;
 		virtual std::string get_version()     const = 0;
 
-		/** Called when the plugin first loads. */
-		virtual void startup(plugin_host *) {}
+		/** Called when the plugin first loads, before client initialization. Useful for registering configurations. */
+		virtual void preinit(plugin_host *) {}
+
+		/** Called after client initialization. */
+		virtual void postinit(plugin_host *) {}
 
 		/** Called when the client is shutting down. */
 		virtual void cleanup(plugin_host *) {}

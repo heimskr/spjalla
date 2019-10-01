@@ -88,8 +88,11 @@ namespace spjalla::plugins {
 			/** Loads all plugins in a given directory. */
 			void load_plugins(const std::string &path);
 
-			/** Initializes all loaded plugins. */
-			void init_plugins();
+			/** Initializes all loaded plugins before client initialization. */
+			void preinit_plugins();
+
+			/** Initializes all loaded plugins after client initialization. */
+			void postinit_plugins();
 
 			/** Determines whether a command can be sent. Returns true if the command should be sent, or false if a
 			 *  plugin chose to block it. */

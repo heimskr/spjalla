@@ -70,7 +70,7 @@ namespace spjalla::plugins {
 				" bar."; }
 			std::string get_version()     const override { return "0.0.0"; }
 
-			void startup(plugin_host *host) override {
+			void postinit(plugin_host *host) override {
 				spjalla::client *client = dynamic_cast<spjalla::client *>(host);
 				if (!client) {
 					DBG("Error: expected client as plugin host");

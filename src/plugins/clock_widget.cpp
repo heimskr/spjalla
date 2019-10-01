@@ -42,7 +42,7 @@ namespace spjalla::plugins {
 			std::string get_description() const override { return "Shows a clock in the status bar."; }
 			std::string get_version()     const override { return "0.0.0"; }
 
-			void startup(plugin_host *host) override {
+			void postinit(plugin_host *host) override {
 				spjalla::client *client = dynamic_cast<spjalla::client *>(host);
 				if (!client) {
 					DBG("Error: expected client as plugin host");
@@ -51,7 +51,7 @@ namespace spjalla::plugins {
 
 				widget = std::make_shared<clock_widget>(client, 0);
 				client->add_status_widget(widget);
-				client->add_heartbeat_listener([&](int period) { tick(period); });
+				client->add_heartbeat_listener([this](int period) { tick(period); });
 			}
 
 			void tick(int period) {
