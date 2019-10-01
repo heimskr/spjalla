@@ -1,17 +1,20 @@
 #include <iomanip>
 #include <set>
 
+#include "haunted/core/defs.h"
+#include "haunted/core/key.h"
+#include "pingpong/core/defs.h"
+#include "pingpong/core/channel.h"
+#include "pingpong/core/user.h"
+#include "pingpong/events/event.h"
+
 #include "spjalla/core/client.h"
 #include "spjalla/core/options.h"
 #include "spjalla/core/util.h"
 
 #include "spjalla/config/config.h"
 
-#include "haunted/core/defs.h"
-#include "haunted/core/key.h"
-#include "pingpong/core/defs.h"
-#include "pingpong/core/channel.h"
-#include "pingpong/core/user.h"
+#include "spjalla/events/window_changed.h"
 
 #include "spjalla/lines/chanlist.h"
 #include "spjalla/lines/overlay.h"
@@ -226,7 +229,10 @@ namespace spjalla::ui {
 		if (win == active_window)
 			return;
 
+		ui::window *old_active = active_window;
 		swappo->set_active(active_window = win);
+
+		pingpong::events::dispatch<events::window_changed_event>(old_active, win);
 
 		if (win == overlay) {
 			update_overlay();
