@@ -106,7 +106,7 @@ namespace spjalla::util {
 
 		ssize_t word_index = -1;
 		ssize_t sub_index  = -1;
-		char prev_char = '\0', next_char = '\0';
+		char prev_char = '\0';
 
 		if (str.empty())
 			return {-1, -1};
@@ -116,7 +116,6 @@ namespace spjalla::util {
 
 		for (size_t i = 0; i < length; ++i) {
 			char ch = str[i];
-			next_char = i == length - 1? '\0' : str[i + 1];
 
 			if (ch != ' ' && (prev_char == '\0' || prev_char == ' ')) {
 				++word_index;
