@@ -68,6 +68,9 @@ namespace spjalla::config {
 			/** Attempts to parse a configuration line of the form /^\w+\s*=\s*\d+\.\d*$/. */
 			static std::pair<std::string, double> parse_double_line(const std::string &);
 
+			/** Attempts to parse a configuration line of the form /^\w+\s*=\s*(true|false|on|off|yes|no)$/. */
+			static std::pair<std::string, bool> parse_bool_line(const std::string &);
+
 			/** Attempts to parse a configuration line of the form /^\w+\s*=\s*("[^\\\n\r\t\0"]*")?$/. */
 			static std::pair<std::string, std::string> parse_string_line(const std::string &);
 

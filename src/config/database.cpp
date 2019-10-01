@@ -106,6 +106,21 @@ namespace spjalla::config {
 		return {key, parsed};
 	}
 
+	std::pair<std::string, bool> database::parse_bool_line(const std::string &str) {
+		std::string key, value;
+		std::tie(key, value) = parse_kv_pair(str);
+
+		if (value == ".")
+			return {key, 0};
+
+		size_t idx;
+		bool parsed = std::stod(value, &idx);
+		if (idx != value.length())
+			throw std::invalid_argument("Invalid value in key-value pair; expected a bool");
+
+		return {key, parsed};
+	}
+
 	std::pair<std::string, std::string> database::parse_string_line(const std::string &str) {
 		std::string key, value;
 		std::tie(key, value) = parse_kv_pair(str);
@@ -152,6 +167,9 @@ namespace spjalla::config {
 				return value_type::invalid;
 			return value_type::double_;
 		}
+
+		if (val == "true" || val == "false" || val == "on" || val == "off" || val == "yes" || val == "no")
+			return value_type::bool_;
 
 		if (val.size() >= 2 && val.front() == '"' && val.back() == '"')
 			return value_type::string_;

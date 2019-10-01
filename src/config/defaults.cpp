@@ -21,6 +21,10 @@ namespace spjalla::config {
 		return val.get_type() == value_type::string_? validation_result::valid : validation_result::bad_type;
 	}
 
+	validation_result validate_bool(const value &val) {
+		return val.get_type() == value_type::bool_? validation_result::valid : validation_result::bad_type;
+	}
+
 	validation_result validate_color(const value &val) {
 		if (val.get_type() != value_type::string_)
 			return validation_result::bad_type;
@@ -35,13 +39,13 @@ namespace spjalla::config {
 	}
 
 	bool register_key(const std::string &group, const std::string &key, const value &default_value,
-	const validator &validator_fn, const applicator &on_set) {
+	const validator &validator_fn, const applicator &on_set, const std::string &description) {
 		std::string combined = group + "." + key;
 
 		if (registered.count(group + "." + key) > 0)
 			return false;
 
-		registered.insert({combined, default_key(combined, default_value, validator_fn, on_set)});
+		registered.insert({combined, default_key(combined, default_value, validator_fn, on_set, description)});
 		return true;
 	}
 
@@ -63,44 +67,48 @@ namespace spjalla::config {
 	}
 
 	void register_defaults() {
-		register_key("server", "default_nick", pingpong::irc::default_nick, validate_string);
+		register_key("server", "default_nick", pingpong::irc::default_nick, validate_string, {},
+			"The nickname to use when connecting to a new server.");
 
 		register_key("server", "default_user", pingpong::irc::default_user, validate_string,
 		             [](database &db, const value &new_val) {
 			db.get_parent().get_irc().username = new_val.string_();
-		});
+		}, "The username to use when connecting to a new server.");
 
 		register_key("server", "default_real", pingpong::irc::default_realname, validate_string,
 		             [](database &db, const value &new_val) {
 			db.get_parent().get_irc().realname = new_val.string_();
-		});
+		}, "The real name to use when connecting to a new server.");
 
 		register_key("appearance", "bar_background", "blood", validate_color, [](database &db, const value &new_val) {
 			db.get_parent().get_ui().set_bar_background(ansi::get_color(new_val.string_()));
-		});
+		}, "The background color of the status bar and title bar.");
 
 		register_key("appearance", "bar_foreground", "normal", validate_color, [](database &db, const value &new_val) {
 			db.get_parent().get_ui().set_bar_foreground(ansi::get_color(new_val.string_()));
-		});
+		}, "The text color of the status bar and title bar.");
 
 		register_key("appearance", "overlay_background", "verydark", validate_color,
 		             [](database &db, const value &new_val) {
 			db.get_parent().get_ui().set_overlay_background(ansi::get_color(new_val.string_()));
-		});
+		}, "The background color of the overlay window.");
 
 		register_key("appearance", "overlay_foreground", "white", validate_color,
 		             [](database &db, const value &new_val) {
 			db.get_parent().get_ui().set_overlay_foreground(ansi::get_color(new_val.string_()));
-		});
+		}, "The text color of the overlay window.");
 
 		register_key("appearance", "input_background", "normal", validate_color,
 		             [](database &db, const value &new_val) {
 			db.get_parent().get_ui().set_input_background(ansi::get_color(new_val.string_()));
-		});
+		}, "The background color of the input box.");
 
 		register_key("appearance", "input_foreground", "normal", validate_color,
 		             [](database &db, const value &new_val) {
 			db.get_parent().get_ui().set_input_foreground(ansi::get_color(new_val.string_()));
-		});
+		}, "The text color of the input box.");
+
+		register_key("activity", "direct_only", false, validate_bool, {},
+			"Whether to count only messages that begin with your name as highlights.");
 	}
 }
