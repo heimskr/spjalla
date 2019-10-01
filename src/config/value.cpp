@@ -15,6 +15,12 @@ namespace spjalla::config {
 		return double_value;
 	}
 
+	bool & value::bool_ref() {
+		if (type != value_type::bool_)
+			throw std::runtime_error("Underlying type of value isn't bool");
+		return bool_value;
+	}
+
 	std::string & value::string_ref() {
 		if (type != value_type::string_)
 			throw std::runtime_error("Underlying type of value isn't string");
@@ -33,6 +39,12 @@ namespace spjalla::config {
 		return double_value;
 	}
 
+	bool value::bool_() const {
+		if (type != value_type::bool_)
+			throw std::runtime_error("Underlying type of value isn't bool");
+		return bool_value;
+	}
+
 	const std::string & value::string_() const {
 		if (type != value_type::string_)
 			throw std::runtime_error("Underlying type of value isn't string");
@@ -48,6 +60,12 @@ namespace spjalla::config {
 	value & value::operator=(double new_double) {
 		type = value_type::double_;
 		double_value = new_double;
+		return *this;
+	}
+
+	value & value::operator=(bool new_bool) {
+		type = value_type::bool_;
+		bool_value = new_bool;
 		return *this;
 	}
 
@@ -71,6 +89,10 @@ namespace spjalla::config {
 		return type == value_type::double_ && double_value == other;
 	}
 
+	bool value::operator==(bool other) const {
+		return type == value_type::bool_ && bool_value == other;
+	}
+
 	bool value::operator==(const std::string &other) const {
 		return type == value_type::string_ && string_value == other;
 	}
@@ -82,6 +104,8 @@ namespace spjalla::config {
 			return std::to_string(double_value);
 		if (type == value_type::string_)
 			return string_value;
+		if (type == value_type::bool_)
+			return bool_value? "true" : "false";
 		throw std::invalid_argument("Invalid value type");
 	}
 
