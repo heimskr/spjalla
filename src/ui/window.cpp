@@ -42,18 +42,24 @@ namespace spjalla::ui {
 	}
 
 	void window::notify(const lines::line &line, notification_type type) {
-		if (type != notification_type::none)
-			DBG("Notify[" << static_cast<int>(type) << "]: " << std::string(line));
-
-		pingpong::events::dispatch<events::notification_event>(this, line, type);
+		pingpong::events::dispatch<events::notification_event>(this, &line, type);
 
 		if (data.highest_notification < type) {
-			pingpong::events::dispatch<events::window_notification_event>(this, line, data.highest_notification, type);
 			data.highest_notification = type;
+			pingpong::events::dispatch<events::window_notification_event>(this, &line, data.highest_notification, type);
 		}
 	}
 
 	void window::notify(const lines::line &line) {
 		notify(line, line.get_notification_type());
+	}
+
+	void window::unnotify() {
+		if (data.highest_notification != notification_type::none) {
+			pingpong::events::dispatch<events::window_notification_event>(this, nullptr, data.highest_notification,
+				notification_type::none);
+		}
+
+		data.highest_notification = notification_type::none;
 	}
 }

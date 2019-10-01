@@ -149,6 +149,7 @@ namespace spjalla::ui {
 		if (active_window == win)
 			focus_window(status_window);
 
+		win->unnotify();
 		pingpong::events::dispatch<events::window_closed_event>(win);
 		swappo->remove_child(win);
 		delete win;
@@ -235,6 +236,7 @@ namespace spjalla::ui {
 		swappo->set_active(active_window = win);
 
 		pingpong::events::dispatch<events::window_changed_event>(old_active, win);
+		win->unnotify();
 
 		if (win == overlay) {
 			update_overlay();

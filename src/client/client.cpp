@@ -110,4 +110,8 @@ namespace spjalla {
 			return serv->get_nick();
 		return "";
 	}
+
+	std::deque<haunted::ui::control *> client::get_window_controls() const {
+		return ui.swappo->get_children();
+	}
 }

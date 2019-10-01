@@ -144,6 +144,9 @@ namespace spjalla {
 			/** Returns the nickname in use on the active server if possible, or a blank string otherwise. */
 			std::string active_nick();
 
+			/** Returns all the windows as haunted::ui::control pointers. */
+			std::deque<haunted::ui::control *> get_window_controls() const;
+
 			template <typename T>
 			void log(const T &obj) {
 				ui.log(obj);

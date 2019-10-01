@@ -21,7 +21,7 @@ namespace spjalla::plugins {
 				if (!win)
 					return "null?";
 
-				std::string index = ansi::dim(ansi::bold(std::to_string(win->get_index()))) + " ";
+				std::string index = ansi::dim(ansi::bold(std::to_string(win->get_index() + 1))) + " ";
 
 				if (win->is_status()) {
 					return index + "status";

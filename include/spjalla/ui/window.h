@@ -106,6 +106,7 @@ namespace spjalla::ui {
 
 			void notify(const lines::line &, notification_type);
 			void notify(const lines::line &);
+			void unnotify();
 
 			friend void swap(window &left, window &right);
 	};
