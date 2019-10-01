@@ -15,6 +15,7 @@
 #include "spjalla/config/config.h"
 
 #include "spjalla/events/window_changed.h"
+#include "spjalla/events/window_closed.h"
 
 #include "spjalla/lines/chanlist.h"
 #include "spjalla/lines/overlay.h"
@@ -148,6 +149,7 @@ namespace spjalla::ui {
 		if (active_window == win)
 			focus_window(status_window);
 
+		pingpong::events::dispatch<events::window_closed_event>(win);
 		swappo->remove_child(win);
 		delete win;
 	}
