@@ -114,13 +114,14 @@ namespace spjalla {
 		});
 
 		pingpong::events::listen<pingpong::privmsg_event>([&](pingpong::privmsg_event *ev) {
+			const bool direct_only = configs.get("activity", "direct_only").bool_();
 			if (ev->is_channel()) {
-				*ui.get_window(ev->get_channel(ev->serv), true) += lines::privmsg_line(*ev);
+				*ui.get_window(ev->get_channel(ev->serv), true) += lines::privmsg_line(*ev, direct_only);
 			} else {
 				if (ev->speaker->is_self()) // privmsg_events are dispatched when we send messages too.
-					*ui.get_window(ev->serv->get_user(ev->where, true), true) += lines::privmsg_line(*ev);
+					*ui.get_window(ev->serv->get_user(ev->where, true), true) += lines::privmsg_line(*ev, direct_only);
 				else
-					*ui.get_window(ev->speaker, true) += lines::privmsg_line(*ev);
+					*ui.get_window(ev->speaker, true) += lines::privmsg_line(*ev, direct_only);
 			}
 		});
 

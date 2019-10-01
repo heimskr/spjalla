@@ -33,11 +33,15 @@ namespace spjalla::lines {
 			// change their name later, it would cause this line to render with the new name!
 			const std::string name;
 
+			const std::string self;
+
 			// It's also necessary to store the user's hat at the time the message was sent (provided the message was to
 			// a channel and not directly to you).
 			pingpong::hat hat = pingpong::hat::none;
 
 			const std::string message;
+
+			const bool direct_only;
 
 			/** The message after colors and actions have been processed. */
 			std::string processed;
@@ -45,21 +49,21 @@ namespace spjalla::lines {
 			const long stamp;
 
 			privmsg_line(std::shared_ptr<pingpong::user> speaker_, const std::string &where_,
-			const std::string &message_, long stamp_);
+			const std::string &message_, long stamp_, bool direct_only_ = false);
 
 			privmsg_line(std::shared_ptr<pingpong::user> speaker_, std::shared_ptr<pingpong::channel> chan_,
-			const std::string &message_, long stamp_):
-				privmsg_line(speaker_, chan_->name, message_, stamp_) {}
+			const std::string &message_, long stamp_, bool direct_only_ = false):
+				privmsg_line(speaker_, chan_->name, message_, stamp_, direct_only_) {}
 
 			privmsg_line(std::shared_ptr<pingpong::user> speaker_, std::shared_ptr<pingpong::user> whom_,
-			const std::string &message_, long stamp_):
-				privmsg_line(speaker_, whom_->name, message_, stamp_) {}
+			const std::string &message_, long stamp_, bool direct_only_ = false):
+				privmsg_line(speaker_, whom_->name, message_, stamp_, direct_only_) {}
 
-			privmsg_line(const pingpong::privmsg_command &cmd):
-				privmsg_line(cmd.serv->get_self(), cmd.where, cmd.message, cmd.sent_time) {}
+			privmsg_line(const pingpong::privmsg_command &cmd, bool direct_only_ = false):
+				privmsg_line(cmd.serv->get_self(), cmd.where, cmd.message, cmd.sent_time, direct_only_) {}
 
-			privmsg_line(const pingpong::privmsg_event &ev):
-				privmsg_line(ev.speaker, ev.where, ev.content, ev.stamp) {}
+			privmsg_line(const pingpong::privmsg_event &ev, bool direct_only_ = false):
+				privmsg_line(ev.speaker, ev.where, ev.content, ev.stamp, direct_only_) {}
 
 			virtual operator std::string() const override;
 			virtual notification_type get_notification_type() const override;

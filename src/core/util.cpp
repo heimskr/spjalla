@@ -6,6 +6,7 @@
 
 #include "spjalla/core/util.h"
 #include "spjalla/ui/window.h"
+#include "lib/formicine/futil.h"
 
 namespace spjalla::util {
 	std::string colorize_if_dead(const std::string &str, const ui::window *win) {
@@ -191,5 +192,24 @@ namespace spjalla::util {
 		}
 
 		return length;
+	}
+
+	bool is_highlight(const std::string &message, const std::string &name, bool direct_only) {
+		const std::string lmessage = formicine::util::lower(message);
+		const std::string lname = formicine::util::lower(name);
+
+		if (lmessage.find(lname + ":") == 0 || lmessage.find(lname + ",") == 0 || lmessage.find(lname + " ") == 0)
+			return true;
+
+		if (!direct_only) {
+			std::string filtered = formicine::util::filter(lmessage, std::string(" ") + pingpong::util::nick_chars);
+			std::vector<std::string> words = formicine::util::split(filtered, " ", true);
+			for (const std::string &word: words) {
+				if (word == lname)
+					return true;
+			}
+		}
+
+		return false;
 	}
 }

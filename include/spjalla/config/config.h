@@ -49,6 +49,8 @@ namespace spjalla::config {
 			static std::filesystem::path get_db_path(const std::string &dbname  = DEFAULT_CONFIG_DB,
 			                                         const std::string &dirname = DEFAULT_DATA_DIR);
 
+			static bool parse_bool(const std::string &str);
+
 			/** Throws a std::invalid_argument exception if a group+key pair is unknown and unknown group+key pairs
 			 *  aren't allowed. */
 			void ensure_known(const std::string &group, const std::string &key) const noexcept(false);

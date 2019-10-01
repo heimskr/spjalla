@@ -44,24 +44,6 @@ namespace spjalla {
 		std::string & trim(std::string &str);
 		std::string trim(const std::string &str);
 
-		template <typename Iter>
-		std::string join(Iter begin, Iter end, const std::string &delim = " ") {
-			std::ostringstream oss;
-			bool first = true;
-			while (begin != end) {
-				if (!first) {
-					oss << delim;
-				} else {
-					first = false;
-				}
-
-				oss << *begin;
-				++begin;
-			}
-
-			return oss.str();
-		}
-
 		/** Returns the index of the word that a given index is in in addition to the index within the word.
 		 *  If the cursor is within a group of multiple spaces between two words, the first value will be negative.
 		 *  If the first value is -1, the cursor is before the first word. -2 indicates that the cursor is before the
@@ -75,6 +57,9 @@ namespace spjalla {
 		/** Returns the index of first character after the n-th word of a string. If n is greater than the number of
 		 *  words in the string, the length of the string is returned. */
 		size_t last_index_of_word(const std::string &, size_t n);
+
+		/** Determines whether a message is a highlight for a given name. */
+		bool is_highlight(const std::string &message, const std::string &name, bool direct_only);
 
 		/** Returns a vector of all elements in a range that begin with a given string. */
 		template <typename T, typename Iter>

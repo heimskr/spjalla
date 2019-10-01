@@ -42,6 +42,10 @@ namespace spjalla::config {
 		return util::get_home() / dirname / dbname;
 	}
 
+	bool database::parse_bool(const std::string &str) {
+		return str == "true" || str == "on" || str == "yes";
+	}
+
 
 // Private instance methods
 
@@ -264,6 +268,7 @@ namespace spjalla::config {
 		switch (type) {
 			case value_type::long_:   return insert(group, key, {strtol(value.c_str(), nullptr, 10)}, save);
 			case value_type::double_: return insert(group, key, {std::stod(value)}, save);
+			case value_type::bool_:   return insert(group, key, {parse_bool(value)}, save);
 			case value_type::string_: return insert(group, key, {database::parse_string(value)}, save);
 			default:
 				throw std::invalid_argument("Invalid value type");

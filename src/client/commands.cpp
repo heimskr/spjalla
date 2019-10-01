@@ -281,7 +281,7 @@ namespace spjalla {
 					ui.log("No configuration option for " + ansi::bold(first) + ".");
 				}
 			} else {
-				std::string joined = util::join(il.args.begin() + 1, il.args.end());
+				std::string joined = formicine::util::join(il.args.begin() + 1, il.args.end());
 
 				// Special case: setting a value to "-" removes it from the database.
 				if (joined == "-") {

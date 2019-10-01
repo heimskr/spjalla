@@ -1,9 +1,13 @@
+#include "pingpong/core/util.h"
+#include "spjalla/core/util.h"
 #include "spjalla/lines/privmsg.h"
+#include "lib/formicine/futil.h"
 
 namespace spjalla::lines {
 	privmsg_line::privmsg_line(std::shared_ptr<pingpong::user> speaker_, const std::string &where_,
-	const std::string &message_, long stamp_):
-		line(0), pingpong::local(where_), speaker(speaker_), name(speaker_->name), message(message_), stamp(stamp_) {
+	const std::string &message_, long stamp_, bool direct_only_):
+		line(0), pingpong::local(where_), speaker(speaker_), name(speaker_->name), self(speaker_->serv->get_nick()),
+		message(message_), direct_only(direct_only_), stamp(stamp_) {
 
 		is_self = speaker_->is_self();
 
@@ -44,6 +48,10 @@ namespace spjalla::lines {
 
 	std::string privmsg_line::process(const std::string &str) const {
 		std::string name_fmt = is_action() || is_self? ansi::bold(name) : name;
+
+		if (util::is_highlight(message, self, direct_only))
+			name_fmt = ansi::yellow(name_fmt);
+
 		if (is_channel())
 			name_fmt.insert(0, hat_str());
 
@@ -59,6 +67,8 @@ namespace spjalla::lines {
 
 
 	notification_type privmsg_line::get_notification_type() const {
+		if (util::is_highlight(message, self, direct_only))
+			return notification_type::highlight;
 		return notification_type::message;
 	}
 }

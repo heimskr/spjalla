@@ -42,7 +42,9 @@ namespace spjalla::ui {
 	}
 
 	void window::notify(const lines::line &line, notification_type type) {
-		DBG("Notify[" << static_cast<int>(type) << "]: " << std::string(line));
+		if (type != notification_type::none)
+			DBG("Notify[" << static_cast<int>(type) << "]: " << std::string(line));
+
 		pingpong::events::dispatch<events::notification_event>(this, line, type);
 
 		if (data.highest_notification < type) {
