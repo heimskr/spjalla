@@ -1,3 +1,6 @@
+#include "pingpong/events/event.h"
+#include "spjalla/events/notification.h"
+#include "spjalla/lines/line.h"
 #include "spjalla/ui/window.h"
 
 namespace spjalla::ui {
@@ -36,5 +39,18 @@ namespace spjalla::ui {
 
 	void window::resurrect() {
 		data.dead = false;
+	}
+
+	void window::notify(lines::line &line, notification_type type) {
+		pingpong::events::dispatch<events::notification_event>(this, line, type);
+
+		if (data.highest_notification < type) {
+			pingpong::events::dispatch<events::window_notification_event>(this, line, data.highest_notification, type);
+			data.highest_notification = type;
+		}
+	}
+
+	void window::notify(lines::line &line) {
+		notify(line, line.get_notification_type());
 	}
 }

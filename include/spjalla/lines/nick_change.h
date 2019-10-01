@@ -9,7 +9,7 @@
 
 #include "pingpong/events/nick.h"
 
-#include "spjalla/lines/lines.h"
+#include "spjalla/lines/line.h"
 
 namespace spjalla::lines {
 	struct nick_change_line: public line {

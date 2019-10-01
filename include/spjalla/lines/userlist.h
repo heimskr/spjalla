@@ -5,7 +5,7 @@
 #include "pingpong/core/channel.h"
 #include "pingpong/core/user.h"
 
-#include "spjalla/lines/lines.h"
+#include "spjalla/lines/line.h"
 
 namespace spjalla::lines {
 	struct userlist_line: line {

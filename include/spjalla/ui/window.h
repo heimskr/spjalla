@@ -7,6 +7,8 @@
 #include "haunted/ui/container.h"
 #include "haunted/ui/textbox.h"
 #include "pingpong/core/defs.h"
+#include "spjalla/core/notifications.h"
+#include "spjalla/lines/line.h"
 
 namespace spjalla::ui {
 
@@ -27,6 +29,8 @@ namespace spjalla::ui {
 		pingpong::server *serv = nullptr;
 		std::shared_ptr<pingpong::channel> chan;
 		std::shared_ptr<pingpong::user>    user;
+
+		notification_type highest_notification = notification_type::none;
 
 		/** Whether whatever the window is for is dead—e.g., a channel you've been kicked from. */
 		bool dead = false;
@@ -78,6 +82,9 @@ namespace spjalla::ui {
 
 			void kill();
 			void resurrect();
+
+			void notify(lines::line &, notification_type);
+			void notify(lines::line &);
 
 			friend void swap(window &left, window &right);
 	};

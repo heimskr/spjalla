@@ -7,7 +7,7 @@
 #include "pingpong/commands/privmsg.h"
 #include "pingpong/events/privmsg.h"
 
-#include "spjalla/lines/lines.h"
+#include "spjalla/lines/line.h"
 
 namespace spjalla::lines {
 	class privmsg_line: public line, public pingpong::local {

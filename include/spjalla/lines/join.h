@@ -7,7 +7,7 @@
 
 #include "pingpong/events/join.h"
 
-#include "spjalla/lines/lines.h"
+#include "spjalla/lines/line.h"
 
 namespace spjalla::lines {
 	struct join_line: public line {

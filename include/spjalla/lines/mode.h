@@ -5,7 +5,7 @@
 
 #include "pingpong/events/mode.h"
 
-#include "spjalla/lines/lines.h"
+#include "spjalla/lines/line.h"
 
 namespace spjalla::lines {
 	class mode_line: public line {

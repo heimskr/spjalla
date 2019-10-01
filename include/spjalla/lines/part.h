@@ -7,7 +7,7 @@
 
 #include "pingpong/events/part.h"
 
-#include "spjalla/lines/lines.h"
+#include "spjalla/lines/line.h"
 
 namespace spjalla::lines {
 	struct part_line: public line {

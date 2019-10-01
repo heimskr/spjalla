@@ -4,7 +4,7 @@
 #include "pingpong/core/util.h"
 
 #include "spjalla/config/config.h"
-#include "spjalla/lines/lines.h"
+#include "spjalla/lines/line.h"
 
 namespace spjalla::lines {
 	struct config_key_line: public haunted::ui::textline {

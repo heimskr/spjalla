@@ -19,7 +19,7 @@
 
 #include "spjalla/lines/config_group.h"
 #include "spjalla/lines/config_key.h"
-#include "spjalla/lines/lines.h"
+#include "spjalla/lines/line.h"
 #include "spjalla/lines/warning.h"
 
 #include "lib/formicine/futil.h"

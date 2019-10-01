@@ -7,7 +7,7 @@
 
 #include "pingpong/events/kick.h"
 
-#include "spjalla/lines/lines.h"
+#include "spjalla/lines/line.h"
 
 namespace spjalla::lines {
 	struct kick_line: public line {

@@ -4,7 +4,7 @@
 #include "pingpong/core/topicset.h"
 #include "pingpong/events/topic.h"
 
-#include "spjalla/lines/lines.h"
+#include "spjalla/lines/line.h"
 
 namespace spjalla::lines {
 	struct topic_line: public line {

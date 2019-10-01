@@ -18,7 +18,7 @@
 #include "spjalla/config/config.h"
 #include "spjalla/config/defaults.h"
 
-#include "spjalla/lines/lines.h"
+#include "spjalla/lines/line.h"
 
 #include "lib/formicine/ansi.h"
 

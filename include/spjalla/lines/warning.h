@@ -1,7 +1,7 @@
 #ifndef SPJALLA_LINES_WARNING_H_
 #define SPJALLA_LINES_WARNING_H_
 
-#include "spjalla/lines/lines.h"
+#include "spjalla/lines/line.h"
 
 namespace spjalla::lines {
 	struct warning_line: public line {

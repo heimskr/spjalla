@@ -1,7 +1,7 @@
 #include <chrono>
 #include <ctime>
 
-#include "spjalla/lines/lines.h"
+#include "spjalla/lines/line.h"
 #include "lib/formicine/ansi.h"
 
 namespace spjalla::lines {
