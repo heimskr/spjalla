@@ -55,8 +55,7 @@ namespace spjalla::completions {
 
 		for (auto iter = matches.begin(), end = matches.end(); iter != end; ++iter) {
 			if (*iter == first) {
-				// The user has pressed tab again after one of the completions has been filled in. Fill in the next
-				// match.
+				// The user has pressed tab again after one of the completions has been filled in. Fill in the next one.
 				auto next = iter == end - 1? matches.begin() : iter + 1;
 				raw = "/" + *next + rest;
 				cursor = next->length() + 1;
@@ -93,6 +92,10 @@ namespace spjalla::completions {
 			raw = "/set " + next + rest;
 			cursor = next.length() + 5;
 		}
+	}
+
+	void complete_me(client &client_, const input_line &, std::string &raw, size_t &cursor, long, long) {
+		client_.complete_message(raw, cursor, 1);
 	}
 
 	void completion_state::reset() {
@@ -140,11 +143,18 @@ namespace spjalla {
 
 
 		if (il.is_command()) {
+			DBG("hehe...");
 			const std::string old_text {text};
 
 			if (windex == 0) {
 				// The user wants to complete a command name.
 				completer.complete(text, cursor);
+
+				if (old_text != text)
+					ui.input->set_text(text);
+
+				ui.input->move_to(cursor);
+				ui.input->jump_cursor();
 			} else {
 				if (windex < 0) {
 					// We're not in a word, but we're where one should be.
@@ -163,12 +173,6 @@ namespace spjalla {
 					}
 				}
 			}
-
-			if (old_text != text)
-				ui.input->set_text(text);
-
-			ui.input->move_to(cursor);
-			ui.input->jump_cursor();
 		} else if (ui.get_active_server()) {
 			if (ui.active_window == ui.status_window && text.front() != '/') {
 				text.insert(0, "/");
@@ -181,7 +185,7 @@ namespace spjalla {
 		}
 	}
 
-	void client::complete_message(std::string &text, size_t cursor) {
+	void client::complete_message(std::string &text, size_t cursor, ssize_t word_offset) {
 		if (text.empty())
 			return;
 
@@ -216,7 +220,7 @@ namespace spjalla {
 		const std::string &suffix = configs.get("completion", "ping_suffix").string_ref();
 		util::remove_suffix(word, suffix);
 
-		std::vector<std::string> items = {};
+		std::deque<std::string> items = {};
 
 		if (word[0] == '#') {
 			for (const std::shared_ptr<pingpong::channel> &ptr: server->channels) {
@@ -236,9 +240,26 @@ namespace spjalla {
 		}
 
 		if (!items.empty()) {
+			std::sort(items.begin(), items.end());
+
+			if (1 < items.size()) {
+				// It's reasonable to assume that you're not desparate to complete your own nick, so for your
+				// convenience we'll move your name to the end of the list.
+				const std::string self = server->get_nick();
+				for (auto iter = items.begin(); iter != items.end() && iter + 1 != items.end(); ++iter) {
+					if (*iter == self) {
+						items.erase(iter);
+						items.push_back(self);
+						break;
+					}
+				}
+			}
+
 			const std::string next = util::next_in_sequence(items.begin(), items.end(), word);
+			const size_t old_cursor = cursor;
 			cursor = util::replace_word(text, windex, next);
-			if (windex == 0 && next.front() != '#' && !suffix.empty()) {
+
+			if (windex == word_offset && next.front() != '#' && !suffix.empty()) {
 				// Erase any space already after the colon to prevent spaces from accumulating.
 				if (cursor < text.length() && std::isspace(text[cursor]))
 					text.erase(cursor, 1);

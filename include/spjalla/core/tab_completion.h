@@ -27,6 +27,9 @@ namespace spjalla::completions {
 	/** Completes the /set command. */
 	void complete_set(client &, const input_line &, std::string &raw, size_t &cursor, long arg_index, long sub);
 
+	/** Completes the /me command. */
+	void complete_me(client &, const input_line &, std::string &raw, size_t &cursor, long arg_index, long sub);
+
 	/** Contains the state data and logic for dealing with some parts of tab completion for commands. Clients keep an
 	 *  instance of this and pass keypresses to it. */
 	class command_completer {

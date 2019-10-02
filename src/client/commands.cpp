@@ -110,7 +110,7 @@ namespace spjalla {
 				pingpong::privmsg_command(win->data.chan, msg).send();
 			else if (win->is_user())
 				pingpong::privmsg_command(win->data.user, msg).send();
-		}, {}}});
+		}, completions::complete_me}});
 
 
 		add({"mode", {1, -1, true, [&](sptr serv, line il) {

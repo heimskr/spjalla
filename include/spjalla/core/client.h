@@ -243,7 +243,7 @@ namespace spjalla {
 
 			void tab_complete();
 
-			void complete_message(std::string &, size_t);
+			void complete_message(std::string &, size_t cursor, ssize_t word_offset = 0);
 
 			void key_postlistener(const haunted::key &);
 	};
