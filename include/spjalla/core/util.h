@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <locale>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <utility>
 
@@ -41,8 +42,8 @@ namespace spjalla {
 		std::string unescape(const std::string &, const bool check_dquotes = true);
 
 		/** Trims spaces and tabs from both ends of a string. */
-		std::string & trim(std::string &str);
-		std::string trim(const std::string &str);
+		std::string & trim(std::string &);
+		std::string   trim(const std::string &);
 
 		/** Returns the index of the word that a given index is in in addition to the index within the word.
 		 *  If the cursor is within a group of multiple spaces between two words, the first value will be negative.
@@ -58,6 +59,16 @@ namespace spjalla {
 		 *  words in the string, the length of the string is returned. */
 		size_t last_index_of_word(const std::string &, size_t n);
 
+		/** Replaces the n-th word of a string with another string and returns the position of the first character
+		 *  after the replacement word (or -1 if the string has no n-th word). */
+		ssize_t replace_word(std::string &, size_t n, const std::string &);
+
+		/** Removes a suffix from a word if one is present and returns a reference to the now-modified string. */
+		std::string & remove_suffix(std::string &word, const std::string &suffix);
+
+		/** Removes a suffix from a word if one is present. */
+		std::string remove_suffix(const std::string &word, const std::string &suffix);
+
 		/** Determines whether a message is a highlight for a given name. */
 		bool is_highlight(const std::string &message, const std::string &name, bool direct_only);
 
@@ -72,9 +83,13 @@ namespace spjalla {
 		}
 
 		/** Treats a range like a circular buffer and finds the next value after a given value. If the given value isn't
-		 *  present in the range, the function returns the value at the beginning of the range. */
+		 *  present in the range, the function returns the value at the beginning of the range. If the range is empty,
+		 *  the function throws std::invalid_argument. */
 		template <typename Iter>
 		std::string & next_in_sequence(Iter begin, Iter end, const std::string &str) {
+			if (begin == end)
+				throw std::invalid_argument("Empty string");
+
 			for (Iter iter = begin; iter != end; ++iter) {
 				if (*iter == str) {
 					++iter;

@@ -67,6 +67,9 @@ namespace spjalla::config {
 	}
 
 	void register_defaults() {
+		register_key("completion", "ping_suffix", ":", validate_string, {},
+			"The suffix to put after a user's name after tab completing their name in the first word of the message.");
+
 		register_key("server", "default_nick", pingpong::irc::default_nick, validate_string, {},
 			"The nickname to use when connecting to a new server.");
 

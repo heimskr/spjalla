@@ -193,6 +193,45 @@ namespace spjalla::util {
 		return length;
 	}
 
+	ssize_t replace_word(std::string &str, size_t n, const std::string &word) {
+		const size_t index = index_of_word(str, n);
+		const size_t original_length = str.length();
+		if (index == original_length)
+			return -1;
+
+		size_t original_word_width = 0;
+		for (size_t i = index; i < original_length; ++i) {
+			if (std::isspace(str[i]))
+				break;
+			++original_word_width;
+		}
+
+		str.replace(index, original_word_width, word);
+		return index + word.length();
+	}
+
+	std::string & remove_suffix(std::string &word, const std::string &suffix) {
+		if (word.empty() || suffix.empty())
+			return word;
+
+		const size_t pos = word.rfind(suffix);
+		if (pos != std::string::npos && pos + suffix.length() == word.length())
+			word.erase(pos);
+
+		return word;
+	}
+
+	std::string remove_suffix(const std::string &word, const std::string &suffix) {
+		if (word.empty() || suffix.empty())
+			return word;
+
+		const size_t pos = word.rfind(suffix);
+		if (pos != std::string::npos && pos + suffix.length() == word.length())
+			return word.substr(0, pos);
+
+		return word;
+	}
+
 	bool is_highlight(const std::string &message, const std::string &name, bool direct_only) {
 		const std::string lmessage = formicine::util::lower(message);
 		const std::string lname = formicine::util::lower(name);

@@ -52,6 +52,8 @@ namespace spjalla::completions {
 		std::string partial;
 		ssize_t partial_index = -1;
 		std::vector<suggestor_fn> suggestors {};
+		ssize_t windex = -1;
+		ssize_t sindex = -1;
 
 		completion_state(const std::vector<suggestor_fn> &suggestors_ = {}): suggestors(suggestors_) {}
 

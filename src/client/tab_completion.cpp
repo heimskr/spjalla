@@ -1,6 +1,10 @@
+#include <deque>
 #include <ostream>
 
 #include "haunted/core/key.h"
+
+#include "pingpong/core/channel.h"
+
 #include "spjalla/core/client.h"
 #include "spjalla/core/input_line.h"
 #include "spjalla/core/util.h"
@@ -68,7 +72,6 @@ namespace spjalla::completions {
 	void complete_set(client &client_, const input_line &line, std::string &raw, size_t &cursor, long arg_index,
 	long arg_subindex) {
 		completion_state &state = client_.completion_states["set"];
-		// DBG("complete_set([" << line << "] [" << raw << "] [" << cursor << "] [" << arg_index << "] [" << arg_subindex << "])");
 		if (2 <= arg_index)
 			return;
 
@@ -89,14 +92,18 @@ namespace spjalla::completions {
 			std::string next = util::next_in_sequence(keys.begin(), keys.end(), piece);
 			raw = "/set " + next + rest;
 			cursor = next.length() + 5;
-		} else if (arg_index == 2) {
-			
 		}
 	}
 
 	void completion_state::reset() {
+		if (partial.empty())
+			return;
+
+		DBG("Resetting completion state with partial [" << partial << "].");
 		partial.clear();
 		partial_index = -1;
+		windex = -1;
+		sindex = -1;
 	}
 
 	completion_state::operator std::string() const {
@@ -130,8 +137,12 @@ namespace spjalla {
 		const std::string old_text {text};
 		const size_t old_cursor = cursor;
 
+		const ui::window *window = ui.active_window;
+		const pingpong::server *server = window->data.serv;
+		const std::shared_ptr<pingpong::channel> channel = window->data.chan;
+		const std::shared_ptr<pingpong::user> user = window->data.user;
+
 		if (il.is_command()) {
-			DBG("[" << windex << ":" << sindex << "]");
 			if (windex == 0) {
 				// The user wants to complete a command name.
 				completer.complete(text, cursor);
@@ -150,6 +161,84 @@ namespace spjalla {
 						if (cmd.completion_fn)
 							cmd.completion_fn(*this, il, text, cursor, windex, sindex);
 						break;
+					}
+				}
+			}
+		} else if (server) {
+			DBG("[" << windex << ":" << sindex << "]");
+
+			// In irssi, tab completion works if you type a word, go back to the beginning, type part of a name and tab
+			// complete. It continues to work if you keep tab completing from there. {
+			std::string word;
+			if (sindex == 0 && 0 < windex) {
+				--windex;
+				word = formicine::util::nth_word(text, windex);
+				sindex = word.length();
+			} else if (sindex == -1) {
+				windex = -windex - 2;
+				word = formicine::util::nth_word(text, windex);
+				sindex = word.length();
+			} else {
+				word = formicine::util::nth_word(text, windex);
+			}
+
+			DBG(" -> [" << windex << ":" << sindex << "], word(" << word << ")");
+
+			if (!word.empty()) {
+				DBG("Hello!");
+				completions::completion_state &state = completion_states["_"];
+
+				const std::string &suffix = configs.get("completion", "ping_suffix").string_ref();
+				util::remove_suffix(word, suffix);
+
+				if (state.partial.empty()) {
+					DBG("it's empty.");
+					state.partial = word;
+				}
+
+				DBG("state.partial[" << state.partial << "]");
+
+				std::vector<std::string> items = {};
+
+				if (word[0] == '#') {
+					for (const std::shared_ptr<pingpong::channel> &ptr: server->channels) {
+						if (ptr->name.find(state.partial) == 0)
+							items.push_back(ptr->name);
+					}
+				} else if (channel) {
+					for (const std::shared_ptr<pingpong::user> &ptr: channel->users) {
+						if (ptr->name.find(state.partial) == 0)
+							items.push_back(ptr->name);
+					}
+				} else if (user) {
+					items.push_back(user->name);
+					items.push_back(server->get_nick());
+				} else {
+					DBG("oops.");
+					return;
+				}
+
+				DBG("items[" << formicine::util::join(items.begin(), items.end(), "~"_d) << "]");
+
+				DBG("word[" << word << "]");
+
+				if (!items.empty()) {
+					const std::string next = util::next_in_sequence(items.begin(), items.end(), word);
+					cursor = util::replace_word(text, windex, next);
+					if (windex == 0 && next.front() != '#') {
+						if (!suffix.empty()) {
+							text.insert(cursor, suffix);
+							cursor += suffix.length();
+							DBG("\"" << text << "\"[" << cursor << "] == '" << text[cursor] << "'");
+							if (text.length() <= cursor + 1 || !std::isspace(text[cursor]))
+								text.insert(cursor++, " ");
+
+							// if (text.length() <= cursor + 1 || text[cursor] != ' ') {
+							// 	text.insert(cursor, suffix + " ");
+							// } else {
+							// }
+
+						}
 					}
 				}
 			}
