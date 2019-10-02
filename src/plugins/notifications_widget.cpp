@@ -77,7 +77,6 @@ namespace spjalla::plugins {
 			std::string get_version()     const override { return "0.1.0"; }
 
 			void preinit(plugin_host *host) override {
-				DBG("notifications_widget preinit.");
 				spjalla::client *client = dynamic_cast<spjalla::client *>(host);
 				if (!client) { DBG("Error: expected client as plugin host"); return; }
 

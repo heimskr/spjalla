@@ -435,6 +435,10 @@ namespace spjalla::ui {
 		return nullptr;
 	}
 
+	pingpong::server * interface::get_active_server() const {
+		return active_window->data.serv;
+	}
+
 	bool interface::is_active(const window *win) const {
 		if (!win)
 			return false;

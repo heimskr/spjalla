@@ -184,6 +184,9 @@ namespace spjalla::ui {
 			/** If the active window is for a user, this returns the pointer to the relevant user. */
 			std::shared_ptr<pingpong::user> get_active_user() const;
 
+			/** If the active window is associated with a server, this returns the pointer to the relevant server. */
+			pingpong::server * get_active_server() const;
+
 			/** Returns true if the window is active or currently covered by the overlay. */
 			bool is_active(const window *) const;
 

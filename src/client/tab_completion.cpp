@@ -138,14 +138,10 @@ namespace spjalla {
 		ssize_t windex, sindex;
 		std::tie(windex, sindex) = util::word_indices(text, cursor);
 
-		const std::string old_text {text};
-
-		const ui::window *window = ui.active_window;
-		const pingpong::server *server = window->data.serv;
-		const std::shared_ptr<pingpong::channel> channel = window->data.chan;
-		const std::shared_ptr<pingpong::user> user = window->data.user;
 
 		if (il.is_command()) {
+			const std::string old_text {text};
+
 			if (windex == 0) {
 				// The user wants to complete a command name.
 				completer.complete(text, cursor);
@@ -167,57 +163,88 @@ namespace spjalla {
 					}
 				}
 			}
-		} else if (server) {
-			completions::completion_state &state = completion_states["_"];
-			std::string word;
-			if (!state.empty()) {
-				windex = state.windex;
-				sindex = state.sindex;
-				word = formicine::util::nth_word(text, windex);
-			} else {
-				word = formicine::util::nth_word(text, windex);
-				if (!word.empty()) {
-					state.windex = windex;
-					state.sindex = sindex;
-					state.partial = word;
-				} else {
-					return;
-				}
+
+			if (old_text != text)
+				ui.input->set_text(text);
+
+			ui.input->move_to(cursor);
+			ui.input->jump_cursor();
+		} else if (ui.get_active_server()) {
+			if (ui.active_window == ui.status_window && text.front() != '/') {
+				text.insert(0, "/");
+				ui.input->set_text(text);
+				ui.input->move_to(++cursor);
+				ui.input->jump_cursor();
 			}
 
-			const std::string &suffix = configs.get("completion", "ping_suffix").string_ref();
-			util::remove_suffix(word, suffix);
+			complete_message(text, cursor);
+		}
+	}
 
-			std::vector<std::string> items = {};
+	void client::complete_message(std::string &text, size_t cursor) {
+		if (text.empty())
+			return;
 
-			if (word[0] == '#') {
-				for (const std::shared_ptr<pingpong::channel> &ptr: server->channels) {
-					if (ptr->name.find(state.partial) == 0)
-						items.push_back(ptr->name);
-				}
-			} else if (channel) {
-				for (const std::shared_ptr<pingpong::user> &ptr: channel->users) {
-					if (ptr->name.find(state.partial) == 0)
-						items.push_back(ptr->name);
-				}
-			} else if (user) {
-				items.push_back(user->name);
-				items.push_back(server->get_nick());
+		input_line il = get_input_line(text);
+		ssize_t windex, sindex;
+		std::tie(windex, sindex) = util::word_indices(text, cursor);
+
+		const std::string old_text {text};
+
+		const ui::window *window = ui.active_window;
+		const pingpong::server *server = window->data.serv;
+		const std::shared_ptr<pingpong::channel> channel = window->data.chan;
+		const std::shared_ptr<pingpong::user> user = window->data.user;
+
+		completions::completion_state &state = completion_states["_"];
+		std::string word;
+		if (!state.empty()) {
+			windex = state.windex;
+			sindex = state.sindex;
+			word = formicine::util::nth_word(text, windex);
+		} else {
+			word = formicine::util::nth_word(text, windex);
+			if (!word.empty()) {
+				state.windex = windex;
+				state.sindex = sindex;
+				state.partial = word;
 			} else {
 				return;
 			}
+		}
 
-			if (!items.empty()) {
-				const std::string next = util::next_in_sequence(items.begin(), items.end(), word);
-				cursor = util::replace_word(text, windex, next);
-				if (windex == 0 && next.front() != '#' && !suffix.empty()) {
-					// Erase any space already after the colon to prevent spaces from accumulating.
-					if (cursor < text.length() && std::isspace(text[cursor]))
-						text.erase(cursor, 1);
+		const std::string &suffix = configs.get("completion", "ping_suffix").string_ref();
+		util::remove_suffix(word, suffix);
 
-					text.insert(cursor, suffix + " ");
-					cursor += suffix.length() + 1;
-				}
+		std::vector<std::string> items = {};
+
+		if (word[0] == '#') {
+			for (const std::shared_ptr<pingpong::channel> &ptr: server->channels) {
+				if (ptr->name.find(state.partial) == 0)
+					items.push_back(ptr->name);
+			}
+		} else if (channel) {
+			for (const std::shared_ptr<pingpong::user> &ptr: channel->users) {
+				if (ptr->name.find(state.partial) == 0)
+					items.push_back(ptr->name);
+			}
+		} else if (user) {
+			items.push_back(user->name);
+			items.push_back(server->get_nick());
+		} else {
+			return;
+		}
+
+		if (!items.empty()) {
+			const std::string next = util::next_in_sequence(items.begin(), items.end(), word);
+			cursor = util::replace_word(text, windex, next);
+			if (windex == 0 && next.front() != '#' && !suffix.empty()) {
+				// Erase any space already after the colon to prevent spaces from accumulating.
+				if (cursor < text.length() && std::isspace(text[cursor]))
+					text.erase(cursor, 1);
+
+				text.insert(cursor, suffix + " ");
+				cursor += suffix.length() + 1;
 			}
 		}
 
@@ -226,7 +253,6 @@ namespace spjalla {
 
 		ui.input->move_to(cursor);
 		ui.input->jump_cursor();
-
 	}
 
 	void client::key_postlistener(const haunted::key &k) {
