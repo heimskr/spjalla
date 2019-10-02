@@ -51,14 +51,19 @@ namespace spjalla::completions {
 
 		std::string partial;
 		ssize_t partial_index = -1;
-		std::vector<suggestor_fn> suggestors {};
 		ssize_t windex = -1;
 		ssize_t sindex = -1;
+		ssize_t cursor = -1;
+
+		std::vector<suggestor_fn> suggestors {};
 
 		completion_state(const std::vector<suggestor_fn> &suggestors_ = {}): suggestors(suggestors_) {}
 
 		/** Resets the partial string and partial index. */
 		void reset();
+
+		/** Returns whether nothing has been set (or if reset() has just been called). */
+		bool empty() const;
 
 		operator std::string() const;
 	};
