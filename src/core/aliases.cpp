@@ -24,16 +24,25 @@ namespace spjalla {
 
 		const std::string &expansion = map.find(lcommand)->second;
 		std::vector<std::string> split = util::split(expansion, " ", false);
-		line.command = split[0];
+		std::string &first = split[0];
 
-		if (split.size() == 1)
-			return line;
+		size_t body_offset = 0;
+		if (first.front() == '/') {
+			first.erase(0, 1);
+			line.command = split[0];
+			body_offset = 1;
 
-		line.args.insert(line.args.begin(), split.begin() + 1, split.end());
+			if (split.size() == 1)
+				return line;
+		} else {
+			line.command.clear();
+		}
+
+		line.args.insert(line.args.begin(), split.begin() + body_offset, split.end());
 
 		std::string body_start;
-		for (const std::string &piece: split)
-			body_start += piece + " ";
+		for (auto iter = split.begin() + body_offset, end = split.end(); iter != end; ++iter)
+			body_start += *iter + " ";
 		line.body.insert(0, body_start);
 
 		return line;
