@@ -147,6 +147,10 @@ namespace spjalla::ui {
 			/** Tries to focus a window at a given index. Returns true if a window was found at the index. */
 			bool focus_window(size_t);
 
+			/** Moves the window to the specified (zero-based) index. Returns the new index (usually the same as the
+			 *  argument) or -1 if the given window is null or not part of this interface. */
+			ssize_t move_window(window *, size_t);
+
 			/** Switches to the next server in the list. */
 			void next_server();
 

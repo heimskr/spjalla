@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iomanip>
 #include <set>
 
@@ -261,6 +262,31 @@ namespace spjalla::ui {
 		}
 
 		return false;
+	}
+
+	ssize_t interface::move_window(window *win, size_t newpos) {
+		if (!win)
+			return -1;
+
+		std::deque<haunted::ui::control *> &controls = swappo->get_children();
+
+		if (std::find(controls.begin(), controls.end(), win) == controls.end())
+			return -1;
+
+		auto overlay_iter = std::find(controls.begin(), controls.end(), overlay);
+		bool move_overlay = overlay_iter + 1 != controls.end();
+		if (move_overlay)
+			controls.erase(overlay_iter);
+
+		controls.erase(std::find(controls.begin(), controls.end(), win));
+		newpos = std::min(newpos, controls.size());
+		controls.insert(std::next(controls.begin(), newpos), win);
+
+		if (move_overlay)
+			controls.push_back(overlay);
+
+		update_statusbar();
+		return newpos;
 	}
 
 	void interface::next_server() {

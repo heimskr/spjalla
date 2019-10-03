@@ -188,6 +188,18 @@ namespace spjalla {
 		}, {}}});
 
 
+		add({"move", {1, 1, false, [&](sptr, line il) {
+			long parsed;
+			const std::string first = il.first();
+			if (!util::parse_long(first, parsed)) {
+				ui.warn("Invalid number: " + "\""_bd + ansi::bold(first) + "\""_bd);
+				return;
+			}
+
+			ui.log(std::to_string(ui.move_window(ui.active_window, std::max(0L, parsed - 1))));
+		}, {}}});
+
+
 		add({"msg", {2, -1, true, [&](sptr serv, line il) {
 			pingpong::privmsg_command(serv, il.first(), il.rest()).send();
 		}, {}}});

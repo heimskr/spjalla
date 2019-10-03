@@ -72,6 +72,11 @@ namespace spjalla {
 		/** Determines whether a message is a highlight for a given name. */
 		bool is_highlight(const std::string &message, const std::string &name, bool direct_only);
 
+		/** Attempts to parse a string as a long. If the string is a valid representation of a long, the parsed long is
+		 *  stored in the given long reference and the function returns true. Otherwise, the function just returns
+		 *  false. */
+		bool parse_long(const std::string &, long &);
+
 		/** Returns a vector of all elements in a range that begin with a given string. */
 		template <typename T, typename Iter>
 		std::vector<T> starts_with(Iter start, Iter end, const std::string &prefix) {

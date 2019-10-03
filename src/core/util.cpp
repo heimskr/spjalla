@@ -250,4 +250,16 @@ namespace spjalla::util {
 
 		return false;
 	}
+
+	bool parse_long(const std::string &str, long &out) {
+		const char *c_str = str.c_str();
+		char *end;
+		long parsed = strtol(c_str, &end, 10);
+		if (end == c_str + str.length()) {
+			out = parsed;
+			return true;
+		}
+
+		return false;
+	}
 }
