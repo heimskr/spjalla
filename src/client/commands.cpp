@@ -35,16 +35,18 @@ namespace spjalla {
 
 		add({"_args", {0, -1, false, [&](sptr, line il) {
 			std::vector<std::string> strings {};
+			ui.log("Body: " + "\""_d + util::escape(il.body) + "\""_d);
+			DBG("Body: " + "\""_d + util::escape(il.body) + "\""_d);
 			if (il.args.empty()) {
-				ui.log("(none)"_d, ui.active_window);
-				DBG("(none)"_d);
+				ui.log("Args: " + "(none)"_d, ui.active_window);
+				DBG("Args: " + "(none)"_d);
 				return;
 			}
 
 			std::transform(il.args.begin(), il.args.end(), std::back_inserter(strings), [](const std::string &str) {
 				return "\""_d + util::escape(str) + "\""_d;
 			});
-			std::string joined = formicine::util::join(strings.begin(), strings.end());
+			std::string joined = "Args: " + formicine::util::join(strings.begin(), strings.end());
 			ui.log(joined, ui.active_window);
 			DBG(joined);
 		}, {}}});
