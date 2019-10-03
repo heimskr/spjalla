@@ -295,7 +295,7 @@ namespace spjalla::ui {
 
 		const auto &servers = parent->irc.server_order;
 		auto iter = std::find(servers.begin(), servers.end(), parent->active_server());
-		if (++iter == servers.end())
+		if (iter == servers.end() || ++iter == servers.end())
 			iter = servers.begin();
 		parent->irc.active_server = *iter;
 		log(lines::notice + "Switched to " + ansi::bold((*iter)->id) + ".");

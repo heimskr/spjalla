@@ -388,7 +388,8 @@ namespace spjalla {
 
 		for (const auto &pair: irc.servers) {
 			pingpong::server *serv = pair.second;
-			DBG(ansi::bold(serv->id) << " (" << serv->hostname << ")");
+			DBG(ansi::bold(serv->id) << " (" << serv->get_nick() << "@"_d << serv->hostname << "): "
+				<< static_cast<int>(serv->status));
 			for (std::shared_ptr<pingpong::channel> chan: serv->channels) {
 				DBG("    " << ansi::wrap(chan->name, ansi::style::underline) << " [" << chan->mode_str() << "]");
 				for (std::shared_ptr<pingpong::user> user: chan->users) {
