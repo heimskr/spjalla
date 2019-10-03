@@ -10,8 +10,8 @@
 #define PLUGIN_GLOBAL_VARIABLE_NAME "ext_plugin"
 
 // The name of the folder in the user's home directory in which data is stored.
-#define DEFAULT_DATA_DIR ".spjalla"
-
+#define DEFAULT_DATA_DIR  ".spjalla"
 #define DEFAULT_CONFIG_DB "client.conf"
+#define DEFAULT_ALIAS_DB  "aliases.conf"
 
 #endif

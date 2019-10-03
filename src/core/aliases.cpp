@@ -1,20 +1,20 @@
+#include <sstream>
 #include <stdexcept>
 
 #include "spjalla/core/aliases.h"
 #include "spjalla/core/util.h"
-// #include "lib/formicine/futil.h"
 
 namespace spjalla {
 	void aliases::add_alias(const std::string &key, const std::string &expansion) {
 		if (expansion.empty())
 			throw std::invalid_argument("Alias expansion is empty");
 
-		map.erase(key);
-		map.insert({formicine::util::lower(key), expansion});
+		db.erase(key);
+		db.insert({formicine::util::lower(key), expansion});
 	}
 
 	bool aliases::has_alias(const std::string &key) {
-		return map.count(key) != 0;
+		return db.count(key) != 0;
 	}
 
 	input_line & aliases::expand(input_line &line) {
@@ -22,7 +22,7 @@ namespace spjalla {
 		if (!line.is_command() || !has_alias(lcommand))
 			return line;
 
-		const std::string &expansion = map.find(lcommand)->second;
+		const std::string &expansion = db.find(lcommand)->second;
 		std::vector<std::string> split = util::split(expansion, " ", false);
 		std::string &first = split[0];
 
@@ -46,5 +46,20 @@ namespace spjalla {
 		line.body.insert(0, body_start);
 
 		return line;
+	}
+
+	void aliases::apply_line(const std::string &line) {
+
+	}
+
+	void aliases::apply_all() {
+		
+	}
+
+	aliases::operator std::string() const {
+		std::ostringstream out;
+		for (const auto &pair: db)
+			out << pair.first << "=\"" << util::escape(pair.second) << "\"\n";
+		return out.str();
 	}
 }

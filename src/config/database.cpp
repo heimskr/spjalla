@@ -11,36 +11,8 @@
 
 namespace spjalla::config {
 
-
 // Private static methods
 
-
-	std::pair<std::string, std::string> database::parse_kv_pair(const std::string &str) {
-		if (str.empty())
-			throw std::invalid_argument("Can't parse empty string as key-value pair");
-
-		const size_t equals = str.find('=');
-
-		if (equals == std::string::npos)
-			throw std::invalid_argument("No equals sign found in key-value pair");
-
-		if (equals == 0 || equals == str.find_first_not_of(" "))
-			throw std::invalid_argument("Empty key in key-value pair");
-
-		std::string key = str.substr(0, equals);
-		util::trim(key);
-
-		for (char ch: key) {
-			if (!std::isalnum(ch) && ch != '.' && ch != '_')
-				throw std::invalid_argument("Key isn't alphanumeric, '.' or '_' in key-value pair");
-		}
-
-		return {key, util::trim(str.substr(equals + 1))};
-	}
-
-	std::filesystem::path database::get_db_path(const std::string &dbname, const std::string &dirname) {
-		return util::get_home() / dirname / dbname;
-	}
 
 	bool database::parse_bool(const std::string &str) {
 		return str == "true" || str == "on" || str == "yes";
@@ -53,29 +25,6 @@ namespace spjalla::config {
 	void database::ensure_known(const std::string &group, const std::string &key) const {
 		if (!allow_unknown && !key_known(group, key))
 			throw std::invalid_argument("Unknown group+key pair");
-	}
-
-	void database::write_db() {
-		std::ofstream out {filepath};
-		out << std::string(*this);
-		out.close();
-	}
-
-	void database::read_db(bool apply, bool clear) {
-		if (clear)
-			db.clear();
-
-		std::ifstream in {filepath};
-		std::string line;
-		while (std::getline(in, line)) {
-			std::string group, key, gk, value;
-			std::tie(gk, value) = parse_kv_pair(line);
-			std::tie(group, key) = parse_pair(gk);
-			insert_any(group, key, value);
-		}
-
-		if (apply)
-			apply_all();
 	}
 
 
@@ -125,35 +74,11 @@ namespace spjalla::config {
 		return {key, parsed};
 	}
 
-	std::pair<std::string, std::string> database::parse_string_line(const std::string &str) {
-		std::string key, value;
-		std::tie(key, value) = parse_kv_pair(str);
-
-		return {key, parse_string(value)};
-	}
-
 	std::pair<std::string, std::string> database::parse_pair(const std::string &str) {
 		size_t period = str.find('.');
 		if (period == std::string::npos || period == 0 || period == str.length() - 1 || period != str.find_last_of("."))
 			throw std::invalid_argument("Invalid group+key pair");
 		return {str.substr(0, period), str.substr(period + 1)};
-	}
-
-	std::string database::parse_string(std::string value) {
-		util::trim(value);
-		const size_t vlength = value.length();
-
-		// Special case: an empty value represents an empty string, same as a pair of double quotes.
-		if (vlength == 0)
-			return "";
-
-		if (vlength < 2)
-			throw std::invalid_argument("Invalid length of string value");
-
-		if (value.front() != '"' || value.back() != '"')
-			throw std::invalid_argument("Invalid quote placement in string value");
-
-		return util::unescape(value.substr(1, vlength - 2));
 	}
 
 	value_type database::get_value_type(std::string val) noexcept {
@@ -181,45 +106,9 @@ namespace spjalla::config {
 		return value_type::invalid;
 	}
 
-	bool database::ensure_config_dir(const std::string &name) {
-		std::filesystem::path config_path = util::get_home() / name;
-		if (!std::filesystem::exists(config_path)) {
-			std::filesystem::create_directory(config_path);
-			return true;
-		}
-
-		return false;
-	}
-
-	bool database::ensure_config_db(const std::string &dbname, const std::string &dirname) {
-		ensure_config_dir(dirname);
-		std::filesystem::path db_path = get_db_path(dbname, dirname);
-
-		bool created = false;
-		if (!std::filesystem::exists(db_path)) {
-			std::ofstream(db_path).close();
-			created = true;
-		}
-
-		return created;
-	}
-
 
 // Public instance methods
 
-
-	void database::set_path(bool apply, const std::string &dbname, const std::string &dirname) {
-		ensure_config_db(dbname, dirname);
-		filepath = get_db_path(dbname, dirname);
-		read_db(apply);
-	}
-
-	void database::read_if_empty(bool apply, const std::string &dbname, const std::string &dirname) {
-		if (filepath.empty())
-			set_path(apply, dbname, dirname);
-		else if (db.empty())
-			read_db(apply);
-	}
 
 	value & database::get(const std::string &group, const std::string &key) {
 		ensure_known(group, key);
@@ -291,6 +180,13 @@ namespace spjalla::config {
 			write_db();
 
 		return true;
+	}
+
+	void database::apply_line(const std::string &line) {
+		std::string group, key, gk, value;
+		std::tie(gk, value) = parse_kv_pair(line);
+		std::tie(group, key) = parse_pair(gk);
+		insert_any(group, key, value);
 	}
 
 	void database::apply_all(bool with_defaults) {
