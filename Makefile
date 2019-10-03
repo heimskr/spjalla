@@ -83,7 +83,8 @@ grind: $(OUTPUT)
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=no ./$(OUTPUT)
 
 strip:
-	strip -x {$(OUTPUT),$(MAINLIB),build/test_*,build/plugins/*.$(SHARED_EXT)}
+	strip -x {$(OUTPUT),$(MAINLIB),build/plugins/*.$(SHARED_EXT)}
+	strip -x build/test_* 2>/dev/null || true
 
 clean:
 	rm -rf build
