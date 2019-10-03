@@ -33,6 +33,22 @@ namespace spjalla {
 
 		pingpong::command::before_send = [&](pingpong::command &cmd) { return before_send(cmd); };
 
+		add({"_args", {0, -1, false, [&](sptr, line il) {
+			std::vector<std::string> strings {};
+			if (il.args.empty()) {
+				ui.log("(none)"_d, ui.active_window);
+				DBG("(none)"_d);
+				return;
+			}
+
+			std::transform(il.args.begin(), il.args.end(), std::back_inserter(strings), [](const std::string &str) {
+				return "\""_d + util::escape(str) + "\""_d;
+			});
+			std::string joined = formicine::util::join(strings.begin(), strings.end());
+			ui.log(joined, ui.active_window);
+			DBG(joined);
+		}, {}}});
+
 		add({"_dbg", {0, 0, false, [&](sptr, line) {
 			debug_servers();
 		}, {}}});
