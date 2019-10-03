@@ -10,6 +10,7 @@
 #include <utility>
 
 #include "lib/formicine/ansi.h"
+#include "lib/formicine/futil.h"
 
 #ifdef VSCODE
 // VS Code, please stop pretending these don't exist.
@@ -104,6 +105,11 @@ namespace spjalla {
 
 			return *begin;
 		}
+
+		auto constexpr lower    = &formicine::util::lower;
+		auto constexpr upper    = &formicine::util::upper;
+		auto constexpr split    = &formicine::util::split;
+		auto constexpr nth_word = &formicine::util::nth_word;
 	}
 }
 
