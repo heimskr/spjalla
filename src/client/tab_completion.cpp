@@ -143,7 +143,6 @@ namespace spjalla {
 
 
 		if (il.is_command()) {
-			DBG("hehe...");
 			const std::string old_text {text};
 
 			if (windex == 0) {
