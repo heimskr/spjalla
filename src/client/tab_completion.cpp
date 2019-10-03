@@ -256,7 +256,6 @@ namespace spjalla {
 			}
 
 			const std::string next = util::next_in_sequence(items.begin(), items.end(), word);
-			const size_t old_cursor = cursor;
 			cursor = util::replace_word(text, windex, next);
 
 			if (windex == word_offset && next.front() != '#' && !suffix.empty()) {
