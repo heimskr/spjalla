@@ -148,12 +148,6 @@ namespace spjalla {
 			if (windex == 0) {
 				// The user wants to complete a command name.
 				completer.complete(text, cursor);
-
-				if (old_text != text)
-					ui.input->set_text(text);
-
-				ui.input->move_to(cursor);
-				ui.input->jump_cursor();
 			} else {
 				if (windex < 0) {
 					// We're not in a word, but we're where one should be.
@@ -172,6 +166,12 @@ namespace spjalla {
 					}
 				}
 			}
+
+			if (old_text != text)
+				ui.input->set_text(text);
+
+			ui.input->move_to(cursor);
+			ui.input->jump_cursor();
 		} else if (ui.get_active_server()) {
 			if (ui.active_window == ui.status_window && text.front() != '/') {
 				text.insert(0, "/");
