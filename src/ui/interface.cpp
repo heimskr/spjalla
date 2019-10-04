@@ -18,9 +18,9 @@
 #include "spjalla/events/window_changed.h"
 #include "spjalla/events/window_closed.h"
 
+#include "spjalla/lines/basic.h"
 #include "spjalla/lines/chanlist.h"
 #include "spjalla/lines/overlay.h"
-#include "spjalla/lines/timed.h"
 #include "spjalla/lines/userlist.h"
 
 namespace spjalla::ui {
@@ -210,11 +210,11 @@ namespace spjalla::ui {
 	}
 
 	void interface::log(const std::string &line, window *win) {
-		log(lines::timed_line(line, 0), win);
+		log(lines::basic_line(line, 0), win);
 	}
 
 	void interface::log(const std::string &line, const std::string &window_name) {
-		log(lines::timed_line(line, 0), window_name);
+		log(lines::basic_line(line, 0), window_name);
 	}
 
 	void interface::log(const std::exception &err) {

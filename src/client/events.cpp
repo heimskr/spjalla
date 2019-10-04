@@ -25,6 +25,7 @@
 
 #include "spjalla/core/client.h"
 
+#include "spjalla/lines/basic.h"
 #include "spjalla/lines/join.h"
 #include "spjalla/lines/kick.h"
 #include "spjalla/lines/mode.h"
@@ -32,13 +33,12 @@
 #include "spjalla/lines/part.h"
 #include "spjalla/lines/privmsg.h"
 #include "spjalla/lines/quit.h"
-#include "spjalla/lines/timed.h"
 #include "spjalla/lines/topic.h"
 
 namespace spjalla {
 	void client::add_events() {
 		pingpong::events::listen<pingpong::bad_line_event>([&](pingpong::bad_line_event *ev) {
-			ui.log(lines::timed_line(ansi::wrap(">> ", ansi::color::red) + ev->bad_line, 3));
+			ui.log(lines::basic_line(ansi::wrap(">> ", ansi::color::red) + ev->bad_line, 3));
 		});
 
 		pingpong::events::listen<pingpong::command_event>([&](pingpong::command_event *ev) {
@@ -48,7 +48,7 @@ namespace spjalla {
 
 		pingpong::events::listen<pingpong::error_event>([&](pingpong::error_event *ev) {
 			ui::window *win = ev->current_window? ui.active_window : ui.status_window;
-			*win += lines::timed_line(lines::red_notice + ev->message, ansi::length(lines::red_notice));
+			*win += lines::basic_line(lines::red_notice + ev->message, ansi::length(lines::red_notice));
 		});
 
 		pingpong::events::listen<pingpong::hat_updated_event>([&](pingpong::hat_updated_event *ev) {
@@ -141,11 +141,11 @@ namespace spjalla {
 		});
 
 		pingpong::events::listen<pingpong::raw_in_event>([&](pingpong::raw_in_event *ev) {
-			ui.log(lines::timed_line(ansi::wrap("<< ", ansi::color::gray) + ev->raw_in, 3));
+			ui.log(lines::basic_line(ansi::wrap("<< ", ansi::color::gray) + ev->raw_in, 3));
 		});
 
 		pingpong::events::listen<pingpong::raw_out_event>([&](pingpong::raw_out_event *ev) {
-			ui.log(lines::timed_line(ansi::wrap(">> ", ansi::color::lightgray) + ev->raw_out, 3));
+			ui.log(lines::basic_line(ansi::wrap(">> ", ansi::color::lightgray) + ev->raw_out, 3));
 		});
 
 		pingpong::events::listen<pingpong::server_status_event>([&](pingpong::server_status_event *ev) {

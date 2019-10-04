@@ -31,22 +31,16 @@ namespace spjalla::lines {
 
 			// We need to store a copy of the speaker's name at the time the privmsg was sent—otherwise, if they were to
 			// change their name later, it would cause this line to render with the new name!
-			const std::string name;
-
-			const std::string self;
+			const std::string name, self, message;
 
 			// It's also necessary to store the user's hat at the time the message was sent (provided the message was to
 			// a channel and not directly to you).
 			pingpong::hat hat = pingpong::hat::none;
 
-			const std::string message;
-
 			const bool direct_only;
 
 			/** The message after colors and actions have been processed. */
 			std::string processed;
-
-			const long stamp;
 
 			privmsg_line(std::shared_ptr<pingpong::user> speaker_, const std::string &where_,
 			const std::string &message_, long stamp_, bool direct_only_ = false);

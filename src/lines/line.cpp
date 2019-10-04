@@ -1,6 +1,7 @@
 #include <chrono>
 #include <ctime>
 
+#include "pingpong/core/util.h"
 #include "spjalla/lines/line.h"
 #include "lib/formicine/ansi.h"
 
@@ -17,5 +18,9 @@ namespace spjalla::lines {
 		char str[64];
 		std::strftime(str, sizeof(str), "%H:%M:%S", std::localtime(&time));
 		return "["_d + str + "] "_d;
+	}
+
+	long now() {
+		return pingpong::util::timestamp();
 	}
 }

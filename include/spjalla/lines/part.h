@@ -13,13 +13,11 @@ namespace spjalla::lines {
 	struct part_line: public line {
 		std::shared_ptr<pingpong::channel> chan;
 		std::shared_ptr<pingpong::user> user;
-		const std::string name;
-		const std::string reason;
-		const long stamp;
+		const std::string name, reason;
 
 		part_line(std::shared_ptr<pingpong::channel> chan_, std::shared_ptr<pingpong::user> user_,
 		const std::string &reason_, long stamp_):
-			line(0), chan(chan_), user(user_), name(user_->name), reason(reason_), stamp(stamp_) {}
+			line(stamp_), chan(chan_), user(user_), name(user_->name), reason(reason_) {}
 
 		part_line(const pingpong::part_event &ev): part_line(ev.chan, ev.who, ev.content, ev.stamp) {}
 

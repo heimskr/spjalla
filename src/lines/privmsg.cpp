@@ -6,8 +6,8 @@
 namespace spjalla::lines {
 	privmsg_line::privmsg_line(std::shared_ptr<pingpong::user> speaker_, const std::string &where_,
 	const std::string &message_, long stamp_, bool direct_only_):
-		line(0), pingpong::local(where_), speaker(speaker_), name(speaker_->name), self(speaker_->serv->get_nick()),
-		message(message_), direct_only(direct_only_), stamp(stamp_) {
+		line(stamp_), pingpong::local(where_), speaker(speaker_), name(speaker_->name),
+		self(speaker_->serv->get_nick()), message(message_), direct_only(direct_only_) {
 
 		is_self = speaker_->is_self();
 

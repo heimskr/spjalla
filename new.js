@@ -122,12 +122,11 @@ if (type.match(/^c(ore)?$/i)) {
 	%	#ifndef SPJALLA_LINES_${upper()}_H_
 	%	#define SPJALLA_LINES_${upper()}_H_
 	%
-	%	#include "pingpong/core/util.h"
 	%	#include "spjalla/lines/line.h"
 	%
 	%	namespace spjalla::lines {
 	%		struct ${name}_line: public line {
-	%			${name}_line(long stamp_ = pingpong::util::timestamp()): line(stamp_, 0) {}
+	%			${name}_line(long stamp_ = now()): line(stamp_) {}
 	%
 	%			virtual operator std::string() const override;
 	%		};

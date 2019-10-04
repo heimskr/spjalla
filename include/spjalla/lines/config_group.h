@@ -6,12 +6,11 @@
 #include "spjalla/lines/line.h"
 
 namespace spjalla::lines {
-	struct config_group_line: public haunted::ui::textline {
+	struct config_group_line: public line {
 		std::string group;
-		long stamp;
 
 		config_group_line(const std::string &group_, long stamp_ = pingpong::util::timestamp()):
-			haunted::ui::textline(0), group(group_), stamp(stamp_) {}
+			line(stamp_), group(group_) {}
 
 		virtual operator std::string() const override;
 	};

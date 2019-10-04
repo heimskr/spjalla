@@ -16,10 +16,16 @@ namespace spjalla::lines {
 	std::string render_time(long seconds);
 
 	struct line: haunted::ui::textline {
-		using haunted::ui::textline::textline;
+		long stamp;
+
+		line(long stamp_ = pingpong::util::timestamp(), int continuation_ = 0):
+			haunted::ui::textline(continuation_ + 11), stamp(stamp_) {}
 
 		virtual notification_type get_notification_type() const { return notification_type::none; }
 	};
+
+	/** Returns the current timestamp in seconds. */
+	long now();
 }
 
 #endif

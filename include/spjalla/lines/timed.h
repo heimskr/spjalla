@@ -1,17 +1,16 @@
-#ifndef SPJALLA_LINES_TIMED_H_
-#define SPJALLA_LINES_TIMED_H_
+#ifndef SPJALLA_LINES_BASIC_H_
+#define SPJALLA_LINES_BASIC_H_
 
 #include "pingpong/core/util.h"
 
 #include "spjalla/lines/line.h"
 
 namespace spjalla::lines {
-	struct timed_line: public line {
+	struct basic_line: public line {
 		std::string text;
-		long stamp;
 
-		timed_line(const std::string &text_, int continuation_ = 0, long stamp_ = pingpong::util::timestamp()):
-			line(continuation_ + 11), text(text_), stamp(stamp_) {}
+		basic_line(const std::string &text_, int continuation_ = 0, long stamp_ = pingpong::util::timestamp()):
+			line(stamp_, continuation_), text(text_) {}
 
 		virtual operator std::string() const override;
 	};

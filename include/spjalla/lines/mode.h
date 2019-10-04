@@ -17,11 +17,10 @@ namespace spjalla::lines {
 			pingpong::modeset mset;
 			std::string where;
 			std::shared_ptr<pingpong::user> who;
-			long stamp;
 
 			mode_line(const pingpong::modeset &mset_, const std::string &where_,
-			const std::shared_ptr<pingpong::user> &who_,long stamp_):
-				line(0), mset(mset_), where(where_), who(who_) /*🦉*/, stamp(stamp_) {}
+			const std::shared_ptr<pingpong::user> &who_, long stamp_):
+				line(stamp_), mset(mset_), where(where_), who(who_) /*🦉*/ {}
 
 			mode_line(const pingpong::mode_event &ev):
 				mode_line(ev.mset, ev.where, ev.who, ev.stamp) {}
