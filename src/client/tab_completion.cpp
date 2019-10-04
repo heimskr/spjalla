@@ -195,9 +195,9 @@ namespace spjalla {
 		const std::string old_text {text};
 
 		const ui::window *window = ui.active_window;
-		const pingpong::server *server = window->data.serv;
-		const std::shared_ptr<pingpong::channel> channel = window->data.chan;
-		const std::shared_ptr<pingpong::user> user = window->data.user;
+		const pingpong::server *server = window->serv;
+		const std::shared_ptr<pingpong::channel> channel = window->chan;
+		const std::shared_ptr<pingpong::user> user = window->user;
 
 		completions::completion_state &state = completion_states["_"];
 		std::string word;

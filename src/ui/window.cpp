@@ -7,47 +7,51 @@ namespace spjalla::ui {
 	void swap(window &left, window &right) {
 		swap(static_cast<haunted::ui::textbox &>(left), static_cast<haunted::ui::textbox &>(right));
 		std::swap(left.window_name, right.window_name);
-		std::swap(left.data, right.data);
+		std::swap(left.type, right.type);
+		std::swap(left.serv, right.serv);
+		std::swap(left.chan, right.chan);
+		std::swap(left.user, right.user);
+		std::swap(left.highest_notification, right.highest_notification);
 	}
 
 	bool window::is_status() const {
-		return data.type == window_type::status;
+		return type == window_type::status;
 	}
 
 	bool window::is_overlay() const {
-		return data.type == window_type::overlay;
+		return type == window_type::overlay;
 	}
 
 	bool window::is_channel() const {
-		return data.type == window_type::channel;
+		return type == window_type::channel;
 	}
 
 	bool window::is_user() const {
-		return data.type == window_type::user;
+		return type == window_type::user;
 	}
 
 	bool window::is_other() const {
-		return data.type == window_type::other;
+		return type == window_type::other;
 	}
 
 	bool window::is_dead() const {
-		return data.dead;
+		return dead;
 	}
 
 	void window::kill() {
-		data.dead = true;
+		dead = true;
 	}
 
 	void window::resurrect() {
-		data.dead = false;
+		dead = false;
 	}
 
 	void window::notify(const lines::line &line, notification_type type) {
 		pingpong::events::dispatch<events::notification_event>(this, &line, type);
 
-		if (data.highest_notification < type) {
-			data.highest_notification = type;
-			pingpong::events::dispatch<events::window_notification_event>(this, &line, data.highest_notification, type);
+		if (highest_notification < type) {
+			highest_notification = type;
+			pingpong::events::dispatch<events::window_notification_event>(this, &line, highest_notification, type);
 		}
 	}
 
@@ -56,11 +60,11 @@ namespace spjalla::ui {
 	}
 
 	void window::unnotify() {
-		if (data.highest_notification != notification_type::none) {
-			pingpong::events::dispatch<events::window_notification_event>(this, nullptr, data.highest_notification,
+		if (highest_notification != notification_type::none) {
+			pingpong::events::dispatch<events::window_notification_event>(this, nullptr, highest_notification,
 				notification_type::none);
 		}
 
-		data.highest_notification = notification_type::none;
+		highest_notification = notification_type::none;
 	}
 }

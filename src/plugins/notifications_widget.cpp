@@ -40,7 +40,7 @@ namespace spjalla::plugins {
 					if (window == parent->get_ui().get_active_window())
 						continue;
 
-					notification_type type = window->data.highest_notification;
+					notification_type type = window->highest_notification;
 					if (type == notification_type::none) {
 						continue;
 					}
@@ -107,7 +107,7 @@ namespace spjalla::plugins {
 
 				pingpong::events::listen<events::window_notification_event>([=](events::window_notification_event *ev) {
 					if (ev->window == client->get_ui().get_active_window())
-						ev->window->data.highest_notification = notification_type::none;
+						ev->window->highest_notification = notification_type::none;
 					else
 						client->render_statusbar();
 				});

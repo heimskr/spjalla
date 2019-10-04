@@ -91,7 +91,7 @@ namespace spjalla {
 		haunted::ui::container::type &windows = ui.swappo->get_children();
 		for (auto iter = windows.rbegin(), rend = windows.rend(); iter != rend; ++iter) {
 			ui::window *win = dynamic_cast<ui::window *>(*iter);
-			if (win->data.serv == serv) {
+			if (win->serv == serv) {
 				ui.remove_window(win);
 			}
 		}

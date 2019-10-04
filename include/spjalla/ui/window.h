@@ -11,7 +11,6 @@
 #include "spjalla/lines/line.h"
 
 namespace spjalla::ui {
-
 	enum class window_type {
 		status,  // The single status window where miscellaneous messages go.
 		overlay, // The window that replaces the sidebar (RIP) and can be summoned with a keypress.
@@ -21,31 +20,20 @@ namespace spjalla::ui {
 	};
 
 	/**
-	 * Represents metadata useful for windows.
-	 */ 
-	struct window_meta {
-		window_type type;
-
-		pingpong::server *serv = nullptr;
-		std::shared_ptr<pingpong::channel> chan;
-		std::shared_ptr<pingpong::user>    user;
-
-		notification_type highest_notification = notification_type::none;
-
-		/** Whether whatever the window is for is dead—e.g., a channel you've been kicked from. */
-		bool dead = false;
-
-		window_meta(window_type type_): type(type_) {}
-	};
-
-	/**
 	 * Represents a type of textbox for use within a swapbox. It has a window name separate from the control ID, in
-	 * addition to an optional data object.
+	 * addition to other data and metadata.
 	 */
 	class window: public haunted::ui::textbox {
 		public:
 			std::string window_name;
-			window_meta data {window_type::other};
+			window_type type = window_type::other;
+			pingpong::server *serv = nullptr;
+			std::shared_ptr<pingpong::channel> chan;
+			std::shared_ptr<pingpong::user>    user;
+			notification_type highest_notification = notification_type::none;
+
+			/** Whether whatever the window is for is dead—e.g., a channel you've been kicked from. */
+			bool dead = false;
 
 			window() = delete;
 			window(const window &) = delete;

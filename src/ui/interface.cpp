@@ -53,7 +53,7 @@ namespace spjalla::ui {
 	void interface::init_swappo() {
 		overlay = new window("overlay");
 		overlay->ignore_index = true;
-		overlay->data = {window_type::overlay};
+		overlay->type = window_type::overlay;
 		overlay->set_terminal(term);
 		overlay->set_name("overlay_window");
 		windows.push_front(overlay);
@@ -63,7 +63,7 @@ namespace spjalla::ui {
 		};
 
 		status_window = new window("status");
-		status_window->data = {window_type::status};
+		status_window->type = window_type::status;
 		status_window->set_terminal(term);
 		status_window->set_name("status_window");
 		status_window->set_autoscroll(true);
@@ -110,8 +110,8 @@ namespace spjalla::ui {
 
 		if (create && !win) {
 			win = new_window(name, window_type::channel);
-			win->data.chan = chan;
-			win->data.serv = chan->serv;
+			win->chan = chan;
+			win->serv = chan->serv;
 		}
 
 		return win;
@@ -126,8 +126,8 @@ namespace spjalla::ui {
 
 		if (create && !win) {
 			win = new_window(name, window_type::user);
-			win->data.user = user;
-			win->data.serv = user->serv;
+			win->user = user;
+			win->serv = user->serv;
 		}
 
 		return win;
@@ -136,7 +136,7 @@ namespace spjalla::ui {
 	window * interface::new_window(const std::string &name, window_type type) {
 		static size_t win_count = 0;
 		window *win = new window(swappo, swappo->get_position(), name);
-		win->data.type = type;
+		win->type = type;
 		win->set_name("window" + std::to_string(++win_count));
 		win->set_terminal(nullptr); // inactive windows are marked by their null terminals
 		win->set_autoscroll(true);
@@ -359,10 +359,10 @@ namespace spjalla::ui {
 			statusbar->set_text("["_d + win->window_name + "] ["_d + parent->active_server_id() + "]"_d);
 		} else if (win->is_channel()) {
 			statusbar->set_text("["_d + parent->active_server_id() + "] ["_d
-			                    + util::colorize_if_dead(win->data.chan->name, win) + "]"_d);
+			                    + util::colorize_if_dead(win->chan->name, win) + "]"_d);
 		} else if (win->is_user()) {
 			statusbar->set_text("["_d + parent->active_server_id() + "] ["_d
-			                    + util::colorize_if_dead(win->data.user->name, win) + "]"_d);
+			                    + util::colorize_if_dead(win->user->name, win) + "]"_d);
 		} else {
 			statusbar->set_text("[" + ansi::bold(win->window_name) + "]");
 		}
@@ -388,21 +388,19 @@ namespace spjalla::ui {
 			return;
 		}
 
-		const window_meta &data = before_overlay->data;
-
-		window_type type = data.type;
+		window_type type = before_overlay->type;
 		if (type == window_type::channel)
-			update_overlay(data.chan);
+			update_overlay(before_overlay->chan);
 		else if (type == window_type::user)
-			update_overlay(data.user);
+			update_overlay(before_overlay->user);
 
 		overlay->draw();
 	}
 
 	void interface::update_titlebar() {
-		window_type type = active_window->data.type;
+		window_type type = active_window->type;
 		if (type == window_type::channel) {
-			update_titlebar(active_window->data.chan);
+			update_titlebar(active_window->chan);
 		} else {
 			titlebar->clear();
 		}
@@ -431,7 +429,7 @@ namespace spjalla::ui {
 			if (!win)
 				continue;
 
-			if ((win->is_user() && *user == *win->data.user) || (win->is_channel() && win->data.chan->has_user(user)))
+			if ((win->is_user() && *user == *win->user) || (win->is_channel() && win->chan->has_user(user)))
 				found.push_back(win);
 		}
 
@@ -441,7 +439,7 @@ namespace spjalla::ui {
 	window * interface::window_for_channel(std::shared_ptr<pingpong::channel> chan) const {
 		for (haunted::ui::control *ctrl: swappo->get_children()) {
 			window *win = dynamic_cast<window *>(ctrl);
-			if (win && win->data.chan == chan)
+			if (win && win->chan == chan)
 				return win;
 		}
 
@@ -451,18 +449,18 @@ namespace spjalla::ui {
 	std::shared_ptr<pingpong::channel> interface::get_active_channel() const {
 		window *win = before_overlay? before_overlay : active_window;
 		if (win->is_channel())
-			return win->data.chan;
+			return win->chan;
 		return nullptr;
 	}
 
 	std::shared_ptr<pingpong::user> interface::get_active_user() const {
 		if (active_window->is_user())
-			return active_window->data.user;
+			return active_window->user;
 		return nullptr;
 	}
 
 	pingpong::server * interface::get_active_server() const {
-		return active_window->data.serv;
+		return active_window->serv;
 	}
 
 	bool interface::is_active(const window *win) const {

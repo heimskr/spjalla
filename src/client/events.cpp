@@ -94,7 +94,7 @@ namespace spjalla {
 
 		pingpong::events::listen<pingpong::names_updated_event>([&](pingpong::names_updated_event *ev) {
 			if (ui::window *win = ui.get_active_window()) {
-				if (win->data.chan == ev->chan)
+				if (win->chan == ev->chan)
 					ui.update_overlay();
 			}
 		});
@@ -130,7 +130,7 @@ namespace spjalla {
 			lines::quit_line qline = lines::quit_line(who, ev->content, ev->stamp);
 			for (ui::window *win: ui.windows_for_user(who)) {
 				*win += qline;
-				if (win->data.user == who) {
+				if (win->user == who) {
 					win->kill();
 					if (win == ui.active_window) {
 						ui.update_statusbar();

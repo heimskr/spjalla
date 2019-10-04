@@ -26,9 +26,9 @@ namespace spjalla::plugins {
 				if (win->is_status()) {
 					return index + "status";
 				} else if (win->is_channel()) {
-					return index + util::colorize_if_dead(win->data.chan->name, win);
+					return index + util::colorize_if_dead(win->chan->name, win);
 				} else if (win->is_user()) {
-					return index + util::colorize_if_dead(win->data.user->name, win);
+					return index + util::colorize_if_dead(win->user->name, win);
 				} else {
 					return ansi::bold(win->window_name);
 				}

@@ -20,9 +20,7 @@ namespace spjalla {
 	class client;
 }
 
-
 namespace spjalla::config {
-
 	/**
 	 * Represents an instance of a configuration database.
 	 */

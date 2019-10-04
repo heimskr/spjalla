@@ -156,9 +156,9 @@ namespace spjalla {
 
 			const std::string msg = "\1ACTION " + il.body + "\1";
 			if (win->is_channel())
-				pingpong::privmsg_command(win->data.chan, msg).send();
+				pingpong::privmsg_command(win->chan, msg).send();
 			else if (win->is_user())
-				pingpong::privmsg_command(win->data.user, msg).send();
+				pingpong::privmsg_command(win->user, msg).send();
 		}, completions::complete_me}});
 
 

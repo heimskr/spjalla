@@ -10,7 +10,7 @@
 
 namespace spjalla::util {
 	std::string colorize_if_dead(const std::string &str, const ui::window *win) {
-		return win->data.dead? ansi::red(str) : str;
+		return win->dead? ansi::red(str) : str;
 	}
 
 	std::string get_home_string(bool append_slash) {
