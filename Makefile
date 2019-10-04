@@ -1,5 +1,8 @@
 COMPILER		:= g++
-CFLAGS			:= -std=c++2a -g -O0 -Wall -Wextra -fPIC
+ifeq ($(OFLAGS),)
+	OFLAGS		:= -g -O0
+endif
+CFLAGS			:= -std=c++2a $(OFLAGS) -Wall -Wextra -fPIC
 CFLAGS_ORIG		:= $(CFLAGS)
 INCLUDE			:= 
 LDFLAGS			:= -pthread -ldl
@@ -28,7 +31,6 @@ endif
 .PHONY: all test clean depend spotless count
 
 all: $(OBJECTS) $(OUTPUT) plugins
-
 
 INCLUDE_PP		:= -Ipingpong/include
 SOURCES_PP		:= $(shell find pingpong/src -name '*.cpp' | sed -nE '/(tests?|test_.+|ansi|futil)\.cpp$$/!p')
