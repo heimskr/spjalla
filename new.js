@@ -127,8 +127,6 @@ if (type.match(/^c(ore)?$/i)) {
 	%
 	%	namespace spjalla::lines {
 	%		struct ${name}_line: public line {
-	%			long stamp;
-	%
 	%			${name}_line(long stamp_ = pingpong::util::timestamp()): line(stamp_, 0) {}
 	%
 	%			virtual operator std::string() const override;
