@@ -122,13 +122,14 @@ if (type.match(/^c(ore)?$/i)) {
 	%	#ifndef SPJALLA_LINES_${upper()}_H_
 	%	#define SPJALLA_LINES_${upper()}_H_
 	%
-	%	#include "lines/lines.h"
+	%	#include "pingpong/core/util.h"
+	%	#include "spjalla/lines/line.h"
 	%
 	%	namespace spjalla::lines {
-	%		struct ${name}_line: public haunted::ui::textline {
+	%		struct ${name}_line: public line {
 	%			long stamp;
 	%
-	%			${name}_line(long stamp_): haunted::ui::textline(0), stamp(stamp_) {}
+	%			${name}_line(long stamp_ = pingpong::util::timestamp()): line(stamp_, 0) {}
 	%
 	%			virtual operator std::string() const override;
 	%		};
@@ -137,7 +138,7 @@ if (type.match(/^c(ore)?$/i)) {
 	%	#endif`);
 
 	sourcetext = prepare(`
-	%	#include "lines/${name}.h"
+	%	#include "spjalla/lines/${name}.h"
 	%
 	%	namespace spjalla::lines {
 	%		${name}_line::operator std::string() const {
