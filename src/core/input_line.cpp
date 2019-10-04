@@ -7,7 +7,7 @@ namespace spjalla {
 			size_t index, length = full.size();
 			if (1 < length) {
 				for (index = 1; index < length && full[index] != ' '; ++index);
-				command = full.substr(1, index - 1);
+				command = formicine::util::lower(full.substr(1, index - 1));
 
 				if (index != length) {
 					body = full.substr(index + 1);

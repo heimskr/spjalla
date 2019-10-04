@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "lib/formicine/futil.h"
+
 namespace spjalla {
 	class input_line {
 		private:
@@ -16,7 +18,7 @@ namespace spjalla {
 
 			input_line() = delete;
 			input_line(const std::string &command_, const std::string &body_):
-				command(command_), body(body_), original("/" + command_ + " " + body_) {}
+				command(formicine::util::lower(command_)), body(body_), original("/" + command_ + " " + body_) {}
 			input_line(const std::string &full);
 
 			inline bool is_command() const { return minimal || !command.empty(); }
