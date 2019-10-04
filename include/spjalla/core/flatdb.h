@@ -34,8 +34,9 @@ namespace spjalla {
 			/** Applies a line of read input. */
 			virtual void apply_line(const std::string &) = 0;
 
-			/** Applies all database items. */
-			virtual void apply_all() = 0;
+			/** Applies all database items. Useful for the configuration database, which has applicators, but less
+			 *  useful for the alias database which just reads items and doesn't immediately act on them. */
+			virtual void apply_all() {}
 
 			/** Clears all database items. */
 			virtual void clear_all() = 0;

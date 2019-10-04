@@ -34,11 +34,19 @@ namespace spjalla {
 
 			virtual void apply_line(const std::string &) override;
 
-			virtual void apply_all() override;
-
 			virtual void clear_all() override { db.clear(); }
-
 			virtual bool empty() const override { return db.empty(); }
+
+			/** Inserts an alias into the database. Returns true if a preexisting value was overwritten. */
+			bool insert(const std::string &key, const std::string &expansion, bool save = true);
+
+			/** Removes a value from the alias database. Returns true if a value was present and removed, or false
+			 *  if no match was found. */
+			bool remove(const std::string &key, bool save = true);
+
+			auto  begin() { return db.begin(); }
+			auto    end() { return db.end();   }
+			size_t size() { return db.size();  }
 
 			operator std::string() const override;
 	};

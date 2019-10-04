@@ -16,6 +16,7 @@
 
 #include "spjalla/commands/command.h"
 
+#include "spjalla/core/aliases.h"
 #include "spjalla/core/input_line.h"
 #include "spjalla/core/plugin_host.h"
 #include "spjalla/core/tab_completion.h"
@@ -80,6 +81,8 @@ namespace spjalla {
 
 		public:
 			config::database configs;
+			aliases alias_db;
+
 			client(int heartbeat_period_ = 100);
 
 			client(const client &) = delete;

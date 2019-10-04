@@ -18,7 +18,7 @@ namespace spjalla {
 	}
 
 	input_line & aliases::expand(input_line &line) {
-		std::string lcommand = util::lower(line.command);
+		std::string lcommand = line.command;
 		if (!line.is_command() || !has_alias(lcommand))
 			return line;
 
@@ -26,8 +26,13 @@ namespace spjalla {
 		std::vector<std::string> split = util::split(expansion, " ", false);
 		std::string &first = split[0];
 
+		// For non-command expansions, the entire expansion is inserted into the body. For command expansions,
+		// it's necessary to skip the first item because the command isn't part of the body.
 		size_t body_offset = 0;
+
 		if (first.front() == '/') {
+			// If the expansion begins with a slash, it's a command. Replace the aliased line's command with the
+			// expansion's command.
 			first.erase(0, 1);
 			line.command = split[0];
 			body_offset = 1;
@@ -49,11 +54,37 @@ namespace spjalla {
 	}
 
 	void aliases::apply_line(const std::string &line) {
-
+		std::string key, expansion;
+		std::tie(key, expansion) = parse_kv_pair(line);
+		if (has_alias(key))
+			remove(key);
 	}
 
-	void aliases::apply_all() {
-		
+	bool aliases::insert(const std::string &key, const std::string &expansion, bool save) {
+		bool overwritten = false;
+		if (has_alias(key)) {
+			remove(key, false);
+			overwritten = true;
+		}
+
+		db.insert({key, expansion});
+
+		if (save)
+			write_db();
+
+		return overwritten;
+	}
+
+	bool aliases::remove(const std::string &key, bool save) {
+		if (!has_alias(key))
+			return false;
+
+		db.erase(key);
+
+		if (save)
+			write_db();
+
+		return true;
 	}
 
 	aliases::operator std::string() const {
