@@ -17,6 +17,7 @@
 
 #include "spjalla/config/config.h"
 
+#include "spjalla/lines/alias.h"
 #include "spjalla/lines/config_group.h"
 #include "spjalla/lines/config_key.h"
 #include "spjalla/lines/line.h"
@@ -64,6 +65,26 @@ namespace spjalla {
 
 			const std::string &first = il.first();
 			ui.log("Unknown option: " + first);
+		}, {}}});
+
+		add({"alias", {0, -1, false, [&](sptr, line il) {
+			if (il.args.empty()) {
+				if (alias_db.empty()) {
+					ui.warn("No aliases.");
+				} else {
+					for (auto & [key, expansion]: alias_db)
+						ui.log(lines::alias_line(key, expansion));
+				}
+
+				return;
+			}
+
+			try {
+
+			} catch (const std::invalid_argument &err) {
+				DBG("Couldn't parse alias insertion [" << il.body << "]: " << err.what());
+				ui.warn("Invalid syntax for alias " + "\""_d + il.body + "\""_d);
+			}
 		}, {}}});
 
 
