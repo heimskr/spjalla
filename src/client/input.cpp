@@ -11,6 +11,7 @@ namespace spjalla {
 			ui.input->clear();
 
 			input_line il = get_input_line(str);
+			alias_db.expand(il);
 
 			if (!before_input(il))
 				return;
@@ -38,9 +39,9 @@ namespace spjalla {
 				}
 			} else if (!ui.active_window->is_dead()) {
 				if (std::shared_ptr<pingpong::channel> chan = ui.get_active_channel()) {
-					pingpong::privmsg_command(chan, str).send();
+					pingpong::privmsg_command(chan, il.body).send();
 				} else if (std::shared_ptr<pingpong::user> user = ui.get_active_user()) {
-					pingpong::privmsg_command(user, str).send();
+					pingpong::privmsg_command(user, il.body).send();
 				} else {
 					no_channel();
 				}

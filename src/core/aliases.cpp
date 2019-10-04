@@ -48,6 +48,8 @@ namespace spjalla {
 		std::string body_start;
 		for (auto iter = split.begin() + body_offset, end = split.end(); iter != end; ++iter)
 			body_start += *iter + " ";
+		if (line.body.empty() && !body_start.empty() && body_start.back() == ' ')
+			body_start.pop_back();
 		line.body.insert(0, body_start);
 
 		return line;
@@ -58,6 +60,7 @@ namespace spjalla {
 		std::tie(key, expansion) = parse_kv_pair(line);
 		if (has_alias(key))
 			remove(key);
+		insert(key, expansion);
 	}
 
 	bool aliases::insert(const std::string &key, const std::string &expansion, bool save) {
@@ -90,7 +93,7 @@ namespace spjalla {
 	aliases::operator std::string() const {
 		std::ostringstream out;
 		for (const auto &pair: db)
-			out << pair.first << "=\"" << util::escape(pair.second) << "\"\n";
+			out << pair.first << "=" << util::escape(pair.second) << "\n";
 		return out.str();
 	}
 }

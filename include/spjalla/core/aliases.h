@@ -21,8 +21,6 @@ namespace spjalla {
 
 			~aliases() override = default;
 
-			static constexpr auto get_name = []() -> std::string { return DEFAULT_ALIAS_DB; };
-			
 			/** Adds an alias. */
 			void add_alias(const std::string &key, const std::string &expansion);
 

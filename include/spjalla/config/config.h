@@ -51,8 +51,6 @@ namespace spjalla::config {
 
 			~database() override = default;
 
-			static constexpr auto db_name = []() -> std::string { return DEFAULT_CONFIG_DB; };
-
 			/** Attempts to parse a configuration line of the form /^\w+\s*=\s*\d+$/. */
 			static std::pair<std::string, long> parse_long_line(const std::string &);
 

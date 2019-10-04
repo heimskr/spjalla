@@ -87,15 +87,15 @@ namespace spjalla {
 // Public instance methods
 
 
-	void flatdb::set_path(bool apply, const std::string &dbname, const std::string &dirname) {
+	void flatdb::set_path(const std::string &dbname, bool apply, const std::string &dirname) {
 		ensure_db(dbname, dirname);
 		filepath = get_db_path(dbname, dirname);
 		read_db(apply);
 	}
 
-	void flatdb::read_if_empty(bool apply, const std::string &dbname, const std::string &dirname) {
+	void flatdb::read_if_empty(const std::string &dbname, bool apply, const std::string &dirname) {
 		if (filepath.empty())
-			set_path(apply, dbname, dirname);
+			set_path(dbname, apply, dirname);
 		else if (empty())
 			read_db(apply);
 	}

@@ -70,8 +70,8 @@ namespace spjalla {
 	}
 
 	void client::init() {
-		configs.read_if_empty(true);
-		alias_db.read_if_empty(true);
+		configs.read_if_empty(DEFAULT_CONFIG_DB, true);
+		alias_db.read_if_empty(DEFAULT_ALIAS_DB, true);
 		ui.start();
 		irc.init();
 		add_events();

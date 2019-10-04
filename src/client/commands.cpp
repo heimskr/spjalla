@@ -79,8 +79,18 @@ namespace spjalla {
 				return;
 			}
 
-			try {
+			if (il.args.size() == 2 && il.first() == "-") {
+				const std::string &key = il.args[1];
+				if (alias_db.remove(key, true))
+					ui.log("Alias " + ansi::bold(key) + " was removed.");
+				else
+					ui.warn("Alias " + ansi::bold(key) + " doesn't exist.");
+				return;
+			}
 
+			try {
+				alias_db.apply_line(il.body);
+				alias_db.write_db();
 			} catch (const std::invalid_argument &err) {
 				DBG("Couldn't parse alias insertion [" << il.body << "]: " << err.what());
 				ui.warn("Invalid syntax for alias " + "\""_d + il.body + "\""_d);
@@ -235,7 +245,7 @@ namespace spjalla {
 				return;
 			}
 
-			ui.log(std::to_string(ui.move_window(ui.active_window, std::max(0L, parsed - 1))));
+			ui.move_window(ui.active_window, std::max(0L, parsed - 1));
 		}, {}}});
 
 
@@ -291,7 +301,7 @@ namespace spjalla {
 
 
 		add({"set", {0, -1, false, [&](sptr, line il) {
-			configs.read_if_empty();
+			configs.read_if_empty(DEFAULT_CONFIG_DB);
 
 			config::database::groupmap with_defaults = configs.with_defaults();
 

@@ -14,7 +14,7 @@ namespace spjalla {
 			std::filesystem::path filepath;
 
 			/** Given a data directory name and a database name, this returns the full path of the database. */
-			static std::filesystem::path get_db_path(const std::string &dbname  = db_name(),
+			static std::filesystem::path get_db_path(const std::string &dbname,
 			                                         const std::string &dirname = DEFAULT_DATA_DIR);
 
 			/** Attempts to parse a keyvalue pair of the form /^(\w+)=(.+)$/. */
@@ -28,8 +28,6 @@ namespace spjalla {
 
 		public:
 			virtual ~flatdb() {};
-
-			static constexpr auto db_name = []() -> std::string { return "error"; };
 
 			/** Applies a line of read input. */
 			virtual void apply_line(const std::string &) = 0;
@@ -45,11 +43,10 @@ namespace spjalla {
 			virtual bool empty() const = 0;
 
 			/** Sets the cached database path and replaces the cached database with the one stored at the path. */
-			void set_path(bool apply = true, const std::string &dbname = db_name(),
-			              const std::string &dirname = DEFAULT_DATA_DIR);
+			void set_path(const std::string &dbname, bool apply = true, const std::string &dirname = DEFAULT_DATA_DIR);
 
 			/** Reads the database from the filesystem if the in-memory copy is empty. */
-			void read_if_empty(bool apply = true, const std::string &dbname = db_name(),
+			void read_if_empty(const std::string &dbname, bool apply = true,
 			                   const std::string &dirname = DEFAULT_DATA_DIR);
 
 			/** Writes the database to the cached file path. */
@@ -67,8 +64,7 @@ namespace spjalla {
 
 			/** Ensures the config directory exists and creates a blank config database inside it if
 			 *  one doesn't already exist. Returns true if the config database had to be created. */
-			static bool ensure_db(const std::string &dbname  = db_name(),
-			                      const std::string &dirname = DEFAULT_DATA_DIR);
+			static bool ensure_db(const std::string &dbname, const std::string &dirname = DEFAULT_DATA_DIR);
 	};
 }
 
