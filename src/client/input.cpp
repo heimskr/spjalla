@@ -94,7 +94,7 @@ namespace spjalla {
 			} else if (needs_serv && !irc.active_server) {
 				ui.warn("No server is selected.");
 			} else {
-				fn(irc.active_server, il);
+				fn(active_server(), il);
 			}
 		}
 
