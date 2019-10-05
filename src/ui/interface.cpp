@@ -290,7 +290,15 @@ namespace spjalla::ui {
 	}
 
 	void interface::next_server() {
-		if (active_window != status_window || parent->irc.servers.size() < 2)
+		if (active_window != status_window)
+			return;
+
+		if (!parent->active_server() && !parent->irc.servers.empty()) {
+			parent->irc.active_server = parent->irc.servers.begin()->second;
+			return;
+		}
+
+		if (parent->irc.servers.size() < 2)
 			return;
 
 		const auto &servers = parent->irc.server_order;
