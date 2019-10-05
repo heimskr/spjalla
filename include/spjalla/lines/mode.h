@@ -26,7 +26,7 @@ namespace spjalla::lines {
 				mode_line(ev.mset, ev.where, ev.who, ev.stamp) {}
 
 			virtual operator std::string() const override;
-		virtual notification_type get_notification_type() const override { return notification_type::info; }
+			virtual notification_type get_notification_type() const override { return notification_type::info; }
 	};
 }
 
