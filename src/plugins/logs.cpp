@@ -7,6 +7,7 @@
 #include "haunted/core/key.h"
 
 #include "pingpong/events/join.h"
+#include "pingpong/events/kick.h"
 #include "pingpong/events/part.h"
 #include "pingpong/events/privmsg.h"
 #include "pingpong/events/quit.h"
@@ -169,15 +170,24 @@ namespace spjalla::plugins {
 		spjalla::client *client = dynamic_cast<spjalla::client *>(host);
 		if (!client) { DBG("Error: expected client as plugin host"); return; }
 
+
+		pingpong::events::listen<pingpong::join_event>([&](pingpong::join_event *event) {
+			log({event->serv, event->chan->name}, event->who->name, "join");
+		});
+
+
+		pingpong::events::listen<pingpong::kick_event>([&](pingpong::kick_event *event) {
+			log({event->serv, event->chan->name}, event->who->name + " " + event->whom->name + " :" + event->content,
+				"kick");
+		});
+
+
 		pingpong::events::listen<pingpong::privmsg_event>([&](pingpong::privmsg_event *event) {
 			lines::privmsg_line line {*event};
 			log({event->serv, event->is_channel()? event->where : event->speaker->name},
 				line.hat_str() + line.name + " " + (line.is_action()? ":" : "*") + line.trimmed(line.message), "msg");
 		});
 
-		pingpong::events::listen<pingpong::join_event>([&](pingpong::join_event *event) {
-			log({event->serv, event->chan->name}, event->who->name, "join");
-		});
 
 		pingpong::events::listen<pingpong::part_event>([&](pingpong::part_event *event) {
 			log({event->serv, event->chan->name}, event->who->name + " :" + event->content, "part");
@@ -186,6 +196,7 @@ namespace spjalla::plugins {
 			if (event->who->is_self())
 				close({event->serv, event->chan->name});
 		});
+
 
 		pingpong::events::listen<pingpong::quit_event>([&](pingpong::quit_event *event) {
 			log(event->who, event->who->name + " :" + event->content, "quit");
