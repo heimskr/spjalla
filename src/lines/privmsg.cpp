@@ -25,6 +25,22 @@ namespace spjalla::lines {
 		processed = process(message_);
 	}
 
+	std::string privmsg_line::process(const std::string &str, bool with_time) const {
+		std::string name_fmt = is_action() || is_self? ansi::bold(name) : name;
+		const std::string time = with_time? lines::render_time(stamp) : "";
+
+		if (util::is_highlight(message, self, direct_only))
+			name_fmt = ansi::yellow(name_fmt);
+
+		if (is_channel())
+			name_fmt.insert(0, hat_str());
+
+		if (is_action())
+			return time + "* "_b + name_fmt + " " + pingpong::util::irc2ansi(trimmed(str));
+
+		return time + "<"_d + name_fmt + "> "_d + pingpong::util::irc2ansi(str);
+	}
+
 	bool privmsg_line::is_action() const {
 		return !message.empty() && message.find("\1ACTION ") == 0 && message.back() == '\1';
 	}
@@ -46,26 +62,9 @@ namespace spjalla::lines {
 		return is_channel()? std::string(1, static_cast<char>(hat)) : "";
 	}
 
-	std::string privmsg_line::process(const std::string &str, bool with_time) const {
-		std::string name_fmt = is_action() || is_self? ansi::bold(name) : name;
-		const std::string time = with_time? lines::render_time(stamp) : "";
-
-		if (util::is_highlight(message, self, direct_only))
-			name_fmt = ansi::yellow(name_fmt);
-
-		if (is_channel())
-			name_fmt.insert(0, hat_str());
-
-		if (is_action())
-			return time + "* "_b + name_fmt + " " + pingpong::util::irc2ansi(trimmed(str));
-
-		return time + "<"_d + name_fmt + "> "_d + pingpong::util::irc2ansi(str);
-	}
-
 	privmsg_line::operator std::string() const {
 		return processed;
 	}
-
 
 	notification_type privmsg_line::get_notification_type() const {
 		if (util::is_highlight(message, self, direct_only))

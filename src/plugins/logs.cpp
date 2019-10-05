@@ -69,8 +69,8 @@ namespace spjalla::plugins {
 	}
 
 	void logs_plugin::log(const log_pair &pair, const std::string &message) {
-		DBG("log: pair[" << pair.first->id << "/" << pair.second << "] message{" << message << "}");
-		get_stream(pair) << message << "\n";
+		DBG("log: pair[" << pair.first->id << "/" << pair.second << "] message" << "{"_d << ansi::bold(message) << "}"_d);
+		(get_stream(pair) << "%_ " << pingpong::util::millistamp() << " " << message << "\n").flush();
 	}
 
 	void logs_plugin::log(const log_pair &pair, const std::string &message, long stamp) {
@@ -87,10 +87,13 @@ namespace spjalla::plugins {
 			return filemap.at(pair);
 
 		const std::filesystem::path path = get_path(pair);
+		const bool existed = std::filesystem::exists(path);
 		std::ofstream new_stream(path, std::ios::app);
 		if (!new_stream)
 			throw std::runtime_error("Couldn't open file stream for " + std::string(path));
-		new_stream << "%opened " << pingpong::util::millistamp() << "\n";
+		if (!existed)
+			new_stream << "%created " << pingpong::util::millistamp() << "\n";
+		(new_stream << "%opened " << pingpong::util::millistamp() << "\n").flush();
 		filemap.insert({pair, std::move(new_stream)});
 		return filemap.at(pair);
 	}
@@ -106,7 +109,7 @@ namespace spjalla::plugins {
 	}
 
 	std::string & logs_plugin::sanitize_filename(std::string &str) {
-		const static std::string invalid = "\x07/ \\,:*\0";
+		const static std::string invalid = "\x07/ \\,.:*\0";
 		for (auto iter = str.begin(); iter != str.end(); ++iter) {
 			if (invalid.find(*iter) != std::string::npos)
 				*iter = '_';
@@ -140,7 +143,9 @@ namespace spjalla::plugins {
 		if (!client) { DBG("Error: expected client as plugin host"); return; }
 
 		pingpong::events::listen<pingpong::privmsg_event>([&](pingpong::privmsg_event *event) {
-			log({event->serv, event->where}, lines::privmsg_line::to_string(*event));
+			lines::privmsg_line line {*event};
+			log({event->serv, event->where}, line.hat_str() + line.name + " " + (line.is_action()? ":" : "*") +
+				line.trimmed(line.message));
 		});
 	}
 }

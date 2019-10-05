@@ -14,15 +14,6 @@ namespace spjalla::lines {
 		private:
 			bool is_self = false;
 
-			/** Returns whether the message is an action (CTCP ACTION). */
-			bool is_action() const;
-
-			/** Removes the CTCP verb from a message. */
-			std::string trimmed(const std::string &) const;
-
-			/** Returns a string representing the user's hat (empty if the destination isn't a channel). */
-			std::string hat_str() const;
-
 			/** Formats a message by processing colors and actions and adding the user's name. */
 			std::string process(const std::string &, bool with_time = true) const;
 
@@ -58,6 +49,15 @@ namespace spjalla::lines {
 
 			privmsg_line(const pingpong::privmsg_event &ev, bool direct_only_ = false):
 				privmsg_line(ev.speaker, ev.where, ev.content, ev.stamp, direct_only_) {}
+
+			/** Returns whether the message is an action (CTCP ACTION). */
+			bool is_action() const;
+
+			/** Removes the CTCP verb from a message. */
+			std::string trimmed(const std::string &) const;
+
+			/** Returns a string representing the user's hat (empty if the destination isn't a channel). */
+			std::string hat_str() const;
 
 			virtual operator std::string() const override;
 			virtual notification_type get_notification_type() const override;
