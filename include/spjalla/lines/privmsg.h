@@ -24,7 +24,7 @@ namespace spjalla::lines {
 			std::string hat_str() const;
 
 			/** Formats a message by processing colors and actions and adding the user's name. */
-			std::string process(const std::string &) const;
+			std::string process(const std::string &, bool with_time = true) const;
 
 		public:
 			std::shared_ptr<pingpong::user> speaker;
@@ -61,6 +61,8 @@ namespace spjalla::lines {
 
 			virtual operator std::string() const override;
 			virtual notification_type get_notification_type() const override;
+
+			static std::string to_string(const pingpong::privmsg_event &, bool with_time = true);
 	};
 }
 
