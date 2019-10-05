@@ -9,6 +9,7 @@
 #include "pingpong/events/join.h"
 #include "pingpong/events/kick.h"
 #include "pingpong/events/mode.h"
+#include "pingpong/events/nick.h"
 #include "pingpong/events/part.h"
 #include "pingpong/events/privmsg.h"
 #include "pingpong/events/quit.h"
@@ -192,6 +193,11 @@ namespace spjalla::plugins {
 
 			const std::string extra = !event->mset.extra.empty()? " " + event->mset.extra : "";
 			log({event->serv, event->where}, event->get_name() + " " + event->mset.mode_str() + extra, "mode");
+		});
+
+
+		pingpong::events::listen<pingpong::nick_event>([&](pingpong::nick_event *event) {
+			log(event->who, event->content + " " + event->who->name, "nick");
 		});
 
 
