@@ -172,7 +172,7 @@ namespace spjalla {
 
 			ui.input->move_to(cursor);
 			ui.input->jump_cursor();
-		} else if (ui.get_active_server()) {
+		} else if (active_server()) {
 			if (ui.active_window == ui.status_window && text.front() != '/') {
 				text.insert(0, "/");
 				ui.input->set_text(text);

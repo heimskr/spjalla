@@ -106,6 +106,9 @@ namespace spjalla {
 	}
 
 	pingpong::server * client::active_server() {
+		ui::window *win = ui.active_window;
+		if (win && win->serv)
+			return win->serv;
 		return irc.active_server;
 	}
 
