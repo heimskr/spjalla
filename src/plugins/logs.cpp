@@ -4,12 +4,17 @@
 
 #include "haunted/core/key.h"
 
+#include "pingpong/events/privmsg.h"
+
 #include "spjalla/config/config.h"
 #include "spjalla/config/defaults.h"
+
 #include "spjalla/core/client.h"
 #include "spjalla/core/input_line.h"
 #include "spjalla/core/plugin_host.h"
 #include "spjalla/core/util.h"
+
+#include "spjalla/lines/privmsg.h"
 
 #include "spjalla/plugins/plugin.h"
 
@@ -22,22 +27,31 @@ namespace spjalla::plugins {
 
 		private:
 			/** Maps server-channel pairs to the filestreams where their logs are stored. */
-			std::map<log_pair, std::fstream> filemap;
+			std::map<log_pair, std::ofstream> filemap;
 
 			std::filesystem::path base;
 
 		public:
-			~logs_plugin() {}
+			~logs_plugin();
 
 			std::string get_name()        const override { return "Logger"; }
 			std::string get_description() const override { return "Logs messages."; }
-			std::string get_version()     const override { return "0.0.1"; }
+			std::string get_version()     const override { return "0.0.2"; }
 			void preinit(plugin_host *) override;
+			void postinit(plugin_host *) override;
 
 			void log(const log_pair &, const std::string &message);
+			void log(const log_pair &, const std::string &message, long stamp);
+
+			template <typename T>
+			void log(const log_pair &pair, const T &anything) {
+				log(pair, std::to_string(anything));
+			}
+
+			void log(pingpong::local_event *);
 
 			/** Returns the output stream corresponding to a location, creating one if necessary. */
-			std::fstream & get_stream(const log_pair &);
+			std::ofstream & get_stream(const log_pair &);
 
 			/** Closes and removes the output stream corresponding to a location. Returns true if one existed. */
 			bool close(const log_pair &);
@@ -48,25 +62,47 @@ namespace spjalla::plugins {
 			static std::string sanitize_filename(const std::string &);
 	};
 
-	void logs_plugin::log(const log_pair &pair, const std::string &message) {
-
+	logs_plugin::~logs_plugin() {
+		for (const auto &pair: filemap) {
+			filemap.find(pair.first)->second.close();
+		}
 	}
 
-	std::fstream & logs_plugin::get_stream(const log_pair &pair) {
+	void logs_plugin::log(const log_pair &pair, const std::string &message) {
+		DBG("log: pair[" << pair.first->id << "/" << pair.second << "] message{" << message << "}");
+		get_stream(pair) << message << "\n";
+	}
+
+	void logs_plugin::log(const log_pair &pair, const std::string &message, long stamp) {
+		log(pair, lines::render_time(stamp, false) + " " + message);
+	}
+
+	void logs_plugin::log(pingpong::local_event *event) {
+		if (event->serv->get_parent() == &parent->get_irc())
+			log({event->serv, event->where}, *event);
+	}
+
+	std::ofstream & logs_plugin::get_stream(const log_pair &pair) {
 		if (filemap.count(pair) == 1)
 			return filemap.at(pair);
 
-		const std::string path = get_path(pair);
-		std::fstream new_stream(path, std::ios::app);
-		if (new_stream.peek() == new_stream.eof())
-			new_stream << "[created " << pingpong::util::millistamp() << "]\n";
-		else
-			new_stream << "[opened " << pingpong::util::millistamp() << "]\n";
+		const std::filesystem::path path = get_path(pair);
+		std::ofstream new_stream(path, std::ios::app);
+		if (!new_stream)
+			throw std::runtime_error("Couldn't open file stream for " + std::string(path));
+		new_stream << "%opened " << pingpong::util::millistamp() << "\n";
 		filemap.insert({pair, std::move(new_stream)});
+		return filemap.at(pair);
 	}
 
 	std::filesystem::path logs_plugin::get_path(const log_pair &pair) {
-		return base / sanitize_filename(pair.first->id) / sanitize_filename(pair.second);
+		const std::filesystem::path dir = base / sanitize_filename(pair.first->id);
+		if (!std::filesystem::exists(dir)) {
+			DBG("Creating directories for " << dir);
+			std::filesystem::create_directories(dir);
+		}
+
+		return dir / sanitize_filename(pair.second);
 	}
 
 	std::string & logs_plugin::sanitize_filename(std::string &str) {
@@ -97,6 +133,15 @@ namespace spjalla::plugins {
 		} else if (!std::filesystem::is_directory(base)) {
 			throw std::runtime_error("A file already exists at " + std::string(base));
 		}
+	}
+
+	void logs_plugin::postinit(plugin_host *host) {
+		spjalla::client *client = dynamic_cast<spjalla::client *>(host);
+		if (!client) { DBG("Error: expected client as plugin host"); return; }
+
+		pingpong::events::listen<pingpong::privmsg_event>([&](pingpong::privmsg_event *event) {
+			log({event->serv, event->where}, lines::privmsg_line::to_string(*event));
+		});
 	}
 }
 
