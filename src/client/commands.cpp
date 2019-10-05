@@ -135,6 +135,35 @@ namespace spjalla {
 		}, {}}});
 
 
+		add({"disconnect", {0, -1, false, [&](sptr serv, line il) {
+			if (il.args.empty()) {
+				serv->quit(il.body);
+				return;
+			}
+
+			const std::string first = il.first();
+			const std::string reason = util::skip_words(il.body);
+
+			for (pingpong::server *subserv: irc.server_order) {
+				if (subserv->id == first) {
+					subserv->quit(reason);
+					return;
+				}
+			}
+
+			bool quit_any = false;
+			for (pingpong::server *subserv: irc.server_order) {
+				if (subserv->hostname == first) {
+					subserv->quit(reason);
+					quit_any = true;
+				}
+			}
+
+			if (!quit_any)
+				ui.warn("Quit: there is no server " + ansi::bold(first) + ".");
+		}, {}}});
+
+
 		add({"join", {1, 1, true, [&](sptr serv, line il) {
 			const std::string &first = il.args[0];
 			wait_for_server(serv, pingpong::server::stage::ready, [=]() {
@@ -285,13 +314,8 @@ namespace spjalla {
 
 
 		add({"quit", {0, -1, false, [&](sptr, line il) {
-			if (il.args.empty()) {
-				for (auto serv: irc.server_order)
-					pingpong::quit_command(serv).send();
-			} else {
-				for (auto serv: irc.server_order)
-					pingpong::quit_command(serv, il.body).send();
-			}
+			for (pingpong::server *serv: irc.server_order)
+				serv->quit(il.body);
 		}, {}}});
 
 
