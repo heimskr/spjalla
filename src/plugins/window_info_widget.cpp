@@ -48,7 +48,7 @@ namespace spjalla::plugins {
 				if (!win) {
 					return "null?";
 				} else if (win->is_status() || win->is_channel() || win->is_user()) {
-					const std::string id = parent->active_server_id();
+					const std::string id = win->serv? win->serv->id : parent->active_server_id();
 					return id.empty()? "none"_i : id;
 					return parent->active_server_id();
 				} else {
