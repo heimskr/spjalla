@@ -1,3 +1,5 @@
+// TODO: configurable timestamp precision
+
 #include <fstream>
 #include <map>
 #include <utility>
@@ -7,6 +9,7 @@
 #include "pingpong/events/join.h"
 #include "pingpong/events/part.h"
 #include "pingpong/events/privmsg.h"
+#include "pingpong/events/quit.h"
 
 #include "spjalla/config/config.h"
 #include "spjalla/config/defaults.h"
@@ -42,7 +45,11 @@ namespace spjalla::plugins {
 			void preinit(plugin_host *) override;
 			void postinit(plugin_host *) override;
 
+			/** Logs a message of a given type ("_" by default) to a single location. */
 			void log(const log_pair &, const std::string &message, const std::string &type = "_");
+
+			/** Logs a message in all locations where a user is present. */
+			void log(std::shared_ptr<pingpong::user>, const std::string &message, const std::string &type = "_");
 
 			template <typename T>
 			void log(const log_pair &pair, const T &anything) {
@@ -64,14 +71,27 @@ namespace spjalla::plugins {
 	};
 
 	logs_plugin::~logs_plugin() {
-		for (const auto &pair: filemap) {
-			filemap.find(pair.first)->second.close();
-		}
+		while (!filemap.empty())
+			close(filemap.begin()->first);
 	}
 
 	void logs_plugin::log(const log_pair &pair, const std::string &message, const std::string &type) {
-		DBG("log: pair[" << pair.first->id << "/" << pair.second << "] message" << "{"_d << ansi::bold(message) << "}"_d);
 		(get_stream(pair) << "%" << type << " " << pingpong::util::millistamp() << " " << message << "\n").flush();
+	}
+
+	void logs_plugin::log(std::shared_ptr<pingpong::user> user, const std::string &message, const std::string &type) {
+		for (ui::window *window: parent->get_ui().windows_for_user(user)) {
+			switch (window->type) {
+				case ui::window_type::channel:
+					log({user->serv, window->chan->name}, message, type);
+					break;
+				case ui::window_type::user:
+					log({user->serv, window->user->name}, message, type);
+					close({user->serv, window->user->name});
+					break;
+				default: ;
+			}
+		}
 	}
 
 	void logs_plugin::log(pingpong::local_event *event) {
@@ -95,12 +115,21 @@ namespace spjalla::plugins {
 		return filemap.at(pair);
 	}
 
+	bool logs_plugin::close(const log_pair &pair) {
+		if (filemap.count(pair) == 0)
+			return false;
+
+		std::ofstream &stream = get_stream(pair);
+		(stream << "%closed " << pingpong::util::millistamp() << "\n").flush();
+		stream.close();
+		filemap.erase(pair);
+		return true;
+	}
+
 	std::filesystem::path logs_plugin::get_path(const log_pair &pair) {
 		const std::filesystem::path dir = base / sanitize_filename(pair.first->id);
-		if (!std::filesystem::exists(dir)) {
-			DBG("Creating directories for " << dir);
+		if (!std::filesystem::exists(dir))
 			std::filesystem::create_directories(dir);
-		}
 
 		return dir / sanitize_filename(pair.second);
 	}
@@ -123,6 +152,7 @@ namespace spjalla::plugins {
 	void logs_plugin::preinit(plugin_host *host) {
 		spjalla::client *client = dynamic_cast<spjalla::client *>(host);
 		if (!client) { DBG("Error: expected client as plugin host"); return; }
+		parent = client;
 
 		config::register_key("logs", "enabled", true, config::validate_bool, {}, "Whether to enable logs.");
 
@@ -150,7 +180,28 @@ namespace spjalla::plugins {
 		});
 
 		pingpong::events::listen<pingpong::part_event>([&](pingpong::part_event *event) {
-			log({event->serv, event->chan->name}, event->who->name + " " + event->content, "part");
+			log({event->serv, event->chan->name}, event->who->name + " :" + event->content, "part");
+
+			// If you parted the channel, close the channel's stream.
+			if (event->who->is_self())
+				close({event->serv, event->chan->name});
+		});
+
+		pingpong::events::listen<pingpong::quit_event>([&](pingpong::quit_event *event) {
+			log(event->who, event->who->name + " :" + event->content, "quit");
+
+			// If you quit, close all logs associated with the server you quit from.
+			if (event->who->is_self()) {
+				std::vector<log_pair> to_close;
+				to_close.reserve(filemap.size());
+				for (const auto &pair: filemap) {
+					if (pair.first.first == event->serv)
+						to_close.push_back(pair.first);
+				}
+
+				for (const log_pair &pair: to_close)
+					close(pair);
+			}
 		});
 	}
 }
