@@ -8,6 +8,7 @@
 
 #include "pingpong/events/join.h"
 #include "pingpong/events/kick.h"
+#include "pingpong/events/mode.h"
 #include "pingpong/events/part.h"
 #include "pingpong/events/privmsg.h"
 #include "pingpong/events/quit.h"
@@ -184,10 +185,20 @@ namespace spjalla::plugins {
 		});
 
 
+		pingpong::events::listen<pingpong::mode_event>([&](pingpong::mode_event *event) {
+			// Ignore self mode changes.
+			if (event->get_name() == event->where)
+				return;
+
+			const std::string extra = !event->mset.extra.empty()? " " + event->mset.extra : "";
+			log({event->serv, event->where}, event->get_name() + " " + event->mset.mode_str() + extra, "mode");
+		});
+
+
 		pingpong::events::listen<pingpong::privmsg_event>([&](pingpong::privmsg_event *event) {
 			lines::privmsg_line line {*event};
 			log({event->serv, event->is_channel()? event->where : event->speaker->name},
-				line.hat_str() + line.name + " " + (line.is_action()? ":" : "*") + line.trimmed(line.message), "msg");
+				line.hat_str() + line.name + " " + (line.is_action()? "*" : ":") + line.trimmed(line.message), "msg");
 		});
 
 
