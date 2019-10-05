@@ -11,6 +11,8 @@
 #include "pingpong/events/part.h"
 #include "pingpong/events/privmsg.h"
 #include "pingpong/events/quit.h"
+#include "pingpong/events/topic.h"
+#include "pingpong/events/topic_updated.h"
 
 #include "spjalla/config/config.h"
 #include "spjalla/config/defaults.h"
@@ -121,7 +123,7 @@ namespace spjalla::plugins {
 			return false;
 
 		std::ofstream &stream = get_stream(pair);
-		(stream << "%closed " << pingpong::util::millistamp() << "\n").flush();
+		(stream << pingpong::util::millistamp() << " closed\n").flush();
 		stream.close();
 		filemap.erase(pair);
 		return true;
@@ -213,6 +215,16 @@ namespace spjalla::plugins {
 				for (const log_pair &pair: to_close)
 					close(pair);
 			}
+		});
+
+
+		pingpong::events::listen<pingpong::topic_event>([&](pingpong::topic_event *event) {
+			log({event->serv, event->chan->name}, event->who->name + " :" + event->content, "topic_set");
+		});
+
+
+		pingpong::events::listen<pingpong::topic_updated_event>([&](pingpong::topic_updated_event *event) {
+			log({event->serv, event->chan->name}, ":" + event->content, "topic_is");
 		});
 	}
 }
