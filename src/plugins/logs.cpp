@@ -77,7 +77,7 @@ namespace spjalla::plugins {
 	}
 
 	void logs_plugin::log(const log_pair &pair, const std::string &message, const std::string &type) {
-		(get_stream(pair) << "%" << type << " " << pingpong::util::millistamp() << " " << message << "\n").flush();
+		(get_stream(pair) << pingpong::util::millistamp() << " " << type << " " << message << "\n").flush();
 	}
 
 	void logs_plugin::log(std::shared_ptr<pingpong::user> user, const std::string &message, const std::string &type) {
@@ -110,8 +110,8 @@ namespace spjalla::plugins {
 		if (!new_stream)
 			throw std::runtime_error("Couldn't open file stream for " + std::string(path));
 		if (!existed)
-			new_stream << "%created " << pingpong::util::millistamp() << "\n";
-		(new_stream << "%opened " << pingpong::util::millistamp() << "\n").flush();
+			new_stream << pingpong::util::millistamp() << " created" << "\n";
+		(new_stream << pingpong::util::millistamp() << " opened" << "\n").flush();
 		filemap.insert({pair, std::move(new_stream)});
 		return filemap.at(pair);
 	}
