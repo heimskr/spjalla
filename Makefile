@@ -28,7 +28,7 @@ else ifeq ($(CHECK), msan)
 	CHECKFLAGS := -fsanitize=memory -fno-common
 endif
 
-.PHONY: all test clean depend spotless count
+.PHONY: all test clean depend spotless count plugins
 
 all: $(OBJECTS) $(OUTPUT) plugins
 
@@ -75,7 +75,7 @@ build/plugins/%.$(SHARED_EXT): src/plugins/%.cpp $(MAINLIB)
 	@ rm $(addsuffix .o,$(basename $@))
 
 
-test: $(OUTPUT)
+test: $(OUTPUT) plugins
 	$(LIBPATHVAR)="`pwd`/build" ./$(OUTPUT) --plugins build/plugins
 
 dbg: $(OUTPUT)
