@@ -4,6 +4,8 @@
 
 #include "haunted/core/key.h"
 
+#include "pingpong/events/join.h"
+#include "pingpong/events/part.h"
 #include "pingpong/events/privmsg.h"
 
 #include "spjalla/config/config.h"
@@ -40,8 +42,7 @@ namespace spjalla::plugins {
 			void preinit(plugin_host *) override;
 			void postinit(plugin_host *) override;
 
-			void log(const log_pair &, const std::string &message);
-			void log(const log_pair &, const std::string &message, long stamp);
+			void log(const log_pair &, const std::string &message, const std::string &type = "_");
 
 			template <typename T>
 			void log(const log_pair &pair, const T &anything) {
@@ -68,13 +69,9 @@ namespace spjalla::plugins {
 		}
 	}
 
-	void logs_plugin::log(const log_pair &pair, const std::string &message) {
+	void logs_plugin::log(const log_pair &pair, const std::string &message, const std::string &type) {
 		DBG("log: pair[" << pair.first->id << "/" << pair.second << "] message" << "{"_d << ansi::bold(message) << "}"_d);
-		(get_stream(pair) << "%_ " << pingpong::util::millistamp() << " " << message << "\n").flush();
-	}
-
-	void logs_plugin::log(const log_pair &pair, const std::string &message, long stamp) {
-		log(pair, lines::render_time(stamp, false) + " " + message);
+		(get_stream(pair) << "%" << type << " " << pingpong::util::millistamp() << " " << message << "\n").flush();
 	}
 
 	void logs_plugin::log(pingpong::local_event *event) {
@@ -144,8 +141,16 @@ namespace spjalla::plugins {
 
 		pingpong::events::listen<pingpong::privmsg_event>([&](pingpong::privmsg_event *event) {
 			lines::privmsg_line line {*event};
-			log({event->serv, event->where}, line.hat_str() + line.name + " " + (line.is_action()? ":" : "*") +
-				line.trimmed(line.message));
+			log({event->serv, event->is_channel()? event->where : event->speaker->name},
+				line.hat_str() + line.name + " " + (line.is_action()? ":" : "*") + line.trimmed(line.message), "msg");
+		});
+
+		pingpong::events::listen<pingpong::join_event>([&](pingpong::join_event *event) {
+			log({event->serv, event->chan->name}, event->who->name, "join");
+		});
+
+		pingpong::events::listen<pingpong::part_event>([&](pingpong::part_event *event) {
+			log({event->serv, event->chan->name}, event->who->name + " " + event->content, "part");
 		});
 	}
 }
