@@ -172,6 +172,10 @@ namespace spjalla::util {
 		return length;
 	}
 
+	std::string skip_words(const std::string &str, size_t n) {
+		return str.substr(index_of_word(str, n));
+	}
+
 	size_t last_index_of_word(const std::string &str, size_t n) {
 		const size_t length = str.length();
 		size_t word_index = 0;
