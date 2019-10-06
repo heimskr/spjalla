@@ -14,8 +14,7 @@ namespace spjalla::lines {
 
 		if (is_channel()) {
 			std::shared_ptr<pingpong::channel> chan = get_channel(speaker->serv);
-			if (chan->hats.count(speaker) != 0)
-				hat = chan->hats.at(speaker);
+			hats = chan->get_hats(speaker);
 		}
 
 		if (is_action())
@@ -91,7 +90,10 @@ namespace spjalla::lines {
 	}
 
 	std::string privmsg_line::hat_str() const {
-		return is_channel()? std::string(1, static_cast<char>(hat)) : "";
+		if (!is_channel())
+			return "";
+
+		return hats == pingpong::hat::none? " " : std::string(hats);
 	}
 
 	privmsg_line::operator std::string() const {

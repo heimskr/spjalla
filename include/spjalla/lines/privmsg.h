@@ -2,6 +2,7 @@
 #define SPJALLA_LINES_PRIVMSG_H_
 
 #include "pingpong/core/defs.h"
+#include "pingpong/core/hats.h"
 #include "pingpong/core/local.h"
 
 #include "pingpong/commands/privmsg.h"
@@ -38,9 +39,9 @@ namespace spjalla::lines {
 			// change their name later, it would cause this line to render with the new name!
 			const std::string name, self, message, verb, body;
 
-			// It's also necessary to store the user's hat at the time the message was sent (provided the message was to
-			// a channel and not directly to you).
-			pingpong::hat hat = pingpong::hat::none;
+			// It's also necessary to store the user's hat(s) at the time the message was sent (provided the message was
+			// to a channel and not directly to you).
+			pingpong::hat_set hats {};
 
 			const bool direct_only;
 

@@ -2,6 +2,6 @@
 
 namespace spjalla::lines {
 	chanlist_line::operator std::string() const {
-		return ansi::dim("- ") + static_cast<char>(chan->get_hat(user)) + chan->name;
+		return ansi::dim("- ") + std::string(chan->get_hats(user)) + chan->name;
 	}
 }

@@ -3,7 +3,7 @@
 #include "pingpong/events/bad_line.h"
 #include "pingpong/events/command.h"
 #include "pingpong/events/error.h"
-#include "pingpong/events/hat_updated.h"
+#include "pingpong/events/hats_updated.h"
 #include "pingpong/events/join.h"
 #include "pingpong/events/kick.h"
 #include "pingpong/events/message.h"
@@ -51,7 +51,7 @@ namespace spjalla {
 			*win += lines::basic_line(lines::red_notice + ev->message, ansi::length(lines::red_notice));
 		});
 
-		pingpong::events::listen<pingpong::hat_updated_event>([&](pingpong::hat_updated_event *ev) {
+		pingpong::events::listen<pingpong::hats_updated_event>([&](pingpong::hats_updated_event *ev) {
 			if (ui.is_active(ui.get_window(ev->chan, false))) {
 				ui.update_overlay(ev->chan);
 				ui.update_statusbar();
