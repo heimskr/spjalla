@@ -30,7 +30,7 @@ endif
 
 .PHONY: all test clean depend spotless count plugins
 
-all: $(OBJECTS) $(OUTPUT) plugins
+all: $(OBJECTS) $(OUTPUT)
 
 INCLUDE_PP		:= -Ipingpong/include
 SOURCES_PP		:= $(shell find pingpong/src -name '*.cpp' | sed -nE '/(tests?|test_.+|ansi|futil)\.cpp$$/!p')
