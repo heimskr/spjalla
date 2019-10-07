@@ -57,7 +57,7 @@ namespace spjalla::plugins {
 					}
 				}
 
-				return formicine::util::join(indicators.begin(), indicators.end(), ", "_d);
+				return formicine::util::join(indicators.begin(), indicators.end(), ","_d);
 			}
 
 			void window_focused(ui::window *window) {
