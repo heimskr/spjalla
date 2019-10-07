@@ -68,12 +68,9 @@ build/%.o: src/%.cpp
 	@ mkdir -p "$(shell dirname "$@")"
 	$(CC) $(strip $(ALLFLAGS) $(INCLUDE_SP) $(INCLUDE_LIBS)) -c $< -o $@
 
-build/plugins/%.$(SHARED_EXT): src/plugins/%.cpp $(MAINLIB)
-	@ mkdir -p build/plugins
-	$(CC) $(strip $(ALLFLAGS) $(INCLUDE_SP) $(INCLUDE_LIBS)) -c $< -o $(addsuffix .o,$(basename $@))
-	$(CC) $(SHARED_FLAG) $(addsuffix .o,$(basename $@)) $(MAINLIB) -o $@
-	@ rm $(addsuffix .o,$(basename $@))
-
+# Assumes only directories are direct children of src/plugins.
+build/plugins/%.$(SHARED_EXT): build/plugins/%.o $(MAINLIB)
+	@ $(CC) $(SHARED_FLAG) $< $(MAINLIB) $(wildcard $(shell dirname "$<")/*) -o $@
 
 test: $(OUTPUT)
 	$(LIBPATHVAR)="`pwd`/build" ./$(OUTPUT) --plugins build/plugins

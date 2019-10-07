@@ -22,8 +22,15 @@ namespace spjalla::plugins {
 	}
 
 	void plugin_host::load_plugins(const std::string &path) {
-		for (const auto &entry: std::filesystem::directory_iterator(path))
-			load_plugin(entry.path().c_str());
+		for (const auto &entry: std::filesystem::directory_iterator(path)) {
+			if (entry.is_directory()) {
+				load_plugins(entry.path());
+			} else {
+				const std::string extension = entry.path().extension();
+				if (extension == ".so" || extension == ".dylib")
+					load_plugin(entry.path().c_str());
+			}
+		}
 	}
 
 	void plugin_host::preinit_plugins() {

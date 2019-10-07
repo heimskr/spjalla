@@ -1,0 +1,6 @@
+#ifndef SPJALLA_PLUGINS_LOGS_H_
+#define SPJALLA_PLUGINS_LOGS_H_
+
+
+
+#endif
