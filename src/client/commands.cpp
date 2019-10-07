@@ -75,6 +75,15 @@ namespace spjalla {
 		}, {}}});
 
 
+		add({"_time", {0, 0, false, [&](sptr, line) {
+			DBG("Default time: " << pingpong::util::timestamp());
+			DBG("Seconds:      " << pingpong::util::seconds());
+			DBG("Milliseconds: " << pingpong::util::millistamp());
+			DBG("Microseconds: " << pingpong::util::microstamp());
+			DBG("Nanoseconds:  " << pingpong::util::nanostamp());
+		}, {}}});
+
+
 		add({"_win", {0, 0, false, [&](sptr, line) {
 			if (ui::window *win = ui.active_window) {
 				DBG("Window name:    " << ansi::bold(win->window_name));

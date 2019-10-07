@@ -17,7 +17,7 @@ namespace spjalla::plugins {
 			virtual ~clock_widget() {}
 
 			std::string render(const ui::window *, bool) const {
-				std::chrono::system_clock::time_point tpoint {std::chrono::duration<long>(stamp)};
+				std::chrono::system_clock::time_point tpoint {pingpong::util::timetype(stamp)};
 				std::time_t time = std::chrono::system_clock::to_time_t(tpoint);
 				char str[64];
 				std::strftime(str, sizeof(str), "%H:%M:%S", std::localtime(&time));
@@ -55,7 +55,7 @@ namespace spjalla::plugins {
 			}
 
 			void tick(int period) {
-				if (++ticks % (1000 / period) == 0 && widget)
+				if (++ticks % (pingpong::util::precision / period) == 0 && widget)
 					widget->update();
 			}
 	};

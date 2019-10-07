@@ -83,7 +83,7 @@ namespace spjalla {
 			config::database configs;
 			aliases alias_db;
 
-			client(int heartbeat_period_ = 100);
+			client(int heartbeat_period_ = pingpong::util::precision / 10);
 
 			client(const client &) = delete;
 			client(client &&) = delete;
@@ -201,7 +201,7 @@ namespace spjalla {
 			/** A thread that executes actions at regular intervals. */
 			std::thread heartbeat;
 
-			/** The number of milliseconds to wait between heartbeats. */
+			/** The duration to wait between heartbeats. */
 			int heartbeat_period;
 
 			/** Contains all the functions to execute on each heartbeat. */

@@ -84,7 +84,7 @@ namespace spjalla::plugins {
 	}
 
 	void logs_plugin::log(const log_pair &pair, const std::string &message, const std::string &type) {
-		(get_stream(pair) << pingpong::util::millistamp() << " " << type << " " << message << "\n").flush();
+		(get_stream(pair) << pingpong::util::timestamp() << " " << type << " " << message << "\n").flush();
 	}
 
 	void logs_plugin::log(std::shared_ptr<pingpong::user> user, const std::string &message, const std::string &type) {
@@ -117,8 +117,8 @@ namespace spjalla::plugins {
 		if (!new_stream)
 			throw std::runtime_error("Couldn't open file stream for " + std::string(path));
 		if (!existed)
-			new_stream << pingpong::util::millistamp() << " created" << "\n";
-		(new_stream << pingpong::util::millistamp() << " opened" << "\n").flush();
+			new_stream << pingpong::util::timestamp() << " created" << "\n";
+		(new_stream << pingpong::util::timestamp() << " opened" << "\n").flush();
 		std::vector<std::string> lines;
 		filemap.insert({pair, std::move(new_stream)});
 		return filemap.at(pair);
@@ -129,7 +129,7 @@ namespace spjalla::plugins {
 			return false;
 
 		std::fstream &stream = get_stream(pair);
-		(stream << pingpong::util::millistamp() << " closed\n").flush();
+		(stream << pingpong::util::timestamp() << " closed\n").flush();
 		stream.close();
 		filemap.erase(pair);
 		return true;
@@ -239,10 +239,9 @@ namespace spjalla::plugins {
 					return;
 				}
 
-				// Log timestamps are milliseconds, whereas textlines store seconds.
-				// TODO: make log timestamp resolution configurable.
 				// Note: if there are messages in the unloaded scrollback that have an identical timestamp to the
 				// first loaded line, they will be skipped. This can be mitigated with higher resolution.
+				// With the current setting being microseconds, this is extremely unlikely to ever happen.
 				stamp /= 1000;
 
 				DBG("stamp: " << stamp);

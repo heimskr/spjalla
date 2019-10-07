@@ -12,7 +12,7 @@ namespace spjalla::lines {
 	extern std::string notice, red_notice, yellow_notice;
 
 	/** Renders a UNIX timestamp as an hours-minutes-seconds set. */
-	std::string render_time(long seconds, bool with_ansi = true);
+	std::string render_time(long stamp, bool with_ansi = true);
 
 	struct line: haunted::ui::textline {
 		long stamp;

@@ -10,11 +10,11 @@ namespace spjalla::lines {
 	std::string red_notice    = "\e[31;2m-\e[22m!\e[2m-\e[22;39m ";
 	std::string yellow_notice = "\e[33;2m-\e[22m!\e[2m-\e[22;39m ";
 
-	std::string render_time(long seconds, bool with_ansi) {
-		if (seconds == 0)
+	std::string render_time(long stamp, bool with_ansi) {
+		if (stamp == 0)
 			return with_ansi? "["_d + "__:__:__" + "]"_d : "[__:__:__]";
 
-		std::chrono::system_clock::time_point tpoint {std::chrono::duration<long>(seconds)};
+		std::chrono::system_clock::time_point tpoint {pingpong::util::timetype(stamp)};
 		std::time_t time = std::chrono::system_clock::to_time_t(tpoint);
 		char str[64];
 		std::strftime(str, sizeof(str), "%H:%M:%S", std::localtime(&time));

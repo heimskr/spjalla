@@ -8,7 +8,7 @@ namespace spjalla {
 			for (const auto fn: heartbeat_listeners)
 				fn(heartbeat_period);
 			
-			std::this_thread::sleep_for(std::chrono::milliseconds(heartbeat_period));
+			std::this_thread::sleep_for(pingpong::util::timetype(heartbeat_period));
 		}
 	}
 
