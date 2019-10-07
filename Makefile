@@ -75,7 +75,7 @@ build/plugins/%.$(SHARED_EXT): src/plugins/%.cpp $(MAINLIB)
 	@ rm $(addsuffix .o,$(basename $@))
 
 
-test: $(OUTPUT) plugins
+test: $(OUTPUT)
 	$(LIBPATHVAR)="`pwd`/build" ./$(OUTPUT) --plugins build/plugins
 
 dbg: $(OUTPUT)
