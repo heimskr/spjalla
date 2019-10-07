@@ -2,6 +2,6 @@
 
 namespace spjalla::lines {
 	warning_line::operator std::string() const {
-		return lines::render_time(stamp) + lines::red_notice + message;
+		return lines::render_time(stamp) + lines::yellow_notice + message;
 	}
 }

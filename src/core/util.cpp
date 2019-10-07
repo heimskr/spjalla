@@ -267,8 +267,8 @@ namespace spjalla::util {
 		return false;
 	}
 
-	size_t backward_lines(std::fstream &stream, std::vector<std::string> &out, const size_t n, const size_t chunk_size,
-	const bool seek_end) {
+	size_t backward_lines(std::fstream &stream, std::vector<std::string> &out, const size_t n, const bool seek_end,
+	const size_t chunk_size) {
 		if (n == 0) {
 			out = {};
 			return 0;
@@ -280,8 +280,13 @@ namespace spjalla::util {
 
 		chunk.reserve(chunk_size);
 		buffer.reserve(chunk_size);
-		if (seek_end)
+		if (seek_end) {
 			stream.seekg(0, std::ios::seekdir::end);
+		} else if (stream.tellg() == 0) {
+			// If we're at the beginning of the file but aren't supposed to skip to the end, we can give up now.
+			out = {};
+			return 0;
+		}
 
 		char *raw_chunk = new char[chunk_size];
 		for (;;) {
@@ -290,6 +295,7 @@ namespace spjalla::util {
 			if (pos < chunk_size) {
 				stream.seekg(0);
 				stream.read(raw_chunk, pos);
+				stream.seekg(0);
 			} else {
 				stream.seekg(-chunk_size, std::ios::seekdir::cur);
 				stream.read(raw_chunk, chunk_size);
@@ -300,13 +306,18 @@ namespace spjalla::util {
 			if (chunk.empty())
 				break;
 
+			const size_t old_buffer_length = buffer.length();
 			buffer.insert(0, chunk);
 			size_t newline = buffer.find_last_of("\n");
 			while (newline != std::string::npos) {
 				if (newline != buffer.length() - 1) {
 					lines.push_front(buffer.substr(newline + 1));
-					if (++lines_read == n)
+					if (++lines_read == n) {
+						// Read until the newline so that the function can be called another time with the input pointer
+						// at the correct position.
+						stream.seekg(newline - old_buffer_length, std::ios::seekdir::cur);
 						break;
+					}
 				}
 
 				buffer.erase(newline);

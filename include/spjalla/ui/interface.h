@@ -21,6 +21,7 @@
 
 #include "pingpong/core/defs.h"
 
+#include "spjalla/lines/error.h"
 #include "spjalla/lines/warning.h"
 
 #include "spjalla/ui/window.h"
@@ -136,6 +137,15 @@ namespace spjalla::ui {
 			template <typename W, typename D>
 			void warn(const W &warning, const D &destination) {
 				log(lines::warning_line(warning), destination);
+			}
+
+			void error(const std::string &error) {
+				log(lines::error_line(error));
+			}
+
+			template <typename E, typename D>
+			void error(const E &error, const D &destination) {
+				log(lines::error_line(error), destination);
 			}
 
 			/** Focuses a window. Note that this method will swap the active window and the given window, so the pointer

@@ -1,8 +1,11 @@
 // TODO: configurable timestamp precision
 
 #include <fstream>
+#include <list>
 #include <map>
+#include <sstream>
 #include <utility>
+#include <vector>
 
 #include "haunted/core/key.h"
 
@@ -37,7 +40,7 @@ namespace spjalla::plugins {
 
 		private:
 			/** Maps server-channel pairs to the filestreams where their logs are stored. */
-			std::map<log_pair, std::ofstream> filemap;
+			std::map<log_pair, std::fstream> filemap;
 
 			std::filesystem::path base;
 
@@ -64,7 +67,7 @@ namespace spjalla::plugins {
 			void log(pingpong::local_event *);
 
 			/** Returns the output stream corresponding to a location, creating one if necessary. */
-			std::ofstream & get_stream(const log_pair &);
+			std::fstream & get_stream(const log_pair &);
 
 			/** Closes and removes the output stream corresponding to a location. Returns true if one existed. */
 			bool close(const log_pair &);
@@ -104,18 +107,19 @@ namespace spjalla::plugins {
 			log({event->serv, event->where}, *event);
 	}
 
-	std::ofstream & logs_plugin::get_stream(const log_pair &pair) {
+	std::fstream & logs_plugin::get_stream(const log_pair &pair) {
 		if (filemap.count(pair) == 1)
 			return filemap.at(pair);
 
 		const std::filesystem::path path = get_path(pair);
 		const bool existed = std::filesystem::exists(path);
-		std::ofstream new_stream(path, std::ios::app);
+		std::fstream new_stream(path, std::ios::app | std::ios::in | std::ios::out);
 		if (!new_stream)
 			throw std::runtime_error("Couldn't open file stream for " + std::string(path));
 		if (!existed)
 			new_stream << pingpong::util::millistamp() << " created" << "\n";
 		(new_stream << pingpong::util::millistamp() << " opened" << "\n").flush();
+		std::vector<std::string> lines;
 		filemap.insert({pair, std::move(new_stream)});
 		return filemap.at(pair);
 	}
@@ -124,7 +128,7 @@ namespace spjalla::plugins {
 		if (filemap.count(pair) == 0)
 			return false;
 
-		std::ofstream &stream = get_stream(pair);
+		std::fstream &stream = get_stream(pair);
 		(stream << pingpong::util::millistamp() << " closed\n").flush();
 		stream.close();
 		filemap.erase(pair);
@@ -160,6 +164,8 @@ namespace spjalla::plugins {
 		parent = client;
 
 		config::register_key("logs", "enabled", true, config::validate_bool, {}, "Whether to enable logs.");
+		config::register_key("logs", "default_restore", 128, config::validate_long, {},
+			"The default number of scrollback lines to restore with /restore.");
 
 		base = util::get_home() / DEFAULT_DATA_DIR / "logs";
 		if (!std::filesystem::exists(base)) {
@@ -173,6 +179,82 @@ namespace spjalla::plugins {
 	void logs_plugin::postinit(plugin_host *host) {
 		spjalla::client *client = dynamic_cast<spjalla::client *>(host);
 		if (!client) { DBG("Error: expected client as plugin host"); return; }
+		ui::interface &ui = client->get_ui();
+
+		client->add({"restore", {0, 1, true, [&](pingpong::server *serv, const input_line &il) {
+			long to_restore;
+			if (!util::parse_long(il.first(), to_restore)) {
+				ui.error("Not a number: " + "\""_d + il.first() + "\"");
+				return;
+			}
+
+			ui::window *window = ui.get_active_window();
+			if (window->type != ui::window_type::channel && window->type != ui::window_type::user) {
+				ui.warn("/restore works only for channel windows and private message windows.");
+				return;
+			}
+
+			size_t first_stamp = static_cast<size_t>(-1);
+			// const long max = client->configs.get("logs", "default_restore").long_();
+
+			if (!window->get_lines().empty()) {
+				lines::line *line;
+				for (const std::unique_ptr<haunted::ui::textline> &lineptr: window->get_lines()) {
+					if ((line = dynamic_cast<lines::line *>(lineptr.get())))
+						break;
+				}
+
+				if (!line)
+					return;
+
+				first_stamp = line->stamp;
+			}
+
+			const std::string where = window->is_user()? window->user->name : window->chan->name;
+			const log_pair pair {serv, where};
+			if (filemap.count(pair) == 0) {
+				ui.log("No scrollback found for " + ansi::bold(where) + " on " + ansi::bold(serv->id) + ".");
+				return;
+			}
+
+			std::fstream &stream = filemap.at(pair);
+			std::vector<std::string> lines {};
+
+			// Look for the last line in the log before the top of the scrollback.
+			bool first = true;
+			for (;;) {
+				if (util::backward_lines(stream, lines, 1, first) == 0) {
+					ui.log("No more scrollback found for " + ansi::bold(where) + " on " + ansi::bold(serv->id) + ".");
+					break;
+				}
+
+				first = false;
+
+				long stamp = 0;
+				const std::string &line = lines.back();
+				std::string first_word = line.substr(0, line.find(' '));
+				if (!util::parse_long(first_word, stamp)) {
+					ui.error("Invalid timestamp in " + ansi::bold(where) + " on " + ansi::bold(serv->id) + ": " +
+					         "\""_d + first_word + "\""_d);
+					return;
+				}
+
+				// Log timestamps are milliseconds, whereas textlines store seconds.
+				// TODO: make log timestamp resolution configurable.
+				// Note: if there are messages in the unloaded scrollback that have an identical timestamp to the
+				// first loaded line, they will be skipped. This can be mitigated with higher resolution.
+				stamp /= 1000;
+
+				DBG("stamp: " << stamp);
+				if (static_cast<size_t>(stamp) < first_stamp) {
+					DBG("First line: [" << line << "]");
+					break;
+				}
+			}
+
+			DBG("first_line[" << lines[0] << "]");
+			DBG("first_stamp[" << first_stamp << "]");
+		}, {}}});
 
 
 		pingpong::events::listen<pingpong::join_event>([&](pingpong::join_event *event) {

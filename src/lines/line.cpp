@@ -6,8 +6,9 @@
 #include "lib/formicine/ansi.h"
 
 namespace spjalla::lines {
-	std::string notice = "\e[2m-\e[1m!\e[0;2m-\e[22m ";
-	std::string red_notice = "\e[31;2m-\e[22m!\e[2m-\e[22;39m ";
+	std::string notice        = "\e[2m-\e[1m!\e[0;2m-\e[22m ";
+	std::string red_notice    = "\e[31;2m-\e[22m!\e[2m-\e[22;39m ";
+	std::string yellow_notice = "\e[33;2m-\e[22m!\e[2m-\e[22;39m ";
 
 	std::string render_time(long seconds, bool with_ansi) {
 		if (seconds == 0)
