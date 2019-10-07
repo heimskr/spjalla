@@ -5,8 +5,12 @@
 
 #include "spjalla/config/config.h"
 
+#include "lib/formicine/futil.h"
+
 namespace spjalla::tests {
 	void test_util(haunted::tests::testing &);
+
+	size_t nth_index(const std::string &str, char find, int n) { return formicine::util::nth_index(str, find, n); }
 }
 
 #endif

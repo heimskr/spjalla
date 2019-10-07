@@ -1,4 +1,4 @@
-#include "tests/util.h"
+#include "spjalla/tests/util.h"
 #include "spjalla/core/util.h"
 
 int main(int, char **) {
@@ -66,5 +66,19 @@ namespace spjalla::tests {
 			{{"  "s,          0},  2},
 			{{"  "s,          1},  2},
 		}, &util::last_index_of_word, "util::last_index_of_word");
+
+		unit.check({
+			{{"foo bar baz"s, ' ', 0}, 0},
+			{{"foo bar baz"s, ' ', 1}, 3},
+			{{"foo bar baz"s, ' ', 2}, 7},
+			{{"foo bar baz"s, ' ', 3}, std::string::npos},
+		}, &tests::nth_index, "formicine::util::nth_index");
+
+		unit.check({
+			{{"foo bar baz"s, 0, false}, "foo"},
+			{{"foo bar baz"s, 1, false}, "bar"},
+			{{"foo bar baz"s, 2, false}, "baz"},
+			{{"foo bar baz"s, 3, false}, ""},
+		}, &formicine::util::nth_word, "formicine::util::nth_word");
 	}
 }
