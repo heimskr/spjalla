@@ -74,7 +74,7 @@ namespace spjalla::plugins {
 
 			std::string get_name()        const override { return "Notifications"; }
 			std::string get_description() const override { return "Shows a notifications widget in the status bar."; }
-			std::string get_version()     const override { return "0.1.0"; }
+			std::string get_version()     const override { return "0.1.1"; }
 
 			void preinit(plugin_host *host) override {
 				spjalla::client *client = dynamic_cast<spjalla::client *>(host);

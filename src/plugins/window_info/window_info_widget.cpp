@@ -68,7 +68,7 @@ namespace spjalla::plugins {
 			std::string get_name()        const override { return "Window name"; }
 			std::string get_description() const override { return "Shows the name of the current window in the status"
 				" bar."; }
-			std::string get_version()     const override { return "0.0.0"; }
+			std::string get_version()     const override { return "0.1.0"; }
 
 			void postinit(plugin_host *host) override {
 				spjalla::client *client = dynamic_cast<spjalla::client *>(host);

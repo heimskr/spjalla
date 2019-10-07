@@ -49,7 +49,7 @@ namespace spjalla::plugins {
 
 			std::string get_name()        const override { return "Logger"; }
 			std::string get_description() const override { return "Logs messages."; }
-			std::string get_version()     const override { return "0.0.2"; }
+			std::string get_version()     const override { return "0.1.0"; }
 			void preinit(plugin_host *) override;
 			void postinit(plugin_host *) override;
 
