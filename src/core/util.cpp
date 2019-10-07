@@ -266,4 +266,67 @@ namespace spjalla::util {
 
 		return false;
 	}
+
+	size_t backward_lines(std::fstream &stream, std::vector<std::string> &out, const size_t n, const size_t chunk_size,
+	const bool seek_end) {
+		if (n == 0) {
+			out = {};
+			return 0;
+		}
+
+		std::string chunk {}, buffer {};
+		std::list<std::string> lines {};
+		size_t lines_read = 0;
+
+		chunk.reserve(chunk_size);
+		buffer.reserve(chunk_size);
+		if (seek_end)
+			stream.seekg(0, std::ios::seekdir::end);
+
+		char *raw_chunk = new char[chunk_size];
+		for (;;) {
+			chunk.clear();
+			const size_t pos = stream.tellg();
+			if (pos < chunk_size) {
+				stream.seekg(0);
+				stream.read(raw_chunk, pos);
+			} else {
+				stream.seekg(-chunk_size, std::ios::seekdir::cur);
+				stream.read(raw_chunk, chunk_size);
+				stream.seekg(-chunk_size, std::ios::seekdir::cur);
+			}
+
+			chunk = {raw_chunk, chunk_size};
+			if (chunk.empty())
+				break;
+
+			buffer.insert(0, chunk);
+			size_t newline = buffer.find_last_of("\n");
+			while (newline != std::string::npos) {
+				if (newline != buffer.length() - 1) {
+					lines.push_front(buffer.substr(newline + 1));
+					if (++lines_read == n)
+						break;
+				}
+
+				buffer.erase(newline);
+				newline = buffer.find_last_of("\n");
+			}
+
+			if (lines_read == n)
+				break;
+
+			// If there's nothing left to read but the buffer isn't empty, put whatever remains in the buffer as
+			// a final line.
+			if (pos < chunk_size && !buffer.empty()) {
+				lines.push_front(buffer);
+				++lines_read;
+				break;
+			}
+		}
+
+		out = {lines.begin(), lines.end()};
+		delete[] raw_chunk;
+		return lines_read;
+	}
 }

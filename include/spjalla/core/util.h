@@ -3,11 +3,13 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <list>
 #include <locale>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "lib/formicine/ansi.h"
 #include "lib/formicine/futil.h"
@@ -108,6 +110,10 @@ namespace spjalla {
 
 			return *begin;
 		}
+
+		/** Reads lines from a stream backwards. Returns the number of lines read. */
+		size_t backward_lines(std::fstream &stream, std::vector<std::string> &out, const size_t n,
+			const size_t chunk_size = 64, const bool seek_end = true);
 
 		auto constexpr lower    = &formicine::util::lower;
 		auto constexpr upper    = &formicine::util::upper;
