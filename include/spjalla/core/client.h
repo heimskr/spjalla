@@ -184,6 +184,9 @@ namespace spjalla {
 			void call_in_queue(pingpong::server *, pingpong::server::stage);
 
 		public:
+			/** Whether to log raw socket input/output. */
+			bool log_spam = false;
+
 			/** Adds listeners for pingpong events. */
 			void add_events();
 

@@ -67,6 +67,10 @@ namespace spjalla::config {
 	}
 
 	void register_defaults() {
+		register_key("debug", "show_raw", false, validate_bool, [](database &db, const value &new_val) {
+			db.get_parent().log_spam = new_val.bool_();
+		}, "Whether to log raw input/output in the status window.");
+
 		register_key("completion", "ping_suffix", ":", validate_string, {},
 			"The suffix to put after a user's name after tab completing their name in the first word of the message.");
 

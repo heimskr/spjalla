@@ -141,15 +141,20 @@ namespace spjalla {
 		});
 
 		pingpong::events::listen<pingpong::raw_in_event>([&](pingpong::raw_in_event *ev) {
-			ui.log(lines::basic_line(ansi::wrap("<< ", ansi::color::gray) + ev->raw_in, 3));
+			if (log_spam)
+				ui.log(lines::basic_line(ansi::wrap("<< ", ansi::color::gray) + ev->raw_in, 3));
 		});
 
 		pingpong::events::listen<pingpong::raw_out_event>([&](pingpong::raw_out_event *ev) {
-			ui.log(lines::basic_line(ansi::wrap(">> ", ansi::color::lightgray) + ev->raw_out, 3));
+			if (log_spam)
+				ui.log(lines::basic_line(ansi::wrap(">> ", ansi::color::lightgray) + ev->raw_out, 3));
 		});
 
 		pingpong::events::listen<pingpong::server_status_event>([&](pingpong::server_status_event *ev) {
 			call_in_queue(ev->serv, ev->serv->get_status());
+
+			if (ev->serv->get_status() == pingpong::server::stage::ready)
+				ui.log("Connected to " + ansi::bold(ev->serv->id) + ".");
 
 			ui.update_statusbar();
 			if (ui.active_window == ui.overlay)
