@@ -80,5 +80,24 @@ namespace spjalla::tests {
 			{{"foo bar baz"s, 2, false}, "baz"},
 			{{"foo bar baz"s, 3, false}, ""},
 		}, &formicine::util::nth_word, "formicine::util::nth_word");
+
+		unit.check({
+			{{""s, true}, 0},
+			{{"one"s, true}, 1},
+			{{" one "s, true}, 1},
+			{{" one"s, true}, 1},
+			{{"one "s, true}, 1},
+			{{"one two"s, true}, 2},
+			{{"   one two three   four "s, true}, 4},
+			{{"   "s, true}, 0},
+			{{""s, false}, 0},
+			{{"one"s, false}, 1},
+			{{" one "s, false}, 3},
+			{{" one"s, false}, 2},
+			{{"one "s, false}, 2},
+			{{"one two"s, false}, 2},
+			{{"   one two three   four "s, false}, 10},
+			{{"   "s, false}, 4},
+		}, &formicine::util::word_count, "formicine::util::word_count");
 	}
 }
