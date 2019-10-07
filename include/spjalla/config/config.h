@@ -45,6 +45,7 @@ namespace spjalla::config {
 			void ensure_known(const std::string &group, const std::string &key) const noexcept(false);
 
 		public:
+			database() = delete;
 			database(client &parent_, bool allow_unknown_): parent(parent_), allow_unknown(allow_unknown_) {}
 
 			~database() override = default;

@@ -269,10 +269,8 @@ namespace spjalla::util {
 
 	size_t backward_lines(std::fstream &stream, std::vector<std::string> &out, const size_t n, const bool seek_end,
 	const size_t chunk_size) {
-		if (n == 0) {
-			out = {};
+		if (n == 0)
 			return 0;
-		}
 
 		std::string chunk {}, buffer {};
 		std::list<std::string> lines {};
@@ -284,7 +282,6 @@ namespace spjalla::util {
 			stream.seekg(0, std::ios::seekdir::end);
 		} else if (stream.tellg() == 0) {
 			// If we're at the beginning of the file but aren't supposed to skip to the end, we can give up now.
-			out = {};
 			return 0;
 		}
 
@@ -336,7 +333,7 @@ namespace spjalla::util {
 			}
 		}
 
-		out = {lines.begin(), lines.end()};
+		out.insert(out.end(), lines.begin(), lines.end());
 		delete[] raw_chunk;
 		return lines_read;
 	}

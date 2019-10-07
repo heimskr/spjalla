@@ -1,5 +1,4 @@
-// TODO: configurable timestamp precision
-
+#include <algorithm>
 #include <fstream>
 #include <list>
 #include <map>
@@ -76,6 +75,9 @@ namespace spjalla::plugins {
 
 			static std::string & sanitize_filename(std::string &);
 			static std::string sanitize_filename(const std::string &);
+
+			/** Converts a line of log text into a textline for a window. */
+			static std::unique_ptr<lines::line> get_line(const std::string &);
 	};
 
 	logs_plugin::~logs_plugin() {
@@ -181,11 +183,15 @@ namespace spjalla::plugins {
 		if (!client) { DBG("Error: expected client as plugin host"); return; }
 		ui::interface &ui = client->get_ui();
 
-		client->add({"restore", {0, 1, true, [&](pingpong::server *serv, const input_line &il) {
+		client->add({"restore", {0, 1, true, [&, client](pingpong::server *serv, const input_line &il) {
 			long to_restore;
-			if (!util::parse_long(il.first(), to_restore)) {
-				ui.error("Not a number: " + "\""_d + il.first() + "\"");
-				return;
+			if (!il.args.empty()) {
+				if (!util::parse_long(il.first(), to_restore)) {
+					ui.error("Not a number: " + "\""_d + il.first() + "\"");
+					return;
+				}
+			} else {
+				to_restore = std::max(1L, client->configs.get("logs", "default_restore").long_());
 			}
 
 			ui::window *window = ui.get_active_window();
@@ -195,7 +201,6 @@ namespace spjalla::plugins {
 			}
 
 			size_t first_stamp = static_cast<size_t>(-1);
-			// const long max = client->configs.get("logs", "default_restore").long_();
 
 			if (!window->get_lines().empty()) {
 				lines::line *line;
@@ -251,8 +256,13 @@ namespace spjalla::plugins {
 				}
 			}
 
-			DBG("first_line[" << lines[0] << "]");
-			DBG("first_stamp[" << first_stamp << "]");
+			const size_t added = util::backward_lines(stream, lines, to_restore - 1, false);
+			DBG("Added " << added << " line(s).");
+
+
+
+			// DBG("first_line[" << lines[0] << "]");
+			// DBG("first_stamp[" << first_stamp << "]");
 		}, {}}});
 
 
