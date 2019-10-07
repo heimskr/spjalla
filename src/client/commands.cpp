@@ -52,8 +52,15 @@ namespace spjalla {
 			DBG(joined);
 		}, {}}});
 
+
 		add({"_dbg", {0, 0, false, [&](sptr, line) {
 			debug_servers();
+		}, {}}});
+
+
+		// Handles a fake line of input as if the client had read it from a socket.
+		add({"_fake", {0, -1, true, [&](sptr serv, line il) {
+			serv->handle_line(pingpong::line(serv, il.body));
 		}, {}}});
 
 
@@ -66,6 +73,7 @@ namespace spjalla {
 			const std::string &first = il.first();
 			ui.log("Unknown option: " + first);
 		}, {}}});
+
 
 		add({"_win", {0, 0, false, [&](sptr, line) {
 			if (ui::window *win = ui.active_window) {
@@ -92,6 +100,7 @@ namespace spjalla {
 				DBG("Window: " << "null"_d);
 			}
 		}, {}}});
+
 
 		add({"alias", {0, -1, false, [&](sptr, line il) {
 			if (il.args.empty()) {
