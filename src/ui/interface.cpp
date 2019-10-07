@@ -163,8 +163,12 @@ namespace spjalla::ui {
 			return left->name < right->name;
 		});
 
+		size_t longest_hats = 0;
 		for (std::shared_ptr<pingpong::user> user: chan->users)
-			*overlay += spjalla::lines::userlist_line(chan, user);
+			longest_hats = std::max(longest_hats, chan->get_hats(user).size());
+
+		for (std::shared_ptr<pingpong::user> user: chan->users)
+			*overlay += spjalla::lines::userlist_line(chan, user, longest_hats);
 	}
 
 	void interface::update_overlay(const std::shared_ptr<pingpong::user> &user) {
