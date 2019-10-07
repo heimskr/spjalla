@@ -493,8 +493,17 @@ namespace spjalla {
 				DBG("    " << ansi::wrap(chan->name, ansi::style::underline) << " [" << chan->mode_str() << "]");
 				for (std::shared_ptr<pingpong::user> user: chan->users) {
 					std::string chans = "";
-					for (std::weak_ptr<pingpong::channel> user_chan: user->channels)
-						chans += " " + user_chan.lock()->name;
+					std::vector<std::weak_ptr<pingpong::channel>> expired_chans {};
+					for (std::weak_ptr<pingpong::channel> user_chan: user->channels) {
+						if (user_chan.expired()) {
+							expired_chans.push_back(user_chan);
+						} else {
+							chans += " " + user_chan.lock()->name;
+						}
+					}
+
+					for (const std::weak_ptr<pingpong::channel> &expired_chan: expired_chans)
+						user->channels.erase(expired_chan);
 
 					if (chans.empty())
 						DBG("        " << user->name);
