@@ -207,7 +207,8 @@ namespace spjalla::plugins {
 		pingpong::events::listen<pingpong::privmsg_event>([&](pingpong::privmsg_event *event) {
 			lines::privmsg_line line {*event};
 			log({event->serv, event->is_channel()? event->where : event->speaker->name},
-				line.hat_str() + line.name + " " + (line.is_action()? "*" : ":") + line.trimmed(line.message), "msg");
+				util::ltrim(line.hat_str() + line.name) + " " + event->serv->get_nick() + " " +
+				(line.is_action()? "*" : ":") + line.trimmed(line.message), "msg");
 		});
 
 
