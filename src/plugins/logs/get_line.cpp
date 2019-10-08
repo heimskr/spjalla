@@ -26,6 +26,9 @@ namespace spjalla::plugins {
 		if (verb == "msg") {
 			return std::make_unique<lines::privmsg_line>(formicine::util::nth_word(str, 2, false), pair.second,
 				formicine::util::nth_word(str, 3, false), str.substr(str.find(':') + 1), stamp);
+		} else if (verb == "created" || verb == "opened" || verb == "closed") {
+			return std::make_unique<lines::basic_line>(lines::notice + "Log " + verb + " on " +
+				ansi::bold(pingpong::util::get_date(stamp)), 0, stamp);
 		}
 
 		return std::make_unique<lines::basic_line>(
