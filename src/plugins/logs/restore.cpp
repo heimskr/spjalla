@@ -83,11 +83,7 @@ namespace spjalla::plugins {
 		DBG(ansi::color::green << "added[" << added << "]");
 		
 		DBG("=== LINES ===");
-		std::string prev_line {}; // ¯\_(ツ)_/¯
 		for (const std::string &raw: lines) {
-			if (raw == prev_line)
-				continue;
-
 			std::string first_word = formicine::util::nth_word(raw, 0, false);
 			first_word.pop_back();
 			long l;
@@ -97,7 +93,6 @@ namespace spjalla::plugins {
 			std::unique_ptr<haunted::ui::textline> line = get_line(pair, raw);
 			if (line)
 				ui.get_active_window()->get_lines().push_front(std::move(line));
-			prev_line = raw;
 		}
 		DBG("=============");
 
