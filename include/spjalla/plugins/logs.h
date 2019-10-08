@@ -55,7 +55,7 @@ namespace spjalla::plugins {
 			void restore(pingpong::server *serv, const input_line &il);
 
 			/** Converts a line of log text into a textline for a window. */
-			static std::unique_ptr<lines::line> get_line(const std::string &);
+			static std::unique_ptr<lines::line> get_line(const log_pair &, const std::string &);
 
 			static constexpr char precision_suffix();
 			static std::chrono::microseconds parse_stamp(std::string);

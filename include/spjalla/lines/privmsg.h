@@ -38,7 +38,7 @@ namespace spjalla::lines {
 		public:
 			// We need to store a copy of the speaker's name at the time the privmsg was sent—otherwise, if they were to
 			// change their name later, it would cause this line to render with the new name!
-			const std::string name, self, message, verb, body;
+			std::string name, self, message, verb, body;
 
 			// It's also necessary to store the user's hat(s) at the time the message was sent (provided the message was
 			// to a channel and not directly to you).
@@ -67,8 +67,10 @@ namespace spjalla::lines {
 				privmsg_line(ev.speaker, ev.where, ev.content, ev.stamp, direct_only_) {}
 
 			privmsg_line(const std::string &name_, const std::string &where_, const std::string &self_,
-			const std::string &message_, long stamp_, const std::string &verb_, const std::string &body_,
-			const pingpong::hat_set &hats_, bool direct_only_ = false);
+			const std::string &message_, long stamp_, const pingpong::hat_set &hats_, bool direct_only_ = false);
+
+			privmsg_line(const std::string &combined_, const std::string &where_, const std::string &self_,
+			const std::string &message_, long stamp_, bool direct_only_ = false);
 
 			/** Returns whether the message is an action (CTCP ACTION). */
 			bool is_action() const;

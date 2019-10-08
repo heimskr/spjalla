@@ -42,7 +42,6 @@ namespace spjalla::util {
 			}
 
 			if (current_pos < chunk_size) {
-				size_t old_pos = stream.tellg();
 				stream.seekg(0, std::ios::beg);
 				stream.read(chunk, current_pos);
 				stream.seekg(0, std::ios::beg);
@@ -50,7 +49,6 @@ namespace spjalla::util {
 				remove_last_newline(nlpos = buffer.find_last_of('\n'));
 				break;
 			} else {
-				size_t old_pos = stream.tellg();
 				stream.seekg(-chunk_size, std::ios::cur);
 				stream.read(chunk, chunk_size);
 				stream.seekg(-chunk_size, std::ios::cur);

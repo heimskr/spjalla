@@ -53,7 +53,6 @@ namespace spjalla::plugins {
 		util::backward_reader reader(get_path(pair));
 
 		// Look for the last line in the log before the top of the scrollback.
-		bool first = true;
 		for (;;) {
 			size_t read = reader.readlines(lines, 1);
 			if (read == 0) {
@@ -61,26 +60,22 @@ namespace spjalla::plugins {
 				break;
 			}
 
-			first = false;
-
 			const std::string &line = lines.back();
 			std::string first_word = line.substr(0, line.find(' '));
 			
 			std::chrono::microseconds micros = parse_stamp(first_word);
 			
-
 			// Note: if there are messages in the unloaded scrollback that have an identical timestamp to the
 			// first loaded line, they will be skipped. This can be mitigated with higher resolution.
 			// With the current setting being microseconds, this is extremely unlikely to ever happen.
-			// stamp /= 1000;
 
-			// DBG("micros: " << micros.count());
 			DBG("read = " << read << ", micros.seconds = " << std::chrono::duration_cast<std::chrono::seconds>(micros).count() << ", first_time.seconds = " << std::chrono::duration_cast<std::chrono::seconds>(first_time).count());
 			DBG(":: " << line);
-			// if (static_cast<size_t>(stamp) < first_stamp) {
 			if (micros < first_time) {
 				DBG("First line: [" << line << "]");
 				break;
+			} else {
+				lines.pop_back();
 			}
 		}
 
@@ -90,7 +85,7 @@ namespace spjalla::plugins {
 		DBG("=== LINES ===");
 		for (const std::string &raw: lines) {
 			DBG("{" << raw << "}");
-			std::unique_ptr<haunted::ui::textline> line = get_line(raw);
+			std::unique_ptr<haunted::ui::textline> line = get_line(pair, raw);
 			ui.get_active_window()->get_lines().push_front(std::move(line));
 		}
 		DBG("=============");
