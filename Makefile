@@ -45,8 +45,8 @@ SOURCES_SP		:= $(shell find -L src -name '*.cpp' | sed -nE '/(^src\/plugins\/)|(
 OBJECTS_SP		:= $(patsubst src/%.cpp,build/%.o,$(SOURCES_SP))
 INCLUDE_LIBS	:= $(INCLUDE_PP) $(INCLUDE_HN)
 
-SOURCES_PL		:= $(shell find -L src/plugins -name '*.cpp')
-OBJECTS_PL		:= $(patsubst src/plugins/%.cpp,build/plugins/%.$(SHARED_EXT),$(SOURCES_PL))
+SOURCES_PL		:= $(shell ls src/plugins | sed -nE '/\./!p' | sed -E 's/(.+)/src\/plugins\/\1\/\1.cpp/')
+OBJECTS_PL		:= $(addsuffix .$(SHARED_EXT),$(addprefix build/plugins/,$(shell ls src/plugins)))
 
 OBJECTS			= $(OBJECTS_PP) $(OBJECTS_HN) $(OBJECTS_SP)
 
@@ -68,9 +68,14 @@ build/%.o: src/%.cpp
 	@ mkdir -p "$(shell dirname "$@")"
 	$(CC) $(strip $(ALLFLAGS) $(INCLUDE_SP) $(INCLUDE_LIBS)) -c $< -o $@
 
-# Assumes only directories are direct children of src/plugins.
-build/plugins/%.$(SHARED_EXT): build/plugins/%.o $(MAINLIB)
-	@ $(CC) $(SHARED_FLAG) $< $(MAINLIB) $(wildcard $(shell dirname "$<")/*) -o $@
+
+define PLUGINRULE
+build/plugins/$P.$(SHARED_EXT): $(patsubst %.cpp,%.o,$(addprefix build/plugins/$P/,$(shell ls "src/plugins/$P"))) $(MAINLIB)
+	$(CC) $(SHARED_FLAG) $$+ -o $$@
+endef
+
+$(foreach P,$(shell ls src/plugins),$(eval $(PLUGINRULE)))
+
 
 test: $(OUTPUT)
 	$(LIBPATHVAR)="`pwd`/build" ./$(OUTPUT) --plugins build/plugins
