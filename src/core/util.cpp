@@ -75,15 +75,15 @@ namespace spjalla::util {
 	}
 
 	std::string & trim(std::string &str) {
-		if (str.empty())
-			return str;
+		return ltrim(rtrim(str));
+	}
 
-		char ch = str.back();
-		while (ch == ' ' || ch == '\t') {
-			str.pop_back();
-			ch = str.back();
-		}
+	std::string trim(const std::string &str) {
+		std::string copy {str};
+		return trim(copy);
+	}
 
+	std::string & ltrim(std::string &str) {
 		if (str.empty())
 			return str;
 
@@ -96,9 +96,27 @@ namespace spjalla::util {
 		return str;
 	}
 
-	std::string trim(const std::string &str) {
+	std::string ltrim(const std::string &str) {
 		std::string copy {str};
-		return trim(copy);
+		return ltrim(copy);
+	}
+
+	std::string & rtrim(std::string &str) {
+		if (str.empty())
+			return str;
+
+		char back = str.back();
+		while (back == ' ' || back == '\t') {
+			str.pop_back();
+			back = str.back();
+		}
+
+		return str;
+	}
+
+	std::string rtrim(const std::string &str) {
+		std::string copy {str};
+		return rtrim(copy);
 	}
 
 	std::pair<ssize_t, ssize_t> word_indices(const std::string &str, size_t cursor) {

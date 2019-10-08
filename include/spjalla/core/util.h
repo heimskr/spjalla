@@ -46,7 +46,18 @@ namespace spjalla {
 
 		/** Trims spaces and tabs from both ends of a string. */
 		std::string & trim(std::string &);
+		/** Trims spaces and tabs from both ends of a string. */
 		std::string   trim(const std::string &);
+
+		/** Trims spaces and tabs from the start of a string. */
+		std::string & ltrim(std::string &);
+		/** Trims spaces and tabs from the start of a string. */
+		std::string   ltrim(const std::string &);
+
+		/** Trims spaces and tabs from the end of a string. */
+		std::string & rtrim(std::string &);
+		/** Trims spaces and tabs from the end of a string. */
+		std::string   rtrim(const std::string &);
 
 		/** Returns the index of the word that a given index is in in addition to the index within the word.
 		 *  If the cursor is within a group of multiple spaces between two words, the first value will be negative.
