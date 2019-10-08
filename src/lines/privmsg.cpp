@@ -4,25 +4,36 @@
 #include "lib/formicine/futil.h"
 
 namespace spjalla::lines {
-	privmsg_line::privmsg_line(std::shared_ptr<pingpong::user> speaker_, const std::string &where_,
+	privmsg_line::privmsg_line(std::shared_ptr<pingpong::user> speaker, const std::string &where_,
 	const std::string &message_, long stamp_, bool direct_only_):
-		line(stamp_), pingpong::local(where_), speaker(speaker_), name(speaker_->name),
-		self(speaker_->serv->get_nick()), message(message_), verb(get_verb(message_)), body(get_body(message_)),
+		line(stamp_), pingpong::local(where_), name(speaker->name),
+		self(speaker->serv->get_nick()), message(message_), verb(get_verb(message_)), body(get_body(message_)),
 		direct_only(direct_only_) {
 
-		is_self = speaker_->is_self();
+		is_self = speaker->is_self();
 
 		if (is_channel()) {
 			std::shared_ptr<pingpong::channel> chan = get_channel(speaker->serv);
 			hats = chan->get_hats(speaker);
 		}
 
-		if (is_action())
-			continuation = ("[xx:xx:xx] * " + name + " ").length();
-		else
-			continuation = ("[xx:xx:xx] <." + name + "> ").length() - (is_user()? 1 : 0);
-
+		continuation = get_continuation();
 		processed = process(message_);
+	}
+
+	privmsg_line::privmsg_line(const std::string &name_, const std::string &where_, const std::string &self_,
+	const std::string &message_, long stamp_, const std::string &verb_, const std::string &body_,
+	const pingpong::hat_set &hats_, bool direct_only_):
+	line(stamp_), pingpong::local(where_), name(name_), self(self_), message(message_), verb(verb_), body(body_),
+	hats(hats_), direct_only(direct_only_) {
+		is_self = name_ == self_;
+		continuation = get_continuation();
+		processed = process(message_);
+	}
+
+	size_t privmsg_line::get_continuation() const {
+		return !is_action()? ("[xx:xx:xx] <" + name + "> ").length() - (is_user()? 1 : 0) + hats.size()
+		                   : ("[xx:xx:xx] * " + name + " ").length();
 	}
 
 	std::string privmsg_line::process(const std::string &str, bool with_time) const {

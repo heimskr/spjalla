@@ -15,6 +15,9 @@ namespace spjalla::lines {
 		private:
 			bool is_self = false;
 
+			/** Finds the continuation for the line. */
+			size_t get_continuation() const;
+
 			/** Formats a message by processing colors and actions and adding the user's name. */
 			std::string process(const std::string &, bool with_time = true) const;
 
@@ -33,8 +36,6 @@ namespace spjalla::lines {
 			static bool is_ctcp(const std::string &);
 
 		public:
-			std::shared_ptr<pingpong::user> speaker;
-
 			// We need to store a copy of the speaker's name at the time the privmsg was sent—otherwise, if they were to
 			// change their name later, it would cause this line to render with the new name!
 			const std::string name, self, message, verb, body;
@@ -48,22 +49,26 @@ namespace spjalla::lines {
 			/** The message after colors and actions have been processed. */
 			std::string processed;
 
-			privmsg_line(std::shared_ptr<pingpong::user> speaker_, const std::string &where_,
+			privmsg_line(std::shared_ptr<pingpong::user> speaker, const std::string &where_,
 			const std::string &message_, long stamp_, bool direct_only_ = false);
 
-			privmsg_line(std::shared_ptr<pingpong::user> speaker_, std::shared_ptr<pingpong::channel> chan_,
+			privmsg_line(std::shared_ptr<pingpong::user> speaker, std::shared_ptr<pingpong::channel> chan_,
 			const std::string &message_, long stamp_, bool direct_only_ = false):
-				privmsg_line(speaker_, chan_->name, message_, stamp_, direct_only_) {}
+				privmsg_line(speaker, chan_->name, message_, stamp_, direct_only_) {}
 
-			privmsg_line(std::shared_ptr<pingpong::user> speaker_, std::shared_ptr<pingpong::user> whom_,
+			privmsg_line(std::shared_ptr<pingpong::user> speaker, std::shared_ptr<pingpong::user> whom_,
 			const std::string &message_, long stamp_, bool direct_only_ = false):
-				privmsg_line(speaker_, whom_->name, message_, stamp_, direct_only_) {}
+				privmsg_line(speaker, whom_->name, message_, stamp_, direct_only_) {}
 
 			privmsg_line(const pingpong::privmsg_command &cmd, bool direct_only_ = false):
 				privmsg_line(cmd.serv->get_self(), cmd.where, cmd.message, cmd.sent_time, direct_only_) {}
 
 			privmsg_line(const pingpong::privmsg_event &ev, bool direct_only_ = false):
 				privmsg_line(ev.speaker, ev.where, ev.content, ev.stamp, direct_only_) {}
+
+			privmsg_line(const std::string &name_, const std::string &where_, const std::string &self_,
+			const std::string &message_, long stamp_, const std::string &verb_, const std::string &body_,
+			const pingpong::hat_set &hats_, bool direct_only_ = false);
 
 			/** Returns whether the message is an action (CTCP ACTION). */
 			bool is_action() const;
