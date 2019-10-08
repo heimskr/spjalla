@@ -29,64 +29,18 @@
 #include "spjalla/lines/privmsg.h"
 
 #include "spjalla/plugins/plugin.h"
+#include "spjalla/plugins/logs.h"
 
 #include "lib/formicine/ansi.h"
 
 namespace spjalla::plugins {
-	class logs_plugin: public plugin {
-		public:
-			using log_pair = std::pair<pingpong::server *, std::string>;
-
-		private:
-			/** Maps server-channel pairs to the filestreams where their logs are stored. */
-			std::map<log_pair, std::fstream> filemap;
-
-			std::filesystem::path base;
-
-		public:
-			~logs_plugin();
-
-			std::string get_name()        const override { return "Logger"; }
-			std::string get_description() const override { return "Logs messages."; }
-			std::string get_version()     const override { return "0.1.0"; }
-			void preinit(plugin_host *) override;
-			void postinit(plugin_host *) override;
-
-			/** Logs a message of a given type ("_" by default) to a single location. */
-			void log(const log_pair &, const std::string &message, const std::string &type = "_");
-
-			/** Logs a message in all locations where a user is present. */
-			void log(std::shared_ptr<pingpong::user>, const std::string &message, const std::string &type = "_");
-
-			template <typename T>
-			void log(const log_pair &pair, const T &anything) {
-				log(pair, std::to_string(anything));
-			}
-
-			void log(pingpong::local_event *);
-
-			/** Returns the output stream corresponding to a location, creating one if necessary. */
-			std::fstream & get_stream(const log_pair &);
-
-			/** Closes and removes the output stream corresponding to a location. Returns true if one existed. */
-			bool close(const log_pair &);
-
-			std::filesystem::path get_path(const log_pair &);
-
-			static std::string & sanitize_filename(std::string &);
-			static std::string sanitize_filename(const std::string &);
-
-			/** Converts a line of log text into a textline for a window. */
-			static std::unique_ptr<lines::line> get_line(const std::string &);
-	};
-
 	logs_plugin::~logs_plugin() {
 		while (!filemap.empty())
 			close(filemap.begin()->first);
 	}
 
 	void logs_plugin::log(const log_pair &pair, const std::string &message, const std::string &type) {
-		(get_stream(pair) << pingpong::util::timestamp() << " " << type << " " << message << "\n").flush();
+		(get_stream(pair) << pingpong::util::timestamp() << precision_suffix() << " " << type << " " << message << "\n").flush();
 	}
 
 	void logs_plugin::log(std::shared_ptr<pingpong::user> user, const std::string &message, const std::string &type) {
@@ -119,8 +73,8 @@ namespace spjalla::plugins {
 		if (!new_stream)
 			throw std::runtime_error("Couldn't open file stream for " + std::string(path));
 		if (!existed)
-			new_stream << pingpong::util::timestamp() << " created" << "\n";
-		(new_stream << pingpong::util::timestamp() << " opened" << "\n").flush();
+			new_stream << pingpong::util::timestamp() << precision_suffix() << " created" << "\n";
+		(new_stream << pingpong::util::timestamp() << precision_suffix() << " opened" << "\n").flush();
 		std::vector<std::string> lines;
 		filemap.insert({pair, std::move(new_stream)});
 		return filemap.at(pair);
@@ -131,7 +85,7 @@ namespace spjalla::plugins {
 			return false;
 
 		std::fstream &stream = get_stream(pair);
-		(stream << pingpong::util::timestamp() << " closed\n").flush();
+		(stream << pingpong::util::timestamp() << precision_suffix() << " closed\n").flush();
 		stream.close();
 		filemap.erase(pair);
 		return true;
@@ -159,6 +113,44 @@ namespace spjalla::plugins {
 		sanitize_filename(out);
 		return out;
 	}
+
+	constexpr char logs_plugin::precision_suffix() {
+		switch (pingpong::util::precision) {
+			case 1'000'000'000L: return 'n';
+			case 1'000'000L: return 'u';
+			case 1'000L: return 'm';
+			default:  return 's';
+		}
+	}
+
+	std::chrono::microseconds logs_plugin::parse_stamp(std::string stamp_str) {
+		if (stamp_str.empty())
+			throw std::invalid_argument("Timestamp is empty");
+
+		char suffix = 's';
+		const static std::string suffixes = "nums";
+		if (suffixes.find(stamp_str.back()) != std::string::npos) {
+			suffix = stamp_str.back();
+			stamp_str.pop_back();
+		}
+
+		long parsed;
+		if (!util::parse_long(stamp_str, parsed))
+			throw std::invalid_argument("Invalid timestamp: " + stamp_str);
+
+		switch (suffix) {
+			case 's':
+				return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::seconds(parsed));
+			case 'm':
+				return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::milliseconds(parsed));
+			case 'u':
+				return std::chrono::microseconds(parsed);
+			case 'n':
+				return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::nanoseconds(parsed));
+			default:
+				throw std::invalid_argument("Timestamp has an invalid precision identifier");
+		}
+	}
 		
 	void logs_plugin::preinit(plugin_host *host) {
 		spjalla::client *client = dynamic_cast<spjalla::client *>(host);
@@ -181,90 +173,10 @@ namespace spjalla::plugins {
 	void logs_plugin::postinit(plugin_host *host) {
 		spjalla::client *client = dynamic_cast<spjalla::client *>(host);
 		if (!client) { DBG("Error: expected client as plugin host"); return; }
-		ui::interface &ui = client->get_ui();
 
-		client->add({"restore", {0, 1, true, [&, client](pingpong::server *serv, const input_line &il) {
-			long to_restore;
-			if (!il.args.empty()) {
-				if (!util::parse_long(il.first(), to_restore)) {
-					ui.error("Not a number: " + "\""_d + il.first() + "\"");
-					return;
-				}
-			} else {
-				to_restore = std::max(1L, client->configs.get("logs", "default_restore").long_());
-			}
-
-			ui::window *window = ui.get_active_window();
-			if (window->type != ui::window_type::channel && window->type != ui::window_type::user) {
-				ui.warn("/restore works only for channel windows and private message windows.");
-				return;
-			}
-
-			size_t first_stamp = static_cast<size_t>(-1);
-
-			if (!window->get_lines().empty()) {
-				lines::line *line;
-				for (const std::unique_ptr<haunted::ui::textline> &lineptr: window->get_lines()) {
-					if ((line = dynamic_cast<lines::line *>(lineptr.get())))
-						break;
-				}
-
-				if (!line)
-					return;
-
-				first_stamp = line->stamp;
-			}
-
-			const std::string where = window->is_user()? window->user->name : window->chan->name;
-			const log_pair pair {serv, where};
-			if (filemap.count(pair) == 0) {
-				ui.log("No scrollback found for " + ansi::bold(where) + " on " + ansi::bold(serv->id) + ".");
-				return;
-			}
-
-			std::fstream &stream = filemap.at(pair);
-			std::vector<std::string> lines {};
-
-			// Look for the last line in the log before the top of the scrollback.
-			bool first = true;
-			for (;;) {
-				if (util::backward_lines(stream, lines, 1, first) == 0) {
-					ui.log("No more scrollback found for " + ansi::bold(where) + " on " + ansi::bold(serv->id) + ".");
-					break;
-				}
-
-				first = false;
-
-				long stamp = 0;
-				const std::string &line = lines.back();
-				std::string first_word = line.substr(0, line.find(' '));
-				if (!util::parse_long(first_word, stamp)) {
-					ui.error("Invalid timestamp in " + ansi::bold(where) + " on " + ansi::bold(serv->id) + ": " +
-					         "\""_d + first_word + "\""_d);
-					return;
-				}
-
-				// Note: if there are messages in the unloaded scrollback that have an identical timestamp to the
-				// first loaded line, they will be skipped. This can be mitigated with higher resolution.
-				// With the current setting being microseconds, this is extremely unlikely to ever happen.
-				stamp /= 1000;
-
-				DBG("stamp: " << stamp);
-				if (static_cast<size_t>(stamp) < first_stamp) {
-					DBG("First line: [" << line << "]");
-					break;
-				}
-			}
-
-			const size_t added = util::backward_lines(stream, lines, to_restore - 1, false);
-			DBG("Added " << added << " line(s).");
-
-
-
-			// DBG("first_line[" << lines[0] << "]");
-			// DBG("first_stamp[" << first_stamp << "]");
+		client->add({"restore", {0, 1, true, [this](pingpong::server *serv, const input_line &il) {
+			restore(serv, il);
 		}, {}}});
-
 
 		pingpong::events::listen<pingpong::join_event>([&](pingpong::join_event *event) {
 			log({event->serv, event->chan->name}, event->who->name, "join");

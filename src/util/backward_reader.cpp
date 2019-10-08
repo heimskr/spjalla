@@ -26,9 +26,15 @@ namespace spjalla::util {
 	}
 
 	bool backward_reader::readline(std::string &out) {
+		if (done) {
+			out = "";
+			return false;
+		}
+
 		size_t nlpos = buffer.find_last_of('\n');
+		std::fstream::pos_type current_pos = -1;
 		while (nlpos == std::string::npos) {
-			std::fstream::pos_type current_pos = stream.tellg();
+			current_pos = stream.tellg();
 
 			if (current_pos == -1L) {
 				nlpos = buffer.find_last_of('\n');
@@ -36,6 +42,7 @@ namespace spjalla::util {
 			}
 
 			if (current_pos < chunk_size) {
+				size_t old_pos = stream.tellg();
 				stream.seekg(0, std::ios::beg);
 				stream.read(chunk, current_pos);
 				stream.seekg(0, std::ios::beg);
@@ -43,6 +50,7 @@ namespace spjalla::util {
 				remove_last_newline(nlpos = buffer.find_last_of('\n'));
 				break;
 			} else {
+				size_t old_pos = stream.tellg();
 				stream.seekg(-chunk_size, std::ios::cur);
 				stream.read(chunk, chunk_size);
 				stream.seekg(-chunk_size, std::ios::cur);
@@ -50,6 +58,9 @@ namespace spjalla::util {
 				remove_last_newline(nlpos = buffer.find_last_of('\n'));
 			}
 		}
+
+		if (current_pos == 0)
+			done = true;
 
 		if (nlpos != 0 || buffer.length() != 1) {
 			while (nlpos == buffer.length() - 1 && buffer.length() > 0) {
@@ -65,22 +76,31 @@ namespace spjalla::util {
 
 		if (nlpos == 0 && buffer[nlpos] != '\n') {
 			out = buffer;
+			buffer.clear();
 		} else {
 			out = buffer.substr(nlpos + 1);
+			buffer.erase(nlpos);
 		}
 
-		buffer.erase(nlpos);
 		return true;
 	}
 
 	size_t backward_reader::readlines(std::vector<std::string> &out, size_t n) {
 		size_t lines_read = 0;
 		std::string line;
+
 		while (readline(line) && lines_read < n) {
 			++lines_read;
 			out.push_back(line);
 		}
 
 		return lines_read;
+	}
+
+	void backward_reader::reset() {
+		delete[] chunk;
+		chunk = new char[chunk_size];
+		stream.seekg(0, std::ios::end);
+		buffer.clear();
 	}
 }

@@ -1,9 +1,12 @@
 #ifndef SPJALLA_PLUGINS_LOGS_H_
 #define SPJALLA_PLUGINS_LOGS_H_
 
+#include <chrono>
+
 #include "pingpong/core/server.h"
 #include "pingpong/events/event.h"
 #include "spjalla/plugins/plugin.h"
+#include "spjalla/lines/line.h"
 
 namespace spjalla::plugins {
 	class logs_plugin: public plugin {
@@ -22,7 +25,7 @@ namespace spjalla::plugins {
 			std::string get_name()        const override { return "Logger"; }
 			std::string get_description() const override { return "Logs messages."; }
 			std::string get_version()     const override { return "0.1.0"; }
-			void preinit(plugin_host *) override;
+			void preinit(plugin_host *)  override;
 			void postinit(plugin_host *) override;
 
 			/** Logs a message of a given type ("_" by default) to a single location. */
@@ -49,8 +52,13 @@ namespace spjalla::plugins {
 			static std::string & sanitize_filename(std::string &);
 			static std::string sanitize_filename(const std::string &);
 
+			void restore(pingpong::server *serv, const input_line &il);
+
 			/** Converts a line of log text into a textline for a window. */
 			static std::unique_ptr<lines::line> get_line(const std::string &);
+
+			static constexpr char precision_suffix();
+			static std::chrono::microseconds parse_stamp(std::string);
 	};
 }
 

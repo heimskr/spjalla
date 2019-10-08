@@ -14,6 +14,10 @@ namespace spjalla::util {
 			std::string buffer;
 			char *chunk;
 
+			/** Set to true once the very beginning of the file has been read. Continuing past that point would
+			 *  repeatedly return the same input in readline. */
+			bool done = false;
+
 			void remove_last_newline(size_t &nlpos);
 
 		public:
@@ -29,6 +33,9 @@ namespace spjalla::util {
 
 			/** Reads multiple lines. Returns the number of lines read. */
 			size_t readlines(std::vector<std::string> &, size_t);
+
+			/** Resets the position and buffers. */
+			void reset();
 	};
 }
 
