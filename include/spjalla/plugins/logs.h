@@ -8,7 +8,7 @@
 #include "spjalla/plugins/plugin.h"
 #include "spjalla/lines/line.h"
 
-namespace spjalla::plugins {
+namespace spjalla::plugins::logs {
 	class logs_plugin: public plugin {
 		public:
 			using log_pair = std::pair<pingpong::server *, std::string>;
@@ -52,6 +52,7 @@ namespace spjalla::plugins {
 			static std::string & sanitize_filename(std::string &);
 			static std::string sanitize_filename(const std::string &);
 
+			void clean();
 			void restore(pingpong::server *serv, const input_line &il);
 
 			/** Converts a line of log text into a textline for a window. */

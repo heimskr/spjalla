@@ -5,7 +5,7 @@
 #include "spjalla/ui/window.h"
 #include "spjalla/util/backward_reader.h"
 
-namespace spjalla::plugins {
+namespace spjalla::plugins::logs {
 	void logs_plugin::restore(pingpong::server *serv, const input_line &il) {
 		ui::interface &ui = parent->get_ui();
 		long to_restore;

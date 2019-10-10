@@ -35,7 +35,7 @@
 
 #include "lib/formicine/ansi.h"
 
-namespace spjalla::plugins {
+namespace spjalla::plugins::logs {
 	logs_plugin::~logs_plugin() {
 		while (!filemap.empty())
 			close(filemap.begin()->first);
@@ -176,6 +176,8 @@ namespace spjalla::plugins {
 		spjalla::client *client = dynamic_cast<spjalla::client *>(host);
 		if (!client) { DBG("Error: expected client as plugin host"); return; }
 
+		client->add({"clean", {0, 1, true, [this](pingpong::server *, const input_line &) { clean(); }, {}}});
+
 		client->add({"restore", {0, 1, true, [this](pingpong::server *serv, const input_line &il) {
 			restore(serv, il);
 		}, {}}});
@@ -268,4 +270,4 @@ namespace spjalla::plugins {
 	}
 }
 
-spjalla::plugins::logs_plugin ext_plugin {};
+spjalla::plugins::logs::logs_plugin ext_plugin {};
