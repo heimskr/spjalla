@@ -67,25 +67,11 @@ namespace spjalla::config {
 	}
 
 	void register_defaults() {
-		register_key("debug", "show_raw", false, validate_bool, [](database &db, const value &new_val) {
-			db.get_parent().log_spam = new_val.bool_();
-		}, "Whether to log raw input/output in the status window.");
+		register_key("activity", "direct_only", false, validate_bool, {},
+			"Whether to count only messages that begin with your name as highlights.");
 
-		register_key("completion", "ping_suffix", ":", validate_string, {},
-			"The suffix to put after a user's name after tab completing their name in the first word of the message.");
-
-		register_key("server", "default_nick", pingpong::irc::default_nick, validate_string, {},
-			"The nickname to use when connecting to a new server.");
-
-		register_key("server", "default_user", pingpong::irc::default_user, validate_string,
-		             [](database &db, const value &new_val) {
-			db.get_parent().get_irc().username = new_val.string_();
-		}, "The username to use when connecting to a new server.");
-
-		register_key("server", "default_real", pingpong::irc::default_realname, validate_string,
-		             [](database &db, const value &new_val) {
-			db.get_parent().get_irc().realname = new_val.string_();
-		}, "The real name to use when connecting to a new server.");
+		register_key("activity", "highlight_notices", true, validate_bool, {},
+			"Whether to treat all notices as highlights.");
 
 		register_key("appearance", "bar_background", "blood", validate_color, [](database &db, const value &new_val) {
 			db.get_parent().get_ui().set_bar_background(ansi::get_color(new_val.string_()));
@@ -115,7 +101,24 @@ namespace spjalla::config {
 			db.get_parent().get_ui().set_input_foreground(ansi::get_color(new_val.string_()));
 		}, "The text color of the input box.");
 
-		register_key("activity", "direct_only", false, validate_bool, {},
-			"Whether to count only messages that begin with your name as highlights.");
+		register_key("completion", "ping_suffix", ":", validate_string, {},
+			"The suffix to put after a user's name after tab completing their name in the first word of the message.");
+
+		register_key("debug", "show_raw", false, validate_bool, [](database &db, const value &new_val) {
+			db.get_parent().log_spam = new_val.bool_();
+		}, "Whether to log raw input/output in the status window.");
+
+		register_key("server", "default_nick", pingpong::irc::default_nick, validate_string, {},
+			"The nickname to use when connecting to a new server.");
+
+		register_key("server", "default_user", pingpong::irc::default_user, validate_string,
+		             [](database &db, const value &new_val) {
+			db.get_parent().get_irc().username = new_val.string_();
+		}, "The username to use when connecting to a new server.");
+
+		register_key("server", "default_real", pingpong::irc::default_realname, validate_string,
+		             [](database &db, const value &new_val) {
+			db.get_parent().get_irc().realname = new_val.string_();
+		}, "The real name to use when connecting to a new server.");
 	}
 }

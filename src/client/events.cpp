@@ -10,6 +10,7 @@
 #include "pingpong/events/mode.h"
 #include "pingpong/events/names_updated.h"
 #include "pingpong/events/nick.h"
+#include "pingpong/events/notice.h"
 #include "pingpong/events/part.h"
 #include "pingpong/events/privmsg.h"
 #include "pingpong/events/quit.h"
@@ -30,6 +31,7 @@
 #include "spjalla/lines/kick.h"
 #include "spjalla/lines/mode.h"
 #include "spjalla/lines/nick_change.h"
+#include "spjalla/lines/notice.h"
 #include "spjalla/lines/part.h"
 #include "spjalla/lines/privmsg.h"
 #include "spjalla/lines/quit.h"
@@ -103,6 +105,25 @@ namespace spjalla {
 			lines::nick_change_line nline {*ev};
 			for (ui::window *win: ui.windows_for_user(ev->who))
 				*win += nline;
+		});
+
+		pingpong::events::listen<pingpong::notice_event>([&](pingpong::notice_event *ev) {
+			const bool direct_only = configs.get("activity", "direct_only").bool_();
+			const bool highlight_notices = configs.get("activity", "highlight_notices").bool_();
+			if (!ev->is_channel() && !ev->speaker) {
+				*ui.get_active_window() += lines::notice_line(ev->serv->id, "*", ev->serv->get_nick(), ev->content,
+					ev->stamp, {}, true);
+				return;
+			}
+
+			lines::notice_line nline = {*ev, direct_only/* , highlight_notices */};
+			if (ev->is_channel()) {
+				*ui.get_window(ev->get_channel(ev->serv), true) += nline;
+			} else if (ev->speaker && ev->speaker->is_self()) {
+				*ui.get_window(ev->serv->get_user(ev->where, true), true) += nline;
+			} else {
+				*ui.get_window(ev->speaker, true) += nline;
+			}
 		});
 
 		pingpong::events::listen<pingpong::part_event>([&](pingpong::part_event *ev) {

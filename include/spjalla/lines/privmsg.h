@@ -8,57 +8,14 @@
 #include "pingpong/commands/privmsg.h"
 #include "pingpong/events/privmsg.h"
 
-#include "spjalla/lines/line.h"
+#include "spjalla/lines/message.h"
 
 namespace spjalla::lines {
-	class privmsg_line: public line, public pingpong::local {
-		private:
-			bool is_self = false;
+	struct privmsg_format { static constexpr const char *message = "^d<^D%h%s^d>^D %m", *action = "^b*^B %h%s %m"; };
 
-			/** Finds the continuation for the line. */
-			size_t get_continuation() const;
-
-			/** Formats a message by processing colors and actions and adding the user's name. */
-			std::string process(const std::string &, bool with_time = true) const;
-
-			/** If the given message is a CTCP message, this function returns its verb. Otherwise, it returns an empty
-			 *  string. */
-			static std::string get_verb(const std::string &);
-
-			/** If the given message is a CTCP message, this function returns its body. Otherwise, it returns an empty
-			 *  string. */
-			static std::string get_body(const std::string &);
-
-			/** Returns whether the message is an action (CTCP ACTION). */
-			static bool is_action(const std::string &);
-
-			/** Returns whether the message is a CTCP message. */
-			static bool is_ctcp(const std::string &);
-
+	class privmsg_line: public message_line<privmsg_format> {
 		public:
-			// We need to store a copy of the speaker's name at the time the privmsg was sent—otherwise, if they were to
-			// change their name later, it would cause this line to render with the new name!
-			std::string name, self, message, verb, body;
-
-			// It's also necessary to store the user's hat(s) at the time the message was sent (provided the message was
-			// to a channel and not directly to you).
-			pingpong::hat_set hats {};
-
-			const bool direct_only;
-
-			/** The message after colors and actions have been processed. */
-			std::string processed;
-
-			privmsg_line(std::shared_ptr<pingpong::user> speaker, const std::string &where_,
-			const std::string &message_, long stamp_, bool direct_only_ = false);
-
-			privmsg_line(std::shared_ptr<pingpong::user> speaker, std::shared_ptr<pingpong::channel> chan_,
-			const std::string &message_, long stamp_, bool direct_only_ = false):
-				privmsg_line(speaker, chan_->name, message_, stamp_, direct_only_) {}
-
-			privmsg_line(std::shared_ptr<pingpong::user> speaker, std::shared_ptr<pingpong::user> whom_,
-			const std::string &message_, long stamp_, bool direct_only_ = false):
-				privmsg_line(speaker, whom_->name, message_, stamp_, direct_only_) {}
+			using message_line::message_line;
 
 			privmsg_line(const pingpong::privmsg_command &cmd, bool direct_only_ = false):
 				privmsg_line(cmd.serv->get_self(), cmd.where, cmd.message, cmd.sent_time, direct_only_) {}
@@ -66,25 +23,6 @@ namespace spjalla::lines {
 			privmsg_line(const pingpong::privmsg_event &ev, bool direct_only_ = false):
 				privmsg_line(ev.speaker, ev.where, ev.content, ev.stamp, direct_only_) {}
 
-			privmsg_line(const std::string &name_, const std::string &where_, const std::string &self_,
-			const std::string &message_, long stamp_, const pingpong::hat_set &hats_, bool direct_only_ = false);
-
-			privmsg_line(const std::string &combined_, const std::string &where_, const std::string &self_,
-			const std::string &message_, long stamp_, bool direct_only_ = false);
-
-			/** Returns whether the message is an action (CTCP ACTION). */
-			bool is_action() const;
-
-			/** Returns whether the message is a CTCP message. */
-			bool is_ctcp() const;
-
-			/** Removes the CTCP verb from a message. */
-			std::string trimmed(const std::string &) const;
-
-			/** Returns a string representing the user's hat (empty if the destination isn't a channel). */
-			std::string hat_str() const;
-
-			virtual operator std::string() const override;
 			virtual notification_type get_notification_type() const override;
 
 			static std::string to_string(const pingpong::privmsg_event &, bool with_time = true);
