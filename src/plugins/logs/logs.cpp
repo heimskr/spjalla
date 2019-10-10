@@ -12,6 +12,7 @@
 #include "pingpong/events/kick.h"
 #include "pingpong/events/mode.h"
 #include "pingpong/events/nick.h"
+#include "pingpong/events/notice.h"
 #include "pingpong/events/part.h"
 #include "pingpong/events/privmsg.h"
 #include "pingpong/events/quit.h"
@@ -26,6 +27,7 @@
 #include "spjalla/core/plugin_host.h"
 #include "spjalla/core/util.h"
 
+#include "spjalla/lines/notice.h"
 #include "spjalla/lines/privmsg.h"
 
 #include "spjalla/plugins/plugin.h"
@@ -204,11 +206,19 @@ namespace spjalla::plugins {
 		});
 
 
-		pingpong::events::listen<pingpong::privmsg_event>([&](pingpong::privmsg_event *event) {
-			lines::privmsg_line line {*event};
-			log({event->serv, event->is_channel()? event->where : event->speaker->name},
-				util::ltrim(line.hat_str() + line.name) + " " + event->serv->get_nick() + " " +
-				(line.is_action()? "*" : ":") + line.trimmed(line.message), "msg");
+		pingpong::events::listen<pingpong::notice_event>([&](pingpong::notice_event *event) {
+			lines::notice_line line = event->is_channel() || event->speaker? *event :
+				lines::notice_line(event->serv->id, "*", event->serv->get_nick(), event->content, event->stamp, {},
+					true);
+
+			// A '$' logfile is for messages received from the server itself.
+			const std::string where = event->is_channel()? event->where : (event->speaker? event->speaker->name : "$");
+			std::string nick = event->serv->get_nick();
+			if (nick.empty())
+				nick = "!"; // A '!', in this case, represents you before your nick has been set.
+
+			log({event->serv, where}, util::ltrim(line.hat_str() + line.name) + " " + nick + " " +
+				(line.is_action()? "*" : ":") + line.trimmed(line.message), "notice");
 		});
 
 
@@ -218,6 +228,14 @@ namespace spjalla::plugins {
 			// If you parted the channel, close the channel's stream.
 			if (event->who->is_self())
 				close({event->serv, event->chan->name});
+		});
+
+
+		pingpong::events::listen<pingpong::privmsg_event>([&](pingpong::privmsg_event *event) {
+			lines::privmsg_line line {*event};
+			log({event->serv, event->is_channel()? event->where : event->speaker->name},
+				util::ltrim(line.hat_str() + line.name) + " " + event->serv->get_nick() + " " +
+				(line.is_action()? "*" : ":") + line.trimmed(line.message), "msg");
 		});
 
 
