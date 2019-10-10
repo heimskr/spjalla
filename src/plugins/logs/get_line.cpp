@@ -7,6 +7,7 @@
 
 #include "spjalla/lines/basic.h"
 #include "spjalla/lines/join.h"
+#include "spjalla/lines/notice.h"
 #include "spjalla/lines/part.h"
 #include "spjalla/lines/privmsg.h"
 
@@ -29,6 +30,9 @@ namespace spjalla::plugins {
 
 		if (verb == "msg") {
 			return std::make_unique<lines::privmsg_line>(subject, pair.second, object, str.substr(str.find(':') + 1),
+				stamp);
+		} else if (verb == "notice") {
+			return std::make_unique<lines::notice_line>(subject, pair.second, object, str.substr(str.find(':') + 1),
 				stamp);
 		} else if (verb == "created" || verb == "opened" || verb == "closed") {
 			return std::make_unique<lines::basic_line>("───── "_d + "Log " + verb + " on " +
