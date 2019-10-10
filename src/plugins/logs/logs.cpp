@@ -159,9 +159,11 @@ namespace spjalla::plugins::logs {
 		if (!client) { DBG("Error: expected client as plugin host"); return; }
 		parent = client;
 
-		config::register_key("logs", "enabled", true, config::validate_bool, {}, "Whether to enable logs.");
+		config::register_key("logs", "autoclean", true, config::validate_bool, {},
+			"Whether /restore should exclude lines that indicate when the log was opened, created or closed.");
 		config::register_key("logs", "default_restore", 128, config::validate_long, {},
 			"The default number of scrollback lines to restore with /restore.");
+		config::register_key("logs", "enabled", true, config::validate_bool, {}, "Whether to enable logs.");
 
 		base = util::get_home() / DEFAULT_DATA_DIR / "logs";
 		if (!std::filesystem::exists(base)) {

@@ -69,32 +69,26 @@ namespace spjalla::plugins::logs {
 			// first loaded line, they will be skipped. This can be mitigated with higher resolution.
 			// With the current setting being microseconds, this is extremely unlikely to ever happen.
 
-			DBG("read = " << read << ", micros.seconds = " << std::chrono::duration_cast<std::chrono::seconds>(micros).count() << ", first_time.seconds = " << std::chrono::duration_cast<std::chrono::seconds>(first_time).count());
-			DBG(":: " << line);
 			if (micros < first_time) {
-				DBG("First line: [" << line << "]");
 				break;
 			} else {
 				lines.pop_back();
 			}
 		}
 
-		const size_t added = reader.readlines(lines, to_restore - 1);
-		DBG(ansi::color::green << "added[" << added << "]");
+		reader.readlines(lines, to_restore - 1);
+		const bool autoclean = parent->configs.get("logs", "autoclean").bool_();
 		
-		DBG("=== LINES ===");
 		for (const std::string &raw: lines) {
 			std::string first_word = formicine::util::nth_word(raw, 0, false);
 			first_word.pop_back();
 			long l;
 			util::parse_long(first_word, l);
-			DBG("[" << pingpong::util::get_time(l) << "] {" << raw << "}");
 
-			std::unique_ptr<haunted::ui::textline> line = get_line(pair, raw);
+			std::unique_ptr<haunted::ui::textline> line = get_line(pair, raw, autoclean);
 			if (line)
 				ui.get_active_window()->get_lines().push_front(std::move(line));
 		}
-		DBG("=============");
 
 		ui.get_active_window()->draw();
 	}
