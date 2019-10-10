@@ -17,6 +17,10 @@ build/test_backwards_line: build/tests/test_backwards_line.o $(NO_MAIN)
 	@ $(MKBUILD)
 	$(CC) $^ -o $@ $(LDFLAGS) $(LDLIBS)
 
+build/test_ansi: build/tests/test_ansi.o $(NO_MAIN)
+	@ $(MKBUILD)
+	$(CC) $^ -o $@ $(LDFLAGS) $(LDLIBS)
+
 cfgtest: build/test_config
 	./$^
 
@@ -28,4 +32,7 @@ atest: build/test_aliases
 	./$^
 
 bltest: build/test_backwards_line
+	./$^
+
+antest: build/test_ansi
 	./$^
