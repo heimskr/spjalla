@@ -13,7 +13,7 @@ namespace spjalla::plugins::logs {
 
 		for (std::unique_ptr<haunted::ui::textline> &ptr: lines) {
 			int rows = ptr->num_rows(width);
-			if (log_line *ll = dynamic_cast<log_line *>(ptr.get())) {
+			if (dynamic_cast<log_line *>(ptr.get())) {
 				if (total_rows < window->get_voffset())
 					rows_removed += rows;
 			} else {

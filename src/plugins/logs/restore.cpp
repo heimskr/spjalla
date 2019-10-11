@@ -50,7 +50,7 @@ namespace spjalla::plugins::logs {
 
 		std::vector<std::string> lines {};
 
-		util::backward_reader reader(get_path(pair));
+		util::backward_reader reader(get_path(pair).string());
 
 		// Look for the last line in the log before the top of the scrollback.
 		for (;;) {
