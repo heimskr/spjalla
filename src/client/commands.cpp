@@ -6,7 +6,6 @@
 #include "pingpong/commands/kick.h"
 #include "pingpong/commands/mode.h"
 #include "pingpong/commands/nick.h"
-#include "pingpong/commands/part.h"
 #include "pingpong/commands/privmsg.h"
 #include "pingpong/commands/quit.h"
 
@@ -179,33 +178,7 @@ namespace spjalla {
 		}, {}}});
 
 
-		add({"disconnect", {0, -1, false, [&](sptr serv, line il) {
-			if (il.args.empty()) {
-				serv->quit(il.body);
-				return;
-			}
-
-			const std::string first = il.first();
-			const std::string reason = util::skip_words(il.body);
-
-			for (pingpong::server *subserv: irc.server_order) {
-				if (subserv->id == first) {
-					subserv->quit(reason);
-					return;
-				}
-			}
-
-			bool quit_any = false;
-			for (pingpong::server *subserv: irc.server_order) {
-				if (subserv->hostname == first) {
-					subserv->quit(reason);
-					quit_any = true;
-				}
-			}
-
-			if (!quit_any)
-				ui.warn("Quit: there is no server " + ansi::bold(first) + ".");
-		}, {}}});
+		add({"disconnect", {0, -1, false, [&](sptr serv, line il) { commands::do_disconnect(*this, serv, il); }, {}}});
 
 
 		add({"join", {1, 1, true, [&](sptr serv, line il) {
@@ -222,110 +195,15 @@ namespace spjalla {
 		}, {}}});
 
 
-		add({"me", {1, -1, true, [&](sptr, line il) {
-			const ui::window *win = ui.active_window;
-			if (win->is_dead())
-				return;
-
-			const std::string msg = "\1ACTION " + il.body + "\1";
-			if (win->is_channel())
-				pingpong::privmsg_command(win->chan, msg).send();
-			else if (win->is_user())
-				pingpong::privmsg_command(win->user, msg).send();
-		}, completions::complete_me}});
+		add({"me", {1, -1, true, [&](sptr, line il) { commands::do_me(ui, il); }, completions::complete_me}});
 
 
-		add({"mode", {1, -1, true, [&](sptr serv, line il) {
-			std::shared_ptr<pingpong::channel> win_chan = ui.get_active_channel();
-
-			if (il.args.size() == 1 && il.first().find_first_of("+-") == 0) {
-				// The only argument is a set of flags. If the active window is a channel, this sets the flags on the
-				// channel. Otherwise, the flags are set on yourself.
-				if (win_chan)
-					pingpong::mode_command(win_chan, il.first()).send();
-				else
-					pingpong::mode_command(serv->get_nick(), serv, il.first()).send();
-				return;
-			}
-
-			std::string chan_str {}, flags {}, extra {};
-
-			// Look through all the arguments.
-			for (const std::string &arg: il.args) {
-				char front = arg.front();
-				if (front == '#') {
-					if (!chan_str.empty()) {
-						ui.warn("You cannot set modes for multiple channels in one /mode command.");
-						return;
-					}
-
-					chan_str = arg;
-				} else if (front == '+' || front == '-') {
-					if (arg.find_first_not_of(pingpong::util::flag_chars) != std::string::npos) {
-						ui.warn("Invalid flags for mode command: " + arg);
-						return;
-					}
-
-					if (flags.empty()) {
-						flags = arg;
-					} else {
-						ui.warn("You cannot set multiple sets of flags in one /mode command.");
-						return;
-					}
-				} else if (extra.empty()) {
-					extra = arg;
-				} else {
-					// No overwriting the extra parameters.
-					ui.warn("You cannot set flags for multiple targets in one /mode command.");
-					return;
-				}
-			}
-
-			// You can't set modes without flags.
-			if (flags.empty()) {
-				ui.warn("No flags specified for /mode.");
-				return;
-			}
-
-			// If there's no channel indicated either in the command arguments or by the active window and you're not
-			// trying to set user flags on yourself, then what are you even trying to do? You can't set flags on someone
-			// who isn't you.
-			if (!win_chan && chan_str.empty() && extra != serv->get_nick()) {
-				ui.warn("Invalid arguments for /mode.");
-				return;
-			}
-
-			// If there's no channel and we're setting arguments on ourself, it's a regular user mode command.
-			if (!win_chan && chan_str.empty() && extra == serv->get_nick()) {
-				pingpong::mode_command(serv->get_self(), flags).send();
-				return;
-			}
-
-			if (chan_str.empty() && win_chan)
-				chan_str = win_chan->name;
-
-			// At this point, I think it's safe to assume that you're setting channel flags. The extra parameter, if
-			// present, is what/whom you're setting the flags on.
-			pingpong::mode_command(chan_str, serv, flags, extra).send();
-		}, {}}});
-
-
-		add({"move", {1, 1, false, [&](sptr, line il) {
-			long parsed;
-			const std::string first = il.first();
-			if (!util::parse_long(first, parsed)) {
-				ui.warn("Invalid number: " + "\""_bd + ansi::bold(first) + "\""_bd);
-				return;
-			}
-
-			ui.move_window(ui.active_window, std::max(0L, parsed - 1));
-		}, {}}});
-
+		add({"mode", {1, -1, true, [&](sptr serv, line il) { commands::do_mode(ui, serv, il); }, {}}});
+		add({"move", {1, 1, false, [&](sptr, line il) { commands::do_move(ui, il); }, {}}});
 
 		add({"msg", {2, -1, true, [&](sptr serv, line il) {
 			pingpong::privmsg_command(serv, il.first(), il.rest()).send();
 		}, {}}});
-
 
 		add({"nick", {0,  1, true, [&](sptr serv, line il) {
 			if (il.args.size() == 0)
@@ -334,52 +212,28 @@ namespace spjalla {
 				pingpong::nick_command(serv, il.first()).send();
 		}, {}}});
 
-
 		add({"overlay", {0, 0, false, [&](sptr, line) {
 			ui.update_overlay();
 		}, {}}});
 
-
-		add({"part", {0, -1, true, [&](sptr serv, line il) {
-			std::shared_ptr<pingpong::channel> active_channel = ui.get_active_channel();
-
-			if ((il.args.empty() || il.first()[0] != '#') && !active_channel) {
-				no_channel();
-			} else if (il.args.empty()) {
-				pingpong::part_command(serv, active_channel).send();
-			} else if (il.first()[0] != '#') {
-				pingpong::part_command(serv, active_channel, il.body).send();
-			} else if (std::shared_ptr<pingpong::channel> cptr = serv->get_channel(il.first())) {
-				pingpong::part_command(serv, cptr, il.rest()).send();
-			} else {
-				ui.log(il.first() + ": no such channel.");
-			}
-		}, {}}});
-
+		add({"part", {0, -1, true, [&](sptr serv, line il) { commands::do_part(*this, serv, il); }, {}}});
 
 		add({"quit", {0, -1, false, [&](sptr, line il) {
 			for (pingpong::server *serv: irc.server_order)
 				serv->quit(il.body);
 		}, {}}});
 
-
 		add({"quote", {1, -1, true, [&](sptr serv, line il) {
 			serv->quote(il.body);
 		}, {}}});
 
-
 		add({"set", {0, -1, false, [&](sptr, line il) { commands::do_set(*this, il); }, completions::complete_set}});
-
-
 		add({"spam", {0, 1, false, [&](sptr, line il) { commands::do_spam(ui, il); }, {}}});
-
-
 		add({"topic", {0, -1, true, [&](sptr serv, line il) { commands::do_topic(*this, serv, il); }, {}}});
 
 		add({"unban", {1, 2, true, [&](sptr serv, line il) {
 			ban(serv, il, "-b");
 		}, {}}});
-
 
 		add({"wc", {0, 0, false, [&](sptr, line) {
 			if (ui.can_remove())

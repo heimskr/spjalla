@@ -51,9 +51,6 @@ namespace spjalla {
 				return win;
 			}
 
-			/** Logs a message indicated that there is no active channel. */
-			void no_channel();
-
 			/** Handles commands like /kick that take a user and an optional longer string and an optional channel.
 			 *  If no channel is specified, the command must be issued from a channel window.
 			 *  Returns whether a "no active channel" message should be displayed. */
@@ -149,6 +146,9 @@ namespace spjalla {
 
 			/** Returns all the windows as haunted::ui::control pointers. */
 			std::deque<haunted::ui::control *> get_window_controls() const;
+
+			/** Logs a message indicated that there is no active channel. */
+			void no_channel();
 
 			template <typename T>
 			void log(const T &obj) {

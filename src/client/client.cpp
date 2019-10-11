@@ -35,14 +35,6 @@ namespace spjalla {
 	}
 
 
-// Private instance methods
-
-
-	void client::no_channel() {
-		ui.log(lines::red_notice + "No active channel.");
-	}
-
-
 // Public instance methods
 
 
@@ -121,5 +113,9 @@ namespace spjalla {
 
 	std::deque<haunted::ui::control *> client::get_window_controls() const {
 		return ui.swappo->get_children();
+	}
+
+	void client::no_channel() {
+		ui.log(lines::red_notice + "No active channel.");
 	}
 }
