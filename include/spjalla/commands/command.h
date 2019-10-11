@@ -42,10 +42,14 @@ namespace spjalla::commands {
 	/** Command name, command */
 	using pair = std::pair<std::string, command>;
 
+	void do_alias(client &, const input_line &);
+	void do_connect(client &, const input_line &);
 	void do_disconnect(client &, pingpong::server *, const input_line &);
+	void do_join(client &, pingpong::server *, const input_line &);
 	void do_me(ui::interface &, const input_line &);
 	void do_move(ui::interface &, const input_line &);
 	void do_mode(ui::interface &, pingpong::server *, const input_line &);
+	void do_nick(ui::interface &, pingpong::server *, const input_line &);
 	void do_part(client &, pingpong::server *, const input_line &);
 	void do_set(client &, const input_line &);
 	void do_spam(ui::interface &, const input_line &);

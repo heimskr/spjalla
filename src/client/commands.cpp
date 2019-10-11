@@ -110,36 +110,7 @@ namespace spjalla {
 		}, {}}});
 
 
-		add({"alias", {0, -1, false, [&](sptr, line il) {
-			if (il.args.empty()) {
-				if (alias_db.empty()) {
-					ui.warn("No aliases.");
-				} else {
-					for (auto & [key, expansion]: alias_db)
-						ui.log(lines::alias_line(key, expansion));
-				}
-
-				return;
-			}
-
-			if (il.args.size() == 2 && il.first() == "-") {
-				const std::string &key = il.args[1];
-				if (alias_db.remove(key, true))
-					ui.log("Alias " + ansi::bold(key) + " was removed.");
-				else
-					ui.warn("Alias " + ansi::bold(key) + " doesn't exist.");
-				return;
-			}
-
-			try {
-				alias_db.apply_line(il.body);
-				alias_db.write_db();
-			} catch (const std::invalid_argument &err) {
-				DBG("Couldn't parse alias insertion [" << il.body << "]: " << err.what());
-				ui.warn("Invalid syntax for alias " + "\""_d + il.body + "\""_d);
-			}
-		}, {}}});
-
+		add({"alias", {0, -1, false, [&](sptr, line il) { commands::do_alias(*this, il); }, {}}});
 
 		add({"ban", {1, 2, true, [&](sptr serv, line il) {
 			ban(serv, il, "+b");
@@ -155,39 +126,9 @@ namespace spjalla {
 		}, {}}});
 
 
-		add({"connect", {1, 2, false, [&](sptr, line il) {
-			const std::string &where = il.first();
-
-			std::string nick(configs.get("server", "default_nick"));
-			if (il.args.size() > 1)
-				nick = il.args[1];
-
-			std::string hostname;
-			long port = 0;
-
-			std::tie(hostname, port) = irc.connect(where, nick, 6667, [&](const std::function<void()> &fn) {
-				try {
-					fn();
-				} catch (const std::exception &err) {
-					ui.log(lines::warning_line("Couldn't connect to " + ansi::bold(hostname) + " on port " +
-						ansi::bold(std::to_string(port)) + ": " + err.what()));
-				}
-			});
-
-			ui.log("Connecting to " + ansi::bold(hostname) + " on port " + ansi::bold(std::to_string(port)) + "...");
-		}, {}}});
-
-
+		add({"connect",    {1,  2, false, [&](sptr,      line il) { commands::do_connect(*this, il);          }, {}}});
 		add({"disconnect", {0, -1, false, [&](sptr serv, line il) { commands::do_disconnect(*this, serv, il); }, {}}});
-
-
-		add({"join", {1, 1, true, [&](sptr serv, line il) {
-			const std::string &first = il.args[0];
-			wait_for_server(serv, pingpong::server::stage::ready, [=]() {
-				pingpong::join_command(serv, first).send();
-			});
-		}, {}}});
-
+		add({"join",       {1,  1, true,  [&](sptr serv, line il) { commands::do_join(*this, serv, il);       }, {}}});
 
 		add({"kick", {1, -1, true, [&](sptr serv, line il) {
 			if (triple_command<pingpong::kick_command>(serv, il, ui.get_active_channel()))
@@ -195,28 +136,17 @@ namespace spjalla {
 		}, {}}});
 
 
-		add({"me", {1, -1, true, [&](sptr, line il) { commands::do_me(ui, il); }, completions::complete_me}});
-
-
-		add({"mode", {1, -1, true, [&](sptr serv, line il) { commands::do_mode(ui, serv, il); }, {}}});
-		add({"move", {1, 1, false, [&](sptr, line il) { commands::do_move(ui, il); }, {}}});
+		add({"me",   {1, -1, true,  [&](sptr,      line il) { commands::do_me(ui, il);   }, completions::complete_me}});
+		add({"mode", {1, -1, true,  [&](sptr serv, line il) { commands::do_mode(ui, serv, il); }, {}}});
+		add({"move", {1,  1, false, [&](sptr,      line il) { commands::do_move(ui, il); }, {}}});
 
 		add({"msg", {2, -1, true, [&](sptr serv, line il) {
 			pingpong::privmsg_command(serv, il.first(), il.rest()).send();
 		}, {}}});
 
-		add({"nick", {0,  1, true, [&](sptr serv, line il) {
-			if (il.args.size() == 0)
-				ui.log("Current nick: " + serv->get_nick());
-			else
-				pingpong::nick_command(serv, il.first()).send();
-		}, {}}});
-
-		add({"overlay", {0, 0, false, [&](sptr, line) {
-			ui.update_overlay();
-		}, {}}});
-
-		add({"part", {0, -1, true, [&](sptr serv, line il) { commands::do_part(*this, serv, il); }, {}}});
+		add({"nick",    {0,  1, true,  [&](sptr serv, line il) { commands::do_nick(ui, serv, il);    }, {}}});
+		add({"overlay", {0,  0, false, [&](sptr,      line)    { ui.update_overlay();                }, {}}});
+		add({"part",    {0, -1, true,  [&](sptr serv, line il) { commands::do_part(*this, serv, il); }, {}}});
 
 		add({"quit", {0, -1, false, [&](sptr, line il) {
 			for (pingpong::server *serv: irc.server_order)
@@ -227,9 +157,9 @@ namespace spjalla {
 			serv->quote(il.body);
 		}, {}}});
 
-		add({"set", {0, -1, false, [&](sptr, line il) { commands::do_set(*this, il); }, completions::complete_set}});
-		add({"spam", {0, 1, false, [&](sptr, line il) { commands::do_spam(ui, il); }, {}}});
-		add({"topic", {0, -1, true, [&](sptr serv, line il) { commands::do_topic(*this, serv, il); }, {}}});
+		add({"set",   {0, -1, false, [&](sptr, line il) { commands::do_set(*this, il); }, completions::complete_set}});
+		add({"spam",  {0,  1, false, [&](sptr, line il) { commands::do_spam(ui, il); }, {}}});
+		add({"topic", {0, -1, true,  [&](sptr serv, line il) { commands::do_topic(*this, serv, il); }, {}}});
 
 		add({"unban", {1, 2, true, [&](sptr serv, line il) {
 			ban(serv, il, "-b");
