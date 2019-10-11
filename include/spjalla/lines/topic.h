@@ -10,11 +10,11 @@ namespace spjalla::lines {
 	struct topic_line: public line {
 		std::string who, where, topic;
 
-		topic_line(const std::string &who_, const std::string &where_, const std::string &topic_, long stamp_):
-			line(stamp_), who(who_), where(where_), topic(topic_) {}
+		topic_line(client *parent_, const std::string &who_, const std::string &where_, const std::string &topic_, long stamp_):
+			line(parent_, stamp_), who(who_), where(where_), topic(topic_) {}
 
-		topic_line(const pingpong::topic_event &ev):
-			topic_line(ev.who->name, ev.chan->name, ev.content, ev.stamp) {}
+		topic_line(client *parent_, const pingpong::topic_event &ev):
+			topic_line(parent_, ev.who->name, ev.chan->name, ev.content, ev.stamp) {}
 
 		virtual operator std::string() const override;
 		virtual notification_type get_notification_type() const override { return notification_type::info; }

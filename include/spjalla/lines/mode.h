@@ -18,12 +18,12 @@ namespace spjalla::lines {
 			std::string where;
 			std::shared_ptr<pingpong::user> who;
 
-			mode_line(const pingpong::modeset &mset_, const std::string &where_,
+			mode_line(client *parent_, const pingpong::modeset &mset_, const std::string &where_,
 			const std::shared_ptr<pingpong::user> &who_, long stamp_):
-				line(stamp_), mset(mset_), where(where_), who(who_) /*🦉*/ {}
+				line(parent_, stamp_), mset(mset_), where(where_), who(who_) /*🦉*/ {}
 
-			mode_line(const pingpong::mode_event &ev):
-				mode_line(ev.mset, ev.where, ev.who, ev.stamp) {}
+			mode_line(client *parent_, const pingpong::mode_event &ev):
+				mode_line(parent_, ev.mset, ev.where, ev.who, ev.stamp) {}
 
 			virtual operator std::string() const override;
 			virtual notification_type get_notification_type() const override { return notification_type::info; }

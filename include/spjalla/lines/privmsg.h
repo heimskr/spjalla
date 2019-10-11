@@ -17,13 +17,13 @@ namespace spjalla::lines {
 		public:
 			using message_line::message_line;
 
-			privmsg_line(const pingpong::privmsg_command &cmd, bool direct_only_ = false):
-				privmsg_line(cmd.serv->get_self(), cmd.where, cmd.message, cmd.sent_time, direct_only_) {}
+			privmsg_line(client *parent_, const pingpong::privmsg_command &cmd, bool direct_only_ = false):
+				privmsg_line(parent_, cmd.serv->get_self(), cmd.where, cmd.message, cmd.sent_time, direct_only_) {}
 
-			privmsg_line(const pingpong::privmsg_event &ev, bool direct_only_ = false):
-				privmsg_line(ev.speaker, ev.where, ev.content, ev.stamp, direct_only_) {}
+			privmsg_line(client *parent_, const pingpong::privmsg_event &ev, bool direct_only_ = false):
+				privmsg_line(parent_, ev.speaker, ev.where, ev.content, ev.stamp, direct_only_) {}
 
-			virtual notification_type get_notification_type() const override;
+			notification_type get_notification_type() const override;
 
 			static std::string to_string(const pingpong::privmsg_event &, bool with_time = true);
 	};

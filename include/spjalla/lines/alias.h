@@ -7,8 +7,8 @@ namespace spjalla::lines {
 	struct alias_line: public line {
 		std::string key, expansion;
 
-		alias_line(const std::string &key_, const std::string &expansion_, long stamp_ = now()):
-			line(stamp_), key(key_), expansion(expansion_) {}
+		alias_line(client *parent_, const std::string &key_, const std::string &expansion_, long stamp_ = now()):
+			line(parent_, stamp_), key(key_), expansion(expansion_) {}
 
 		virtual operator std::string() const override;
 	};

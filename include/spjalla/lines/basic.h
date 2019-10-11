@@ -9,8 +9,9 @@ namespace spjalla::lines {
 	struct basic_line: public line {
 		std::string text;
 
-		basic_line(const std::string &text_, int continuation_ = 0, long stamp_ = pingpong::util::timestamp()):
-			line(stamp_, continuation_), text(text_) {}
+		basic_line(client *parent_, const std::string &text_, int continuation_ = 0,
+		long stamp_ = pingpong::util::timestamp()):
+			line(parent_, stamp_, continuation_), text(text_) {}
 
 		virtual operator std::string() const override;
 	};

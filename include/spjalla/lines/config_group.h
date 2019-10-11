@@ -9,8 +9,8 @@ namespace spjalla::lines {
 	struct config_group_line: public line {
 		std::string group;
 
-		config_group_line(const std::string &group_, long stamp_ = pingpong::util::timestamp()):
-			line(stamp_), group(group_) {}
+		config_group_line(client *parent_, const std::string &group_, long stamp_ = pingpong::util::timestamp()):
+			line(parent_, stamp_), group(group_) {}
 
 		virtual operator std::string() const override;
 	};

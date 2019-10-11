@@ -69,6 +69,7 @@ namespace spjalla::config {
 	void register_defaults() {
 		// Appearance
 
+		//// Bar
 		register_key("appearance", "bar_background", "blood", validate_color, [](database &db, const value &new_val) {
 			db.get_parent().get_ui().set_bar_background(ansi::get_color(new_val.string_()));
 		}, "The background color of the status bar and title bar.");
@@ -77,6 +78,7 @@ namespace spjalla::config {
 			db.get_parent().get_ui().set_bar_foreground(ansi::get_color(new_val.string_()));
 		}, "The text color of the status bar and title bar.");
 
+		//// Overlay
 		register_key("appearance", "overlay_background", "verydark", validate_color,
 		             [](database &db, const value &new_val) {
 			db.get_parent().get_ui().set_overlay_background(ansi::get_color(new_val.string_()));
@@ -87,6 +89,7 @@ namespace spjalla::config {
 			db.get_parent().get_ui().set_overlay_foreground(ansi::get_color(new_val.string_()));
 		}, "The text color of the overlay window.");
 
+		//// Input
 		register_key("appearance", "input_background", "normal", validate_color,
 		             [](database &db, const value &new_val) {
 			db.get_parent().get_ui().set_input_background(ansi::get_color(new_val.string_()));
@@ -96,6 +99,10 @@ namespace spjalla::config {
 		             [](database &db, const value &new_val) {
 			db.get_parent().get_ui().set_input_foreground(ansi::get_color(new_val.string_()));
 		}, "The text color of the input box.");
+
+		//// Notices
+		register_key("appearance", "notice_foreground", "magenta", validate_color, {},
+			"The text color of names in notice messages.");
 
 		// Completion
 

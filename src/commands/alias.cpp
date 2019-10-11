@@ -11,7 +11,7 @@ namespace spjalla::commands {
 				ui.warn("No aliases.");
 			} else {
 				for (auto & [key, expansion]: cli.alias_db)
-					ui.log(lines::alias_line(key, expansion));
+					ui.log(lines::alias_line(&cli, key, expansion));
 			}
 
 			return;

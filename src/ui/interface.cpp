@@ -168,14 +168,14 @@ namespace spjalla::ui {
 			longest_hats = std::max(longest_hats, chan->get_hats(user).size());
 
 		for (std::shared_ptr<pingpong::user> user: chan->users)
-			*overlay += spjalla::lines::userlist_line(chan, user, longest_hats);
+			*overlay += spjalla::lines::userlist_line(parent, chan, user, longest_hats);
 	}
 
 	void interface::update_overlay(const std::shared_ptr<pingpong::user> &user) {
 		overlay->clear_lines();
 		*overlay += haunted::ui::simpleline(ansi::bold(user->name));
 		for (std::weak_ptr<pingpong::channel> chan: user->channels)
-			*overlay += spjalla::lines::chanlist_line(user, chan.lock());
+			*overlay += spjalla::lines::chanlist_line(parent, user, chan.lock());
 	}
 
 	haunted::ui::container::type::iterator interface::window_iterator() const {
@@ -214,11 +214,11 @@ namespace spjalla::ui {
 	}
 
 	void interface::log(const std::string &line, window *win) {
-		log(lines::basic_line(line, 0), win);
+		log(lines::basic_line(parent, line, 0), win);
 	}
 
 	void interface::log(const std::string &line, const std::string &window_name) {
-		log(lines::basic_line(line, 0), window_name);
+		log(lines::basic_line(parent, line, 0), window_name);
 	}
 
 	void interface::log(const std::exception &err) {

@@ -5,10 +5,10 @@
 
 namespace spjalla::lines {
 	template <typename T>
-	message_line<T>::message_line(std::shared_ptr<pingpong::user> speaker, const std::string &where_,
+	message_line<T>::message_line(client *parent_, std::shared_ptr<pingpong::user> speaker, const std::string &where_,
 	const std::string &message_, long stamp_, bool direct_only_):
-		line(stamp_), pingpong::local(where_), name(speaker->name), self(speaker->serv->get_nick()), message(message_),
-		verb(get_verb(message_)), body(get_body(message_)), direct_only(direct_only_) {
+		line(parent_, stamp_), pingpong::local(where_), name(speaker->name), self(speaker->serv->get_nick()),
+		message(message_), verb(get_verb(message_)), body(get_body(message_)), direct_only(direct_only_) {
 
 		is_self = speaker->is_self();
 
@@ -22,19 +22,20 @@ namespace spjalla::lines {
 	}
 
 	template <typename T>
-	message_line<T>::message_line(const std::string &name_, const std::string &where_, const std::string &self_,
-	const std::string &message_, long stamp_, const pingpong::hat_set &hats_, bool direct_only_):
-	line(stamp_), pingpong::local(where_), name(name_), self(self_), message(message_), verb(get_verb(message_)),
-	body(get_body(message_)), hats(hats_), direct_only(direct_only_) {
+	message_line<T>::message_line(client *parent_, const std::string &name_, const std::string &where_,
+	const std::string &self_, const std::string &message_, long stamp_, const pingpong::hat_set &hats_,
+	bool direct_only_):
+	line(parent_, stamp_), pingpong::local(where_), name(name_), self(self_), message(message_),
+	verb(get_verb(message_)), body(get_body(message_)), hats(hats_), direct_only(direct_only_) {
 		is_self = name_ == self_;
 		continuation = get_continuation();
 		processed = process(message_);
 	}
 
 	template <typename T>
-	message_line<T>::message_line(const std::string &combined_, const std::string &where_, const std::string &self_,
-	const std::string &message_, long stamp_, bool direct_only_):
-	line(stamp_), pingpong::local(where_), self(self_), message(message_), verb(get_verb(message_)),
+	message_line<T>::message_line(client *parent_, const std::string &combined_, const std::string &where_,
+	const std::string &self_, const std::string &message_, long stamp_, bool direct_only_):
+	line(parent_, stamp_), pingpong::local(where_), self(self_), message(message_), verb(get_verb(message_)),
 	body(get_body(message_)), direct_only(direct_only_) {
 		std::tie(hats, name) = pingpong::hat_set::separate(combined_);
 		is_self = name == self_;
@@ -84,6 +85,9 @@ namespace spjalla::lines {
 
 		return time + out;
 	}
+
+	template <typename T>
+	void message_line<T>::postprocess(std::string &) const {}
 
 	template <typename T>
 	std::string message_line<T>::get_verb(const std::string &str) {

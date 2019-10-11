@@ -27,6 +27,7 @@
 #include "spjalla/core/client.h"
 
 #include "spjalla/lines/basic.h"
+#include "spjalla/lines/error.h"
 #include "spjalla/lines/join.h"
 #include "spjalla/lines/kick.h"
 #include "spjalla/lines/mode.h"
@@ -40,7 +41,7 @@
 namespace spjalla {
 	void client::add_events() {
 		pingpong::events::listen<pingpong::bad_line_event>([&](pingpong::bad_line_event *ev) {
-			ui.log(lines::basic_line(ansi::wrap(">> ", ansi::color::red) + ev->bad_line, 3));
+			ui.log(lines::basic_line(this, ansi::wrap(">> ", ansi::color::red) + ev->bad_line, 3));
 		});
 
 		pingpong::events::listen<pingpong::command_event>([&](pingpong::command_event *ev) {
@@ -50,7 +51,7 @@ namespace spjalla {
 
 		pingpong::events::listen<pingpong::error_event>([&](pingpong::error_event *ev) {
 			ui::window *win = ev->current_window? ui.active_window : ui.status_window;
-			*win += lines::basic_line(lines::red_notice + ev->message, ansi::length(lines::red_notice));
+			*win += lines::basic_line(this, lines::red_notice + ev->message, ansi::length(lines::red_notice));
 		});
 
 		pingpong::events::listen<pingpong::hats_updated_event>([&](pingpong::hats_updated_event *ev) {
@@ -62,7 +63,7 @@ namespace spjalla {
 
 		pingpong::events::listen<pingpong::join_event>([&](pingpong::join_event *ev) {
 			ui::window *win = ui.get_window(ev->chan, true);
-			*win += lines::join_line(*ev);
+			*win += lines::join_line(this, *ev);
 
 			if (ev->who->is_self()) {
 				win->resurrect();
@@ -80,12 +81,12 @@ namespace spjalla {
 					}
 				}
 
-				*win += lines::kick_line(*ev);
+				*win += lines::kick_line(this, *ev);
 			}
 		});
 
 		pingpong::events::listen<pingpong::mode_event>([&](pingpong::mode_event *ev) {
-			lines::mode_line mline {*ev};
+			lines::mode_line mline {this, *ev};
 
 			ui::window *win = nullptr;
 			if (ev->is_channel())
@@ -102,7 +103,7 @@ namespace spjalla {
 		});
 
 		pingpong::events::listen<pingpong::nick_event>([&](pingpong::nick_event *ev) {
-			lines::nick_change_line nline {*ev};
+			lines::nick_change_line nline {this, *ev};
 			for (ui::window *win: ui.windows_for_user(ev->who))
 				*win += nline;
 		});
@@ -114,11 +115,12 @@ namespace spjalla {
 
 			if (!ev->is_channel() && !ev->speaker) {
 				ui::window *win = in_status? ui.status_window : ui.active_window;
-				*win += lines::notice_line(ev->serv->id, "*", ev->serv->get_nick(), ev->content, ev->stamp, {}, true);
+				*win += lines::notice_line(this, ev->serv->id, "*", ev->serv->get_nick(), ev->content, ev->stamp, {},
+					true);
 				return;
 			}
 
-			lines::notice_line nline = {*ev, direct_only, highlight_notices};
+			lines::notice_line nline = {this, *ev, direct_only, highlight_notices};
 			if (ev->is_channel()) {
 				*ui.get_window(ev->get_channel(ev->serv), true) += nline;
 			} else if (in_status) {
@@ -132,7 +134,7 @@ namespace spjalla {
 
 		pingpong::events::listen<pingpong::part_event>([&](pingpong::part_event *ev) {
 			if (ui::window *win = try_window(ev->chan)) {
-				*win += lines::part_line(*ev);
+				*win += lines::part_line(this, *ev);
 				if (ev->who->is_self())
 					win->kill();
 			}
@@ -141,18 +143,19 @@ namespace spjalla {
 		pingpong::events::listen<pingpong::privmsg_event>([&](pingpong::privmsg_event *ev) {
 			const bool direct_only = configs.get("messages", "direct_only").bool_();
 			if (ev->is_channel()) {
-				*ui.get_window(ev->get_channel(ev->serv), true) += lines::privmsg_line(*ev, direct_only);
+				*ui.get_window(ev->get_channel(ev->serv), true) += lines::privmsg_line(this, *ev, direct_only);
 			} else {
 				if (ev->speaker->is_self()) // privmsg_events are dispatched when we send messages too.
-					*ui.get_window(ev->serv->get_user(ev->where, true), true) += lines::privmsg_line(*ev, direct_only);
+					*ui.get_window(ev->serv->get_user(ev->where, true), true) +=
+						lines::privmsg_line(this, *ev, direct_only);
 				else
-					*ui.get_window(ev->speaker, true) += lines::privmsg_line(*ev, direct_only);
+					*ui.get_window(ev->speaker, true) += lines::privmsg_line(this, *ev, direct_only);
 			}
 		});
 
 		pingpong::events::listen<pingpong::quit_event>([&](pingpong::quit_event *ev) {
 			std::shared_ptr<pingpong::user> who = ev->who;
-			lines::quit_line qline = lines::quit_line(who, ev->content, ev->stamp);
+			lines::quit_line qline = lines::quit_line(this, who, ev->content, ev->stamp);
 			for (ui::window *win: ui.windows_for_user(who)) {
 				*win += qline;
 				if (win->user == who) {
@@ -167,12 +170,12 @@ namespace spjalla {
 
 		pingpong::events::listen<pingpong::raw_in_event>([&](pingpong::raw_in_event *ev) {
 			if (log_spam)
-				ui.log(lines::basic_line(ansi::wrap("<< ", ansi::color::gray) + ev->raw_in, 3));
+				ui.log(lines::basic_line(this, ansi::wrap("<< ", ansi::color::gray) + ev->raw_in, 3));
 		});
 
 		pingpong::events::listen<pingpong::raw_out_event>([&](pingpong::raw_out_event *ev) {
 			if (log_spam)
-				ui.log(lines::basic_line(ansi::wrap(">> ", ansi::color::lightgray) + ev->raw_out, 3));
+				ui.log(lines::basic_line(this, ansi::wrap(">> ", ansi::color::lightgray) + ev->raw_out, 3));
 		});
 
 		pingpong::events::listen<pingpong::server_status_event>([&](pingpong::server_status_event *ev) {
@@ -188,7 +191,7 @@ namespace spjalla {
 
 		pingpong::events::listen<pingpong::topic_event>([&](pingpong::topic_event *ev) {
 			if (ui::window *win = try_window(ev->chan))
-				*win += lines::topic_line(*ev);
+				*win += lines::topic_line(this, *ev);
 		});
 
 		pingpong::events::listen<pingpong::topic_updated_event>([&](pingpong::topic_updated_event *ev) {

@@ -12,11 +12,11 @@ namespace spjalla::lines {
 		std::shared_ptr<pingpong::user> user;
 		const std::string message;
 
-		quit_line(std::shared_ptr<pingpong::user> user_, const std::string &message_, long stamp_):
-			line(stamp_), user(user_), message(message_) {}
+		quit_line(client *parent_, std::shared_ptr<pingpong::user> user_, const std::string &message_, long stamp_):
+			line(parent_, stamp_), user(user_), message(message_) {}
 
-		quit_line(const pingpong::quit_command &cmd):
-			quit_line(cmd.serv->get_user(cmd.serv->get_nick(), true), cmd.reason, cmd.sent_time) {}
+		quit_line(client *parent_, const pingpong::quit_command &cmd):
+			quit_line(parent_, cmd.serv->get_user(cmd.serv->get_nick(), true), cmd.reason, cmd.sent_time) {}
 
 		virtual operator std::string() const override;
 		virtual notification_type get_notification_type() const override { return notification_type::info; }

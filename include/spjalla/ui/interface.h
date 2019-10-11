@@ -131,21 +131,21 @@ namespace spjalla::ui {
 			void log(const std::exception &);
 
 			void warn(const std::string &warning) {
-				log(lines::warning_line(warning));
+				log(lines::warning_line(parent, warning));
 			}
 
 			template <typename W, typename D>
 			void warn(const W &warning, const D &destination) {
-				log(lines::warning_line(warning), destination);
+				log(lines::warning_line(parent, warning), destination);
 			}
 
 			void error(const std::string &error) {
-				log(lines::error_line(error));
+				log(lines::error_line(parent, error));
 			}
 
 			template <typename E, typename D>
 			void error(const E &error, const D &destination) {
-				log(lines::error_line(error), destination);
+				log(lines::error_line(parent, error), destination);
 			}
 
 			/** Focuses a window. Note that this method will swap the active window and the given window, so the pointer

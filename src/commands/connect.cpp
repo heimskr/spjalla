@@ -14,8 +14,8 @@ namespace spjalla::commands {
 			try {
 				fn();
 			} catch (const std::exception &err) {
-				ui.log(lines::warning_line("Couldn't connect to " + ansi::bold(hostname) + " on port " +
-					ansi::bold(std::to_string(port)) + ": " + err.what()));
+				ui.warn("Couldn't connect to " + ansi::bold(hostname) + " on port " + ansi::bold(std::to_string(port))
+					+ ": " + err.what());
 			}
 		});
 

@@ -8,6 +8,10 @@
 #include "spjalla/core/notifications.h"
 #include "lib/formicine/ansi.h"
 
+namespace spjalla {
+	class client;
+}
+
 namespace spjalla::lines {
 	extern std::string notice, red_notice, yellow_notice;
 
@@ -15,10 +19,11 @@ namespace spjalla::lines {
 	std::string render_time(long stamp, bool with_ansi = true);
 
 	struct line: haunted::ui::textline {
+		client *parent;
 		long stamp;
 
-		line(long stamp_ = pingpong::util::timestamp(), int continuation_ = 0):
-			haunted::ui::textline(continuation_ + 11), stamp(stamp_) {}
+		line(client *parent_, long stamp_ = pingpong::util::timestamp(), int continuation_ = 0):
+			haunted::ui::textline(continuation_ + 11), parent(parent_), stamp(stamp_) {}
 
 		virtual notification_type get_notification_type() const { return notification_type::none; }
 	};

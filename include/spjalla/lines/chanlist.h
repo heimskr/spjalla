@@ -12,8 +12,8 @@ namespace spjalla::lines {
 		std::shared_ptr<pingpong::user> user;
 		std::shared_ptr<pingpong::channel> chan;
 
-		chanlist_line(std::shared_ptr<pingpong::user> user_, std::shared_ptr<pingpong::channel> chan_):
-			line(2), user(user_), chan(chan_) {}
+		chanlist_line(client *parent_, std::shared_ptr<pingpong::user> user_, std::shared_ptr<pingpong::channel> chan_):
+			line(parent_, 2), user(user_), chan(chan_) {}
 
 		virtual operator std::string() const override;
 	};

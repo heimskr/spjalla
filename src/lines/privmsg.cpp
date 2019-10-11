@@ -11,7 +11,7 @@ namespace spjalla::lines {
 	}
 
 	std::string privmsg_line::to_string(const pingpong::privmsg_event &ev, bool with_time) {
-		privmsg_line line {ev};
+		privmsg_line line {nullptr, ev};
 		return ansi::strip(line.process(ev.content, with_time));
 	}
 }

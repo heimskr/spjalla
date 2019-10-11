@@ -8,8 +8,8 @@ namespace spjalla::lines {
 		std::string message;
 		long stamp;
 
-		warning_line(const std::string &message_, long stamp_ = pingpong::util::timestamp()):
-			line(0), message(message_), stamp(stamp_) {}
+		warning_line(client *parent_, const std::string &message_, long stamp_ = pingpong::util::timestamp()):
+			line(parent_, 0), message(message_), stamp(stamp_) {}
 
 		virtual operator std::string() const override;
 		virtual notification_type get_notification_type() const override { return notification_type::info; }

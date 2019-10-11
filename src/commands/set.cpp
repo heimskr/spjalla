@@ -12,9 +12,9 @@ namespace spjalla::commands {
 
 		if (il.args.empty()) {
 			for (const auto &gpair: with_defaults) {
-				ui.log(lines::config_group_line(gpair.first));
+				ui.log(lines::config_group_line(&cli, gpair.first));
 				for (const auto &spair: gpair.second)
-					ui.log(lines::config_key_line(spair));
+					ui.log(lines::config_key_line(&cli, spair));
 			}
 
 			return;
@@ -48,7 +48,7 @@ namespace spjalla::commands {
 		if (il.args.size() == 1) {
 			try {
 				const config::value &value = cli.configs.get_pair(parsed);
-				ui.log(lines::config_key_line(parsed.first + "." + parsed.second, value, false));
+				ui.log(lines::config_key_line(&cli, parsed.first + "." + parsed.second, value, false));
 			} catch (const std::out_of_range &) {
 				ui.log("No configuration option for " + ansi::bold(first) + ".");
 			}

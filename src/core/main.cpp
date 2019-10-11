@@ -38,8 +38,8 @@ namespace spjalla {
 			instance->load_plugins(plugin_dir);
 			DBG("Loaded plugins.");
 		} catch (const std::filesystem::filesystem_error &err) {
-			instance->log(lines::warning_line("Couldn't load plugins from " + ansi::bold(plugin_dir) + ": " +
-				err.code().message()));
+			instance->log(lines::warning_line(instance.get(), "Couldn't load plugins from " + ansi::bold(plugin_dir)
+				+ ": " + err.code().message()));
 		}
 
 		instance->preinit_plugins();

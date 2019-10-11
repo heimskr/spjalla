@@ -11,7 +11,7 @@
 #include "spjalla/lines/message.h"
 
 namespace spjalla::lines {
-	struct notice_format { static constexpr const char *message = "^d-^D%s^d-^D %m", *action = "^d-^b*^B %s^d-^D %m"; };
+	struct notice_format { static constexpr const char *message = "^d-^D%s^d-^0 %m", *action = "^d-^b*^B %s^d-^0 %m"; };
 
 	class notice_line: public message_line<notice_format> {
 		private:
@@ -20,12 +20,15 @@ namespace spjalla::lines {
 		public:
 			using message_line::message_line;
 
-			notice_line(const pingpong::notice_event &ev, bool direct_only_ = false, bool always_highlight_ = false):
-			notice_line(ev.speaker, ev.where, ev.content, ev.stamp, direct_only_) {
+			notice_line(client *parent_, const pingpong::notice_event &ev, bool direct_only_ = false,
+			bool always_highlight_ = false):
+			notice_line(parent_, ev.speaker, ev.where, ev.content, ev.stamp, direct_only_) {
 				always_highlight = always_highlight_;
 			}
 
-			virtual notification_type get_notification_type() const override;
+			notification_type get_notification_type() const override;
+
+			void postprocess(std::string &) const override;
 
 			static std::string to_string(const pingpong::notice_event &, bool with_time = true);
 	};
