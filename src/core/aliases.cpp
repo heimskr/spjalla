@@ -55,12 +55,13 @@ namespace spjalla {
 		return line;
 	}
 
-	void aliases::apply_line(const std::string &line) {
+	std::pair<std::string, std::string> aliases::apply_line(const std::string &line) {
 		std::string key, expansion;
 		std::tie(key, expansion) = parse_kv_pair(line);
 		if (has_alias(key))
 			remove(key);
 		insert(key, expansion);
+		return {key, db.at(key)};
 	}
 
 	bool aliases::insert(const std::string &key, const std::string &expansion, bool save) {
@@ -88,6 +89,10 @@ namespace spjalla {
 			write_db();
 
 		return true;
+	}
+
+	std::string aliases::get(const std::string &key) {
+		return db.at(key);
 	}
 
 	aliases::operator std::string() const {

@@ -182,11 +182,12 @@ namespace spjalla::config {
 		return true;
 	}
 
-	void database::apply_line(const std::string &line) {
+	std::pair<std::string, std::string> database::apply_line(const std::string &line) {
 		std::string group, key, gk, value;
 		std::tie(gk, value) = parse_kv_pair(line);
 		std::tie(group, key) = parse_pair(gk);
 		insert_any(group, key, value);
+		return {group + "." + key, value};
 	}
 
 	void database::apply_all(bool with_defaults) {

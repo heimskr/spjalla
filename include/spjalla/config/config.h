@@ -79,7 +79,7 @@ namespace spjalla::config {
 			/** Applies all settings, optionally with default settings where not overridden. */
 			void apply_all(bool with_defaults);
 
-			virtual void apply_line(const std::string &) override;
+			virtual std::pair<std::string, std::string> apply_line(const std::string &) override;
 
 			virtual void apply_all() override { apply_all(true); }
 

@@ -30,7 +30,7 @@ namespace spjalla {
 			virtual ~flatdb() {};
 
 			/** Applies a line of read input. */
-			virtual void apply_line(const std::string &) = 0;
+			virtual std::pair<std::string, std::string> apply_line(const std::string &) = 0;
 
 			/** Applies all database items. Useful for the configuration database, which has applicators, but less
 			 *  useful for the alias database which just reads items and doesn't immediately act on them. */

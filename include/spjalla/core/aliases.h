@@ -30,7 +30,8 @@ namespace spjalla {
 			/** Replaces any aliased command in an input_line with its expansion in-place. */
 			input_line & expand(input_line &);
 
-			virtual void apply_line(const std::string &) override;
+			/** Returns a pair representing the key and the value. */
+			virtual std::pair<std::string, std::string> apply_line(const std::string &) override;
 
 			virtual void clear_all() override { db.clear(); }
 			virtual bool empty() const override { return db.empty(); }
@@ -41,6 +42,10 @@ namespace spjalla {
 			/** Removes a value from the alias database. Returns true if a value was present and removed, or false
 			 *  if no match was found. */
 			bool remove(const std::string &key, bool save = true);
+
+			/** Returns the alias corresponding to a key. If there's nothing present for the key, the function throws
+			 *  std::out_of_range. */
+			std::string get(const std::string &);
 
 			auto  begin() { return db.begin(); }
 			auto    end() { return db.end();   }

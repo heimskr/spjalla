@@ -27,8 +27,9 @@ namespace spjalla::commands {
 		}
 
 		try {
-			cli.alias_db.apply_line(il.body);
+			const std::pair<std::string, std::string> apply_result = cli.alias_db.apply_line(il.body);
 			cli.alias_db.write_db();
+			ui.log("Added alias " + ansi::bold(apply_result.first) + ".");
 		} catch (const std::invalid_argument &err) {
 			DBG("Couldn't parse alias insertion [" << il.body << "]: " << err.what());
 			ui.warn("Invalid syntax for alias " + "\""_d + il.body + "\""_d);

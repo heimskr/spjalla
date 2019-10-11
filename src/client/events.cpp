@@ -108,17 +108,21 @@ namespace spjalla {
 		});
 
 		pingpong::events::listen<pingpong::notice_event>([&](pingpong::notice_event *ev) {
-			const bool direct_only = configs.get("activity", "direct_only").bool_();
-			const bool highlight_notices = configs.get("activity", "highlight_notices").bool_();
+			const bool direct_only = configs.get("messages", "direct_only").bool_();
+			const bool highlight_notices = configs.get("messages", "highlight_notices").bool_();
+			const bool in_status = configs.get("messages", "notices_in_status").bool_();
+
 			if (!ev->is_channel() && !ev->speaker) {
-				*ui.get_active_window() += lines::notice_line(ev->serv->id, "*", ev->serv->get_nick(), ev->content,
-					ev->stamp, {}, true);
+				ui::window *win = in_status? ui.status_window : ui.active_window;
+				*win += lines::notice_line(ev->serv->id, "*", ev->serv->get_nick(), ev->content, ev->stamp, {}, true);
 				return;
 			}
 
 			lines::notice_line nline = {*ev, direct_only, highlight_notices};
 			if (ev->is_channel()) {
 				*ui.get_window(ev->get_channel(ev->serv), true) += nline;
+			} else if (in_status) {
+				*ui.status_window += nline;
 			} else if (ev->speaker && ev->speaker->is_self()) {
 				*ui.get_window(ev->serv->get_user(ev->where, true), true) += nline;
 			} else {
@@ -135,7 +139,7 @@ namespace spjalla {
 		});
 
 		pingpong::events::listen<pingpong::privmsg_event>([&](pingpong::privmsg_event *ev) {
-			const bool direct_only = configs.get("activity", "direct_only").bool_();
+			const bool direct_only = configs.get("messages", "direct_only").bool_();
 			if (ev->is_channel()) {
 				*ui.get_window(ev->get_channel(ev->serv), true) += lines::privmsg_line(*ev, direct_only);
 			} else {

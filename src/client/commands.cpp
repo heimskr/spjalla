@@ -116,7 +116,6 @@ namespace spjalla {
 			ban(serv, il, "+b");
 		}, {}}});
 
-
 		add({"clear", {0, 0, false, [&](sptr, line) {
 			if (ui::window *win = ui.get_active_window()) {
 				win->set_voffset(win->total_rows());
@@ -124,7 +123,6 @@ namespace spjalla {
 				DBG(lines::red_notice + "No window.");
 			}
 		}, {}}});
-
 
 		add({"connect",    {1,  2, false, [&](sptr,      line il) { commands::do_connect(*this, il);          }, {}}});
 		add({"disconnect", {0, -1, false, [&](sptr serv, line il) { commands::do_disconnect(*this, serv, il); }, {}}});
@@ -134,7 +132,6 @@ namespace spjalla {
 			if (triple_command<pingpong::kick_command>(serv, il, ui.get_active_channel()))
 				no_channel();
 		}, {}}});
-
 
 		add({"me",   {1, -1, true,  [&](sptr,      line il) { commands::do_me(ui, il);   }, completions::complete_me}});
 		add({"mode", {1, -1, true,  [&](sptr serv, line il) { commands::do_mode(ui, serv, il); }, {}}});
