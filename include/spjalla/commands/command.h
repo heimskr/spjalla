@@ -6,9 +6,19 @@
 #include <utility>
 #include <vector>
 
-#include "pingpong/core/server.h"
-
 #include "spjalla/core/tab_completion.h"
+
+namespace pingpong {
+	class server;
+}
+
+namespace spjalla {
+	class client;
+}
+
+namespace spjalla::ui {
+	class interface;
+}
 
 namespace spjalla::commands {
 	struct command {
@@ -27,11 +37,14 @@ namespace spjalla::commands {
 		const std::vector<completions::completion_state::suggestor_fn> &suggestors_= {}):
 			min_args(min_args_), max_args(max_args_), needs_server(needs_server_), handler(handler_),
 			completion_fn(completion_fn_), suggestors(suggestors_) {}
-
 	};
 
 	/** Command name, command */
 	using pair = std::pair<std::string, command>;
+
+	void do_set(client &, const input_line &);
+	void do_spam(spjalla::ui::interface &, const input_line &);
+	void do_topic(client &, pingpong::server *, const input_line &);
 }
 
 #endif

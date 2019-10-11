@@ -116,7 +116,7 @@ namespace spjalla {
 				return;
 			}
 
-			lines::notice_line nline = {*ev, direct_only/* , highlight_notices */};
+			lines::notice_line nline = {*ev, direct_only, highlight_notices};
 			if (ev->is_channel()) {
 				*ui.get_window(ev->get_channel(ev->serv), true) += nline;
 			} else if (ev->speaker && ev->speaker->is_self()) {
