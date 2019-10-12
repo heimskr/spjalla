@@ -5,6 +5,7 @@
 #include "pingpong/core/hats.h"
 #include "pingpong/core/util.h"
 
+#include "spjalla/core/client.h"
 #include "spjalla/lines/basic.h"
 #include "spjalla/lines/join.h"
 #include "spjalla/lines/notice.h"
@@ -30,21 +31,21 @@ namespace spjalla::plugins::logs {
 		const std::string object  = formicine::util::nth_word(str, 3, false);
 
 		if (verb == "msg") {
-			return std::make_unique<lines::privmsg_line>(subject, pair.second, object, str.substr(str.find(':') + 1),
-				stamp);
+			return std::make_unique<lines::privmsg_line>(parent, subject, pair.second, object,
+				str.substr(str.find(':') + 1), stamp);
 		} else if (verb == "notice") {
-			return std::make_unique<lines::notice_line>(subject, pair.second, object, str.substr(str.find(':') + 1),
-				stamp);
+			return std::make_unique<lines::notice_line>(parent, subject, pair.second, object,
+				str.substr(str.find(':') + 1), stamp);
 		} else if (verb == "created" || verb == "opened" || verb == "closed") {
-			return autoclean? nullptr : std::make_unique<log_line>(verb, stamp);
+			return autoclean? nullptr : std::make_unique<log_line>(parent, verb, stamp);
 		} else if (verb == "join") {
-			return std::make_unique<lines::join_line>(pair.second, subject, stamp);
+			return std::make_unique<lines::join_line>(parent, pair.second, subject, stamp);
 		} else if (verb == "part") {
-			return std::make_unique<lines::part_line>(pair.second, subject, str.substr(str.find(':') + 1), stamp);
+			return std::make_unique<lines::part_line>(parent, pair.second, subject, str.substr(str.find(':') + 1),
+				stamp);
 		}
 
-		return std::make_unique<lines::basic_line>(
-			"micros[" + std::to_string(micros.count()) + "], verb[" + verb + "]"
-		, 0, stamp);
+		return std::make_unique<lines::basic_line>(parent,
+			"micros[" + std::to_string(micros.count()) + "], verb[" + verb + "]", 0, stamp);
 	}
 }

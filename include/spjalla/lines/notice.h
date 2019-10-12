@@ -11,7 +11,18 @@
 #include "spjalla/lines/message.h"
 
 namespace spjalla::lines {
-	struct notice_format { static constexpr const char *message = "^d-^D%s^d-^0 %m", *action = "^d-^b*^B %s^d-^0 %m"; };
+	struct notice_format {
+		static constexpr const char *message = "^d-^D%s^d-^0 %m", *action = "^d-^b*^B %s^d-^0 %m";
+		template <typename T>
+		static void postprocess(T *line, std::string &str) {
+			client *parent = line->parent;
+			if (parent == nullptr)
+				return;
+			ansi::color foreground = ansi::get_color(parent->configs.get("appearance", "notice_foreground").string_());
+			if (foreground != ansi::color::normal)
+				str.insert(0, ansi::get_fg(foreground));
+		}
+	};
 
 	class notice_line: public message_line<notice_format> {
 		private:
@@ -22,13 +33,11 @@ namespace spjalla::lines {
 
 			notice_line(client *parent_, const pingpong::notice_event &ev, bool direct_only_ = false,
 			bool always_highlight_ = false):
-			notice_line(parent_, ev.speaker, ev.where, ev.content, ev.stamp, direct_only_) {
+			message_line(parent_, ev.speaker, ev.where, ev.content, ev.stamp, direct_only_) {
 				always_highlight = always_highlight_;
 			}
 
 			notification_type get_notification_type() const override;
-
-			void postprocess(std::string &) const override;
 
 			static std::string to_string(const pingpong::notice_event &, bool with_time = true);
 	};

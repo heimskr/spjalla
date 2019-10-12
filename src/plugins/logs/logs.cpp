@@ -211,9 +211,12 @@ namespace spjalla::plugins::logs {
 
 
 		pingpong::events::listen<pingpong::notice_event>([&](pingpong::notice_event *event) {
-			lines::notice_line line = event->is_channel() || event->speaker? *event :
-				lines::notice_line(event->serv->id, "*", event->serv->get_nick(), event->content, event->stamp, {},
-					true);
+			if (event->serv->get_parent() != &client->get_irc())
+				return;
+
+			lines::notice_line line = event->is_channel() || event->speaker? lines::notice_line(client, *event) :
+				lines::notice_line(client, event->serv->id, "*", event->serv->get_nick(), event->content, event->stamp,
+					{}, true);
 
 			// A '$' logfile is for messages received from the server itself.
 			const std::string where = event->is_channel()? event->where : (event->speaker? event->speaker->name : "$");
@@ -236,7 +239,10 @@ namespace spjalla::plugins::logs {
 
 
 		pingpong::events::listen<pingpong::privmsg_event>([&](pingpong::privmsg_event *event) {
-			lines::privmsg_line line {*event};
+			if (event->serv->get_parent() != &client->get_irc())
+				return;
+
+			lines::privmsg_line line {client, *event};
 			log({event->serv, event->is_channel()? event->where : event->speaker->name},
 				util::ltrim(line.hat_str() + line.name) + " " + event->serv->get_nick() + " " +
 				(line.is_action()? "*" : ":") + line.trimmed(line.message), "msg");

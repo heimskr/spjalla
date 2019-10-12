@@ -11,7 +11,11 @@
 #include "spjalla/lines/message.h"
 
 namespace spjalla::lines {
-	struct privmsg_format { static constexpr const char *message = "^d<^D%h%s^d>^D %m", *action = "^b*^B %h%s %m"; };
+	struct privmsg_format {
+		static constexpr const char *message = "^d<^D%h%s^d>^D %m", *action = "^b*^B %h%s %m";
+		template <typename T>
+		static void postprocess(T *, std::string &) {}
+	};
 
 	class privmsg_line: public message_line<privmsg_format> {
 		public:

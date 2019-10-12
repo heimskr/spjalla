@@ -83,11 +83,9 @@ namespace spjalla::lines {
 		out.erase(mpos, 2);
 		out.insert(mpos, pingpong::util::irc2ansi(is_action()? trimmed(str) : str));
 
+		T::postprocess(this, out);
 		return time + out;
 	}
-
-	template <typename T>
-	void message_line<T>::postprocess(std::string &) const {}
 
 	template <typename T>
 	std::string message_line<T>::get_verb(const std::string &str) {

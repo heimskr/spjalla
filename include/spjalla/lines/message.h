@@ -44,9 +44,6 @@ namespace spjalla::lines {
 			/** Formats a message by processing colors and actions and adding the user's name. */
 			std::string process(const std::string &, bool with_time = true) const;
 
-			/** Performs the last step of processing. */
-			virtual void postprocess(std::string &) const;
-
 		public:
 			// We need to store a copy of the speaker's name at the time the message was sent—otherwise, if they were to
 			// change their name later, it would cause this line to render with the new name!
