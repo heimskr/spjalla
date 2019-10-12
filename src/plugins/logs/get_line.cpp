@@ -52,6 +52,9 @@ namespace spjalla::plugins::logs {
 			return std::make_unique<lines::mode_line>(parent, mset, pair.second, subject, object, stamp);
 		} else if (verb == "topic_is") {
 			return std::make_unique<lines::topic_line>(parent, "", pair.second, str.substr(str.find(':') + 1), stamp);
+		} else if (verb == "topic_set") {
+			return std::make_unique<lines::topic_line>(parent, subject, pair.second, str.substr(str.find(':') + 1),
+				stamp);
 		}
 
 		DBG("Line: " << "["_d << str << "]"_d);
