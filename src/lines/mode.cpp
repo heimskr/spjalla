@@ -15,14 +15,14 @@ namespace spjalla::lines {
 
 		const std::string modestr = mset.mode_str();
 		const std::string &extra = mset.extra;
-		const std::string styled_name = ansi::cyan(who->name) + " ";
+		const std::string styled_name = ansi::cyan(who) + " ";
 
 		if (!extra.empty()) {
 			auto iter = verbs.find(modestr);
 			if (iter != verbs.end()) {
 				try {
 					pingpong::mask mask {extra};
-					if (mask.nick == who->serv->get_nick()) {
+					if (mask.nick == self) {
 						return lines::render_time(stamp) + lines::red_notice + styled_name + iter->second + " " +
 							ansi::bold(extra);
 					}

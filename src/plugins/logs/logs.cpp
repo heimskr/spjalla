@@ -201,7 +201,8 @@ namespace spjalla::plugins::logs {
 				return;
 
 			const std::string extra = !event->mset.extra.empty()? " " + event->mset.extra : "";
-			log({event->serv, event->where}, event->get_name() + " " + event->mset.mode_str() + extra, "mode");
+			log({event->serv, event->where}, event->get_name() + " " + event->serv->get_nick() + " " +
+				event->mset.mode_str() + extra, "mode");
 		});
 
 

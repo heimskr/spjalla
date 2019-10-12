@@ -4,13 +4,16 @@
 
 #include "pingpong/core/hats.h"
 #include "pingpong/core/util.h"
+#include "pingpong/core/modeset.h"
 
 #include "spjalla/core/client.h"
 #include "spjalla/lines/basic.h"
 #include "spjalla/lines/join.h"
+#include "spjalla/lines/mode.h"
 #include "spjalla/lines/notice.h"
 #include "spjalla/lines/part.h"
 #include "spjalla/lines/privmsg.h"
+#include "spjalla/lines/topic.h"
 
 #include "spjalla/plugins/logs.h"
 #include "spjalla/plugins/logs/log_line.h"
@@ -43,7 +46,15 @@ namespace spjalla::plugins::logs {
 		} else if (verb == "part") {
 			return std::make_unique<lines::part_line>(parent, pair.second, subject, str.substr(str.find(':') + 1),
 				stamp);
+		} else if (verb == "mode") {
+			pingpong::modeset mset {pingpong::modeset::mode_type::channel, formicine::util::nth_word(str, 4, false),
+				util::skip_words(str, 5)};
+			return std::make_unique<lines::mode_line>(parent, mset, pair.second, subject, object, stamp);
+		} else if (verb == "topic_is") {
+			return std::make_unique<lines::topic_line>(parent, "", pair.second, str.substr(str.find(':') + 1), stamp);
 		}
+
+		DBG("Line: " << "["_d << str << "]"_d);
 
 		return std::make_unique<lines::basic_line>(parent,
 			"micros[" + std::to_string(micros.count()) + "], verb[" + verb + "]", 0, stamp);

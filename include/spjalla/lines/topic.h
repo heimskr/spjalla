@@ -10,7 +10,8 @@ namespace spjalla::lines {
 	struct topic_line: public line {
 		std::string who, where, topic;
 
-		topic_line(client *parent_, const std::string &who_, const std::string &where_, const std::string &topic_, long stamp_):
+		topic_line(client *parent_, const std::string &who_, const std::string &where_, const std::string &topic_,
+		long stamp_):
 			line(parent_, stamp_), who(who_), where(where_), topic(topic_) {}
 
 		topic_line(client *parent_, const pingpong::topic_event &ev):

@@ -15,15 +15,14 @@ namespace spjalla::lines {
 
 		public:
 			pingpong::modeset mset;
-			std::string where;
-			std::shared_ptr<pingpong::user> who;
+			std::string where, who, self;
 
 			mode_line(client *parent_, const pingpong::modeset &mset_, const std::string &where_,
-			const std::shared_ptr<pingpong::user> &who_, long stamp_):
-				line(parent_, stamp_), mset(mset_), where(where_), who(who_) /*🦉*/ {}
+			const std::string &who_, const std::string &self_, long stamp_):
+				line(parent_, stamp_), mset(mset_), where(where_), who(who_) /*🦉*/, self(self_) {}
 
 			mode_line(client *parent_, const pingpong::mode_event &ev):
-				mode_line(parent_, ev.mset, ev.where, ev.who, ev.stamp) {}
+				mode_line(parent_, ev.mset, ev.where, ev.who? ev.who->name : "", ev.serv->get_nick(), ev.stamp) {}
 
 			virtual operator std::string() const override;
 			virtual notification_type get_notification_type() const override { return notification_type::info; }
