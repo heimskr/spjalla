@@ -16,7 +16,6 @@ SHARED_FLAG		:= -shared
 LIBPATHVAR		:= LD_LIBRARY_PATH
 
 ifeq ($(shell uname -s), Darwin)
-	SDKFLAGS	:= --sysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
 	SHARED_EXT	:= dylib
 	SHARED_FLAG	:= -dynamiclib
 	LIBPATHVAR	:= DYLD_LIBRARY_PATH
@@ -52,7 +51,7 @@ OBJECTS			= $(OBJECTS_PP) $(OBJECTS_HN) $(OBJECTS_SP)
 
 sinclude $(shell find src -name 'targets.mk')
 
-ALLFLAGS		 = $(SDKFLAGS) $(CPPFLAGS) $(CXXFLAGS)
+ALLFLAGS		 = $(CPPFLAGS) $(CXXFLAGS)
 
 plugins: $(OBJECTS_PL)
 
