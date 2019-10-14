@@ -67,4 +67,27 @@ namespace spjalla::ui {
 
 		highest_notification = notification_type::none;
 	}
+
+	void window::remove_rows(std::function<bool(const haunted::ui::textline *)> fn) {
+		std::deque<std::unique_ptr<haunted::ui::textline>> new_lines {};
+		int rows_removed = 0, lines_removed = 0, total_rows = 0;
+
+		for (std::unique_ptr<haunted::ui::textline> &ptr: lines) {
+			int rows = ptr->num_rows(pos.width);
+			total_rows += rows;
+			if (fn(ptr.get())) {
+				if (total_rows < voffset)
+					rows_removed += rows;
+				++lines_removed;
+			} else {
+				new_lines.push_back(std::move(ptr));
+			}
+		}
+
+		lines.swap(new_lines);
+		if (0 < rows_removed)
+			vscroll(-rows_removed);
+		if (0 < lines_removed)
+			draw();
+	}
 }

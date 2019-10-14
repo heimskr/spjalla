@@ -1,6 +1,7 @@
 #ifndef SPJALLA_UI_WINDOW_H_
 #define SPJALLA_UI_WINDOW_H_
 
+#include <functional>
 #include <optional>
 
 #include "haunted/core/defs.h"
@@ -93,6 +94,9 @@ namespace spjalla::ui {
 			void notify(const lines::line &, notification_type);
 			void notify(const lines::line &);
 			void unnotify();
+
+			/** Removes rows for which a given function returns true. */
+			void remove_rows(std::function<bool(const haunted::ui::textline *)>);
 
 			friend void swap(window &left, window &right);
 	};
