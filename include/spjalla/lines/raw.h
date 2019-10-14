@@ -11,8 +11,8 @@ namespace spjalla::lines {
 		bool is_out = false;
 
 		raw_line(client *parent_, const std::string &text_, bool is_out_ = false, bool is_bad_ = false,
-		int continuation_ = 0, const long stamp_ = now()):
-			line(parent_, stamp_, continuation_), text(text_), is_bad(is_bad_), is_out(is_out_) {}
+		long stamp_ = now()):
+			line(parent_, stamp_, 3), text(text_), is_bad(is_bad_), is_out(is_out_) {}
 
 		operator std::string() const override;
 	};

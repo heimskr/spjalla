@@ -24,6 +24,25 @@ namespace spjalla::plugins {
 					return dynamic_cast<const lines::raw_line *>(line);
 				});
 			}, {}}});
+
+			client->add({"_foo", {0, 0, false, [client](pingpong::server *, const input_line &) {
+				ui::window *win = client->get_ui().get_active_window();
+				for (int i = 0; i < win->get_position().height - 2; ++i)
+					*win += lines::raw_line(client, "Foo " + std::to_string(i));
+				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+				DBG("Go.");
+				*win += lines::raw_line(client, std::string(405, '.'));
+			}, {}}});
+
+			client->add({"_bar", {0, 0, false, [client](pingpong::server *, const input_line &) {
+				*client->get_ui().get_active_window() += lines::raw_line(client, std::string(405, '.'));
+			}, {}}});
+
+			client->add({"_asc", {0, 0, false, [client](pingpong::server *, const input_line &) {
+				ui::window *win = client->get_ui().get_active_window();
+				win->set_autoscroll(!win->get_autoscroll());
+				DBG("Autoscroll is now " << ansi::bold(win->get_autoscroll()? "on" : "off") << ".");
+			}, {}}});
 		}
 	};
 }

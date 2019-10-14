@@ -22,6 +22,8 @@
 
 #include "lib/formicine/ansi.h"
 
+#include "spjalla/tests/performance.h"
+
 namespace spjalla {
 	client::client(int heartbeat_period_): out_stream(ansi::out), term(haunted::terminal(std::cin, out_stream)),
 	ui(&term, this), completer(*this), configs({*this, false}), heartbeat_period(heartbeat_period_) {
@@ -32,6 +34,7 @@ namespace spjalla {
 
 	client::~client() {
 		term.join();
+		perf.~performance();
 	}
 
 

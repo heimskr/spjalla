@@ -104,6 +104,8 @@ namespace spjalla {
 					case notification_type::highlight: DBG("Window highest: " << "highlight"_b); break;
 					default: DBG("Window highest: " << "invalid"_d);
 				}
+				DBG("Window voffset: " << win->get_voffset());
+				DBG("Window autoscroll: " << (win->get_autoscroll()? "true" : "false"));
 			} else {
 				DBG("Window: " << "null"_d);
 			}

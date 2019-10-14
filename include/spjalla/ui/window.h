@@ -62,9 +62,12 @@ namespace spjalla::ui {
 			template <typename T, typename std::enable_if<std::is_base_of<lines::line, T>::value>::type * = nullptr>
 			textbox & operator+=(const T &line) {
 				std::unique_ptr<T> line_copy = std::make_unique<T>(line);
+				const bool did_scroll = do_scroll(line.num_rows(pos.width));
 				lines.push_back(std::move(line_copy));
-				if (!do_scroll(line.num_rows(pos.width)))
+
+				if (!did_scroll)
 					draw_new_line(*lines.back(), true);
+
 				notify(line, line.get_notification_type());
 				return *this;
 			}
