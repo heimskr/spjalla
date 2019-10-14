@@ -9,6 +9,7 @@ namespace spjalla::lines {
 	std::string notice        = "\e[2m-\e[1m!\e[0;2m-\e[22m ";
 	std::string red_notice    = "\e[31;2m-\e[22m!\e[2m-\e[22;39m ";
 	std::string yellow_notice = "\e[33;2m-\e[22m!\e[2m-\e[22;39m ";
+	size_t time_length = render_time(0, false).length() + 1; // The extra space is added only when with_ansi is true.
 
 	std::string render_time(long stamp, bool with_ansi) {
 		if (stamp == 0)

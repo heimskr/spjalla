@@ -14,6 +14,7 @@ namespace spjalla {
 
 namespace spjalla::lines {
 	extern std::string notice, red_notice, yellow_notice;
+	extern size_t time_length; // The length of render_time's returned values.
 
 	/** Renders a UNIX timestamp as an hours-minutes-seconds set. */
 	std::string render_time(long stamp, bool with_ansi = true);
@@ -23,7 +24,7 @@ namespace spjalla::lines {
 		long stamp;
 
 		line(client *parent_, long stamp_ = pingpong::util::timestamp(), int continuation_ = 0):
-			haunted::ui::textline(continuation_ + 11), parent(parent_), stamp(stamp_) {}
+			haunted::ui::textline(continuation_ + time_length), parent(parent_), stamp(stamp_) {}
 
 		virtual notification_type get_notification_type() const { return notification_type::none; }
 	};

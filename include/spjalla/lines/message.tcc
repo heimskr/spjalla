@@ -17,7 +17,7 @@ namespace spjalla::lines {
 			hats = chan->get_hats(speaker);
 		}
 
-		continuation = get_continuation();
+		continuation = get_continuation() + lines::time_length;
 		processed = process(message_);
 	}
 
@@ -28,7 +28,7 @@ namespace spjalla::lines {
 	line(parent_, stamp_), pingpong::local(where_), name(name_), self(self_), message(message_),
 	verb(get_verb(message_)), body(get_body(message_)), hats(hats_), direct_only(direct_only_) {
 		is_self = name_ == self_;
-		continuation = get_continuation();
+		continuation = get_continuation() + lines::time_length;
 		processed = process(message_);
 	}
 
@@ -39,18 +39,20 @@ namespace spjalla::lines {
 	body(get_body(message_)), direct_only(direct_only_) {
 		std::tie(hats, name) = pingpong::hat_set::separate(combined_);
 		is_self = name == self_;
-		continuation = get_continuation();
+		continuation = get_continuation() + lines::time_length;
 		processed = process(message_);
 	}
 
 	template <typename T>
 	size_t message_line<T>::get_continuation() const {
-		std::string format = is_action()? T::action : T::message;
-		const size_t mpos = ansi::strip(format).find("%m");
+		std::string format = ansi::strip(is_action()? T::action : T::message);
+
+		const size_t mpos = format.find("%m");
 		if (mpos == std::string::npos)
 			throw std::invalid_argument("Invalid message format string");
 
-		return std::string("[xx:xx:xx] ").length() + mpos;
+		// If the speaker comes before the message in the format, we need to adjust the return value accordingly.
+		return mpos + (format.find("%s") < mpos? name.length() - 2 : 0);
 	}
 
 	template <typename T>
