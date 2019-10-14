@@ -35,13 +35,14 @@
 #include "spjalla/lines/notice.h"
 #include "spjalla/lines/part.h"
 #include "spjalla/lines/privmsg.h"
+#include "spjalla/lines/raw.h"
 #include "spjalla/lines/quit.h"
 #include "spjalla/lines/topic.h"
 
 namespace spjalla {
 	void client::add_events() {
 		pingpong::events::listen<pingpong::bad_line_event>([&](pingpong::bad_line_event *ev) {
-			ui.log(lines::basic_line(this, ansi::wrap(">> ", ansi::color::red) + ev->bad_line, 3));
+			ui.log(lines::raw_line(this, ev->bad_line, false, true, 3, ev->stamp));
 		});
 
 		pingpong::events::listen<pingpong::command_event>([&](pingpong::command_event *ev) {
@@ -170,12 +171,12 @@ namespace spjalla {
 
 		pingpong::events::listen<pingpong::raw_in_event>([&](pingpong::raw_in_event *ev) {
 			if (log_spam)
-				ui.log(lines::basic_line(this, ansi::wrap("<< ", ansi::color::gray) + ev->raw_in, 3));
+				ui.log(lines::raw_line(this, ev->raw_in, false, false, 3, ev->stamp));
 		});
 
 		pingpong::events::listen<pingpong::raw_out_event>([&](pingpong::raw_out_event *ev) {
 			if (log_spam)
-				ui.log(lines::basic_line(this, ansi::wrap(">> ", ansi::color::lightgray) + ev->raw_out, 3));
+				ui.log(lines::raw_line(this, ev->raw_out, true, false, 3, ev->stamp));
 		});
 
 		pingpong::events::listen<pingpong::server_status_event>([&](pingpong::server_status_event *ev) {
