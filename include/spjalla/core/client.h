@@ -25,8 +25,6 @@
 
 #include "spjalla/plugins/plugin.h"
 
-#include "spjalla/tests/performance.h"
-
 #include "spjalla/ui/interface.h"
 #include "spjalla/ui/status_widget.h"
 
