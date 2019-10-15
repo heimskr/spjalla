@@ -8,6 +8,7 @@
 #include "pingpong/commands/nick.h"
 #include "pingpong/commands/privmsg.h"
 #include "pingpong/commands/quit.h"
+#include "pingpong/commands/whois.h"
 
 #include "pingpong/net/resolution_error.h"
 
@@ -168,6 +169,10 @@ namespace spjalla {
 			if (ui.can_remove())
 				ui.remove_window(ui.active_window);
 		}, {}}});
+
+		add({"whois", {1, 1, true, [&](sptr serv, line il) {
+			pingpong::whois_command(serv, il.first()).send();
+		}, completions::complete_plain}});
 	}
 
 	void client::ban(pingpong::server *serv, const input_line &il, const std::string &type) {

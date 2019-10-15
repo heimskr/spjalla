@@ -13,6 +13,7 @@
 
 #include "pingpong/messages/message.h"
 #include "pingpong/core/irc.h"
+#include "pingpong/core/server.h"
 
 #include "spjalla/commands/command.h"
 

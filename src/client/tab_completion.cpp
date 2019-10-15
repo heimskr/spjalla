@@ -98,6 +98,10 @@ namespace spjalla::completions {
 		client_.complete_message(raw, cursor, 1);
 	}
 
+	void complete_plain(client &client_, const input_line &, std::string &raw, size_t &cursor, long, long) {
+		client_.complete_message(raw, cursor, -1);
+	}
+
 	void completion_state::reset() {
 		if (partial.empty())
 			return;
