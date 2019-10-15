@@ -139,6 +139,9 @@ namespace spjalla {
 			/** Returns a reference to the IRC object.. */
 			pingpong::irc & get_irc() { return irc; }
 
+			/** Returns a reference to the terminal. */
+			haunted::terminal & get_terminal() { return term; }
+
 			/** Returns a pointer to the active server. */
 			pingpong::server * active_server();
 
