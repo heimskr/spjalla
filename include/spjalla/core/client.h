@@ -167,12 +167,12 @@ namespace spjalla {
 			/** Handles the parsing for the /ban command. */
 			void ban(pingpong::server *, const input_line &, const std::string &type = "+b");
 
-			/** Prints debug information about the server list to the log file. */
-			void debug_servers();
-
 		public:
 			/** Adds the built-in command handlers. */
 			void add_commands();
+
+			/** Prints debug information about the server list to the log file. */
+			void debug_servers();
 
 // client/events.cpp
 

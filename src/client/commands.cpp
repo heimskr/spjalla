@@ -34,84 +34,11 @@ namespace spjalla {
 
 		pingpong::command::before_send = [&](pingpong::command &cmd) { return before_send(cmd); };
 
-		add({"_args", {0, -1, false, [&](sptr, line il) {
-			std::vector<std::string> strings {};
-			ui.log("Body: " + "\""_d + util::escape(il.body) + "\""_d);
-			DBG("Body: " + "\""_d + util::escape(il.body) + "\""_d);
-			if (il.args.empty()) {
-				ui.log("Args: " + "(none)"_d, ui.active_window);
-				DBG("Args: " + "(none)"_d);
-				return;
-			}
-
-			std::transform(il.args.begin(), il.args.end(), std::back_inserter(strings), [](const std::string &str) {
-				return "\""_d + util::escape(str) + "\""_d;
-			});
-			std::string joined = "Args: " + formicine::util::join(strings.begin(), strings.end());
-			ui.log(joined, ui.active_window);
-			DBG(joined);
-		}, {}}});
-
-
-		add({"_dbg", {0, 0, false, [&](sptr, line) {
-			debug_servers();
-		}, {}}});
-
 
 		// Handles a fake line of input as if the client had read it from a socket.
 		add({"_fake", {0, -1, true, [&](sptr serv, line il) {
 			serv->handle_line(pingpong::line(serv, il.body));
 		}, {}}});
-
-
-		add({"_info", {0, 1, false, [&](sptr, line il) {
-			if (il.args.size() == 0) {
-				pingpong::debug::print_all(irc);
-				return;
-			}
-
-			const std::string &first = il.first();
-			ui.log("Unknown option: " + first);
-		}, {}}});
-
-
-		add({"_time", {0, 0, false, [&](sptr, line) {
-			DBG("Default time: " << pingpong::util::timestamp());
-			DBG("Seconds:      " << pingpong::util::seconds());
-			DBG("Milliseconds: " << pingpong::util::millistamp());
-			DBG("Microseconds: " << pingpong::util::microstamp());
-			DBG("Nanoseconds:  " << pingpong::util::nanostamp());
-		}, {}}});
-
-
-		add({"_win", {0, 0, false, [&](sptr, line) {
-			if (ui::window *win = ui.active_window) {
-				DBG("Window name:    " << ansi::bold(win->window_name));
-				switch (win->type) {
-					case ui::window_type::channel: DBG("Window type:    " << "channel"_b); break;
-					case ui::window_type::user:    DBG("Window type:    " << "user"_b);    break;
-					case ui::window_type::status:  DBG("Window type:    " << "status"_b);  break;
-					case ui::window_type::overlay: DBG("Window type:    " << "overlay"_b); break;
-					case ui::window_type::other:   DBG("Window type:    " << "other"_b);   break;
-					default: DBG("Window type:    " << "invalid"_d);
-				}
-				DBG("Window user:    " << (win->user? win->user->name : "null"_d));
-				DBG("Window channel: " << (win->chan? win->chan->name : "null"_d));
-				DBG("Window server:  " << (win->serv? win->serv->id : "null"_d));
-				switch (win->highest_notification) {
-					case notification_type::none:      DBG("Window highest: " << "none"_b);      break;
-					case notification_type::info:      DBG("Window highest: " << "info"_b);      break;
-					case notification_type::message:   DBG("Window highest: " << "message"_b);   break;
-					case notification_type::highlight: DBG("Window highest: " << "highlight"_b); break;
-					default: DBG("Window highest: " << "invalid"_d);
-				}
-				DBG("Window voffset: " << win->get_voffset());
-				DBG("Window autoscroll: " << (win->get_autoscroll()? "true" : "false"));
-			} else {
-				DBG("Window: " << "null"_d);
-			}
-		}, {}}});
-
 
 		add({"alias", {0, -1, false, [&](sptr, line il) { commands::do_alias(*this, il); }, {}}});
 
