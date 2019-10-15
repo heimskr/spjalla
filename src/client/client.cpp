@@ -33,7 +33,7 @@ namespace spjalla {
 
 	client::~client() {
 		term.join();
-		perf.results();
+		formicine::perf.results();
 	}
 
 

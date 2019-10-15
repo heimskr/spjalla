@@ -11,6 +11,8 @@
 #include "spjalla/core/notifications.h"
 #include "spjalla/lines/line.h"
 
+#include "lib/formicine/performance.h"
+
 namespace spjalla::ui {
 	enum class window_type {
 		status,  // The single status window where miscellaneous messages go.
@@ -61,13 +63,12 @@ namespace spjalla::ui {
 
 			template <typename T, typename std::enable_if<std::is_base_of<lines::line, T>::value>::type * = nullptr>
 			textbox & operator+=(const T &line) {
+				auto w = formicine::perf.watch("template <line> window::operator+=");
 				std::unique_ptr<T> line_copy = std::make_unique<T>(line);
 				const bool did_scroll = do_scroll(line.num_rows(pos.width));
 				lines.push_back(std::move(line_copy));
-
 				if (!did_scroll)
 					draw_new_line(*lines.back(), true);
-
 				notify(line, line.get_notification_type());
 				return *this;
 			}
@@ -76,9 +77,11 @@ namespace spjalla::ui {
 				typename std::enable_if<std::is_base_of<haunted::ui::textline, T>::value>::type * = nullptr,
 				typename std::enable_if<!std::is_base_of<lines::line, T>::value>::type * = nullptr>
 			textbox & operator+=(const T &line) {
+				auto w = formicine::perf.watch("template <!line> window::operator+=");
 				std::unique_ptr<T> line_copy = std::make_unique<T>(line);
+				const bool did_scroll = do_scroll(line.num_rows(pos.width));
 				lines.push_back(std::move(line_copy));
-				if (!do_scroll(line.num_rows(pos.width)))
+				if (!did_scroll)
 					draw_new_line(*lines.back(), true);
 				return *this;
 			}

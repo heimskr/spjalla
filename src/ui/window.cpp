@@ -48,7 +48,6 @@ namespace spjalla::ui {
 
 	void window::notify(const lines::line &line, notification_type type) {
 		pingpong::events::dispatch<events::notification_event>(this, &line, type);
-
 		if (highest_notification < type) {
 			highest_notification = type;
 			pingpong::events::dispatch<events::window_notification_event>(this, &line, highest_notification, type);
@@ -69,6 +68,7 @@ namespace spjalla::ui {
 	}
 
 	void window::remove_rows(std::function<bool(const haunted::ui::textline *)> fn) {
+		auto w = formicine::perf.watch("window::remove_rows");
 		std::deque<std::unique_ptr<haunted::ui::textline>> new_lines {};
 		int rows_removed = 0, lines_removed = 0, total_rows = 0;
 
