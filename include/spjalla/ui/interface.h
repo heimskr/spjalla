@@ -170,6 +170,9 @@ namespace spjalla::ui {
 			/** Switches to the previous window before the current window. */
 			void previous_window();
 
+			/** Toggles mouse tracking. */
+			void toggle_mouse();
+
 			/** Updates the text in the status bar. */
 			void update_statusbar();
 

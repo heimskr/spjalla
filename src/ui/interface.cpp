@@ -58,6 +58,8 @@ namespace spjalla::ui {
 		overlay->set_name("overlay_window");
 		windows.push_front(overlay);
 		overlay->key_fn = [&](const haunted::key &k) {
+			if (k == haunted::ktype::mouse)
+				return true;
 			toggle_overlay();
 			return k == config::keys::toggle_overlay || input->on_key(k);
 		};
@@ -360,6 +362,15 @@ namespace spjalla::ui {
 		}
 	}
 
+	void interface::toggle_mouse() {
+		DBG("Toggling mouse.");
+		if (term->mouse() == haunted::mouse_mode::none) {
+			term->mouse(haunted::mouse_mode::motion);
+		} else {
+			term->mouse(haunted::mouse_mode::none);
+		}
+	}
+
 	void interface::update_statusbar() {
 		window *win = active_window == overlay? before_overlay : active_window;
 
@@ -502,6 +513,8 @@ namespace spjalla::ui {
 			next_window();
 		} else if (copy == config::keys::previous_window) {
 			previous_window();
+		} else if (copy == config::keys::toggle_mouse) {
+			toggle_mouse();
 		} else if (copy == haunted::kmod::ctrl) {
 			switch (copy.type) {
 				case haunted::ktype::g: log("Active server: " + parent->active_server_id()); break;
