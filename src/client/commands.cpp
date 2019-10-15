@@ -136,13 +136,16 @@ namespace spjalla {
 				no_channel();
 		}, {}}});
 
-		add({"me",   {1, -1, true,  [&](sptr,      line il) { commands::do_me(ui, il);   }, completions::complete_me}});
+		add({"me",   {1, -1, true,  [&](sptr,      line il) {
+			commands::do_me(ui, il);
+		}, completions::complete_plain}});
+
 		add({"mode", {1, -1, true,  [&](sptr serv, line il) { commands::do_mode(ui, serv, il); }, {}}});
 		add({"move", {1,  1, false, [&](sptr,      line il) { commands::do_move(ui, il); }, {}}});
 
 		add({"msg", {2, -1, true, [&](sptr serv, line il) {
 			pingpong::privmsg_command(serv, il.first(), il.rest()).send();
-		}, {}}});
+		}, completions::complete_plain}});
 
 		add({"nick",    {0,  1, true,  [&](sptr serv, line il) { commands::do_nick(ui, serv, il);    }, {}}});
 		add({"overlay", {0,  0, false, [&](sptr,      line)    { ui.update_overlay();                }, {}}});

@@ -68,11 +68,11 @@ namespace spjalla::completions {
 		cursor = matches[0].length() + 1;
 	}
 
-	void complete_set(client &client_, const input_line &line, std::string &raw, size_t &cursor, long arg_index,
+	bool complete_set(client &client_, const input_line &line, std::string &raw, size_t &cursor, long arg_index,
 	long arg_subindex) {
 		completion_state &state = client_.completion_states["set"];
 		if (2 <= arg_index)
-			return;
+			return true;
 
 		const std::string first_arg = line.args.empty()? "" : line.args[0];
 
@@ -86,20 +86,19 @@ namespace spjalla::completions {
 			const std::string piece = first_arg.substr(0, arg_subindex);
 			std::vector<std::string> keys = config::starts_with(state.partial);
 			if (keys.empty())
-				return;
+				return true;
 			std::sort(keys.begin(), keys.end());
 			std::string next = util::next_in_sequence(keys.begin(), keys.end(), piece);
 			raw = "/set " + next + rest;
 			cursor = next.length() + 5;
 		}
+
+		return false;
 	}
 
-	void complete_me(client &client_, const input_line &, std::string &raw, size_t &cursor, long, long) {
-		client_.complete_message(raw, cursor, 1);
-	}
-
-	void complete_plain(client &client_, const input_line &, std::string &raw, size_t &cursor, long, long) {
+	bool complete_plain(client &client_, const input_line &, std::string &raw, size_t &cursor, long, long) {
 		client_.complete_message(raw, cursor, -1);
+		return true;
 	}
 
 	void completion_state::reset() {
@@ -149,6 +148,8 @@ namespace spjalla {
 		if (il.is_command()) {
 			const std::string old_text {text};
 
+			bool handled = false;
+
 			if (windex == 0) {
 				// The user wants to complete a command name.
 				completer.complete(text, cursor);
@@ -165,17 +166,19 @@ namespace spjalla {
 
 					if (name == il.command) {
 						if (cmd.completion_fn)
-							cmd.completion_fn(*this, il, text, cursor, windex, sindex);
+							handled = cmd.completion_fn(*this, il, text, cursor, windex, sindex);
 						break;
 					}
 				}
 			}
 
-			if (old_text != text)
-				ui.input->set_text(text);
+			if (!handled) {
+				if (old_text != text)
+					ui.input->set_text(text);
 
-			ui.input->move_to(cursor);
-			ui.input->jump_cursor();
+				ui.input->move_to(cursor);
+				ui.input->jump_cursor();
+			}
 		} else if (active_server()) {
 			if (ui.active_window == ui.status_window && text.front() != '/') {
 				text.insert(0, "/");
