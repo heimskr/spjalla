@@ -137,7 +137,7 @@ namespace spjalla::plugins::logs {
 		}
 
 		long parsed;
-		if (!util::parse_long(stamp_str, parsed))
+		if (!formicine::util::parse_long(stamp_str, parsed))
 			throw std::invalid_argument("Invalid timestamp: " + stamp_str);
 
 		switch (suffix) {
@@ -225,7 +225,7 @@ namespace spjalla::plugins::logs {
 			if (nick.empty())
 				nick = "!"; // A '!', in this case, represents you before your nick has been set.
 
-			log({event->serv, where}, util::ltrim(line.hat_str() + line.name) + " " + nick + " " +
+			log({event->serv, where}, formicine::util::ltrim(line.hat_str() + line.name) + " " + nick + " " +
 				(line.is_action()? "*" : ":") + line.trimmed(line.message), "notice");
 		});
 
@@ -245,7 +245,7 @@ namespace spjalla::plugins::logs {
 
 			lines::privmsg_line line {client, *event};
 			log({event->serv, event->is_channel()? event->where : event->speaker->name},
-				util::ltrim(line.hat_str() + line.name) + " " + event->serv->get_nick() + " " +
+				formicine::util::ltrim(line.hat_str() + line.name) + " " + event->serv->get_nick() + " " +
 				(line.is_action()? "*" : ":") + line.trimmed(line.message), "msg");
 		});
 

@@ -10,7 +10,7 @@ namespace spjalla::plugins::logs {
 		ui::interface &ui = parent->get_ui();
 		long to_restore;
 		if (!il.args.empty()) {
-			if (!util::parse_long(il.first(), to_restore)) {
+			if (!formicine::util::parse_long(il.first(), to_restore)) {
 				ui.error("Not a number: " + "\""_d + il.first() + "\"");
 				return;
 			}
@@ -83,7 +83,7 @@ namespace spjalla::plugins::logs {
 			std::string first_word = formicine::util::nth_word(raw, 0, false);
 			first_word.pop_back();
 			long l;
-			util::parse_long(first_word, l);
+			formicine::util::parse_long(first_word, l);
 
 			std::unique_ptr<haunted::ui::textline> line = get_line(pair, raw, autoclean);
 			if (line)

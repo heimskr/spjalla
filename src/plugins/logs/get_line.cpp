@@ -48,7 +48,7 @@ namespace spjalla::plugins::logs {
 				stamp);
 		} else if (verb == "mode") {
 			pingpong::modeset mset {pingpong::modeset::mode_type::channel, formicine::util::nth_word(str, 4, false),
-				util::skip_words(str, 5)};
+				formicine::util::skip_words(str, 5)};
 			return std::make_unique<lines::mode_line>(parent, mset, pair.second, subject, object, stamp);
 		} else if (verb == "topic_is") {
 			return std::make_unique<lines::topic_line>(parent, "", pair.second, str.substr(str.find(':') + 1), stamp);
