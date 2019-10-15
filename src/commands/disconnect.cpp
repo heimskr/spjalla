@@ -10,7 +10,7 @@ namespace spjalla::commands {
 		}
 
 		const std::string first = il.first();
-		const std::string reason = util::skip_words(il.body);
+		const std::string reason = formicine::util::skip_words(il.body);
 
 		for (pingpong::server *subserv: cli.get_irc().server_order) {
 			if (subserv->id == first) {

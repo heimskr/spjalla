@@ -11,8 +11,6 @@
 #include "spjalla/core/tab_completion.h"
 #include "spjalla/config/defaults.h"
 
-#include "lib/formicine/futil.h"
-
 namespace spjalla::completions {
 	void command_completer::on_key(const haunted::key &k) {
 		// If tab is pressed, complete is called before on_key, so we don't handle filling in partial here.
@@ -39,7 +37,7 @@ namespace spjalla::completions {
 		if (matches.size() == 0)
 			return;
 
-		const std::string rest = raw.substr(util::last_index_of_word(raw, 0));
+		const std::string rest = raw.substr(formicine::util::last_index_of_word(raw, 0));
 
 		if (matches.size() == 1) {
 			raw = "/" + matches[0] + rest;
@@ -82,13 +80,13 @@ namespace spjalla::completions {
 		}
 
 		if (arg_index == 1) {
-			const std::string rest = raw.substr(util::last_index_of_word(raw, 1));
+			const std::string rest = raw.substr(formicine::util::last_index_of_word(raw, 1));
 			const std::string piece = first_arg.substr(0, arg_subindex);
 			std::vector<std::string> keys = config::starts_with(state.partial);
 			if (keys.empty())
 				return true;
 			std::sort(keys.begin(), keys.end());
-			std::string next = util::next_in_sequence(keys.begin(), keys.end(), piece);
+			std::string next = formicine::util::next_in_sequence(keys.begin(), keys.end(), piece);
 			raw = "/set " + next + rest;
 			cursor = next.length() + 5;
 		}
@@ -142,7 +140,7 @@ namespace spjalla {
 
 		input_line il = get_input_line(text);
 		ssize_t windex, sindex;
-		std::tie(windex, sindex) = util::word_indices(text, cursor);
+		std::tie(windex, sindex) = formicine::util::word_indices(text, cursor);
 
 
 		if (il.is_command()) {
@@ -197,7 +195,7 @@ namespace spjalla {
 
 		input_line il = get_input_line(text);
 		ssize_t windex, sindex;
-		std::tie(windex, sindex) = util::word_indices(text, cursor);
+		std::tie(windex, sindex) = formicine::util::word_indices(text, cursor);
 
 		const std::string old_text {text};
 
@@ -224,7 +222,7 @@ namespace spjalla {
 		}
 
 		const std::string &suffix = configs.get("completion", "ping_suffix").string_ref();
-		util::remove_suffix(word, suffix);
+		formicine::util::remove_suffix(word, suffix);
 
 		std::deque<std::string> items = {};
 
@@ -261,8 +259,8 @@ namespace spjalla {
 				}
 			}
 
-			const std::string next = util::next_in_sequence(items.begin(), items.end(), word);
-			cursor = util::replace_word(text, windex, next);
+			const std::string next = formicine::util::next_in_sequence(items.begin(), items.end(), word);
+			cursor = formicine::util::replace_word(text, windex, next);
 
 			if (windex == word_offset && next.front() != '#' && !suffix.empty()) {
 				// Erase any space already after the colon to prevent spaces from accumulating.

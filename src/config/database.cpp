@@ -82,7 +82,7 @@ namespace spjalla::config {
 	}
 
 	value_type database::get_value_type(std::string val) noexcept {
-		util::trim(val);
+		formicine::util::trim(val);
 
 		if (val.empty())
 			return value_type::string_;

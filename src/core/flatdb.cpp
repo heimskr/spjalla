@@ -25,18 +25,18 @@ namespace spjalla {
 			throw std::invalid_argument("Empty key in key-value pair");
 
 		std::string key = str.substr(0, equals);
-		util::trim(key);
+		formicine::util::trim(key);
 
 		for (char ch: key) {
 			if (!std::isalnum(ch) && ch != '.' && ch != '_')
 				throw std::invalid_argument("Key isn't alphanumeric, '.' or '_' in key-value pair");
 		}
 
-		return {key, util::trim(str.substr(equals + 1))};
+		return {key, formicine::util::trim(str.substr(equals + 1))};
 	}
 
 	std::string flatdb::parse_string(std::string value) {
-		util::trim(value);
+		formicine::util::trim(value);
 		const size_t vlength = value.length();
 
 		// Special case: an empty value represents an empty string, same as a pair of double quotes.

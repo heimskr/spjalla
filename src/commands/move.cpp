@@ -6,7 +6,7 @@ namespace spjalla::commands {
 	void do_move(ui::interface &ui, const input_line &il) {
 		long parsed;
 		const std::string first = il.first();
-		if (!util::parse_long(first, parsed)) {
+		if (!formicine::util::parse_long(first, parsed)) {
 			ui.warn("Invalid number: " + "\""_bd + ansi::bold(first) + "\""_bd);
 			return;
 		}
