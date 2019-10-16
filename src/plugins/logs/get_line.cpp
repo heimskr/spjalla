@@ -34,10 +34,10 @@ namespace spjalla::plugins::logs {
 		const std::string object  = formicine::util::nth_word(str, 3, false);
 
 		if (verb == "msg") {
-			std::unique_ptr<lines::privmsg_line> new_line = std::make_unique<lines::privmsg_line>(parent, subject,
-				pair.second, object, str.substr(str.find(':') + 1), stamp);
+			lines::privmsg_line *new_line = new lines::privmsg_line(parent, subject, pair.second, object,
+				str.substr(str.find(':') + 1), stamp);
 			new_line->serv = pair.first;
-			return new_line;
+			return std::unique_ptr<lines::privmsg_line>(new_line);
 		} else if (verb == "notice") {
 			return std::make_unique<lines::notice_line>(parent, subject, pair.second, object,
 				str.substr(str.find(':') + 1), stamp);
