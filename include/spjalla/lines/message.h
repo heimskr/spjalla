@@ -16,12 +16,14 @@ namespace spjalla::lines {
 		 /**
 		  *   struct T { static std::string message, action; };
 		  * 
-		  * `message` and `action` are strings in which "%s" is replaced with the name of the speaker and "%m" is
-		  * replaced with the message. `action` is used for CTCP ACTIONs and `message` is used for everything else.
+		  * `message` and `action` are strings in which "#s" is replaced with the name of the speaker, "#m" is replaced
+		  * with the message and "#h" is replaced with the user's hats. `action` is used for CTCP ACTIONs and `message`
+		  * is used for everything else.
 		  */
 
 		private:
 			bool is_self = false;
+			std::string processed_message;
 
 			/** Finds the continuation for the line. */
 			size_t get_continuation() const;
@@ -40,9 +42,12 @@ namespace spjalla::lines {
 			/** Returns whether a message is a CTCP message. */
 			static bool is_ctcp(const std::string &);
 
+			/** Returns the index of the first character of the name in the rendered line. */
+			int get_name_index() const;
+
 		protected:
 			/** Formats a message by processing colors and actions and adding the user's name. */
-			std::string process(const std::string &, bool with_time = true) const;
+			std::string process(const std::string &, bool with_time = true);
 
 		public:
 			// We need to store a copy of the speaker's name at the time the message was sent—otherwise, if they were to
@@ -90,6 +95,8 @@ namespace spjalla::lines {
 
 			virtual operator std::string() const override;
 			virtual notification_type get_notification_type() const override;
+
+			void on_click(const haunted::mouse_report &) override;
 	};
 }
 

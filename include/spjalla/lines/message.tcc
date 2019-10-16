@@ -43,50 +43,20 @@ namespace spjalla::lines {
 		processed = process(message_);
 	}
 
+
+// Private instance methods
+
+
 	template <typename T>
 	size_t message_line<T>::get_continuation() const {
 		std::string format = ansi::strip(is_action()? T::action : T::message);
 
-		const size_t mpos = format.find("%m");
+		const size_t mpos = format.find("#m");
 		if (mpos == std::string::npos)
 			throw std::invalid_argument("Invalid message format string");
 
 		// If the speaker comes before the message in the format, we need to adjust the return value accordingly.
-		return mpos + (format.find("%s") < mpos? name.length() - 2 : 0);
-	}
-
-	template <typename T>
-	std::string message_line<T>::process(const std::string &str, bool with_time) const {
-		std::string name_fmt = is_action() || is_self? ansi::bold(name) : name;
-		const std::string time = with_time? lines::render_time(stamp) : "";
-
-		if (util::is_highlight(message, self, direct_only))
-			name_fmt = ansi::yellow(name_fmt);
-
-		std::string out = ansi::format(is_action()? T::action : T::message);
-		const size_t spos = out.find("%s");
-		if (spos == std::string::npos)
-			throw std::invalid_argument("Invalid message format string");
-
-		out.erase(spos, 2);
-		out.insert(spos, name_fmt);
-
-		const size_t hpos = out.find("%h");
-		if (hpos != std::string::npos) {
-			out.erase(hpos, 2);
-			if (is_channel())
-				out.insert(hpos, hat_str());
-		}
-
-		const size_t mpos = out.find("%m");
-		if (mpos == std::string::npos)
-			throw std::invalid_argument("Invalid message format string");
-
-		out.erase(mpos, 2);
-		out.insert(mpos, pingpong::util::irc2ansi(is_action()? trimmed(str) : str));
-
-		T::postprocess(this, out);
-		return time + out;
+		return mpos + (format.find("#s") < mpos? name.length() - 2 : 0);
 	}
 
 	template <typename T>
@@ -94,7 +64,7 @@ namespace spjalla::lines {
 		if (!is_ctcp(str))
 			return "";
 		const size_t space = str.find(' '), length = str.length();
-		return space == std::string::npos? str.substr(1, length - 2) :str.substr(space, length - space - 1);
+		return space == std::string::npos? str.substr(1, length - 2) : str.substr(space, length - space - 1);
 	}
 
 	template <typename T>
@@ -114,6 +84,66 @@ namespace spjalla::lines {
 	bool message_line<T>::is_ctcp(const std::string &str) {
 		return !str.empty() && str.front() == '\1' && str.back() == '\1';
 	}
+
+	template <typename T>
+	int message_line<T>::get_name_index() const {
+		std::string stripped = ansi::strip(is_action()? T::action : T::message);
+		size_t hpos = stripped.find("#h"), spos = stripped.find("#s"), mpos = stripped.find("#m");
+
+		// Instead of performing multiple expensive erases and inserts, we can just offset spos.
+		int addition = 0;
+
+		if (hpos < spos)
+			addition += hat_str().length() - 2;
+
+		if (mpos < spos)
+			addition += ansi::length(processed_message) - 2;
+
+		return time_length + spos + addition;
+	}
+
+
+// Protected instance methods
+
+
+	template <typename T>
+	std::string message_line<T>::process(const std::string &str, bool with_time) {
+		std::string name_fmt = is_action() || is_self? ansi::bold(name) : name;
+		const std::string time = with_time? lines::render_time(stamp) : "";
+
+		if (util::is_highlight(message, self, direct_only))
+			name_fmt = ansi::yellow(name_fmt);
+
+		std::string out = ansi::format(is_action()? T::action : T::message);
+		const size_t spos = out.find("#s");
+		if (spos == std::string::npos)
+			throw std::invalid_argument("Invalid message format string");
+
+		out.erase(spos, 2);
+		out.insert(spos, name_fmt);
+
+		const size_t hpos = out.find("#h");
+		if (hpos != std::string::npos) {
+			out.erase(hpos, 2);
+			if (is_channel())
+				out.insert(hpos, hat_str());
+		}
+
+		const size_t mpos = out.find("#m");
+		if (mpos == std::string::npos)
+			throw std::invalid_argument("Invalid message format string");
+
+		out.erase(mpos, 2);
+		processed_message = pingpong::util::irc2ansi(is_action()? trimmed(str) : str);
+		out.insert(mpos, processed_message);
+
+		T::postprocess(this, out);
+		return time + out;
+	}
+
+
+// Public instance methods
+
 
 	template <typename T>
 	bool message_line<T>::is_action() const {
@@ -162,5 +192,15 @@ namespace spjalla::lines {
 		if (util::is_highlight(message, self, direct_only) || where == self)
 			return notification_type::highlight;
 		return notification_type::message;
+	}
+
+	template <typename T>
+	void message_line<T>::on_click(const haunted::mouse_report &report) {
+		int name_index = get_name_index();
+		if (name_index <= report.x && report.x < name_index + static_cast<int>(name.length())) {
+			DBG("Clicked on name.");
+		} else {
+			DBG("Didn't click on name.");
+		}
 	}
 }

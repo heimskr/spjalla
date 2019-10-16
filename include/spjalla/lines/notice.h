@@ -12,7 +12,7 @@
 
 namespace spjalla::lines {
 	struct notice_format {
-		static constexpr const char *message = "^d-^D%s^d-^0 %m", *action = "^d-^b*^B %s^d-^0 %m";
+		static constexpr const char *message = "^d-^D#s^d-^0 #m", *action = "^d-^b*^B #s^d-^0 #m";
 		template <typename T>
 		static void postprocess(T *line, std::string &str) {
 			client *parent = line->parent;
