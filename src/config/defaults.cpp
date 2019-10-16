@@ -115,6 +115,11 @@ namespace spjalla::config {
 			db.get_parent().log_spam = new_val.bool_();
 		}, "Whether to log raw input/output in the status window.");
 
+		// Interface
+
+		register_key("interface", "close_on_part", true, validate_bool, {},
+			"Whether to close a channel's window after parting it.");
+
 		// Messages
 
 		register_key("messages", "direct_only", false, validate_bool, {},

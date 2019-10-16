@@ -96,7 +96,7 @@ namespace spjalla {
 		}, {}}});
 
 		add({"wc", {0, 0, false, [&](sptr, line) {
-			if (ui.can_remove())
+			if (ui.can_remove(ui.active_window))
 				ui.remove_window(ui.active_window);
 		}, {}}});
 
