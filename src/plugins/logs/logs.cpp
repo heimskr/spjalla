@@ -211,7 +211,7 @@ namespace spjalla::plugins::logs {
 		});
 
 
-		pingpong::events::listen<pingpong::notice_event>([=](pingpong::notice_event *event) {
+		pingpong::events::listen<pingpong::notice_event>([&, client](pingpong::notice_event *event) {
 			if (event->serv->get_parent() != &client->get_irc())
 				return;
 
@@ -239,7 +239,7 @@ namespace spjalla::plugins::logs {
 		});
 
 
-		pingpong::events::listen<pingpong::privmsg_event>([=](pingpong::privmsg_event *event) {
+		pingpong::events::listen<pingpong::privmsg_event>([&, client](pingpong::privmsg_event *event) {
 			if (event->serv->get_parent() != &client->get_irc()) {
 				DBG("Different parent IRCs: " << event->serv->get_parent() << " vs. " << &client->get_irc());
 				return;
