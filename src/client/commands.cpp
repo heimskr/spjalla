@@ -55,7 +55,7 @@ namespace spjalla {
 		}, {}}});
 
 		add({"connect",    {1,  2, false, [&](sptr,      line il) { commands::do_connect(*this, il);          }, {}}});
-		add({"disconnect", {0, -1, false, [&](sptr serv, line il) { commands::do_disconnect(*this, serv, il); }, {}}});
+		add({"disconnect", {0, -1, true,  [&](sptr serv, line il) { commands::do_disconnect(*this, serv, il); }, {}}});
 		add({"join",       {1,  1, true,  [&](sptr serv, line il) { commands::do_join(*this, serv, il);       }, {}}});
 
 		add({"kick", {1, -1, true, [&](sptr serv, line il) {
