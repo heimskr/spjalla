@@ -117,6 +117,19 @@ namespace spjalla {
 		return ui.swappo->get_children();
 	}
 
+	ui::window * client::query(const std::string &name, pingpong::server *serv) {
+		if (!serv)
+			serv = active_server();
+
+		if (!serv)
+			throw std::runtime_error("Can't query user: server is null");
+		return query(serv->get_user(name, true));
+	}
+
+	ui::window * client::query(std::shared_ptr<pingpong::user> whom) {
+		return ui.get_window(whom, true);
+	}
+
 	void client::no_channel() {
 		ui.log(lines::red_notice + "No active channel.");
 	}

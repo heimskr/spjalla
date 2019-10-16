@@ -1,4 +1,5 @@
 #include "pingpong/core/util.h"
+#include "spjalla/core/client.h"
 #include "spjalla/core/util.h"
 #include "spjalla/lines/message.h"
 #include "lib/formicine/futil.h"
@@ -8,7 +9,8 @@ namespace spjalla::lines {
 	message_line<T>::message_line(client *parent_, std::shared_ptr<pingpong::user> speaker, const std::string &where_,
 	const std::string &message_, long stamp_, bool direct_only_):
 		line(parent_, stamp_), pingpong::local(where_), name(speaker->name), self(speaker->serv->get_nick()),
-		message(message_), verb(get_verb(message_)), body(get_body(message_)), direct_only(direct_only_) {
+		message(message_), verb(get_verb(message_)), body(get_body(message_)), direct_only(direct_only_),
+		serv(speaker->serv) {
 
 		is_self = speaker->is_self();
 
@@ -195,12 +197,16 @@ namespace spjalla::lines {
 	}
 
 	template <typename T>
-	void message_line<T>::on_click(const haunted::mouse_report &report) {
-		int name_index = get_name_index();
-		if (name_index <= report.x && report.x < name_index + static_cast<int>(name.length())) {
-			DBG("Clicked on name.");
-		} else {
-			DBG("Didn't click on name.");
+	void message_line<T>::on_mouse(const haunted::mouse_report &report) {
+		if (report.action == haunted::mouse_action::up) {
+			const int name_index = get_name_index();
+			if (name_index <= report.x && report.x < name_index + static_cast<int>(name.length())) {
+				if (!serv) {
+					DBG("Can't query: server is null");
+				} else {
+					parent->get_ui().focus_window(parent->query(name, serv));
+				}
+			}
 		}
 	}
 }

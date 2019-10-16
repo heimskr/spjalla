@@ -20,7 +20,6 @@ namespace spjalla::lines {
 		  * with the message and "#h" is replaced with the user's hats. `action` is used for CTCP ACTIONs and `message`
 		  * is used for everything else.
 		  */
-
 		private:
 			bool is_self = false;
 			std::string processed_message;
@@ -59,6 +58,7 @@ namespace spjalla::lines {
 			pingpong::hat_set hats {};
 
 			const bool direct_only;
+			pingpong::server *serv = nullptr;
 
 			/** The message after colors and actions have been processed. */
 			std::string processed;
@@ -69,11 +69,11 @@ namespace spjalla::lines {
 			message_line(client *parent_, std::shared_ptr<pingpong::user> speaker,
 			std::shared_ptr<pingpong::channel> chan_, const std::string &message_, long stamp_,
 			bool direct_only_ = false):
-				message_line(parent_, speaker, chan_->name, message_, stamp_, direct_only_) {}
+				message_line(parent_, speaker, chan_->name, message_, stamp_, direct_only_), serv(speaker->serv) {}
 
 			message_line(client *parent_, std::shared_ptr<pingpong::user> speaker,
 			std::shared_ptr<pingpong::user> whom_, const std::string &message_, long stamp_, bool direct_only_ = false):
-				message_line(parent_, speaker, whom_->name, message_, stamp_, direct_only_) {}
+				message_line(parent_, speaker, whom_->name, message_, stamp_, direct_only_), serv(speaker->serv) {}
 
 			message_line(client *, const std::string &name_, const std::string &where_, const std::string &self_,
 			const std::string &message_, long, const pingpong::hat_set &, bool direct_only_ = false);
@@ -96,7 +96,7 @@ namespace spjalla::lines {
 			virtual operator std::string() const override;
 			virtual notification_type get_notification_type() const override;
 
-			void on_click(const haunted::mouse_report &) override;
+			void on_mouse(const haunted::mouse_report &) override;
 	};
 }
 

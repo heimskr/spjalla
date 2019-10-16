@@ -151,6 +151,10 @@ namespace spjalla {
 			/** Returns all the windows as haunted::ui::control pointers. */
 			std::deque<haunted::ui::control *> get_window_controls() const;
 
+			/** Opens a message window with a given nick. */
+			ui::window * query(const std::string &, pingpong::server *);
+			ui::window * query(std::shared_ptr<pingpong::user>);
+
 			/** Logs a message indicated that there is no active channel. */
 			void no_channel();
 
