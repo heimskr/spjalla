@@ -84,67 +84,6 @@ namespace spjalla::ui {
 		expando->key_fn = [&](const haunted::key &k) { return on_key(k); };
 	}
 
-	window * interface::get_window(const std::string &window_name, bool create, window_type type) {
-		if (window_name == "status") {
-			if (status_window == nullptr && create)
-				status_window = new_window("status", window_type::status);
-			return status_window;
-		}
-
-		if (swappo->empty())
-			return nullptr;
-
-		for (haunted::ui::control *ctrl: swappo->get_children()) {
-			window *win = dynamic_cast<window *>(ctrl);
-			if (win && win->window_name == window_name)
-				return win;
-		}
-
-		return create? new_window(window_name, type) : nullptr;
-	}
-
-	window * interface::get_window(const std::shared_ptr<pingpong::channel> &chan, bool create) {
-		if (!chan)
-			return nullptr;
-
-		const std::string name = chan->serv->id + "/" + chan->name;
-		window *win = get_window(name, false);
-
-		if (create && !win) {
-			win = new_window(name, window_type::channel);
-			win->chan = chan;
-			win->serv = chan->serv;
-		}
-
-		return win;
-	}
-
-	window * interface::get_window(const std::shared_ptr<pingpong::user> &user, bool create) {
-		if (!user)
-			return nullptr;
-
-		const std::string name = user->serv->id + "/" + user->name;
-		window *win = get_window(name, false);
-
-		if (create && !win) {
-			win = new_window(name, window_type::user);
-			win->user = user;
-			win->serv = user->serv;
-		}
-
-		return win;
-	}
-
-	window * interface::new_window(const std::string &name, window_type type) {
-		static size_t win_count = 0;
-		window *win = new window(swappo, swappo->get_position(), name);
-		win->type = type;
-		win->set_name("window" + std::to_string(++win_count));
-		win->set_terminal(nullptr); // inactive windows are marked by their null terminals
-		win->set_autoscroll(true);
-		return win;
-	}
-
 	void interface::remove_window(window *win) {
 		if (win->get_parent() != swappo)
 			throw std::invalid_argument("Can't remove window: not a child of swappo.");
@@ -293,6 +232,67 @@ namespace spjalla::ui {
 
 		update_statusbar();
 		return newpos;
+	}
+
+	window * interface::get_window(const std::string &window_name, bool create, window_type type) {
+		if (window_name == "status") {
+			if (status_window == nullptr && create)
+				status_window = new_window("status", window_type::status);
+			return status_window;
+		}
+
+		if (swappo->empty())
+			return nullptr;
+
+		for (haunted::ui::control *ctrl: swappo->get_children()) {
+			window *win = dynamic_cast<window *>(ctrl);
+			if (win && win->window_name == window_name)
+				return win;
+		}
+
+		return create? new_window(window_name, type) : nullptr;
+	}
+
+	window * interface::get_window(const std::shared_ptr<pingpong::channel> &chan, bool create) {
+		if (!chan)
+			return nullptr;
+
+		const std::string name = chan->serv->id + "/" + chan->name;
+		window *win = get_window(name, false);
+
+		if (create && !win) {
+			win = new_window(name, window_type::channel);
+			win->chan = chan;
+			win->serv = chan->serv;
+		}
+
+		return win;
+	}
+
+	window * interface::get_window(const std::shared_ptr<pingpong::user> &user, bool create) {
+		if (!user)
+			return nullptr;
+
+		const std::string name = user->serv->id + "/" + user->name;
+		window *win = get_window(name, false);
+
+		if (create && !win) {
+			win = new_window(name, window_type::user);
+			win->user = user;
+			win->serv = user->serv;
+		}
+
+		return win;
+	}
+
+	window * interface::new_window(const std::string &name, window_type type) {
+		static size_t win_count = 0;
+		window *win = new window(swappo, swappo->get_position(), name);
+		win->type = type;
+		win->set_name("window" + std::to_string(++win_count));
+		win->set_terminal(nullptr); // inactive windows are marked by their null terminals
+		win->set_autoscroll(true);
+		return win;
 	}
 
 	void interface::next_server() {

@@ -78,6 +78,8 @@ namespace spjalla::plugins::logs {
 
 		reader.readlines(lines, to_restore - 1);
 		const bool autoclean = parent->configs.get("logs", "autoclean").bool_();
+
+		ui::window *win = ui.get_active_window();
 		
 		for (const std::string &raw: lines) {
 			std::string first_word = formicine::util::nth_word(raw, 0, false);
@@ -86,10 +88,12 @@ namespace spjalla::plugins::logs {
 			formicine::util::parse_long(first_word, l);
 
 			std::unique_ptr<haunted::ui::textline> line = get_line(pair, raw, autoclean);
-			if (line)
-				ui.get_active_window()->get_lines().push_front(std::move(line));
+			if (line) {
+				line->box = win;
+				win->get_lines().push_front(std::move(line));
+			}
 		}
 
-		ui.get_active_window()->draw();
+		win->draw();
 	}
 }

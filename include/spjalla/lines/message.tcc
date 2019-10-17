@@ -1,7 +1,9 @@
+#include "pingpong/commands/join.h"
 #include "pingpong/core/util.h"
 #include "spjalla/core/client.h"
 #include "spjalla/core/util.h"
 #include "spjalla/lines/message.h"
+
 #include "lib/formicine/futil.h"
 
 namespace spjalla::lines {
@@ -206,6 +208,21 @@ namespace spjalla::lines {
 				} else {
 					parent->get_ui().focus_window(parent->query(name, serv));
 				}
+
+				return;
+			}
+
+			if (box) {
+				// Compute the clicked character's index within the message.
+				ssize_t n = -get_continuation() - lines::time_length;
+				// I'm there's nothing after the message in the format strings.
+				ssize_t message_width = box->get_position().width + n;
+				n += report.x + report.y * message_width;
+				ssize_t windex, sindex;
+				std::tie(windex, sindex) = formicine::util::word_indices(message, n);
+				std::string word = formicine::util::nth_word(message, windex);
+				if (!word.empty() && word.front() == '#')
+					pingpong::join_command(serv, word).send();
 			}
 		}
 	}

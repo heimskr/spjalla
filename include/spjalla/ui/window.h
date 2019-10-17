@@ -65,6 +65,7 @@ namespace spjalla::ui {
 			textbox & operator+=(const T &line) {
 				auto w = formicine::perf.watch("template <line> window::operator+=");
 				std::unique_ptr<T> line_copy = std::make_unique<T>(line);
+				line_copy->box = this;
 				const bool did_scroll = do_scroll(line.num_rows(pos.width));
 				lines.push_back(std::move(line_copy));
 				if (!did_scroll)

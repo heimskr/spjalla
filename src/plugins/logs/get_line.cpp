@@ -37,6 +37,7 @@ namespace spjalla::plugins::logs {
 			lines::privmsg_line *new_line = new lines::privmsg_line(parent, subject, pair.second, object,
 				str.substr(str.find(':') + 1), stamp);
 			new_line->serv = pair.first;
+			new_line->box = parent->get_ui().get_window(pair.first->get_channel(pair.second), false);
 			return std::unique_ptr<lines::privmsg_line>(new_line);
 		} else if (verb == "notice") {
 			return std::make_unique<lines::notice_line>(parent, subject, pair.second, object,

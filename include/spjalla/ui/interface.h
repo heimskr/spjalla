@@ -61,21 +61,6 @@ namespace spjalla::ui {
 			/** Sets up the expandobox that serves as the program's root control. */
 			void init_expando();
 
-			/** Returns a pointer to the window indicated by a given string. If no window is found, one will be created
-			 *  with that name if `create` is true. */
-			window * get_window(const std::string &, bool create = false, window_type = window_type::other);
-
-			/** Returns a pointer to the window corresponding to a given channel. If no window is found, one will be
-			 *  created for the channel if `create` is true. */
-			window * get_window(const std::shared_ptr<pingpong::channel> &, bool create = false);
-
-			/** Returns a pointer to the window corresponding to a given user. If no window is found, one will be
-			 *  created for the user if `create` is true. */
-			window * get_window(const std::shared_ptr<pingpong::user> &, bool create = false);
-
-			/** Creates a new window, configures it as appropriate and appends it to the swapbox. */
-			window * new_window(const std::string &name, window_type);
-
 			/** Closes a window. */
 			void remove_window(window *);
 
@@ -160,6 +145,21 @@ namespace spjalla::ui {
 			/** Moves the window to the specified (zero-based) index. Returns the new index (usually the same as the
 			 *  argument) or -1 if the given window is null or not part of this interface. */
 			ssize_t move_window(window *, size_t);
+
+			/** Returns a pointer to the window indicated by a given string. If no window is found, one will be created
+			 *  with that name if `create` is true. */
+			window * get_window(const std::string &, bool create = false, window_type = window_type::other);
+
+			/** Returns a pointer to the window corresponding to a given channel. If no window is found, one will be
+			 *  created for the channel if `create` is true. */
+			window * get_window(const std::shared_ptr<pingpong::channel> &, bool create = false);
+
+			/** Returns a pointer to the window corresponding to a given user. If no window is found, one will be
+			 *  created for the user if `create` is true. */
+			window * get_window(const std::shared_ptr<pingpong::user> &, bool create = false);
+
+			/** Creates a new window, configures it as appropriate and appends it to the swapbox. */
+			window * new_window(const std::string &name, window_type);
 
 			/** Switches to the next server in the list. */
 			void next_server();
