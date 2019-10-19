@@ -12,7 +12,7 @@ namespace spjalla::lines {
 	                              const std::string &message_, long stamp_, bool direct_only_):
 	line(parent_, stamp_), pingpong::local(where_), name(speaker->name), self(speaker->serv->get_nick()),
 	message(message_), verb(get_verb(message_)), body(get_body(message_)), direct_only(direct_only_),
-		serv(speaker->serv) {
+	serv(speaker->serv) {
 
 		is_self = speaker->is_self();
 
