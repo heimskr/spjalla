@@ -1,6 +1,6 @@
 #include "pingpong/events/event.h"
 #include "spjalla/events/notification.h"
-#include "spjalla/lines/line.h"
+#include "spjalla/lines/basic.h"
 #include "spjalla/ui/window.h"
 
 namespace spjalla::ui {
@@ -19,6 +19,11 @@ namespace spjalla::ui {
 		lines.push_back(line);
 		if (!did_scroll)
 			draw_new_line(*line, true);
+	}
+
+	window & window::operator+=(const std::string &str) {
+		*this += lines::basic_line(str);
+		return *this;
 	}
 
 	bool window::is_status() const {

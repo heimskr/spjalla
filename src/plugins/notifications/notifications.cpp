@@ -9,11 +9,51 @@
 #include "spjalla/config/defaults.h"
 #include "spjalla/events/notification.h"
 #include "spjalla/events/window_changed.h"
+#include "spjalla/lines/basic.h"
 #include "spjalla/plugins/plugin.h"
 
 #include "lib/formicine/futil.h"
 
 namespace spjalla::plugins {
+	bool notifications_plugin::gathering() const {
+		return gathering_since != -1;
+	}
+
+	void notifications_plugin::start_gathering() {
+		gathering_since = pingpong::util::seconds();
+		gathered_lines = {};
+		parent->get_ui().log("Gathering notifications.");
+	}
+
+	void notifications_plugin::stop_gathering() {
+		if (!gathering())
+			return;
+
+		const std::string range = ansi::bold(pingpong::util::format_time(pingpong::util::from_seconds(gathering_since),
+			"%Y/%m/%d %H:%M:%S")) + " and " + ansi::bold(pingpong::util::format_time(pingpong::util::now(),
+			"%Y/%m/%d %H:%M:%S"));
+
+		if (gathered_lines.empty()) {
+			parent->get_ui().warn("No notifications gathered between " + range + ".");
+		} else {
+			ui::window *win = parent->get_ui().get_window("gather", true, ui::window_type::other);
+			parent->get_ui().focus_window(win);
+			win->clear_lines();
+			win->add<lines::basic_line>(parent, "Notifications between " + range + ":");
+			for (std::shared_ptr<lines::line> line: gathered_lines) {
+				// Note: since lines::line isn't constructible, we can't create a copy and set its box to this window.
+				// We have to share the old line with the window it was in if it had one.
+				if (!line->box)
+					line->box = win;
+				*win += line;
+			}
+
+			gathered_lines.clear();
+		}
+
+		gathering_since = -1;
+	}
+
 	void notifications_plugin::preinit(plugin_host *host) {
 		spjalla::client *client = dynamic_cast<spjalla::client *>(host);
 		if (!client) { DBG("Error: expected client as plugin host"); return; }
@@ -36,10 +76,23 @@ namespace spjalla::plugins {
 	void notifications_plugin::postinit(plugin_host *host) {
 		spjalla::client *client = dynamic_cast<spjalla::client *>(host);
 		if (!client) { DBG("Error: expected client as plugin host"); return; }
+		parent = client;
 
 		client->add_status_widget(widget);
 
-		pingpong::events::listen<events::window_changed_event> ([=, this](events::window_changed_event *ev) {
+		client->add("gather", 0, 0, false, [&](pingpong::server *, const input_line &) {
+			if (gathering())
+				stop_gathering();
+			else
+				start_gathering();
+		});
+
+		pingpong::events::listen<events::notification_event>([=, this](events::notification_event *ev) {
+			if (gathering() && ev->line->get_notification_type() == notification_type::highlight)
+				gathered_lines.push_back(ev->line);
+		});
+
+		pingpong::events::listen<events::window_changed_event>([=, this](events::window_changed_event *ev) {
 			widget->window_focused(ev->to);
 		});
 

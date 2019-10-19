@@ -64,21 +64,21 @@ namespace spjalla::ui {
 			/** Constructs a window with no parent and no contents. */
 			window(const std::string &window_name_): window(nullptr, std::vector<std::string> {}, window_name_) {}
 
-			template <typename T, typename std::enable_if<std::is_base_of<lines::line, T>::value>::type * = nullptr>
+			template <typename T, typename std::enable_if_t<std::is_base_of_v<lines::line, T>> * = nullptr>
 			textbox & operator+=(const T &line) {
 				auto w = formicine::perf.watch("template <line> window::operator+=");
 				return *this += std::make_shared<T>(line);
 			}
 
-			template <typename T,
-				typename std::enable_if<std::is_base_of<haunted::ui::textline, T>::value>::type * = nullptr,
-				typename std::enable_if<!std::is_base_of<lines::line, T>::value>::type * = nullptr>
+			template <typename T, typename std::enable_if_t<std::is_base_of_v<haunted::ui::textline, T>> * = nullptr,
+			                      typename std::enable_if_t<!std::is_base_of_v<lines::line, T>> * = nullptr>
 			textbox & operator+=(const T &line) {
 				auto w = formicine::perf.watch("template <!line> window::operator+=");
 				return *this += std::make_shared<T>(line);
 			}
 
-			template <typename T, typename std::enable_if<std::is_base_of<lines::line, T>::value>::type * = nullptr>
+			template <typename T, typename std::enable_if_t<std::is_base_of_v<lines::line, T>> * = nullptr,
+			                      typename std::enable_if_t<std::is_constructible_v<lines::line, T>> * = nullptr>
 			window & operator+=(std::shared_ptr<T> line) {
 				auto w = formicine::perf.watch("window::operator+=(shared_ptr<line>)");
 
@@ -92,13 +92,31 @@ namespace spjalla::ui {
 				return *this;
 			}
 
-			template <typename T,
-				typename std::enable_if<std::is_base_of<haunted::ui::textline, T>::value>::type * = nullptr,
-				typename std::enable_if<!std::is_base_of<lines::line, T>::value>::type * = nullptr>
+			template <typename T, typename std::enable_if_t<std::is_base_of_v<lines::line, T>> * = nullptr,
+			                      typename std::enable_if_t<!std::is_constructible_v<T>> * = nullptr>
+			window & operator+=(std::shared_ptr<T> line) {
+				auto w = formicine::perf.watch("window::operator+=(shared_ptr<line>)");
+
+				line->box = this;
+				add_line(line);
+
+				notify(line, line->get_notification_type());
+				return *this;
+			}
+
+			template <typename T, typename std::enable_if_t<std::is_base_of_v<haunted::ui::textline, T>> * = nullptr,
+			                      typename std::enable_if_t<!std::is_base_of_v<lines::line, T>> * = nullptr>
 			window & operator+=(std::shared_ptr<T> line) {
 				auto w = formicine::perf.watch("window::operator+=(shared_ptr<textline>)");
 				add_line(line);
 				return *this;
+			}
+
+			window & operator+=(const std::string &);
+
+			template <typename T, typename... Args>
+			void add(Args && ...args) {
+				*this += std::make_shared<T>(std::forward<Args>(args)...);
 			}
 
 			bool is_status() const;
