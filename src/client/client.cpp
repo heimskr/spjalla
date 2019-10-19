@@ -68,6 +68,13 @@ namespace spjalla {
 		add({command_name, command});
 	}
 
+	void client::add(const std::string &command_name, int min_args, int max_args, bool needs_server,
+	                 const commands::command::handler_fn &handler_fn,
+	                 const completions::completion_fn &completion_fn,
+	                 const std::vector<completions::completion_state::suggestor_fn> &suggestors) {
+		add({command_name, {min_args, max_args, needs_server, handler_fn, completion_fn, suggestors}});
+	}
+
 	void client::init() {
 		configs.read_if_empty(DEFAULT_CONFIG_DB, true);
 		alias_db.read_if_empty(DEFAULT_ALIAS_DB, true);

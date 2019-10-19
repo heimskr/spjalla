@@ -119,6 +119,9 @@ namespace spjalla {
 			 *  handler tuple. */
 			void add(const spjalla::commands::pair &);
 			void add(const std::string &, const spjalla::commands::command &);
+			void add(const std::string &, int, int, bool, const commands::command::handler_fn &,
+			         const completions::completion_fn & = {},
+			         const std::vector<completions::completion_state::suggestor_fn> & = {});
 
 			/** Initializes the client. */
 			void init();
