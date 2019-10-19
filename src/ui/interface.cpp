@@ -292,6 +292,7 @@ namespace spjalla::ui {
 		win->set_name("window" + std::to_string(++win_count));
 		win->set_terminal(nullptr); // inactive windows are marked by their null terminals
 		win->set_autoscroll(true);
+		win->scroll_buffer = scroll_buffer;
 		return win;
 	}
 
@@ -600,6 +601,15 @@ namespace spjalla::ui {
 
 	std::string interface::get_input() const {
 		return input->get_text();
+	}
+
+	void interface::set_scroll_buffer(unsigned int new_scroll_buffer) {
+		scroll_buffer = new_scroll_buffer;
+		for (haunted::ui::control *ctrl: swappo->get_children()) {
+			window *win = dynamic_cast<window *>(ctrl);
+			if (win)
+				win->scroll_buffer = scroll_buffer;
+		}
 	}
 
 	void interface::set_bar_foreground(ansi::color fg) {

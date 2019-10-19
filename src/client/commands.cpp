@@ -48,7 +48,7 @@ namespace spjalla {
 
 		add({"clear", {0, 0, false, [&](sptr, line) {
 			if (ui::window *win = ui.get_active_window()) {
-				win->set_voffset(win->total_rows());
+				win->set_voffset(win->total_rows() - ui.scroll_buffer);
 			} else {
 				DBG(lines::red_notice + "No window.");
 			}
@@ -160,10 +160,20 @@ namespace spjalla {
 					for (const std::weak_ptr<pingpong::channel> &expired_chan: expired_chans)
 						user->channels.erase(expired_chan);
 
-					if (chans.empty())
-						DBG("        " << user->name);
-					else
-						DBG("        " << user->name << ":" << chans);
+					std::string to_dbg = "        " + user->name;
+					if (!chans.empty())
+						to_dbg += ":" + chans;
+
+					if (user->idle_since != -1)
+						to_dbg += "; idle since " + std::to_string(user->idle_since);
+
+					if (user->signon_time != -1)
+						to_dbg += "; signon time: " + std::to_string(user->signon_time);
+
+					if (!user->realname.empty())
+						to_dbg += "; realname: " + user->realname;
+
+					DBG(to_dbg << "; ptr = " << user.get());
 				}
 			}
 		}

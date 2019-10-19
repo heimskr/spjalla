@@ -14,6 +14,13 @@ namespace spjalla::ui {
 		std::swap(left.highest_notification, right.highest_notification);
 	}
 
+	void window::add_line(std::shared_ptr<haunted::ui::textline> line) {
+		const bool did_scroll = do_scroll(line->num_rows(pos.width));
+		lines.push_back(line);
+		if (!did_scroll)
+			draw_new_line(*line, true);
+	}
+
 	bool window::is_status() const {
 		return type == window_type::status;
 	}
@@ -46,16 +53,16 @@ namespace spjalla::ui {
 		dead = false;
 	}
 
-	void window::notify(const lines::line &line, notification_type type) {
-		pingpong::events::dispatch<events::notification_event>(this, &line, type);
+	void window::notify(std::shared_ptr<lines::line> line, notification_type type) {
+		pingpong::events::dispatch<events::notification_event>(this, line, type);
 		if (highest_notification < type) {
 			highest_notification = type;
-			pingpong::events::dispatch<events::window_notification_event>(this, &line, highest_notification, type);
+			pingpong::events::dispatch<events::window_notification_event>(this, line, highest_notification, type);
 		}
 	}
 
-	void window::notify(const lines::line &line) {
-		notify(line, line.get_notification_type());
+	void window::notify(std::shared_ptr<lines::line> line) {
+		notify(line, line->get_notification_type());
 	}
 
 	void window::unnotify() {
@@ -69,10 +76,10 @@ namespace spjalla::ui {
 
 	void window::remove_rows(std::function<bool(const haunted::ui::textline *)> fn) {
 		auto w = formicine::perf.watch("window::remove_rows");
-		std::deque<std::unique_ptr<haunted::ui::textline>> new_lines {};
+		std::deque<haunted::ui::textbox::line_ptr> new_lines {};
 		int rows_removed = 0, lines_removed = 0, total_rows = 0;
 
-		for (std::unique_ptr<haunted::ui::textline> &ptr: lines) {
+		for (haunted::ui::textbox::line_ptr &ptr: lines) {
 			int rows = ptr->num_rows(pos.width);
 			total_rows += rows;
 			if (fn(ptr.get())) {

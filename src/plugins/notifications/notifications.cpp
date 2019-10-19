@@ -65,12 +65,13 @@ namespace spjalla::plugins {
 			}
 	};
 
-	class notifications_widget_plugin: public plugin {
+	class notifications_plugin: public plugin {
 		private:
 			std::shared_ptr<notifications_widget> widget;
+			bool gathering_notifications;
 
 		public:
-			virtual ~notifications_widget_plugin() {}
+			virtual ~notifications_plugin() {}
 
 			std::string get_name()        const override { return "Notifications"; }
 			std::string get_description() const override { return "Shows a notifications widget in the status bar."; }
@@ -115,4 +116,4 @@ namespace spjalla::plugins {
 	};
 }
 
-spjalla::plugins::notifications_widget_plugin ext_plugin {};
+spjalla::plugins::notifications_plugin ext_plugin {};

@@ -28,7 +28,7 @@ namespace spjalla::plugins::logs {
 
 		if (!window->get_lines().empty()) {
 			lines::line *line;
-			for (const std::unique_ptr<haunted::ui::textline> &lineptr: window->get_lines()) {
+			for (const std::shared_ptr<haunted::ui::textline> &lineptr: window->get_lines()) {
 				if ((line = dynamic_cast<lines::line *>(lineptr.get())))
 					break;
 			}

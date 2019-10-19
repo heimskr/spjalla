@@ -81,6 +81,7 @@ namespace spjalla::ui {
 
 		public:
 			std::function<void(window *)> update_statusbar_fn;
+			unsigned int scroll_buffer = 0;
 
 			interface(haunted::terminal *, client * = nullptr);
 
@@ -221,6 +222,9 @@ namespace spjalla::ui {
 
 			/** Gets the content of the textinput. */
 			std::string get_input() const;
+
+			/** Sets the scroll buffer value and updates all windows accordingly. */
+			void set_scroll_buffer(unsigned int);
 
 			bool is_overlay(ui::window *window) const { return window == overlay; }
 

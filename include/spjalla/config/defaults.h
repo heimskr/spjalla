@@ -63,6 +63,9 @@ namespace spjalla::config {
 	extern registered_map registered;
 
 	validation_result validate_long(const value &);
+	validation_result validate_nonnegative(const value &);
+	validation_result validate_uint32(const value &);
+	validation_result validate_int32nn(const value &);
 	validation_result validate_string(const value &);
 	validation_result validate_bool(const value &);
 	validation_result validate_color(const value &);

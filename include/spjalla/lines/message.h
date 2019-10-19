@@ -64,22 +64,23 @@ namespace spjalla::lines {
 			std::string processed;
 
 			message_line(client *parent_, std::shared_ptr<pingpong::user> speaker, const std::string &where_,
-			const std::string &message_, long stamp_, bool direct_only_ = false);
+			             const std::string &message_, long stamp_, bool direct_only_ = false);
 
 			message_line(client *parent_, std::shared_ptr<pingpong::user> speaker,
-			std::shared_ptr<pingpong::channel> chan_, const std::string &message_, long stamp_,
-			bool direct_only_ = false):
+			             std::shared_ptr<pingpong::channel> chan_, const std::string &message_, long stamp_,
+			             bool direct_only_ = false):
 				message_line(parent_, speaker, chan_->name, message_, stamp_, direct_only_), serv(speaker->serv) {}
 
 			message_line(client *parent_, std::shared_ptr<pingpong::user> speaker,
-			std::shared_ptr<pingpong::user> whom_, const std::string &message_, long stamp_, bool direct_only_ = false):
+			             std::shared_ptr<pingpong::user> whom_, const std::string &message_, long stamp_,
+			             bool direct_only_ = false):
 				message_line(parent_, speaker, whom_->name, message_, stamp_, direct_only_), serv(speaker->serv) {}
 
 			message_line(client *, const std::string &name_, const std::string &where_, const std::string &self_,
-			const std::string &message_, long, const pingpong::hat_set &, bool direct_only_ = false);
+			             const std::string &message_, long, const pingpong::hat_set &, bool direct_only_ = false);
 
 			message_line(client *, const std::string &combined_, const std::string &where_, const std::string &self_,
-			const std::string &message_, long, bool direct_only_ = false);
+			             const std::string &message_, long, bool direct_only_ = false);
 
 			/** Returns whether the message is an action (CTCP ACTION). */
 			bool is_action() const;
