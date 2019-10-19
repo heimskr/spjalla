@@ -61,21 +61,6 @@ namespace spjalla::ui {
 			/** Sets up the expandobox that serves as the program's root control. */
 			void init_expando();
 
-			/** Returns a pointer to the window indicated by a given string. If no window is found, one will be created
-			 *  with that name if `create` is true. */
-			window * get_window(const std::string &, bool create = false, window_type = window_type::other);
-
-			/** Returns a pointer to the window corresponding to a given channel. If no window is found, one will be
-			 *  created for the channel if `create` is true. */
-			window * get_window(const std::shared_ptr<pingpong::channel> &, bool create = false);
-
-			/** Returns a pointer to the window corresponding to a given user. If no window is found, one will be
-			 *  created for the user if `create` is true. */
-			window * get_window(const std::shared_ptr<pingpong::user> &, bool create = false);
-
-			/** Creates a new window, configures it as appropriate and appends it to the swapbox. */
-			window * new_window(const std::string &name, window_type);
-
 			/** Closes a window. */
 			void remove_window(window *);
 
@@ -96,6 +81,7 @@ namespace spjalla::ui {
 
 		public:
 			std::function<void(window *)> update_statusbar_fn;
+			unsigned int scroll_buffer = 0;
 
 			interface(haunted::terminal *, client * = nullptr);
 
@@ -161,6 +147,21 @@ namespace spjalla::ui {
 			 *  argument) or -1 if the given window is null or not part of this interface. */
 			ssize_t move_window(window *, size_t);
 
+			/** Returns a pointer to the window indicated by a given string. If no window is found, one will be created
+			 *  with that name if `create` is true. */
+			window * get_window(const std::string &, bool create = false, window_type = window_type::other);
+
+			/** Returns a pointer to the window corresponding to a given channel. If no window is found, one will be
+			 *  created for the channel if `create` is true. */
+			window * get_window(const std::shared_ptr<pingpong::channel> &, bool create = false);
+
+			/** Returns a pointer to the window corresponding to a given user. If no window is found, one will be
+			 *  created for the user if `create` is true. */
+			window * get_window(const std::shared_ptr<pingpong::user> &, bool create = false);
+
+			/** Creates a new window, configures it as appropriate and appends it to the swapbox. */
+			window * new_window(const std::string &name, window_type);
+
 			/** Switches to the next server in the list. */
 			void next_server();
 
@@ -169,6 +170,9 @@ namespace spjalla::ui {
 
 			/** Switches to the previous window before the current window. */
 			void previous_window();
+
+			/** Toggles mouse tracking. */
+			void toggle_mouse();
 
 			/** Updates the text in the status bar. */
 			void update_statusbar();
@@ -218,6 +222,9 @@ namespace spjalla::ui {
 
 			/** Gets the content of the textinput. */
 			std::string get_input() const;
+
+			/** Sets the scroll buffer value and updates all windows accordingly. */
+			void set_scroll_buffer(unsigned int);
 
 			bool is_overlay(ui::window *window) const { return window == overlay; }
 

@@ -32,6 +32,7 @@ namespace spjalla {
 		DBG("PID: " << getpid());
 
 		std::shared_ptr<spjalla::client> instance = std::make_shared<spjalla::client>();
+		instance->get_terminal().mouse(haunted::mouse_mode::motion);
 
 		const std::string plugin_dir = get_plugin_dir(argc, argv);
 		try {

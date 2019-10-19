@@ -13,6 +13,7 @@
 
 #include "pingpong/messages/message.h"
 #include "pingpong/core/irc.h"
+#include "pingpong/core/server.h"
 
 #include "spjalla/commands/command.h"
 
@@ -114,17 +115,19 @@ namespace spjalla {
 				}, {}}};
 			}
 
-			/**
-			 * Adds a command handler.
-			 * @param p A pair signifying the name of the command as typed by the user plus a handler tuple.
-			 */
-			void add(const spjalla::commands::pair &p);
+			/** Adds a command handler, given a pair that signifies the name of the command as typed by the user plus a
+			 *  handler tuple. */
+			void add(const spjalla::commands::pair &);
+			void add(const std::string &, const spjalla::commands::command &);
+			void add(const std::string &, int, int, bool, const commands::command::handler_fn &,
+			         const completions::completion_fn & = {},
+			         const std::vector<completions::completion_state::suggestor_fn> & = {});
 
 			/** Initializes the client. */
 			void init();
 
 			/** Processes a line of user input and returns whether the line was recognized as a valid input. */
-			bool handle_line(const input_line &line);
+			bool handle_line(const input_line &);
 
 			/** Updates the interface to accommodate the removal of a server. */
 			void server_removed(pingpong::server *);
@@ -138,6 +141,9 @@ namespace spjalla {
 			/** Returns a reference to the IRC object.. */
 			pingpong::irc & get_irc() { return irc; }
 
+			/** Returns a reference to the terminal. */
+			haunted::terminal & get_terminal() { return term; }
+
 			/** Returns a pointer to the active server. */
 			pingpong::server * active_server();
 
@@ -146,6 +152,10 @@ namespace spjalla {
 
 			/** Returns all the windows as haunted::ui::control pointers. */
 			std::deque<haunted::ui::control *> get_window_controls() const;
+
+			/** Opens a message window with a given nick. */
+			ui::window * query(const std::string &, pingpong::server *);
+			ui::window * query(std::shared_ptr<pingpong::user>);
 
 			/** Logs a message indicated that there is no active channel. */
 			void no_channel();
@@ -166,12 +176,12 @@ namespace spjalla {
 			/** Handles the parsing for the /ban command. */
 			void ban(pingpong::server *, const input_line &, const std::string &type = "+b");
 
-			/** Prints debug information about the server list to the log file. */
-			void debug_servers();
-
 		public:
 			/** Adds the built-in command handlers. */
 			void add_commands();
+
+			/** Prints debug information about the server list to the log file. */
+			void debug_servers();
 
 // client/events.cpp
 

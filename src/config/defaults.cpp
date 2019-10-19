@@ -1,5 +1,7 @@
 #include <algorithm>
 
+#include <cstdint>
+
 #include "pingpong/core/irc.h"
 
 #include "spjalla/core/client.h"
@@ -15,6 +17,21 @@ namespace spjalla::config {
 
 	validation_result validate_long(const value &val) {
 		return val.get_type() == value_type::long_? validation_result::valid : validation_result::bad_type;
+	}
+
+	validation_result validate_nonnegative(const value &val) {
+		return val.get_type() == value_type::long_ && 0 <= val.long_()?
+			validation_result::valid : validation_result::bad_type;
+	}
+
+	validation_result validate_uint32(const value &val) {
+		return val.get_type() == value_type::long_ && 0 <= val.long_() && val.long_() <= UINT32_MAX?
+			validation_result::valid : validation_result::bad_type;
+	}
+
+	validation_result validate_int32nn(const value &val) {
+		return val.get_type() == value_type::long_ && 0 <= val.long_() && val.long_() <= INT32_MAX?
+			validation_result::valid : validation_result::bad_type;
 	}
 
 	validation_result validate_string(const value &val) {
@@ -114,6 +131,15 @@ namespace spjalla::config {
 		register_key("debug", "show_raw", false, validate_bool, [](database &db, const value &new_val) {
 			db.get_parent().log_spam = new_val.bool_();
 		}, "Whether to log raw input/output in the status window.");
+
+		// Interface
+
+		register_key("interface", "close_on_part", true, validate_bool, {},
+			"Whether to close a channel's window after parting it.");
+
+		register_key("interface", "scroll_buffer", 0, validate_int32nn, [](database &db, const value &new_val) {
+			db.get_parent().get_ui().set_scroll_buffer(static_cast<unsigned int>(new_val.long_()));
+		}, "The number of lines to leave at the top when running /clear.");
 
 		// Messages
 

@@ -1,14 +1,18 @@
+#include "pingpong/commands/join.h"
 #include "pingpong/core/util.h"
+#include "spjalla/core/client.h"
 #include "spjalla/core/util.h"
 #include "spjalla/lines/message.h"
+
 #include "lib/formicine/futil.h"
 
 namespace spjalla::lines {
 	template <typename T>
 	message_line<T>::message_line(client *parent_, std::shared_ptr<pingpong::user> speaker, const std::string &where_,
-	const std::string &message_, long stamp_, bool direct_only_):
-		line(parent_, stamp_), pingpong::local(where_), name(speaker->name), self(speaker->serv->get_nick()),
-		message(message_), verb(get_verb(message_)), body(get_body(message_)), direct_only(direct_only_) {
+	                              const std::string &message_, long stamp_, bool direct_only_):
+	line(parent_, stamp_), pingpong::local(where_), name(speaker->name), self(speaker->serv->get_nick()),
+	message(message_), verb(get_verb(message_)), body(get_body(message_)), direct_only(direct_only_),
+		serv(speaker->serv) {
 
 		is_self = speaker->is_self();
 
@@ -23,8 +27,8 @@ namespace spjalla::lines {
 
 	template <typename T>
 	message_line<T>::message_line(client *parent_, const std::string &name_, const std::string &where_,
-	const std::string &self_, const std::string &message_, long stamp_, const pingpong::hat_set &hats_,
-	bool direct_only_):
+	                              const std::string &self_, const std::string &message_, long stamp_,
+	                              const pingpong::hat_set &hats_, bool direct_only_):
 	line(parent_, stamp_), pingpong::local(where_), name(name_), self(self_), message(message_),
 	verb(get_verb(message_)), body(get_body(message_)), hats(hats_), direct_only(direct_only_) {
 		is_self = name_ == self_;
@@ -34,7 +38,8 @@ namespace spjalla::lines {
 
 	template <typename T>
 	message_line<T>::message_line(client *parent_, const std::string &combined_, const std::string &where_,
-	const std::string &self_, const std::string &message_, long stamp_, bool direct_only_):
+	                              const std::string &self_, const std::string &message_, long stamp_,
+	                              bool direct_only_):
 	line(parent_, stamp_), pingpong::local(where_), self(self_), message(message_), verb(get_verb(message_)),
 	body(get_body(message_)), direct_only(direct_only_) {
 		std::tie(hats, name) = pingpong::hat_set::separate(combined_);
@@ -43,50 +48,20 @@ namespace spjalla::lines {
 		processed = process(message_);
 	}
 
+
+// Private instance methods
+
+
 	template <typename T>
 	size_t message_line<T>::get_continuation() const {
 		std::string format = ansi::strip(is_action()? T::action : T::message);
 
-		const size_t mpos = format.find("%m");
+		const size_t mpos = format.find("#m");
 		if (mpos == std::string::npos)
 			throw std::invalid_argument("Invalid message format string");
 
 		// If the speaker comes before the message in the format, we need to adjust the return value accordingly.
-		return mpos + (format.find("%s") < mpos? name.length() - 2 : 0);
-	}
-
-	template <typename T>
-	std::string message_line<T>::process(const std::string &str, bool with_time) const {
-		std::string name_fmt = is_action() || is_self? ansi::bold(name) : name;
-		const std::string time = with_time? lines::render_time(stamp) : "";
-
-		if (util::is_highlight(message, self, direct_only))
-			name_fmt = ansi::yellow(name_fmt);
-
-		std::string out = ansi::format(is_action()? T::action : T::message);
-		const size_t spos = out.find("%s");
-		if (spos == std::string::npos)
-			throw std::invalid_argument("Invalid message format string");
-
-		out.erase(spos, 2);
-		out.insert(spos, name_fmt);
-
-		const size_t hpos = out.find("%h");
-		if (hpos != std::string::npos) {
-			out.erase(hpos, 2);
-			if (is_channel())
-				out.insert(hpos, hat_str());
-		}
-
-		const size_t mpos = out.find("%m");
-		if (mpos == std::string::npos)
-			throw std::invalid_argument("Invalid message format string");
-
-		out.erase(mpos, 2);
-		out.insert(mpos, pingpong::util::irc2ansi(is_action()? trimmed(str) : str));
-
-		T::postprocess(this, out);
-		return time + out;
+		return mpos + (format.find("#s") < mpos? name.length() - 2 : 0);
 	}
 
 	template <typename T>
@@ -94,7 +69,7 @@ namespace spjalla::lines {
 		if (!is_ctcp(str))
 			return "";
 		const size_t space = str.find(' '), length = str.length();
-		return space == std::string::npos? str.substr(1, length - 2) :str.substr(space, length - space - 1);
+		return space == std::string::npos? str.substr(1, length - 2) : str.substr(space, length - space - 1);
 	}
 
 	template <typename T>
@@ -114,6 +89,66 @@ namespace spjalla::lines {
 	bool message_line<T>::is_ctcp(const std::string &str) {
 		return !str.empty() && str.front() == '\1' && str.back() == '\1';
 	}
+
+	template <typename T>
+	int message_line<T>::get_name_index() const {
+		std::string stripped = ansi::strip(is_action()? T::action : T::message);
+		size_t hpos = stripped.find("#h"), spos = stripped.find("#s"), mpos = stripped.find("#m");
+
+		// Instead of performing multiple expensive erases and inserts, we can just offset spos.
+		int addition = 0;
+
+		if (hpos < spos)
+			addition += hat_str().length() - 2;
+
+		if (mpos < spos)
+			addition += ansi::length(processed_message) - 2;
+
+		return time_length + spos + addition;
+	}
+
+
+// Protected instance methods
+
+
+	template <typename T>
+	std::string message_line<T>::process(const std::string &str, bool with_time) {
+		std::string name_fmt = is_action() || is_self? ansi::bold(name) : name;
+		const std::string time = with_time? lines::render_time(stamp) : "";
+
+		if (util::is_highlight(message, self, direct_only))
+			name_fmt = ansi::yellow(name_fmt);
+
+		std::string out = ansi::format(is_action()? T::action : T::message);
+		const size_t spos = out.find("#s");
+		if (spos == std::string::npos)
+			throw std::invalid_argument("Invalid message format string");
+
+		out.erase(spos, 2);
+		out.insert(spos, name_fmt);
+
+		const size_t hpos = out.find("#h");
+		if (hpos != std::string::npos) {
+			out.erase(hpos, 2);
+			if (is_channel())
+				out.insert(hpos, hat_str());
+		}
+
+		const size_t mpos = out.find("#m");
+		if (mpos == std::string::npos)
+			throw std::invalid_argument("Invalid message format string");
+
+		out.erase(mpos, 2);
+		processed_message = pingpong::util::irc2ansi(is_action()? trimmed(str) : str);
+		out.insert(mpos, processed_message);
+
+		T::postprocess(this, out);
+		return time + out;
+	}
+
+
+// Public instance methods
+
 
 	template <typename T>
 	bool message_line<T>::is_action() const {
@@ -162,5 +197,34 @@ namespace spjalla::lines {
 		if (util::is_highlight(message, self, direct_only) || where == self)
 			return notification_type::highlight;
 		return notification_type::message;
+	}
+
+	template <typename T>
+	void message_line<T>::on_mouse(const haunted::mouse_report &report) {
+		if (report.action == haunted::mouse_action::up) {
+			const int name_index = get_name_index();
+			if (name_index <= report.x && report.x < name_index + static_cast<int>(name.length())) {
+				if (!serv) {
+					DBG("Can't query: server is null");
+				} else {
+					parent->get_ui().focus_window(parent->query(name, serv));
+				}
+
+				return;
+			}
+
+			if (box) {
+				// Compute the clicked character's index within the message.
+				ssize_t n = -get_continuation() - lines::time_length;
+				// I'm there's nothing after the message in the format strings.
+				ssize_t message_width = box->get_position().width + n;
+				n += report.x + report.y * message_width;
+				ssize_t windex, sindex;
+				std::tie(windex, sindex) = formicine::util::word_indices(message, n);
+				std::string word = formicine::util::nth_word(message, windex);
+				if (!word.empty() && word.front() == '#')
+					pingpong::join_command(serv, word).send();
+			}
+		}
 	}
 }

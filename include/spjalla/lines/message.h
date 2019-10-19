@@ -16,12 +16,13 @@ namespace spjalla::lines {
 		 /**
 		  *   struct T { static std::string message, action; };
 		  * 
-		  * `message` and `action` are strings in which "%s" is replaced with the name of the speaker and "%m" is
-		  * replaced with the message. `action` is used for CTCP ACTIONs and `message` is used for everything else.
+		  * `message` and `action` are strings in which "#s" is replaced with the name of the speaker, "#m" is replaced
+		  * with the message and "#h" is replaced with the user's hats. `action` is used for CTCP ACTIONs and `message`
+		  * is used for everything else.
 		  */
-
 		private:
 			bool is_self = false;
+			std::string processed_message;
 
 			/** Finds the continuation for the line. */
 			size_t get_continuation() const;
@@ -40,9 +41,12 @@ namespace spjalla::lines {
 			/** Returns whether a message is a CTCP message. */
 			static bool is_ctcp(const std::string &);
 
+			/** Returns the index of the first character of the name in the rendered line. */
+			int get_name_index() const;
+
 		protected:
 			/** Formats a message by processing colors and actions and adding the user's name. */
-			std::string process(const std::string &, bool with_time = true) const;
+			std::string process(const std::string &, bool with_time = true);
 
 		public:
 			// We need to store a copy of the speaker's name at the time the message was sent—otherwise, if they were to
@@ -54,27 +58,29 @@ namespace spjalla::lines {
 			pingpong::hat_set hats {};
 
 			const bool direct_only;
+			pingpong::server *serv = nullptr;
 
 			/** The message after colors and actions have been processed. */
 			std::string processed;
 
 			message_line(client *parent_, std::shared_ptr<pingpong::user> speaker, const std::string &where_,
-			const std::string &message_, long stamp_, bool direct_only_ = false);
+			             const std::string &message_, long stamp_, bool direct_only_ = false);
 
 			message_line(client *parent_, std::shared_ptr<pingpong::user> speaker,
-			std::shared_ptr<pingpong::channel> chan_, const std::string &message_, long stamp_,
-			bool direct_only_ = false):
-				message_line(parent_, speaker, chan_->name, message_, stamp_, direct_only_) {}
+			             std::shared_ptr<pingpong::channel> chan_, const std::string &message_, long stamp_,
+			             bool direct_only_ = false):
+				message_line(parent_, speaker, chan_->name, message_, stamp_, direct_only_), serv(speaker->serv) {}
 
 			message_line(client *parent_, std::shared_ptr<pingpong::user> speaker,
-			std::shared_ptr<pingpong::user> whom_, const std::string &message_, long stamp_, bool direct_only_ = false):
-				message_line(parent_, speaker, whom_->name, message_, stamp_, direct_only_) {}
+			             std::shared_ptr<pingpong::user> whom_, const std::string &message_, long stamp_,
+			             bool direct_only_ = false):
+				message_line(parent_, speaker, whom_->name, message_, stamp_, direct_only_), serv(speaker->serv) {}
 
 			message_line(client *, const std::string &name_, const std::string &where_, const std::string &self_,
-			const std::string &message_, long, const pingpong::hat_set &, bool direct_only_ = false);
+			             const std::string &message_, long, const pingpong::hat_set &, bool direct_only_ = false);
 
 			message_line(client *, const std::string &combined_, const std::string &where_, const std::string &self_,
-			const std::string &message_, long, bool direct_only_ = false);
+			             const std::string &message_, long, bool direct_only_ = false);
 
 			/** Returns whether the message is an action (CTCP ACTION). */
 			bool is_action() const;
@@ -90,6 +96,8 @@ namespace spjalla::lines {
 
 			virtual operator std::string() const override;
 			virtual notification_type get_notification_type() const override;
+
+			void on_mouse(const haunted::mouse_report &) override;
 	};
 }
 

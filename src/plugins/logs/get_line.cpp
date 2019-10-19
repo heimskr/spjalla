@@ -34,8 +34,11 @@ namespace spjalla::plugins::logs {
 		const std::string object  = formicine::util::nth_word(str, 3, false);
 
 		if (verb == "msg") {
-			return std::make_unique<lines::privmsg_line>(parent, subject, pair.second, object,
+			lines::privmsg_line *new_line = new lines::privmsg_line(parent, subject, pair.second, object,
 				str.substr(str.find(':') + 1), stamp);
+			new_line->serv = pair.first;
+			new_line->box = parent->get_ui().get_window(pair.first->get_channel(pair.second), false);
+			return std::unique_ptr<lines::privmsg_line>(new_line);
 		} else if (verb == "notice") {
 			return std::make_unique<lines::notice_line>(parent, subject, pair.second, object,
 				str.substr(str.find(':') + 1), stamp);
@@ -48,7 +51,7 @@ namespace spjalla::plugins::logs {
 				stamp);
 		} else if (verb == "mode") {
 			pingpong::modeset mset {pingpong::modeset::mode_type::channel, formicine::util::nth_word(str, 4, false),
-				util::skip_words(str, 5)};
+				formicine::util::skip_words(str, 5)};
 			return std::make_unique<lines::mode_line>(parent, mset, pair.second, subject, object, stamp);
 		} else if (verb == "topic_is") {
 			return std::make_unique<lines::topic_line>(parent, "", pair.second, str.substr(str.find(':') + 1), stamp);

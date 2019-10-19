@@ -69,6 +69,7 @@ namespace spjalla {
 			if (ev->who->is_self()) {
 				win->resurrect();
 				ui.focus_window(win);
+				ui.update_statusbar();
 			}
 		});
 
@@ -136,8 +137,12 @@ namespace spjalla {
 		pingpong::events::listen<pingpong::part_event>([&](pingpong::part_event *ev) {
 			if (ui::window *win = try_window(ev->chan)) {
 				*win += lines::part_line(this, *ev);
-				if (ev->who->is_self())
+				if (ev->who->is_self()) {
 					win->kill();
+					if (configs.get("interface", "close_on_part").bool_())
+						ui.remove_window(win);
+					ui.update_statusbar();
+				}
 			}
 		});
 

@@ -13,6 +13,9 @@ namespace spjalla::lines {
 		long stamp_ = pingpong::util::timestamp()):
 			line(parent_, stamp_, continuation_), text(text_) {}
 
+		basic_line(const std::string &text_, int continuation_ = 0, long stamp_ = pingpong::util::timestamp()):
+			basic_line(nullptr, text_, continuation_, stamp_) {}
+
 		virtual operator std::string() const override;
 	};
 }

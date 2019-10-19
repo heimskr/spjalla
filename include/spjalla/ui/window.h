@@ -27,6 +27,9 @@ namespace spjalla::ui {
 	 * addition to other data and metadata.
 	 */
 	class window: public haunted::ui::textbox {
+		private:
+			void add_line(std::shared_ptr<haunted::ui::textline>);
+
 		public:
 			std::string window_name;
 			window_type type = window_type::other;
@@ -61,29 +64,59 @@ namespace spjalla::ui {
 			/** Constructs a window with no parent and no contents. */
 			window(const std::string &window_name_): window(nullptr, std::vector<std::string> {}, window_name_) {}
 
-			template <typename T, typename std::enable_if<std::is_base_of<lines::line, T>::value>::type * = nullptr>
+			template <typename T, typename std::enable_if_t<std::is_base_of_v<lines::line, T>> * = nullptr>
 			textbox & operator+=(const T &line) {
 				auto w = formicine::perf.watch("template <line> window::operator+=");
-				std::unique_ptr<T> line_copy = std::make_unique<T>(line);
-				const bool did_scroll = do_scroll(line.num_rows(pos.width));
-				lines.push_back(std::move(line_copy));
-				if (!did_scroll)
-					draw_new_line(*lines.back(), true);
-				notify(line, line.get_notification_type());
+				return *this += std::make_shared<T>(line);
+			}
+
+			template <typename T, typename std::enable_if_t<std::is_base_of_v<haunted::ui::textline, T>> * = nullptr,
+			                      typename std::enable_if_t<!std::is_base_of_v<lines::line, T>> * = nullptr>
+			textbox & operator+=(const T &line) {
+				auto w = formicine::perf.watch("template <!line> window::operator+=");
+				return *this += std::make_shared<T>(line);
+			}
+
+			template <typename T, typename std::enable_if_t<std::is_base_of_v<lines::line, T>> * = nullptr,
+			                      typename std::enable_if_t<std::is_constructible_v<lines::line, T>> * = nullptr>
+			window & operator+=(std::shared_ptr<T> line) {
+				auto w = formicine::perf.watch("window::operator+=(shared_ptr<line>)");
+
+				if (line->box && line->box != this)
+					line = std::make_shared<T>(*line);
+
+				line->box = this;
+				add_line(line);
+
+				notify(line, line->get_notification_type());
 				return *this;
 			}
 
-			template <typename T,
-				typename std::enable_if<std::is_base_of<haunted::ui::textline, T>::value>::type * = nullptr,
-				typename std::enable_if<!std::is_base_of<lines::line, T>::value>::type * = nullptr>
-			textbox & operator+=(const T &line) {
-				auto w = formicine::perf.watch("template <!line> window::operator+=");
-				std::unique_ptr<T> line_copy = std::make_unique<T>(line);
-				const bool did_scroll = do_scroll(line.num_rows(pos.width));
-				lines.push_back(std::move(line_copy));
-				if (!did_scroll)
-					draw_new_line(*lines.back(), true);
+			template <typename T, typename std::enable_if_t<std::is_base_of_v<lines::line, T>> * = nullptr,
+			                      typename std::enable_if_t<!std::is_constructible_v<T>> * = nullptr>
+			window & operator+=(std::shared_ptr<T> line) {
+				auto w = formicine::perf.watch("window::operator+=(shared_ptr<line>)");
+
+				line->box = this;
+				add_line(line);
+
+				notify(line, line->get_notification_type());
 				return *this;
+			}
+
+			template <typename T, typename std::enable_if_t<std::is_base_of_v<haunted::ui::textline, T>> * = nullptr,
+			                      typename std::enable_if_t<!std::is_base_of_v<lines::line, T>> * = nullptr>
+			window & operator+=(std::shared_ptr<T> line) {
+				auto w = formicine::perf.watch("window::operator+=(shared_ptr<textline>)");
+				add_line(line);
+				return *this;
+			}
+
+			window & operator+=(const std::string &);
+
+			template <typename T, typename... Args>
+			void add(Args && ...args) {
+				*this += std::make_shared<T>(std::forward<Args>(args)...);
 			}
 
 			bool is_status() const;
@@ -97,8 +130,8 @@ namespace spjalla::ui {
 			void kill();
 			void resurrect();
 
-			void notify(const lines::line &, notification_type);
-			void notify(const lines::line &);
+			void notify(std::shared_ptr<lines::line>, notification_type);
+			void notify(std::shared_ptr<lines::line>);
 			void unnotify();
 
 			/** Removes rows for which a given function returns true. */

@@ -137,7 +137,7 @@ namespace spjalla::plugins::logs {
 		}
 
 		long parsed;
-		if (!util::parse_long(stamp_str, parsed))
+		if (!formicine::util::parse_long(stamp_str, parsed))
 			throw std::invalid_argument("Invalid timestamp: " + stamp_str);
 
 		switch (suffix) {
@@ -178,11 +178,11 @@ namespace spjalla::plugins::logs {
 		spjalla::client *client = dynamic_cast<spjalla::client *>(host);
 		if (!client) { DBG("Error: expected client as plugin host"); return; }
 
-		client->add({"clean", {0, 1, true, [this](pingpong::server *, const input_line &) { clean(); }, {}}});
+		client->add("clean", 0, 1, true, [this](pingpong::server *, const input_line &) { clean(); });
 
-		client->add({"restore", {0, 1, true, [this](pingpong::server *serv, const input_line &il) {
+		client->add("restore", 0, 1, true, [this](pingpong::server *serv, const input_line &il) {
 			restore(serv, il);
-		}, {}}});
+		});
 
 		pingpong::events::listen<pingpong::join_event>([&](pingpong::join_event *event) {
 			log({event->serv, event->chan->name}, event->who->name, "join");
@@ -211,7 +211,7 @@ namespace spjalla::plugins::logs {
 		});
 
 
-		pingpong::events::listen<pingpong::notice_event>([&](pingpong::notice_event *event) {
+		pingpong::events::listen<pingpong::notice_event>([&, client](pingpong::notice_event *event) {
 			if (event->serv->get_parent() != &client->get_irc())
 				return;
 
@@ -225,7 +225,7 @@ namespace spjalla::plugins::logs {
 			if (nick.empty())
 				nick = "!"; // A '!', in this case, represents you before your nick has been set.
 
-			log({event->serv, where}, util::ltrim(line.hat_str() + line.name) + " " + nick + " " +
+			log({event->serv, where}, formicine::util::ltrim(line.hat_str() + line.name) + " " + nick + " " +
 				(line.is_action()? "*" : ":") + line.trimmed(line.message), "notice");
 		});
 
@@ -239,13 +239,15 @@ namespace spjalla::plugins::logs {
 		});
 
 
-		pingpong::events::listen<pingpong::privmsg_event>([&](pingpong::privmsg_event *event) {
-			if (event->serv->get_parent() != &client->get_irc())
+		pingpong::events::listen<pingpong::privmsg_event>([&, client](pingpong::privmsg_event *event) {
+			if (event->serv->get_parent() != &client->get_irc()) {
+				DBG("Different parent IRCs: " << event->serv->get_parent() << " vs. " << &client->get_irc());
 				return;
+			}
 
 			lines::privmsg_line line {client, *event};
 			log({event->serv, event->is_channel()? event->where : event->speaker->name},
-				util::ltrim(line.hat_str() + line.name) + " " + event->serv->get_nick() + " " +
+				formicine::util::ltrim(line.hat_str() + line.name) + " " + event->serv->get_nick() + " " +
 				(line.is_action()? "*" : ":") + line.trimmed(line.message), "msg");
 		});
 

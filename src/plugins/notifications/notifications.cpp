@@ -1,118 +1,108 @@
 #include <unordered_map>
 
+#include "spjalla/plugins/notifications.h"
+#include "spjalla/plugins/notifications/widget.h"
+
 #include "pingpong/core/util.h"
 #include "pingpong/events/event.h"
-
-#include "spjalla/config/defaults.h"
 #include "spjalla/core/client.h"
+#include "spjalla/config/defaults.h"
 #include "spjalla/events/notification.h"
 #include "spjalla/events/window_changed.h"
+#include "spjalla/lines/basic.h"
 #include "spjalla/plugins/plugin.h"
-#include "spjalla/ui/status_widget.h"
 
-#include "lib/formicine/ansi.h"
 #include "lib/formicine/futil.h"
 
 namespace spjalla::plugins {
-	class notifications_widget: public spjalla::ui::status_widget {
-		public:
-			ansi::color highlight_color = ansi::color::yellow;
-			bool highlight_bold = true;
+	bool notifications_plugin::gathering() const {
+		return gathering_since != -1;
+	}
 
-			using status_widget::status_widget;
+	void notifications_plugin::start_gathering() {
+		gathering_since = pingpong::util::seconds();
+		gathered_lines = {};
+		parent->get_ui().log("Gathering notifications.");
+	}
 
-			virtual ~notifications_widget() {}
+	void notifications_plugin::stop_gathering() {
+		if (!gathering())
+			return;
 
-			std::string render(const ui::window *, bool) const {
-				std::vector<std::string> indicators;
+		const std::string range = ansi::bold(pingpong::util::format_time(pingpong::util::from_seconds(gathering_since),
+			"%Y/%m/%d %H:%M:%S")) + " and " + ansi::bold(pingpong::util::format_time(pingpong::util::now(),
+			"%Y/%m/%d %H:%M:%S"));
 
-				std::deque<haunted::ui::control *> controls = parent->get_window_controls();
-				std::sort(controls.begin(), controls.end(), [](haunted::ui::control *one, haunted::ui::control *two) {
-					return one->get_index() < two->get_index();
-				});
-
-				for (haunted::ui::control *control: controls) {
-					const ssize_t index = control->get_index();
-					if (index < 0)
-						continue;
-
-					ui::window *window = dynamic_cast<ui::window *>(control);
-					if (window == parent->get_ui().get_active_window())
-						continue;
-
-					notification_type type = window->highest_notification;
-					if (type == notification_type::none) {
-						continue;
-					}
-					
-					std::string index_str = std::to_string(index + 1);
-					switch (type) {
-						case notification_type::info:      indicators.push_back(ansi::dim(index_str)); break;
-						case notification_type::message:   indicators.push_back(index_str); break;
-						case notification_type::highlight: 
-							indicators.push_back(ansi::wrap(highlight_bold? ansi::bold(index_str) : index_str,
-								highlight_color));
-							break;
-						default: throw std::invalid_argument("Invalid notification type");
-					}
-				}
-
-				return formicine::util::join(indicators.begin(), indicators.end(), ","_d);
+		if (gathered_lines.empty()) {
+			parent->get_ui().warn("No notifications gathered between " + range + ".");
+		} else {
+			ui::window *win = parent->get_ui().get_window("gather", true, ui::window_type::other);
+			parent->get_ui().focus_window(win);
+			win->clear_lines();
+			win->add<lines::basic_line>(parent, "Notifications between " + range + ":");
+			for (std::shared_ptr<lines::line> line: gathered_lines) {
+				// Note: since lines::line isn't constructible, we can't create a copy and set its box to this window.
+				// We have to share the old line with the window it was in if it had one.
+				if (!line->box)
+					line->box = win;
+				*win += line;
 			}
 
-			void window_focused(ui::window *window) {
-				window->unnotify();
-			}
-	};
+			gathered_lines.clear();
+		}
 
-	class notifications_widget_plugin: public plugin {
-		private:
-			std::shared_ptr<notifications_widget> widget;
+		gathering_since = -1;
+	}
 
-		public:
-			virtual ~notifications_widget_plugin() {}
+	void notifications_plugin::preinit(plugin_host *host) {
+		spjalla::client *client = dynamic_cast<spjalla::client *>(host);
+		if (!client) { DBG("Error: expected client as plugin host"); return; }
 
-			std::string get_name()        const override { return "Notifications"; }
-			std::string get_description() const override { return "Shows a notifications widget in the status bar."; }
-			std::string get_version()     const override { return "0.1.1"; }
+		widget = std::make_shared<notifications_widget>(client, 20);
 
-			void preinit(plugin_host *host) override {
-				spjalla::client *client = dynamic_cast<spjalla::client *>(host);
-				if (!client) { DBG("Error: expected client as plugin host"); return; }
+		config::register_key("appearance", "highlight_color", "red", config::validate_color,
+			[&, client](config::database &, const config::value &value) {
+				widget->highlight_color = ansi::get_color(value.string_());
+				client->render_statusbar();
+			}, "The text color for highlight notifications.");
 
-				widget = std::make_shared<notifications_widget>(client, 20);
+		config::register_key("appearance", "highlight_bold", true, config::validate_bool,
+			[&, client](config::database &, const config::value &value) {
+				widget->highlight_bold = value.bool_();
+				client->render_statusbar();
+			}, "Whether to render highlight notifications in bold.");
+	}
 
-				config::register_key("appearance", "highlight_color", "red", config::validate_color,
-					[&, client](config::database &, const config::value &value) {
-						widget->highlight_color = ansi::get_color(value.string_());
-						client->render_statusbar();
-					}, "The text color for highlight notifications.");
+	void notifications_plugin::postinit(plugin_host *host) {
+		spjalla::client *client = dynamic_cast<spjalla::client *>(host);
+		if (!client) { DBG("Error: expected client as plugin host"); return; }
+		parent = client;
 
-				config::register_key("appearance", "highlight_bold", true, config::validate_bool,
-					[&, client](config::database &, const config::value &value) {
-						widget->highlight_bold = value.bool_();
-						client->render_statusbar();
-					}, "Whether to render highlight notifications in bold.");
-			}
+		client->add_status_widget(widget);
 
-			void postinit(plugin_host *host) override {
-				spjalla::client *client = dynamic_cast<spjalla::client *>(host);
-				if (!client) { DBG("Error: expected client as plugin host"); return; }
+		client->add("gather", 0, 0, false, [&](pingpong::server *, const input_line &) {
+			if (gathering())
+				stop_gathering();
+			else
+				start_gathering();
+		});
 
-				client->add_status_widget(widget);
+		pingpong::events::listen<events::notification_event>([=, this](events::notification_event *ev) {
+			if (gathering() && ev->line->get_notification_type() == notification_type::highlight)
+				gathered_lines.push_back(ev->line);
+		});
 
-				pingpong::events::listen<events::window_changed_event> ([=, this](events::window_changed_event *ev) {
-					widget->window_focused(ev->to);
-				});
+		pingpong::events::listen<events::window_changed_event>([=, this](events::window_changed_event *ev) {
+			widget->window_focused(ev->to);
+		});
 
-				pingpong::events::listen<events::window_notification_event>([=](events::window_notification_event *ev) {
-					if (ev->window == client->get_ui().get_active_window())
-						ev->window->highest_notification = notification_type::none;
-					else
-						client->render_statusbar();
-				});
-			}
-	};
+		pingpong::events::listen<events::window_notification_event>([=](events::window_notification_event *ev) {
+			if (ev->window == client->get_ui().get_active_window())
+				ev->window->highest_notification = notification_type::none;
+			else
+				client->render_statusbar();
+		});
+	}
 }
 
-spjalla::plugins::notifications_widget_plugin ext_plugin {};
+spjalla::plugins::notifications_plugin ext_plugin {};
