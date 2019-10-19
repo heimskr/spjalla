@@ -178,11 +178,11 @@ namespace spjalla::plugins::logs {
 		spjalla::client *client = dynamic_cast<spjalla::client *>(host);
 		if (!client) { DBG("Error: expected client as plugin host"); return; }
 
-		client->add({"clean", {0, 1, true, [this](pingpong::server *, const input_line &) { clean(); }, {}}});
+		client->add("clean", {0, 1, true, [this](pingpong::server *, const input_line &) { clean(); }, {}});
 
-		client->add({"restore", {0, 1, true, [this](pingpong::server *serv, const input_line &il) {
+		client->add("restore", {0, 1, true, [this](pingpong::server *serv, const input_line &il) {
 			restore(serv, il);
-		}, {}}});
+		}, {}});
 
 		pingpong::events::listen<pingpong::join_event>([&](pingpong::join_event *event) {
 			log({event->serv, event->chan->name}, event->who->name, "join");

@@ -64,6 +64,10 @@ namespace spjalla {
 		completion_states.insert({p.first, completions::completion_state(p.second.suggestors)});
 	}
 
+	void client::add(const std::string &command_name, const commands::command &command) {
+		add({command_name, command});
+	}
+
 	void client::init() {
 		configs.read_if_empty(DEFAULT_CONFIG_DB, true);
 		alias_db.read_if_empty(DEFAULT_ALIAS_DB, true);

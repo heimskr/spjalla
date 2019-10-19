@@ -115,17 +115,16 @@ namespace spjalla {
 				}, {}}};
 			}
 
-			/**
-			 * Adds a command handler.
-			 * @param p A pair signifying the name of the command as typed by the user plus a handler tuple.
-			 */
-			void add(const spjalla::commands::pair &p);
+			/** Adds a command handler, given a pair that signifies the name of the command as typed by the user plus a
+			 *  handler tuple. */
+			void add(const spjalla::commands::pair &);
+			void add(const std::string &, const spjalla::commands::command &);
 
 			/** Initializes the client. */
 			void init();
 
 			/** Processes a line of user input and returns whether the line was recognized as a valid input. */
-			bool handle_line(const input_line &line);
+			bool handle_line(const input_line &);
 
 			/** Updates the interface to accommodate the removal of a server. */
 			void server_removed(pingpong::server *);
