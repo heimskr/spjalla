@@ -14,6 +14,9 @@ MAINLIB			 = build/libspjalla.$(SHARED_EXT)
 SHARED_EXT		:= so
 SHARED_FLAG		:= -shared
 LIBPATHVAR		:= LD_LIBRARY_PATH
+ifeq ($(DEBUGGER),)
+	DEBUGGER	:= lldb
+endif
 
 ifeq ($(shell uname -s), Darwin)
 	SHARED_EXT	:= dylib
@@ -80,7 +83,7 @@ test: $(OUTPUT)
 	$(LIBPATHVAR)="`pwd`/build" ./$(OUTPUT) --plugins build/plugins
 
 dbg: $(OUTPUT)
-	$(LIBPATHVAR)="`pwd`/build" lldb $(OUTPUT) -- --plugins build/plugins
+	$(LIBPATHVAR)="`pwd`/build" $(DEBUGGER) $(OUTPUT) -- --plugins build/plugins
 
 grind: $(OUTPUT)
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=no ./$(OUTPUT)
