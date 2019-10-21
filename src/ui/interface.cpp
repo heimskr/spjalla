@@ -403,9 +403,9 @@ namespace spjalla::ui {
 			for (pingpong::server *serv: parent->irc.server_order) {
 				serv->sort_channels();
 				if (serv->is_active()) {
-					*overlay += lines::status_server_line(serv);
+					*overlay += lines::status_server_line(parent, serv);
 					for (std::shared_ptr<pingpong::channel> chan: serv->channels)
-						*overlay += lines::status_channel_line(chan);
+						*overlay += lines::status_channel_line(parent, chan);
 				}
 			}
 

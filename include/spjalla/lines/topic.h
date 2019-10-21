@@ -17,7 +17,7 @@ namespace spjalla::lines {
 		topic_line(client *parent_, const pingpong::topic_event &ev):
 			topic_line(parent_, ev.who->name, ev.chan->name, ev.content, ev.stamp) {}
 
-		virtual operator std::string() const override;
+		virtual std::string render(ui::window *) override;
 		virtual notification_type get_notification_type() const override { return notification_type::info; }
 	};
 }

@@ -10,7 +10,7 @@ namespace spjalla::lines {
 		alias_line(client *parent_, const std::string &key_, const std::string &expansion_, long stamp_ = now()):
 			line(parent_, stamp_), key(key_), expansion(expansion_) {}
 
-		virtual operator std::string() const override;
+		virtual std::string render(ui::window *) override;
 	};
 }
 

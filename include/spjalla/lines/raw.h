@@ -14,7 +14,7 @@ namespace spjalla::lines {
 		long stamp_ = now()):
 			line(parent_, stamp_, 3), text(text_), is_bad(is_bad_), is_out(is_out_) {}
 
-		operator std::string() const override;
+		virtual std::string render(ui::window *) override;
 	};
 }
 

@@ -39,7 +39,7 @@ namespace spjalla::lines {
 
 			notification_type get_notification_type() const override;
 
-			static std::string to_string(const pingpong::notice_event &, bool with_time = true);
+			static std::string to_string(const pingpong::notice_event &);
 	};
 }
 

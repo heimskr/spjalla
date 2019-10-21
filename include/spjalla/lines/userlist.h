@@ -17,7 +17,7 @@ namespace spjalla::lines {
 		size_t pad_ = 0):
 			line(parent_, 2), chan(chan_), user(user_), pad(pad_) {}
 
-		virtual operator std::string() const override;
+		virtual std::string render(ui::window *) override;
 	};
 }
 

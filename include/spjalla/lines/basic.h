@@ -16,7 +16,7 @@ namespace spjalla::lines {
 		basic_line(const std::string &text_, int continuation_ = 0, long stamp_ = pingpong::util::timestamp()):
 			basic_line(nullptr, text_, continuation_, stamp_) {}
 
-		virtual operator std::string() const override;
+		virtual std::string render(ui::window *) override;
 	};
 }
 

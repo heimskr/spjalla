@@ -12,7 +12,7 @@ namespace spjalla::lines {
 		config_group_line(client *parent_, const std::string &group_, long stamp_ = pingpong::util::timestamp()):
 			line(parent_, stamp_), group(group_) {}
 
-		virtual operator std::string() const override;
+		virtual std::string render(ui::window *) override;
 	};
 }
 

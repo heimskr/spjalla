@@ -25,4 +25,8 @@ namespace spjalla::lines {
 	long now() {
 		return pingpong::util::timestamp();
 	}
+
+	line::operator std::string() {
+		return render_time(stamp, true) + render(nullptr);
+	}
 }

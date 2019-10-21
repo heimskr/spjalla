@@ -128,7 +128,7 @@ if (type.match(/^c(ore)?$/i)) {
 	%		struct ${name}_line: public line {
 	%			${name}_line(client *parent_, long stamp_ = now()): line(parent_, stamp_) {}
 	%
-	%			operator std::string() const override;
+	%			virtual std::string render(ui::window *) override;
 	%		};
 	%	}
 	%
@@ -138,8 +138,8 @@ if (type.match(/^c(ore)?$/i)) {
 	%	#include "spjalla/lines/${name}.h"
 	%
 	%	namespace spjalla::lines {
-	%		${name}_line::operator std::string() const {
-	%			return lines::render_time(stamp);
+	%		std::string ${name}_line::render(ui::window *) {
+	%			
 	%		}
 	%	}`);
 

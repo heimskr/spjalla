@@ -26,7 +26,7 @@ namespace spjalla::lines {
 		kick_line(client *parent_, const pingpong::kick_event &ev):
 			kick_line(parent_, ev.chan, ev.who, ev.whom, ev.content, ev.stamp) {}
 
-		virtual operator std::string() const override;
+		virtual std::string render(ui::window *) override;
 		virtual notification_type get_notification_type() const override;
 	};
 }

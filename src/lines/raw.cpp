@@ -1,15 +1,12 @@
 #include "spjalla/lines/raw.h"
 
 namespace spjalla::lines {
-	raw_line::operator std::string() const {
-		std::string out = lines::render_time(stamp);
+	std::string raw_line::render(ui::window *) {
 		const char *indicator = is_out? "<< " : ">> ";
 		if (is_bad)
-			out += ansi::red(indicator);
+			return ansi::red(indicator) + text;
 		else if (is_out)
-			out += ansi::gray(indicator);
-		else
-			out += ansi::dim(ansi::gray(indicator));
-		return out + text;
+			return ansi::gray(indicator) + text;
+		return ansi::dim(ansi::gray(indicator)) + text;
 	}
 }

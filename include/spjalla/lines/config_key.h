@@ -20,7 +20,7 @@ namespace spjalla::lines {
 		long stamp_ = pingpong::util::timestamp()):
 			config_key_line(parent_, pair.first, pair.second, indent_, stamp_) {}
 
-		virtual operator std::string() const override;
+		virtual std::string render(ui::window *) override;
 	};
 }
 

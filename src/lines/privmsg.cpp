@@ -10,8 +10,8 @@ namespace spjalla::lines {
 		return notification_type::message;
 	}
 
-	std::string privmsg_line::to_string(const pingpong::privmsg_event &ev, bool with_time) {
+	std::string privmsg_line::to_string(const pingpong::privmsg_event &ev) {
 		privmsg_line line {nullptr, ev};
-		return ansi::strip(line.process(ev.content, with_time));
+		return ansi::strip(line.process(ev.content));
 	}
 }

@@ -18,7 +18,7 @@ namespace spjalla::lines {
 		quit_line(client *parent_, const pingpong::quit_command &cmd):
 			quit_line(parent_, cmd.serv->get_user(cmd.serv->get_nick(), true), cmd.reason, cmd.sent_time) {}
 
-		virtual operator std::string() const override;
+		virtual std::string render(ui::window *) override;
 		virtual notification_type get_notification_type() const override { return notification_type::info; }
 	};
 }

@@ -13,7 +13,7 @@ namespace spjalla::plugins::logs {
 		log_line(client *parent_, const std::string &verb_, long stamp_):
 			lines::line(parent_, stamp_, 0), verb(verb_) {}
 
-		virtual operator std::string() const override;
+		virtual std::string render(ui::window *) override;
 	};
 }
 

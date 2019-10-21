@@ -1,7 +1,7 @@
 #include "spjalla/lines/join.h"
 
 namespace spjalla::lines {
-	join_line::operator std::string() const {
-		return lines::render_time(stamp) + notice + ansi::bold(name) + " joined " + ansi::bold(chan_name);
+	std::string join_line::render(ui::window *) {
+		return notice + ansi::bold(name) + " joined " + ansi::bold(chan_name);
 	}
 }

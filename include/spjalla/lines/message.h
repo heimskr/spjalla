@@ -46,7 +46,7 @@ namespace spjalla::lines {
 
 		protected:
 			/** Formats a message by processing colors and actions and adding the user's name. */
-			std::string process(const std::string &, bool with_time = true);
+			std::string process(const std::string &);
 
 		public:
 			// We need to store a copy of the speaker's name at the time the message was sent—otherwise, if they were to
@@ -94,7 +94,7 @@ namespace spjalla::lines {
 			/** Returns a string representing the user's hat (empty if the destination isn't a channel). */
 			std::string hat_str() const;
 
-			virtual operator std::string() const override;
+			virtual std::string render(ui::window *) override;
 			virtual notification_type get_notification_type() const override;
 
 			void on_mouse(const haunted::mouse_report &) override;

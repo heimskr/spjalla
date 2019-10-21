@@ -3,7 +3,7 @@
 #include "lib/formicine/ansi.h"
 
 namespace spjalla::plugins::logs {
-	log_line::operator std::string() const {
+	std::string log_line::render(ui::window *) {
 		return "───── "_d + "Log " + verb + " on " + ansi::bold(pingpong::util::get_date(stamp)) + " ─────"_d;
 	}
 }

@@ -1,7 +1,7 @@
 #include "spjalla/lines/error.h"
 
 namespace spjalla::lines {
-	error_line::operator std::string() const {
-		return lines::render_time(stamp) + lines::red_notice + message;
+	std::string error_line::render(ui::window *) {
+		return lines::red_notice + message;
 	}
 }

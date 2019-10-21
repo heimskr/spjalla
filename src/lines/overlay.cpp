@@ -1,7 +1,7 @@
 #include "spjalla/lines/overlay.h"
 
 namespace spjalla::lines {
-	status_server_line::operator std::string() const {
+	std::string status_server_line::render(ui::window *) {
 		std::shared_ptr<pingpong::user> self = serv->get_self();
 		std::string out = "- "_d + ansi::wrap(serv->id, ansi::style::underline) + " (" + serv->get_nick() + "@"_d +
 			serv->hostname + ")";
@@ -10,7 +10,7 @@ namespace spjalla::lines {
 		return out;
 	}
 
-	status_channel_line::operator std::string() const {
+	std::string status_channel_line::render(ui::window *) {
 		std::string out = "  - "_d + chan->name;
 		if (!chan->modes.empty())
 			out += ": "_d + chan->mode_str();

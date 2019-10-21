@@ -11,8 +11,8 @@ namespace spjalla::lines {
 		return notification_type::message;
 	}
 
-	std::string notice_line::to_string(const pingpong::notice_event &ev, bool with_time) {
+	std::string notice_line::to_string(const pingpong::notice_event &ev) {
 		notice_line line {nullptr, ev};
-		return ansi::strip(line.process(ev.content, with_time));
+		return ansi::strip(line.process(ev.content));
 	}
 }

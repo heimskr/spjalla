@@ -24,7 +24,7 @@ namespace spjalla::lines {
 			mode_line(client *parent_, const pingpong::mode_event &ev):
 				mode_line(parent_, ev.mset, ev.where, ev.who? ev.who->name : "", ev.serv->get_nick(), ev.stamp) {}
 
-			virtual operator std::string() const override;
+			virtual std::string render(ui::window *) override;
 			virtual notification_type get_notification_type() const override { return notification_type::info; }
 	};
 }

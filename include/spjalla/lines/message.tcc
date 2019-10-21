@@ -112,9 +112,9 @@ namespace spjalla::lines {
 
 
 	template <typename T>
-	std::string message_line<T>::process(const std::string &str, bool with_time) {
+	std::string message_line<T>::process(const std::string &str) {
 		std::string name_fmt = is_action() || is_self? ansi::bold(name) : name;
-		const std::string time = with_time? lines::render_time(stamp) : "";
+		const std::string time = "";
 
 		if (util::is_highlight(message, self, direct_only))
 			name_fmt = ansi::yellow(name_fmt);
@@ -188,7 +188,7 @@ namespace spjalla::lines {
 	}
 
 	template <typename T>
-	message_line<T>::operator std::string() const {
+	std::string message_line<T>::render(ui::window *) {
 		return processed;
 	}
 
