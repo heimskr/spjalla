@@ -38,7 +38,9 @@ namespace spjalla::lines {
 			long stamp;
 
 			line(client *parent_, long stamp_ = pingpong::util::timestamp(), int base_continuation_ = 0):
-				base_continuation(base_continuation_), parent(parent_), stamp(stamp_) {}
+				base_continuation(base_continuation_), parent(parent_), stamp(stamp_) {
+				DBG("base_continuation_[" << base_continuation_ << "]");
+			}
 
 			int get_continuation() const override;
 			operator std::string() override;

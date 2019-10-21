@@ -1,10 +1,4 @@
-#include "pingpong/commands/join.h"
-#include "pingpong/core/util.h"
-#include "spjalla/core/client.h"
-#include "spjalla/core/util.h"
-#include "spjalla/lines/message.h"
 
-#include "lib/formicine/futil.h"
 
 namespace spjalla::lines {
 	template <typename T>
@@ -46,7 +40,7 @@ namespace spjalla::lines {
 	}
 
 
-// Private instance methods
+// Protected instance methods
 
 
 	template <typename T>
@@ -57,9 +51,22 @@ namespace spjalla::lines {
 		if (mpos == std::string::npos)
 			throw std::invalid_argument("Invalid message format string");
 
+		int out = line::get_continuation() + mpos;
+
 		// If the speaker comes before the message in the format, we need to adjust the return value accordingly.
-		return line::get_continuation() + mpos + (format.find("#s") < mpos? name.length() - 2 : 0);
+		if (format.find("#s") < mpos)
+			out += name.length() - 2;
+
+		// Same for the hat string.
+		if (format.find("#h") < mpos)
+			out += hat_str().length() - 2;
+
+		return out;
 	}
+
+
+// Private instance methods
+
 
 	template <typename T>
 	std::string message_line<T>::get_verb(const std::string &str) {
@@ -219,6 +226,7 @@ namespace spjalla::lines {
 				ssize_t windex, sindex;
 				std::tie(windex, sindex) = formicine::util::word_indices(message, n);
 				std::string word = formicine::util::nth_word(message, windex);
+				DBG("w[" << windex << "], s[" << sindex << "], word[" << word << "]");
 				if (!word.empty() && word.front() == '#')
 					pingpong::join_command(serv, word).send();
 			}

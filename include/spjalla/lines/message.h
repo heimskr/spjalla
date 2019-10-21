@@ -1,11 +1,21 @@
 #ifndef SPJALLA_LINES_MESSAGE_H_
 #define SPJALLA_LINES_MESSAGE_H_
 
+#include "pingpong/commands/join.h"
+
 #include "pingpong/core/defs.h"
 #include "pingpong/core/hats.h"
 #include "pingpong/core/local.h"
+#include "pingpong/core/util.h"
 
+#include "spjalla/core/client.h"
+#include "spjalla/core/util.h"
+
+#include "spjalla/lines/message.h"
 #include "spjalla/lines/line.h"
+
+#include "lib/formicine/ansi.h"
+#include "lib/formicine/futil.h"
 
 namespace spjalla::lines {
 	/**
@@ -23,9 +33,6 @@ namespace spjalla::lines {
 		private:
 			bool is_self = false;
 			std::string processed_message;
-
-			/** Finds the continuation for the line. */
-			int get_continuation() const override;
 			
 			/** If the given message is a CTCP message, this function returns its verb. Otherwise, it returns an empty
 			 *  string. */
@@ -47,6 +54,9 @@ namespace spjalla::lines {
 		protected:
 			/** Formats a message by processing colors and actions and adding the user's name. */
 			std::string process(const std::string &);
+
+			/** Finds the continuation for the line. */
+			int get_continuation() const override;
 
 			pingpong::server * get_associated_server() const override { return serv; }
 
