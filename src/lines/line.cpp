@@ -17,7 +17,7 @@ namespace spjalla::lines {
 
 	std::string render_time(long stamp, bool with_ansi) {
 		if (stamp == 0)
-			return with_ansi? "["_d + "__:__:__" + "]"_d : "[__:__:__]";
+			return with_ansi? "["_d + "__:__:__" + "] "_d : "[__:__:__]";
 
 		std::chrono::system_clock::time_point tpoint {pingpong::util::timetype(stamp)};
 		std::time_t time = std::chrono::system_clock::to_time_t(tpoint);

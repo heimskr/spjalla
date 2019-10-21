@@ -10,6 +10,7 @@
 #include "pingpong/events/mode.h"
 #include "pingpong/events/names_updated.h"
 #include "pingpong/events/nick.h"
+#include "pingpong/events/nick_in_use.h"
 #include "pingpong/events/notice.h"
 #include "pingpong/events/part.h"
 #include "pingpong/events/privmsg.h"
@@ -110,6 +111,10 @@ namespace spjalla {
 				*win += nline;
 		});
 
+		pingpong::events::listen<pingpong::nick_in_use_event>([&](pingpong::nick_in_use_event *ev) {
+			ui.warn("Nick in use: " + ansi::bold(ev->nick));
+		});
+
 		pingpong::events::listen<pingpong::notice_event>([&](pingpong::notice_event *ev) {
 			const bool direct_only = configs.get("messages", "direct_only").bool_();
 			const bool highlight_notices = configs.get("messages", "highlight_notices").bool_();
@@ -117,8 +122,9 @@ namespace spjalla {
 
 			if (!ev->is_channel() && !ev->speaker) {
 				ui::window *win = in_status? ui.status_window : ui.active_window;
-				*win += lines::notice_line(this, ev->serv->id, "*", ev->serv->get_nick(), ev->content, ev->stamp, {},
-					true);
+				lines::notice_line nl {this, ev->serv->id, "*", ev->serv->get_nick(), ev->content, ev->stamp, {}, true};
+				nl.serv = ev->serv;
+				*win += std::move(nl);
 				return;
 			}
 
@@ -151,11 +157,13 @@ namespace spjalla {
 			if (ev->is_channel()) {
 				*ui.get_window(ev->get_channel(ev->serv), true) += lines::privmsg_line(this, *ev, direct_only);
 			} else {
-				if (ev->speaker->is_self()) // privmsg_events are dispatched when we send messages too.
-					*ui.get_window(ev->serv->get_user(ev->where, true), true) +=
-						lines::privmsg_line(this, *ev, direct_only);
-				else
+				if (ev->speaker->is_self()) { // privmsg_events are dispatched when we send messages too.
+					lines::privmsg_line privline {this, *ev, direct_only};
+					privline.serv = ev->serv;
+					*ui.get_window(ev->serv->get_user(ev->where, true), true) += privline;
+				} else {
 					*ui.get_window(ev->speaker, true) += lines::privmsg_line(this, *ev, direct_only);
+				}
 			}
 		});
 

@@ -94,7 +94,7 @@ namespace spjalla::plugins::logs {
 	}
 
 	std::filesystem::path logs_plugin::get_path(const log_pair &pair) {
-		const std::filesystem::path dir = base / sanitize_filename(pair.first->id);
+		const std::filesystem::path dir = base / sanitize_filename(std::string(pair.first->id));
 		if (!std::filesystem::exists(dir))
 			std::filesystem::create_directories(dir);
 

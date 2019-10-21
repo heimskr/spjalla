@@ -6,10 +6,9 @@
 namespace spjalla::lines {
 	struct warning_line: public line {
 		std::string message;
-		long stamp;
 
 		warning_line(client *parent_, const std::string &message_, long stamp_ = pingpong::util::timestamp()):
-			line(parent_, 0), message(message_), stamp(stamp_) {}
+			line(parent_, stamp_, ansi::length(lines::yellow_notice)), message(message_) {}
 
 		virtual std::string render(ui::window *) override;
 		virtual notification_type get_notification_type() const override { return notification_type::info; }

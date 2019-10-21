@@ -2,4 +2,3 @@
 - Respond to CTCP VERSION configurably (show in query window or hide, respond or ignore).
 - Make a Slashdot plugin.
 - Add color/bold input.
-- Fix dim not appearing in GNU screen?
