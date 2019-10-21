@@ -16,4 +16,12 @@ namespace spjalla::lines {
 			out += ": "_d + chan->mode_str();
 		return out;
 	}
+
+	status_server_line::operator std::string() {
+		return render(nullptr);
+	}
+
+	status_channel_line::operator std::string() {
+		return render(nullptr);
+	}
 }

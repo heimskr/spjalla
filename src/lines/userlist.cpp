@@ -6,4 +6,8 @@ namespace spjalla::lines {
 		const size_t hats_length = hats.length();
 		return ansi::dim("- ") + (pad <= hats_length? "" : std::string(pad - hats_length, ' ')) + hats + user->name;
 	}
+
+	userlist_line::operator std::string() {
+		return render(nullptr);
+	}
 }

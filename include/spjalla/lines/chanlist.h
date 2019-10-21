@@ -9,6 +9,8 @@
 
 namespace spjalla::lines {
 	struct chanlist_line: public line {
+		pingpong::server * get_associated_server() const override { return chan->serv; }
+
 		std::shared_ptr<pingpong::user> user;
 		std::shared_ptr<pingpong::channel> chan;
 
@@ -16,6 +18,7 @@ namespace spjalla::lines {
 			line(parent_, 2), user(user_), chan(chan_) {}
 
 		virtual std::string render(ui::window *) override;
+		virtual operator std::string() override;
 	};
 }
 

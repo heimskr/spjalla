@@ -48,6 +48,8 @@ namespace spjalla::lines {
 			/** Formats a message by processing colors and actions and adding the user's name. */
 			std::string process(const std::string &);
 
+			pingpong::server * get_associated_server() const override { return serv; }
+
 		public:
 			// We need to store a copy of the speaker's name at the time the message was sent—otherwise, if they were to
 			// change their name later, it would cause this line to render with the new name!

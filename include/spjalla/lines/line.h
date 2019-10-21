@@ -27,9 +27,9 @@ namespace spjalla::lines {
 	std::string render_time(long stamp, bool with_ansi = true);
 
 	class line: public haunted::ui::textline {
-		private:
+		protected:
 			/** Returns whether the server the line is associated with, if any. */
-			pingpong::server * get_associated_server() const { return nullptr; }
+			virtual pingpong::server * get_associated_server() const { return nullptr; }
 
 		public:
 			client *parent;

@@ -14,7 +14,8 @@ namespace spjalla::lines {
 		status_server_line(client *parent_, pingpong::server *serv_, long stamp_ = pingpong::util::timestamp()):
 			line(parent_, stamp_, 2), serv(serv_) {}
 
-		virtual std::string render(ui::window *);
+		virtual std::string render(ui::window *) override;
+		virtual operator std::string() override;
 	};
 
 	/**
@@ -27,7 +28,8 @@ namespace spjalla::lines {
 		pingpong::util::timestamp()):
 			line(parent_, stamp_, 4), chan(chan_) {}
 
-		virtual std::string render(ui::window *);
+		virtual std::string render(ui::window *) override;
+		virtual operator std::string() override;
 	};
 }
 
