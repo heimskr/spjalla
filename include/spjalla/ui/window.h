@@ -64,6 +64,9 @@ namespace spjalla::ui {
 			/** Constructs a window with no parent and no contents. */
 			window(const std::string &window_name_): window(nullptr, std::vector<std::string> {}, window_name_) {}
 
+			/** Whether lines rendered in the window should begin with a timestamp. */
+			virtual bool show_times() const;
+
 			template <typename T, typename std::enable_if_t<std::is_base_of_v<lines::line, T>> * = nullptr>
 			textbox & operator+=(const T &line) {
 				auto w = formicine::perf.watch("template <line> window::operator+=");

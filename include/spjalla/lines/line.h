@@ -30,6 +30,7 @@ namespace spjalla::lines {
 		protected:
 			/** Returns whether the server the line is associated with, if any. */
 			virtual pingpong::server * get_associated_server() const { return nullptr; }
+			virtual std::string render(ui::window *) = 0;
 
 		public:
 			client *parent;
@@ -38,9 +39,7 @@ namespace spjalla::lines {
 			line(client *parent_, long stamp_ = pingpong::util::timestamp(), int continuation_ = 0):
 				haunted::ui::textline(continuation_ + time_length), parent(parent_), stamp(stamp_) {}
 
-			virtual std::string render(ui::window *) = 0;
-
-			virtual operator std::string() override;
+			std::string to_string(haunted::ui::textbox * = nullptr) override;
 
 			virtual notification_type get_notification_type() const { return notification_type::none; }
 	};

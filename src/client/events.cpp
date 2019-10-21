@@ -42,7 +42,7 @@
 namespace spjalla {
 	void client::add_events() {
 		pingpong::events::listen<pingpong::bad_line_event>([&](pingpong::bad_line_event *ev) {
-			ui.log(lines::raw_line(this, ev->bad_line, false, true, ev->stamp));
+			ui.log(lines::raw_line(this, ev->bad_line, ev->serv, false, true, ev->stamp));
 		});
 
 		pingpong::events::listen<pingpong::command_event>([&](pingpong::command_event *ev) {
@@ -176,12 +176,12 @@ namespace spjalla {
 
 		pingpong::events::listen<pingpong::raw_in_event>([&](pingpong::raw_in_event *ev) {
 			if (log_spam)
-				ui.log(lines::raw_line(this, ev->raw_in, false, false, ev->stamp));
+				ui.log(lines::raw_line(this, ev->raw_in, ev->serv, false, false, ev->stamp));
 		});
 
 		pingpong::events::listen<pingpong::raw_out_event>([&](pingpong::raw_out_event *ev) {
 			if (log_spam)
-				ui.log(lines::raw_line(this, ev->raw_out, true, false, ev->stamp));
+				ui.log(lines::raw_line(this, ev->raw_out, ev->serv, true, false, ev->stamp));
 		});
 
 		pingpong::events::listen<pingpong::server_status_event>([&](pingpong::server_status_event *ev) {

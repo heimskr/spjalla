@@ -15,7 +15,6 @@ namespace spjalla::lines {
 			line(parent_, stamp_, 2), serv(serv_) {}
 
 		virtual std::string render(ui::window *) override;
-		virtual operator std::string() override;
 	};
 
 	/**
@@ -29,7 +28,6 @@ namespace spjalla::lines {
 			line(parent_, stamp_, 4), chan(chan_) {}
 
 		virtual std::string render(ui::window *) override;
-		virtual operator std::string() override;
 	};
 }
 

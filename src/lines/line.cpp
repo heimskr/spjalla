@@ -1,8 +1,12 @@
 #include <chrono>
 #include <ctime>
 
+#include "pingpong/core/server.h"
 #include "pingpong/core/util.h"
+
 #include "spjalla/lines/line.h"
+#include "spjalla/ui/window.h"
+
 #include "lib/formicine/ansi.h"
 
 namespace spjalla::lines {
@@ -26,7 +30,23 @@ namespace spjalla::lines {
 		return pingpong::util::timestamp();
 	}
 
-	line::operator std::string() {
-		return render_time(stamp, true) + render(nullptr);
+	std::string line::to_string(haunted::ui::textbox *tbox) {
+		ui::window *win = dynamic_cast<ui::window *>(tbox);
+
+		if (tbox == nullptr) {
+			DBG("tbox is null for " << render(nullptr));
+			return render_time(stamp, true) + render(win);
+		} else if (!win) {
+			throw std::runtime_error("A subclass of spjalla::lines::line must be rendered for a spjalla::ui::window");
+		}
+
+		if (win->type == ui::window_type::status) {
+			if (pingpong::server *serv = get_associated_server())
+				return render_time(stamp, true) + "["_d + serv->id + "] "_d + render(win);
+		} else if (!win->show_times()) {
+			return render(win);
+		}
+
+		return render_time(stamp, true) + render(win);
 	}
 }
