@@ -21,7 +21,6 @@ namespace spjalla::lines {
 			hats = chan->get_hats(speaker);
 		}
 
-		continuation = get_continuation() + lines::time_length;
 		processed = process(message_);
 	}
 
@@ -32,7 +31,6 @@ namespace spjalla::lines {
 	line(parent_, stamp_), pingpong::local(where_), name(name_), self(self_), message(message_),
 	verb(get_verb(message_)), body(get_body(message_)), hats(hats_), direct_only(direct_only_) {
 		is_self = name_ == self_;
-		continuation = get_continuation() + lines::time_length;
 		processed = process(message_);
 	}
 
@@ -44,7 +42,6 @@ namespace spjalla::lines {
 	body(get_body(message_)), direct_only(direct_only_) {
 		std::tie(hats, name) = pingpong::hat_set::separate(combined_);
 		is_self = name == self_;
-		continuation = get_continuation() + lines::time_length;
 		processed = process(message_);
 	}
 
@@ -53,7 +50,7 @@ namespace spjalla::lines {
 
 
 	template <typename T>
-	size_t message_line<T>::get_continuation() const {
+	int message_line<T>::get_continuation() const {
 		std::string format = ansi::strip(is_action()? T::action : T::message);
 
 		const size_t mpos = format.find("#m");
@@ -61,7 +58,7 @@ namespace spjalla::lines {
 			throw std::invalid_argument("Invalid message format string");
 
 		// If the speaker comes before the message in the format, we need to adjust the return value accordingly.
-		return mpos + (format.find("#s") < mpos? name.length() - 2 : 0);
+		return line::get_continuation() + mpos + (format.find("#s") < mpos? name.length() - 2 : 0);
 	}
 
 	template <typename T>
@@ -215,7 +212,7 @@ namespace spjalla::lines {
 
 			if (box) {
 				// Compute the clicked character's index within the message.
-				ssize_t n = -get_continuation() - lines::time_length;
+				ssize_t n = -get_continuation();
 				// I'm there's nothing after the message in the format strings.
 				ssize_t message_width = box->get_position().width + n;
 				n += report.x + report.y * message_width;

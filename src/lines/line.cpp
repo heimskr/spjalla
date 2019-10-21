@@ -30,14 +30,28 @@ namespace spjalla::lines {
 		return pingpong::util::timestamp();
 	}
 
-	std::string line::to_string(haunted::ui::textbox *tbox) {
-		ui::window *win = dynamic_cast<ui::window *>(tbox);
+	int line::get_continuation() const {
+		if (ui::window *win = dynamic_cast<ui::window *>(box)) {
+			if (!win->show_times())
+				return base_continuation;
 
-		if (tbox == nullptr) {
-			DBG("tbox is null for " << render(nullptr));
+			if (win->type == ui::window_type::status) {
+				if (pingpong::server *serv = get_associated_server())
+					return time_length + 3 + serv->id.length() + base_continuation;
+			}
+		}
+
+		return time_length + base_continuation;
+	}
+
+	line::operator std::string() {
+		ui::window *win = dynamic_cast<ui::window *>(box);
+
+		if (box == nullptr) {
+			DBG("box is null for " << render(nullptr));
 			return render_time(stamp, true) + render(win);
 		} else if (!win) {
-			throw std::runtime_error("A subclass of spjalla::lines::line must be rendered for a spjalla::ui::window");
+			throw std::runtime_error("The box parent of a spjalla::lines::line must be a spjalla::ui::window");
 		}
 
 		if (win->type == ui::window_type::status) {

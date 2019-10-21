@@ -19,7 +19,7 @@ namespace spjalla::ui {
 	}
 
 	void window::add_line(std::shared_ptr<haunted::ui::textline> line) {
-		const bool did_scroll = do_scroll(line->num_rows(pos.width, this));
+		const bool did_scroll = do_scroll(line->num_rows(pos.width));
 		lines.push_back(line);
 		if (!did_scroll)
 			draw_new_line(*line, true);
@@ -89,7 +89,7 @@ namespace spjalla::ui {
 		int rows_removed = 0, lines_removed = 0, total_rows = 0;
 
 		for (haunted::ui::textbox::line_ptr &ptr: lines) {
-			int rows = ptr->num_rows(pos.width, this);
+			int rows = ptr->num_rows(pos.width);
 			total_rows += rows;
 			if (fn(ptr.get())) {
 				if (total_rows < voffset)

@@ -25,7 +25,7 @@ namespace spjalla::lines {
 			std::string processed_message;
 
 			/** Finds the continuation for the line. */
-			size_t get_continuation() const;
+			int get_continuation() const override;
 			
 			/** If the given message is a CTCP message, this function returns its verb. Otherwise, it returns an empty
 			 *  string. */

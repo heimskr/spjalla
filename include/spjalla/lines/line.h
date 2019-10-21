@@ -31,15 +31,17 @@ namespace spjalla::lines {
 			/** Returns whether the server the line is associated with, if any. */
 			virtual pingpong::server * get_associated_server() const { return nullptr; }
 			virtual std::string render(ui::window *) = 0;
+			int base_continuation = 0;
 
 		public:
 			client *parent;
 			long stamp;
 
-			line(client *parent_, long stamp_ = pingpong::util::timestamp(), int continuation_ = 0):
-				haunted::ui::textline(continuation_ + time_length), parent(parent_), stamp(stamp_) {}
+			line(client *parent_, long stamp_ = pingpong::util::timestamp(), int base_continuation_ = 0):
+				base_continuation(base_continuation_), parent(parent_), stamp(stamp_) {}
 
-			std::string to_string(haunted::ui::textbox * = nullptr) override;
+			int get_continuation() const override;
+			operator std::string() override;
 
 			virtual notification_type get_notification_type() const { return notification_type::none; }
 	};
