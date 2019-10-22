@@ -112,7 +112,7 @@ namespace spjalla {
 		});
 
 		pingpong::events::listen<pingpong::nick_in_use_event>([&](pingpong::nick_in_use_event *ev) {
-			ui.warn("Nick in use: " + ansi::bold(ev->nick));
+			ui.warn("Nick in use: " + ansi::bold(ev->nick), ev->serv);
 		});
 
 		pingpong::events::listen<pingpong::notice_event>([&](pingpong::notice_event *ev) {

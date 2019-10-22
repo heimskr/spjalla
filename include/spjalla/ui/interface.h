@@ -116,22 +116,30 @@ namespace spjalla::ui {
 			/** Logs an exception to the status window. */
 			void log(const std::exception &);
 
-			void warn(const std::string &warning) {
-				log(lines::warning_line(parent, warning));
+			void warn(const std::string &warning, pingpong::server *serv = nullptr) {
+				lines::warning_line wline {parent, warning};
+				wline.serv = serv;
+				log(wline);
 			}
 
 			template <typename W, typename D>
-			void warn(const W &warning, const D &destination) {
-				log(lines::warning_line(parent, warning), destination);
+			void warn(const W &warning, const D &destination, pingpong::server *serv = nullptr) {
+				lines::warning_line wline {parent, warning};
+				wline.serv = serv;
+				log(wline, destination);
 			}
 
-			void error(const std::string &error) {
-				log(lines::error_line(parent, error));
+			void error(const std::string &error, pingpong::server *serv = nullptr) {
+				lines::error_line eline {parent, error};
+				eline.serv = serv;
+				log(eline);
 			}
 
 			template <typename E, typename D>
-			void error(const E &error, const D &destination) {
-				log(lines::error_line(parent, error), destination);
+			void error(const E &error, const D &destination, pingpong::server *serv = nullptr) {
+				lines::error_line eline {parent, error};
+				eline.serv = serv;
+				log(eline, destination);
 			}
 
 			/** Focuses a window. Note that this method will swap the active window and the given window, so the pointer
