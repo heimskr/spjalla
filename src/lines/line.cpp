@@ -44,7 +44,8 @@ namespace spjalla::lines {
 		return time_length + base_continuation;
 	}
 
-	line::operator std::string() {
+
+	std::string line::render() {
 		ui::window *win = dynamic_cast<ui::window *>(box);
 
 		if (box == nullptr) {
@@ -62,5 +63,13 @@ namespace spjalla::lines {
 		}
 
 		return render_time(stamp, true) + render(win);
+	}
+
+	line::operator std::string() {
+#ifdef RERENDER_LINES
+		return render();
+#else
+		return rendered.empty()? rendered = render() : rendered;
+#endif
 	}
 }

@@ -14,4 +14,7 @@
 #define DEFAULT_CONFIG_DB "client.conf"
 #define DEFAULT_ALIAS_DB  "aliases.conf"
 
+// Whether to recompute line text on every render instead of only on creation.
+// #define RERENDER_LINES
+
 #endif
