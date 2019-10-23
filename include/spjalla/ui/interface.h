@@ -155,6 +155,9 @@ namespace spjalla::ui {
 			 *  argument) or -1 if the given window is null or not part of this interface. */
 			ssize_t move_window(window *, size_t);
 
+			/** Returns a pointer to the status window. */
+			window * get_window() const { return status_window; }
+
 			/** Returns a pointer to the window indicated by a given string. If no window is found, one will be created
 			 *  with that name if `create` is true. */
 			window * get_window(const std::string &, bool create = false, window_type = window_type::other);

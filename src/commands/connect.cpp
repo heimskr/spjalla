@@ -19,6 +19,6 @@ namespace spjalla::commands {
 			}
 		});
 
-		ui.log("Connecting to " + ansi::bold(hostname) + " on port " + ansi::bold(std::to_string(port)) + "...");
+		ui.log("Connecting to " + ansi::bold(where) + " on port " + ansi::bold(std::to_string(port)) + "...");
 	}
 }
