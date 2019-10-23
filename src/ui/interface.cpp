@@ -101,7 +101,14 @@ namespace spjalla::ui {
 		overlay->clear_lines();
 		*overlay += haunted::ui::simpleline(ansi::bold(chan->name) + " [" + chan->mode_str() + "]");
 		chan->users.sort([&](std::shared_ptr<pingpong::user> left, std::shared_ptr<pingpong::user> right) -> bool {
-			return left->name < right->name;
+			const pingpong::hat_set &left_hats = chan->get_hats(left), &right_hats = chan->get_hats(right);
+			if (left_hats < right_hats)
+				return false;
+
+			if (left_hats > right_hats)
+				return true;
+
+			return formicine::util::lower(left->name) < formicine::util::lower(right->name);
 		});
 
 		size_t longest_hats = 0;
