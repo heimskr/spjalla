@@ -12,7 +12,10 @@
 
 namespace spjalla::lines {
 	struct privmsg_format {
-		static constexpr const char *message = "^d<^D#h#s^d>^D #m", *action = "^b*^B #h#s #m";
+		static constexpr const char
+			*message = "^d<^D#h#s^d>^D #m",
+			*action  = "^b*^B #h#s #m",
+			*ctcp    = "^d|^D#h#s^d|^D #m";
 		template <typename T>
 		static void postprocess(T *, std::string &) {}
 	};

@@ -45,7 +45,7 @@ namespace spjalla::lines {
 
 	template <typename T>
 	int message_line<T>::get_continuation() const {
-		std::string format = ansi::strip(is_action()? T::action : T::message);
+		std::string format = ansi::strip(get_format());
 
 		const size_t mpos = format.find("#m");
 		if (mpos == std::string::npos)
@@ -67,6 +67,13 @@ namespace spjalla::lines {
 
 // Private instance methods
 
+
+	template <typename T>
+	const char * message_line<T>::get_format() const {
+		if (is_action()) return T::action;
+		if (is_ctcp())   return T::ctcp;
+		return T::message;
+	}
 
 	template <typename T>
 	std::string message_line<T>::get_verb(const std::string &str) {
@@ -96,7 +103,7 @@ namespace spjalla::lines {
 
 	template <typename T>
 	int message_line<T>::get_name_index() const {
-		std::string stripped = ansi::strip(is_action()? T::action : T::message);
+		std::string stripped = ansi::strip(get_format());
 		size_t hpos = stripped.find("#h"), spos = stripped.find("#s"), mpos = stripped.find("#m");
 
 		// Instead of performing multiple expensive erases and inserts, we can just offset spos.
@@ -123,7 +130,7 @@ namespace spjalla::lines {
 		if (util::is_highlight(message, self, direct_only))
 			name_fmt = ansi::yellow(name_fmt);
 
-		std::string out = ansi::format(is_action()? T::action : T::message);
+		std::string out = ansi::format(get_format());
 		const size_t spos = out.find("#s");
 		if (spos == std::string::npos)
 			throw std::invalid_argument("Invalid message format string");

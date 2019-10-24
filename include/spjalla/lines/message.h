@@ -24,15 +24,18 @@ namespace spjalla::lines {
 	template <typename T>
 	class message_line: public line, public pingpong::local {
 		 /**
-		  *   struct T { static std::string message, action; };
+		  *   struct T { static constexpr const char *message, *action, *ctcp; };
 		  * 
-		  * `message` and `action` are strings in which "#s" is replaced with the name of the speaker, "#m" is replaced
-		  * with the message and "#h" is replaced with the user's hats. `action` is used for CTCP ACTIONs and `message`
-		  * is used for everything else.
+		  * `message`, `action` and `ctcp` are strings in which "#s" is replaced with the name of the speaker, "#m" is
+		  * replaced with the message and "#h" is replaced with the user's hats. `action` is used for CTCP ACTIONs,
+		  * `ctcp` is used for other types of CTCPs and `message` is used for everything else.
 		  */
 		private:
 			bool is_self = false;
 			std::string processed_message;
+
+			/** Returns the appropriate format string. */
+			const char * get_format() const;
 			
 			/** If the given message is a CTCP message, this function returns its verb. Otherwise, it returns an empty
 			 *  string. */
