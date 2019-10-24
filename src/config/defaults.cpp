@@ -121,6 +121,14 @@ namespace spjalla::config {
 		register_key("appearance", "notice_foreground", "magenta", validate_color, {},
 			"The text color of names in notice messages.");
 
+		// Behavior
+
+		register_key("behavior", "answer_version_requests", true, validate_bool, {},
+			"Whether to respond to CTCP VERSION requests.");
+
+		register_key("behavior", "hide_version_requests", true, validate_bool, {},
+			"Whether to handle CTCP VERSION requests silently.");
+
 		// Completion
 
 		register_key("completion", "ping_suffix", ":", validate_string, {},

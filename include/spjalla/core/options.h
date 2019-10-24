@@ -3,6 +3,8 @@
 
 // Contains macros that define compile-time options.
 
+#define SPJALLA_VERSION_NUMBER "0.2.0"
+
 // Whether the keyboard shortcuts to switch windows should be ignored while the overlay is visible.
 #define OVERLAY_PREVENTS_SWAPPING
 

@@ -7,6 +7,7 @@
 #include "pingpong/core/irc.h"
 
 #include "spjalla/core/client.h"
+#include "spjalla/core/options.h"
 #include "spjalla/core/util.h"
 
 #include "spjalla/lines/warning.h"
@@ -33,6 +34,7 @@ namespace spjalla {
 
 		std::shared_ptr<spjalla::client> instance = std::make_shared<spjalla::client>();
 		instance->get_terminal().mouse(haunted::mouse_mode::motion);
+		instance->get_irc().version = "Spjalla " SPJALLA_VERSION_NUMBER " with pingpong " PINGPONG_VERSION_NUMBER;
 
 		const std::string plugin_dir = get_plugin_dir(argc, argv);
 		try {

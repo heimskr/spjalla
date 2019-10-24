@@ -1,3 +1,4 @@
+#include "pingpong/commands/notice.h"
 #include "pingpong/commands/quit.h"
 
 #include "pingpong/events/bad_line.h"
@@ -20,6 +21,7 @@
 #include "pingpong/events/topic.h"
 #include "pingpong/events/topic_updated.h"
 #include "pingpong/events/user_appeared.h"
+#include "pingpong/events/version_requested.h"
 
 #include "pingpong/messages/join.h"
 #include "pingpong/messages/numeric.h"
@@ -131,10 +133,10 @@ namespace spjalla {
 			lines::notice_line nline = {this, *ev, direct_only, highlight_notices};
 			if (ev->is_channel()) {
 				*ui.get_window(ev->get_channel(ev->serv), true) += nline;
-			} else if (in_status) {
-				*ui.status_window += nline;
 			} else if (ev->speaker && ev->speaker->is_self()) {
 				*ui.get_window(ev->serv->get_user(ev->where, true), true) += nline;
+			} else if (in_status) {
+				*ui.status_window += nline;
 			} else {
 				*ui.get_window(ev->speaker, true) += nline;
 			}
@@ -221,6 +223,17 @@ namespace spjalla {
 					ui.update_titlebar();
 				}
 			}
+		});
+
+		pingpong::events::listen<pingpong::version_requested_event>([&](pingpong::version_requested_event *ev) {
+			bool hide   = configs.get("behavior", "hide_version_requests").bool_();
+			bool answer = configs.get("behavior", "answer_version_requests").bool_();
+
+			if (!hide)
+				pingpong::events::dispatch<pingpong::privmsg_event>(ev->requester, ev->where, ev->content);
+
+			if (answer)
+				pingpong::notice_command(ev->requester, "\x01VERSION " + irc.version + "\x01", true).send();
 		});
 	}
 
