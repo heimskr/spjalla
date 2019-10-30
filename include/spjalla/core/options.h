@@ -19,4 +19,7 @@
 // Whether to recompute line text on every render instead of only on creation.
 // #define RERENDER_LINES
 
+// Whether to disable performance testing. Saves a bit of memory and CPU usage.
+#define DISABLE_PERFORMANCE
+
 #endif
