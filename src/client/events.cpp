@@ -226,8 +226,8 @@ namespace spjalla {
 		});
 
 		pingpong::events::listen<pingpong::version_requested_event>([&](pingpong::version_requested_event *ev) {
-			bool hide   = configs.get("behavior", "hide_version_requests").bool_();
-			bool answer = configs.get("behavior", "answer_version_requests").bool_();
+			const bool hide   = configs.get("behavior", "hide_version_requests").bool_();
+			const bool answer = configs.get("behavior", "answer_version_requests").bool_();
 
 			if (!hide)
 				pingpong::events::dispatch<pingpong::privmsg_event>(ev->requester, ev->where, ev->content);
