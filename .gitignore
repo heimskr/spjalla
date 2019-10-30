@@ -6,6 +6,8 @@
 strace_out
 node_modules
 build
+massif.out.*
+mp.*
 
 # Prerequisites
 *.d

@@ -14,6 +14,7 @@ MAINLIB			 = build/libspjalla.$(SHARED_EXT)
 SHARED_EXT		:= so
 SHARED_FLAG		:= -shared
 LIBPATHVAR		:= LD_LIBRARY_PATH
+LIBPATH			 = $(LIBPATHVAR)="`pwd`/build"
 ifeq ($(DEBUGGER),)
 	DEBUGGER	:= lldb
 endif
@@ -80,13 +81,16 @@ $(foreach P,$(shell ls src/plugins),$(eval $(PLUGINRULE)))
 
 
 test: $(OUTPUT)
-	$(LIBPATHVAR)="`pwd`/build" ./$(OUTPUT) --plugins build/plugins
+	$(LIBPATH) ./$(OUTPUT) --plugins build/plugins
 
 dbg: $(OUTPUT)
-	$(LIBPATHVAR)="`pwd`/build" $(DEBUGGER) $(OUTPUT) -- --plugins build/plugins
+	$(LIBPATH) $(DEBUGGER) $(OUTPUT) -- --plugins build/plugins
 
 grind: $(OUTPUT)
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=no ./$(OUTPUT)
+	$(LIBPATH) valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=no ./$(OUTPUT) --plugins build/plugins
+
+massif: $(OUTPUT)
+	$(LIBPATH) valgrind --tool=massif --threshold=0.001 ./$(OUTPUT) --plugins build/plugins
 
 strip:
 	strip -x {$(OUTPUT),$(MAINLIB),build/plugins/*.$(SHARED_EXT)}
