@@ -7,7 +7,7 @@ namespace spjalla::plugins {
 
 		std::deque<haunted::ui::control *> controls = parent->get_window_controls();
 		std::sort(controls.begin(), controls.end(), [](haunted::ui::control *one, haunted::ui::control *two) {
-			return one->get_index() < two->get_index();
+			return one != nullptr && two != nullptr && one->get_index() < two->get_index();
 		});
 
 		for (haunted::ui::control *control: controls) {
