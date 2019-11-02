@@ -17,7 +17,7 @@ namespace spjalla {
 	}
 
 	void client::init_statusbar() {
-		ui.update_statusbar_fn = [&](ui::window *win) {
+		ui.update_statusbar_fn = [&, this](ui::window *win) {
 			const bool overlay_visible = ui.overlay_visible();
 			std::string rendered;
 
