@@ -4,10 +4,11 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "spjalla/core/options.h"
+
 #include "pingpong/core/irc.h"
 
 #include "spjalla/core/client.h"
-#include "spjalla/core/options.h"
 #include "spjalla/core/util.h"
 
 #include "spjalla/lines/warning.h"

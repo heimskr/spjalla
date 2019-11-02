@@ -20,6 +20,8 @@
 // #define RERENDER_LINES
 
 // Whether to disable performance testing. Saves a bit of memory and CPU usage.
+#ifndef DISABLE_PERFORMANCE
 #define DISABLE_PERFORMANCE
+#endif
 
 #endif

@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 
+#include "spjalla/core/options.h"
+
 #include "haunted/core/util.h"
 
 #include "pingpong/core/channel.h"
