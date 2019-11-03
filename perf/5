@@ -1,0 +1,13 @@
+template <line> window::operator+=:   1000   -> 2272572 μs (average: 2272 μs)
+window::operator+=(shared_ptr<line>): 1000   -> 2266200 μs (average: 2266 μs)
+textbox::draw_new_line:               1000   -> 2151814 μs (average: 2151 μs)
+textbox::total_rows:                  7085   -> 2055554 μs (average: 290  μs)
+textbox::line_rows:                   944623 -> 1679307 μs (average: 1    μs)
+textbox::vscroll:                     2263   -> 1377547 μs (average: 608  μs)
+textbox::text_at_row:                 1880   -> 1228472 μs (average: 653  μs)
+textbox::line_at_row:                 941    -> 1212733 μs (average: 1288 μs)
+template <T> operator<<(terminal, T): 3884   -> 13425   μs (average: 3    μs)
+textline::text_at_row:                1000   -> 5727    μs (average: 5    μs)
+textbox::draw:                        1      -> 39      μs (average: 39   μs)
+
+// With textbox caching but no textline caching. /spam 1000, scroll with trackpad to the top.
