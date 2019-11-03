@@ -21,6 +21,7 @@ namespace spjalla::ui {
 	void window::add_line(std::shared_ptr<haunted::ui::textline> line) {
 		do_scroll(line->num_rows(pos.width));
 		lines.push_back(line);
+		rows_dirty();
 		draw_new_line(*line, true);
 	}
 
