@@ -32,6 +32,7 @@ namespace spjalla::ui {
 		input->focus();
 		update_statusbar();
 		update_overlay();
+		set_interrupt();
 	}
 
 
@@ -147,6 +148,17 @@ namespace spjalla::ui {
 			win = active_window;
 
 		return !(win->is_status() || win->is_overlay() || (win->is_channel() && !win->is_dead()));
+	}
+
+	void interface::set_interrupt() {
+		term->on_interrupt = [this]() {
+			for (auto &pair: parent->get_irc().servers) {
+				DBG("Killing " << pair.first);
+				pair.second->kill();
+			}
+
+			return true;
+		};
 	}
 
 
