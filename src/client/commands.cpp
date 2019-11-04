@@ -45,6 +45,16 @@ namespace spjalla {
 				textline->mark_dirty();
 		});
 
+		add("_lines", 0, 0, false, [&](sptr, line) {
+			for (std::shared_ptr<haunted::ui::textline> textline: ui.active_window->get_lines()) {
+				DBG("Line: " << std::string(*textline));
+				DBG("   num_rows_ = " << textline->num_rows_);
+				DBG("   #lines_   = " << textline->lines_.size());
+			}
+
+			DBG("total_rows_ = " << ui.active_window->total_rows_);
+		});
+
 		add("alias", 0, -1, false, [&](sptr, line il) { commands::do_alias(*this, il); });
 
 		add("ban", 1, 2, true, [&](sptr serv, line il) {

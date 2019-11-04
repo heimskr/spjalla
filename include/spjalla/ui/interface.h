@@ -79,6 +79,9 @@ namespace spjalla::ui {
 			/** Returns whether it's okay to immediately remove a given window. */
 			bool can_remove(window * = nullptr) const;
 
+			/** Sets the terminal's on_interrupt function. */
+			void set_interrupt();
+
 		public:
 			std::function<void(window *)> update_statusbar_fn;
 			unsigned int scroll_buffer = 0;
