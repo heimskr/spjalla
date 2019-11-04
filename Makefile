@@ -31,7 +31,7 @@ else ifeq ($(CHECK), msan)
 	CHECKFLAGS := -fsanitize=memory -fno-common
 endif
 
-.PHONY: all test clean depend spotless count plugins
+.PHONY: all test clean depend spotless count plugins dperf eperf
 
 all: $(OBJECTS) $(OUTPUT)
 
@@ -95,6 +95,14 @@ massif: $(OUTPUT)
 strip:
 	strip -x {$(OUTPUT),$(MAINLIB),build/plugins/*.$(SHARED_EXT)}
 	strip -x build/test_* 2>/dev/null || true
+
+dperf: # Disable performance measurements
+	rm -f build/lib/formicine/performance.o
+	CPPFLAGS="-DDISABLE_PERFORMANCE" make build/lib/formicine/performance.o
+
+eperf: # Enable performance measurements
+	rm -f build/lib/formicine/performance.o
+	CPPFLAGS="" make build/lib/formicine/performance.o
 
 clean:
 	rm -rf build
