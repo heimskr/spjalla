@@ -10,6 +10,7 @@
 #include "spjalla/lines/basic.h"
 #include "spjalla/lines/join.h"
 #include "spjalla/lines/mode.h"
+#include "spjalla/lines/nick_change.h"
 #include "spjalla/lines/notice.h"
 #include "spjalla/lines/part.h"
 #include "spjalla/lines/privmsg.h"
@@ -61,6 +62,8 @@ namespace spjalla::plugins::logs {
 				stamp);
 		} else if (verb == "quit") {
 			return std::make_unique<lines::quit_line>(parent, subject, str.substr(str.find(':') + 1), stamp);
+		} else if (verb == "nick") {
+			return std::make_unique<lines::nick_change_line>(parent, subject, object, stamp);
 		}
 
 		DBG("Line: " << "["_d << str << "]"_d);

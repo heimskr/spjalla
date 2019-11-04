@@ -21,6 +21,9 @@ namespace spjalla::lines {
 			const std::string &new_name_, long stamp_):
 			line(parent_, stamp_), user(user_), old_name(old_name_), new_name(new_name_) {}
 
+		nick_change_line(client *parent_, const std::string &old_name_, const std::string &new_name_, long stamp_):
+			nick_change_line(parent_, nullptr, old_name_, new_name_, stamp_) {}
+
 		nick_change_line(client *parent_, const pingpong::nick_event &ev):
 			nick_change_line(parent_, ev.who, ev.content, ev.who->name, ev.stamp) {}
 
