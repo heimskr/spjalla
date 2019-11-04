@@ -40,6 +40,11 @@ namespace spjalla {
 			serv->handle_line(pingpong::line(serv, il.body));
 		});
 
+		add("_recalc", 0, 0, false, [&](sptr, line) {
+			for (std::shared_ptr<haunted::ui::textline> textline: ui.active_window->get_lines())
+				textline->mark_dirty();
+		});
+
 		add("alias", 0, -1, false, [&](sptr, line il) { commands::do_alias(*this, il); });
 
 		add("ban", 1, 2, true, [&](sptr serv, line il) {
