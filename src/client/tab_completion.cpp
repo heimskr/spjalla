@@ -225,15 +225,19 @@ namespace spjalla {
 		formicine::util::remove_suffix(word, suffix);
 
 		std::deque<std::string> items = {};
+		bool do_sort = true; // For channels, the order is important and shouldn't be disturbed.
+
+		const std::string lower = formicine::util::lower(state.partial);
 
 		if (word[0] == '#') {
 			for (const std::shared_ptr<pingpong::channel> &ptr: server->channels) {
-				if (ptr->name.find(state.partial) == 0)
+				if (formicine::util::lower(ptr->name).find(lower) == 0)
 					items.push_back(ptr->name);
 			}
 		} else if (channel) {
+			do_sort = false;
 			for (const std::shared_ptr<pingpong::user> &ptr: channel->users) {
-				if (ptr->name.find(state.partial) == 0)
+				if (formicine::util::lower(ptr->name).find(lower) == 0)
 					items.push_back(ptr->name);
 			}
 		} else if (user) {
@@ -244,7 +248,19 @@ namespace spjalla {
 		}
 
 		if (!items.empty()) {
-			std::sort(items.begin(), items.end());
+			if (do_sort) {
+				std::sort(items.begin(), items.end(), [&](const std::string &left, const std::string &right) {
+					const auto mismatch = std::mismatch(left.cbegin(), left.cend(), right.cbegin(), right.cend(),
+						[](const unsigned char lchar, const unsigned char rchar) {
+							return tolower(lchar) == tolower(rchar);
+						});
+
+					if (mismatch.second != right.cend())
+						return false;
+
+					return mismatch.first == left.cend() || tolower(*mismatch.first) < tolower(*mismatch.second);
+				});
+			}
 
 			if (1 < items.size()) {
 				// It's reasonable to assume that you're not desparate to complete your own nick, so for your

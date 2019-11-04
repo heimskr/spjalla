@@ -40,6 +40,44 @@ namespace spjalla {
 			serv->handle_line(pingpong::line(serv, il.body));
 		});
 
+		add("_front", 1, 1, true, [&](sptr serv, line il) {
+			std::shared_ptr<pingpong::channel> chan = ui.active_window->chan;
+			if (!chan) {
+				ui.error("/_front needs a channel.");
+				return;
+			}
+
+			std::shared_ptr<pingpong::user> user = serv->get_user(il.first(), false);
+			if (!user) {
+				ui.error("Unknown user: " + il.first());
+				return;
+			}
+
+			if (chan->send_to_front(user)) {
+				ui.log("User " + ansi::bold(il.first()) + " sent to front of " + ansi::bold(chan->name) + ".");
+			} else {
+				ui.log("User " + ansi::bold(il.first()) + " wasn't sent to front of " + ansi::bold(chan->name) + ".");
+			}
+
+			std::string order = "Order of " + chan->name + ":";
+			for (std::shared_ptr<pingpong::user> uptr: chan->users)
+				order += " " + uptr->name;
+			DBG(order);
+		});
+
+		add("_order", 0, 0, false, [&](sptr, line) {
+			std::shared_ptr<pingpong::channel> chan = ui.active_window->chan;
+			if (!chan) {
+				ui.error("/_order needs a channel.");
+				return;
+			}
+
+			std::string order = "Order of " + chan->name + ":";
+			for (std::shared_ptr<pingpong::user> uptr: chan->users)
+				order += " " + uptr->name;
+			DBG(order);
+		});
+
 		add("_recalc", 0, 0, false, [&](sptr, line) {
 			for (std::shared_ptr<haunted::ui::textline> textline: ui.active_window->get_lines())
 				textline->mark_dirty();
@@ -67,7 +105,7 @@ namespace spjalla {
 			if (ui::window *win = ui.get_active_window()) {
 				win->set_voffset(win->total_rows() - ui.scroll_buffer);
 			} else {
-				DBG(lines::red_notice + "No window.");
+				ui.error("No window.");
 			}
 		});
 
