@@ -13,6 +13,7 @@
 #include "spjalla/lines/notice.h"
 #include "spjalla/lines/part.h"
 #include "spjalla/lines/privmsg.h"
+#include "spjalla/lines/quit.h"
 #include "spjalla/lines/topic.h"
 
 #include "spjalla/plugins/logs.h"
@@ -58,6 +59,8 @@ namespace spjalla::plugins::logs {
 		} else if (verb == "topic_set") {
 			return std::make_unique<lines::topic_line>(parent, subject, pair.second, str.substr(str.find(':') + 1),
 				stamp);
+		} else if (verb == "quit") {
+			return std::make_unique<lines::quit_line>(parent, subject, str.substr(str.find(':') + 1), stamp);
 		}
 
 		DBG("Line: " << "["_d << str << "]"_d);
