@@ -9,6 +9,7 @@
 #include "spjalla/core/client.h"
 #include "spjalla/lines/basic.h"
 #include "spjalla/lines/join.h"
+#include "spjalla/lines/kick.h"
 #include "spjalla/lines/mode.h"
 #include "spjalla/lines/nick_change.h"
 #include "spjalla/lines/notice.h"
@@ -64,6 +65,9 @@ namespace spjalla::plugins::logs {
 			return std::make_unique<lines::quit_line>(parent, subject, str.substr(str.find(':') + 1), stamp);
 		} else if (verb == "nick") {
 			return std::make_unique<lines::nick_change_line>(parent, subject, object, stamp);
+		} else if (verb == "kick") {
+			return std::make_unique<lines::kick_line>(parent, pair.first->get_channel(pair.second, true), subject,
+				object, str.substr(str.find(':') + 1), stamp);
 		}
 
 		DBG("Line: " << "["_d << str << "]"_d);
