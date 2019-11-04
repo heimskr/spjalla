@@ -87,58 +87,47 @@ namespace spjalla::config {
 		// Appearance
 
 		//// Bar
-		register_key("appearance", "bar_background", "blood", validate_color, [](database &db, const value &new_val) {
-			db.get_parent().get_ui().set_bar_background(ansi::get_color(new_val.string_()));
-		}, "The background color of the status bar and title bar.");
+		register_key("appearance", "bar_background", "blood", validate_color, APPLY_COLOR(bar_background),
+			"The background color of the status bar and title bar.");
 
-		register_key("appearance", "bar_foreground", "normal", validate_color, [](database &db, const value &new_val) {
-			db.get_parent().get_ui().set_bar_foreground(ansi::get_color(new_val.string_()));
-		}, "The text color of the status bar and title bar.");
+		register_key("appearance", "bar_foreground", "normal", validate_color, APPLY_COLOR(bar_foreground),
+			"The text color of the status bar and title bar.");
 
 		//// Overlay
-		register_key("appearance", "overlay_background", "verydark", validate_color,
-		             [](database &db, const value &new_val) {
-			db.get_parent().get_ui().set_overlay_background(ansi::get_color(new_val.string_()));
-		}, "The background color of the overlay window.");
+		register_key("appearance", "overlay_background", "verydark", validate_color, APPLY_COLOR(overlay_background),
+			"The background color of the overlay window.");
 
-		register_key("appearance", "overlay_foreground", "white", validate_color,
-		             [](database &db, const value &new_val) {
-			db.get_parent().get_ui().set_overlay_foreground(ansi::get_color(new_val.string_()));
-		}, "The text color of the overlay window.");
+		register_key("appearance", "overlay_foreground", "white", validate_color, APPLY_COLOR(overlay_foreground),
+			"The text color of the overlay window.");
 
 		//// Input
-		register_key("appearance", "input_background", "normal", validate_color,
-		             [](database &db, const value &new_val) {
-			db.get_parent().get_ui().set_input_background(ansi::get_color(new_val.string_()));
-		}, "The background color of the input box.");
+		register_key("appearance", "input_background", "normal", validate_color, APPLY_COLOR(input_background),
+			"The background color of the input box.");
 
-		register_key("appearance", "input_foreground", "normal", validate_color,
-		             [](database &db, const value &new_val) {
-			db.get_parent().get_ui().set_input_foreground(ansi::get_color(new_val.string_()));
-		}, "The text color of the input box.");
+		register_key("appearance", "input_foreground", "normal", validate_color, APPLY_COLOR(input_foreground),
+			"The text color of the input box.");
 
 		//// Notices
-		register_key("appearance", "notice_foreground", "magenta", validate_color, {},
+		register_key("appearance", "notice_foreground", "magenta", validate_color, CACHE_COLOR(notice_foreground),
 			"The text color of names in notice messages.");
 
 		// Behavior
 
-		register_key("behavior", "answer_version_requests", true, validate_bool, {},
-			"Whether to respond to CTCP VERSION requests.");
+		register_key("behavior", "answer_version_requests", true, validate_bool,
+			CACHE_BOOL(behavior_answer_version_requests), "Whether to respond to CTCP VERSION requests.");
 
-		register_key("behavior", "hide_version_requests", true, validate_bool, {},
-			"Whether to handle CTCP VERSION requests silently.");
+		register_key("behavior", "hide_version_requests", true, validate_bool,
+			CACHE_BOOL(behavior_hide_version_requests), "Whether to handle CTCP VERSION requests silently.");
 
 		// Completion
 
-		register_key("completion", "ping_suffix", ":", validate_string, {},
+		register_key("completion", "ping_suffix", ":", validate_string, CACHE_STRING(completion_ping_suffix),
 			"The suffix to put after a user's name after tab completing their name in the first word of the message.");
 
 		// Debug
 
-		register_key("debug", "show_raw", false, validate_bool, [](database &db, const value &new_val) {
-			db.get_parent().log_spam = new_val.bool_();
-		}, "Whether to log raw input/output in the status window.");
+		register_key("debug", "show_raw", false, validate_bool, CACHE_BOOL(debug_show_raw),
+			"Whether to log raw input/output in the status window.");
 
 		// Interface
 
@@ -147,32 +136,33 @@ namespace spjalla::config {
 
 		register_key("interface", "scroll_buffer", 0, validate_int32nn, [](database &db, const value &new_val) {
 			db.get_parent().get_ui().set_scroll_buffer(static_cast<unsigned int>(new_val.long_()));
+			db.get_parent().cache.interface_scroll_buffer = new_val.long_();
 		}, "The number of lines to leave at the top when running /clear.");
 
 		// Messages
 
-		register_key("messages", "direct_only", false, validate_bool, {},
+		register_key("messages", "direct_only", false, validate_bool, CACHE_BOOL(messages_direct_only),
 			"Whether to count only messages that begin with your name as highlights.");
 
-		register_key("messages", "highlight_notices", true, validate_bool, {},
+		register_key("messages", "highlight_notices", true, validate_bool, CACHE_BOOL(messages_highlight_notices),
 			"Whether to treat all notices as highlights.");
 
-		register_key("messages", "notices_in_status", true, validate_bool, {},
+		register_key("messages", "notices_in_status", true, validate_bool, CACHE_BOOL(messages_notices_in_status),
 			"Whether non-channel notices should be displayed in the status window instead of a user window.");
 
 		// Server
 
-		register_key("server", "default_nick", pingpong::irc::default_nick, validate_string, {},
-			"The nickname to use when connecting to a new server.");
+		register_key("server", "default_nick", pingpong::irc::default_nick, validate_string,
+			CACHE_STRING(server_default_nick), "The nickname to use when connecting to a new server.");
 
 		register_key("server", "default_user", pingpong::irc::default_user, validate_string,
 		             [](database &db, const value &new_val) {
-			db.get_parent().get_irc().username = new_val.string_();
+			db.get_parent().cache.server_default_user = db.get_parent().get_irc().username = new_val.string_();
 		}, "The username to use when connecting to a new server.");
 
 		register_key("server", "default_real", pingpong::irc::default_realname, validate_string,
 		             [](database &db, const value &new_val) {
-			db.get_parent().get_irc().realname = new_val.string_();
+			db.get_parent().cache.server_default_real = db.get_parent().get_irc().realname = new_val.string_();
 		}, "The real name to use when connecting to a new server.");
 	}
 }

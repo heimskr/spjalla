@@ -15,6 +15,8 @@
 #include "pingpong/core/irc.h"
 #include "pingpong/core/server.h"
 
+#include "spjalla/client/configcache.h"
+
 #include "spjalla/commands/command.h"
 
 #include "spjalla/core/aliases.h"
@@ -80,6 +82,7 @@ namespace spjalla {
 		public:
 			config::database configs;
 			aliases alias_db;
+			configcache cache;
 
 			client(int heartbeat_period_ = pingpong::util::precision / 10);
 
@@ -194,9 +197,6 @@ namespace spjalla {
 			void call_in_queue(pingpong::server *, pingpong::server::stage);
 
 		public:
-			/** Whether to log raw socket input/output. */
-			bool log_spam = false;
-
 			/** Adds listeners for pingpong events. */
 			void add_events();
 

@@ -185,12 +185,12 @@ namespace spjalla {
 		});
 
 		pingpong::events::listen<pingpong::raw_in_event>([&](pingpong::raw_in_event *ev) {
-			if (log_spam)
+			if (cache.debug_show_raw)
 				ui.log(lines::raw_line(this, ev->raw_in, ev->serv, false, false, ev->stamp));
 		});
 
 		pingpong::events::listen<pingpong::raw_out_event>([&](pingpong::raw_out_event *ev) {
-			if (log_spam)
+			if (cache.debug_show_raw)
 				ui.log(lines::raw_line(this, ev->raw_out, ev->serv, true, false, ev->stamp));
 		});
 

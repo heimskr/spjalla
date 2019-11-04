@@ -46,6 +46,16 @@ namespace spjalla::config {
 
 	using registered_map = std::unordered_map<std::string, default_key>;
 
+#define APPLY_COLOR(name) [](database &db, const value &new_val) { \
+	db.get_parent().get_ui().set_##name(db.get_parent().cache.appearance_##name = ansi::get_color(new_val.string_())); }
+
+#define CACHE_COLOR(name) [](database &db, const value &new_val) { \
+	db.get_parent().cache.appearance_##name = ansi::get_color(new_val.string_()); }
+
+#define CACHE_BOOL(name)   [](database &db, const value &new_val) { db.get_parent().cache.name = new_val.bool_();   }
+#define CACHE_LONG(name)   [](database &db, const value &new_val) { db.get_parent().cache.name = new_val.long_();   }
+#define CACHE_STRING(name) [](database &db, const value &new_val) { db.get_parent().cache.name = new_val.string_(); }
+
 	/** Attempts to register a key. If the key already exists, the function simply returns false; otherwise, it
 	 *  registers the key and returns true. */
 	bool register_key(const std::string &group, const std::string &key, const value &default_val,
