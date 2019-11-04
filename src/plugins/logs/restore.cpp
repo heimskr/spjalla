@@ -90,10 +90,12 @@ namespace spjalla::plugins::logs {
 			std::unique_ptr<haunted::ui::textline> line = get_line(pair, raw, autoclean);
 			if (line) {
 				line->box = win;
+				line->clean(win->get_position().width);
 				win->get_lines().push_front(std::move(line));
 			}
 		}
 
+		win->rows_dirty();
 		win->draw();
 	}
 }
