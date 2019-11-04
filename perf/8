@@ -1,0 +1,54 @@
+template <line> window::operator+=:   79   -> 24892 μs (average: 315  μs)
+window::operator+=(shared_ptr<line>): 79   -> 24111 μs (average: 305  μs)
+textbox::draw_new_line:               67   -> 13970 μs (average: 208  μs)
+textbox::vscroll:                     134  -> 12831 μs (average: 95   μs)
+textbox::total_rows:                  531  -> 9602  μs (average: 18   μs)
+textbox::text_at_row:                 177  -> 6684  μs (average: 37   μs)
+textbox::draw:                        3    -> 4925  μs (average: 1641 μs)
+textbox::line_at_row:                 71   -> 4452  μs (average: 62   μs)
+textbox::line_rows:                   5516 -> 3087  μs (average: 0    μs)
+textline::text_at_row:                154  -> 1766  μs (average: 11   μs)
+template <T> operator<<(terminal, T): 313  -> 895   μs (average: 2    μs)
+
+// Connect to network, join channel, restore 100 lines of scrollback, scroll from top to bottom with trackpad.
+// Enable textbox::draw() optimizations:
+
+// ...
+				try {
+					apply_colors();
+					if (at_right() && at_left()) {
+						for (int i = 0; i < pos.height; ++i) {
+							term->jump(0, i);
+							term->clear_line();
+							*term << text_at_row(i, false);
+						}
+					} else if (at_right()) {
+						for (int i = 0; i < pos.height; ++i) {
+							term->jump(pos.left, i);
+							*term << text_at_row(i, false);
+							term->clear_right();
+						}
+					} else if (at_left()) {
+						for (int i = 0; i < pos.height; ++i) {
+							term->jump(0, i);
+							term->back();
+							term->clear_left();
+							term->front();
+							*term << text_at_row(i, false);
+						}
+					} else {
+						clear_rect();
+						std::string text {};
+						text.reserve(pos.height * pos.width);
+						for (int i = 0; i < pos.height; ++i) {
+							if (i != 0)
+								text.push_back('\n');
+							text += text_at_row(i, false);
+						}
+
+						term->jump(0, 0);
+						*term << text;
+					}
+					apply_colors();
+				} catch (const std::out_of_range &) {}
+// ...
