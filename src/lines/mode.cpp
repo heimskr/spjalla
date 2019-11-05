@@ -1,5 +1,6 @@
 #include "pingpong/core/parse_error.h"
 
+#include "spjalla/core/client.h"
 #include "spjalla/lines/mode.h"
 
 namespace spjalla::lines {
@@ -15,7 +16,7 @@ namespace spjalla::lines {
 
 		const std::string modestr = mset.mode_str();
 		const std::string &extra = mset.extra;
-		const std::string styled_name = ansi::cyan(who) + " ";
+		const std::string styled_name = parent->get_ui().format_nick(who, true) + " ";
 
 		if (!extra.empty()) {
 			auto iter = verbs.find(modestr);
@@ -32,7 +33,7 @@ namespace spjalla::lines {
 			}
 		}
 
-		return prefix + styled_name + "set modes for " + ansi::bold(where) + suffix;
+		return prefix + styled_name + "set modes for " + parent->get_ui().format_channel(where) + suffix;
 	}
 
 	std::unordered_map<std::string, std::string> mode_line::verbs = {

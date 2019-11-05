@@ -139,6 +139,16 @@ namespace spjalla::config {
 			db.get_parent().cache.interface_scroll_buffer = new_val.long_();
 		}, "The number of lines to leave at the top when running /clear.");
 
+		register_key("interface", "nick_format_bright", "^[cyan!]#n^[/f]", validate_string,
+			CACHE_STRING(interface_nick_format_bright),
+			"The format string for nicks in messages like joins. \"#n\" is replaced with the user's name.");
+
+		register_key("interface", "nick_format", "^[cyan]#n^[/f]", validate_string, CACHE_STRING(interface_nick_format),
+			"The format string for nicks in messages like quits and parts. \"#n\" is replaced with the user's name.");
+
+		register_key("interface", "channel_format", "^b#c^B", validate_string, CACHE_STRING(interface_channel_format),
+			"The format string for channels in messages like joins. \"#c\" is replaced with the channel's name.");
+
 		// Messages
 
 		register_key("messages", "direct_only", false, validate_bool, CACHE_BOOL(messages_direct_only),

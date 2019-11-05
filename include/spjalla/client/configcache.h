@@ -31,6 +31,9 @@ namespace spjalla {
 
 			bool interface_close_on_part = get_bool("interface.close_on_part");
 			long interface_scroll_buffer = get_long("interface.scroll_buffer");
+			std::string interface_nick_format        = get_string("interface.nick_format"),
+			            interface_nick_format_bright = get_string("interface.nick_format_bright"),
+			            interface_channel_format     = get_string("interface.channel_format");
 
 			bool messages_direct_only       = get_bool("messages.direct_only"),
 			     messages_highlight_notices = get_bool("messages.highlight_notices"),

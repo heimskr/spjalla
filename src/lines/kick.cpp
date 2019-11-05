@@ -1,13 +1,16 @@
+#include "spjalla/core/client.h"
 #include "spjalla/lines/kick.h"
 
 namespace spjalla::lines {
 	std::string kick_line::render(ui::window *) {
 		if (is_self) {
-			return red_notice + ansi::cyan(whom) + " was kicked from "
-				+ ansi::bold(chan->name) + " by " + ansi::bold(who) + " ["_d + reason + "]"_d;
+			return red_notice + parent->get_ui().format_nick(whom, false) + " was kicked from "
+				+ parent->get_ui().format_channel(chan->name) + " by " + parent->get_ui().format_nick(who, true)
+				+ " ["_d + reason + "]"_d;
 		} else {
-			return notice + ansi::cyan(whom) + " was kicked from " +
-				ansi::bold(chan->name) + " by " + ansi::bold(who) + " ["_d + reason + "]"_d;
+			return notice + parent->get_ui().format_nick(whom, false) + " was kicked from "
+				+ parent->get_ui().format_channel(chan->name) + " by " + parent->get_ui().format_nick(who, true)
+				+ " ["_d + reason + "]"_d;
 		}
 	}
 

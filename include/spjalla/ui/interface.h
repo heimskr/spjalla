@@ -225,6 +225,19 @@ namespace spjalla::ui {
 			/** Scrolls the active window (unless it's the overlay) by half a page. */
 			void scroll_page(bool up);
 
+			/** Formats a nick according to interface.nick_format. */
+			std::string format_nick(const std::string &, bool bright = false) const;
+
+			/** Formats a nick according to interface.nick_format. */
+			std::string format_nick(std::shared_ptr<pingpong::user>, std::shared_ptr<pingpong::channel>,
+			                        bool bright = false) const;
+
+			/** Formats a channel name according to interface.channel_format. */
+			std::string format_channel(const std::string &) const;
+
+			/** Formats a channel name according to interface.channel_format. */
+			std::string format_channel(std::shared_ptr<pingpong::channel>) const;
+
 			/** Handles keypresses that aren't handled by the textinput. */
 			bool on_key(const haunted::key &);
 
