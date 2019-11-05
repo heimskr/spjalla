@@ -248,19 +248,8 @@ namespace spjalla {
 		}
 
 		if (!items.empty()) {
-			if (do_sort) {
-				std::sort(items.begin(), items.end(), [&](const std::string &left, const std::string &right) {
-					const auto mismatch = std::mismatch(left.cbegin(), left.cend(), right.cbegin(), right.cend(),
-						[](const unsigned char lchar, const unsigned char rchar) {
-							return tolower(lchar) == tolower(rchar);
-						});
-
-					if (mismatch.second != right.cend())
-						return false;
-
-					return mismatch.first == left.cend() || tolower(*mismatch.first) < tolower(*mismatch.second);
-				});
-			}
+			if (do_sort)
+				formicine::util::insensitive_sort(items.begin(), items.end());
 
 			if (1 < items.size()) {
 				// It's reasonable to assume that you're not desparate to complete your own nick, so for your

@@ -1,3 +1,5 @@
 - Display WHOIS information.
 - Make a Slashdot plugin.
 - Add color/bold input.
+- Make events::listen take a string identifying the source of the listener. This could enable plugins to intercept or
+  remove listeners.
