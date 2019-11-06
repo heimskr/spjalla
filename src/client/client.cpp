@@ -136,7 +136,7 @@ namespace spjalla {
 
 		if (!serv)
 			throw std::runtime_error("Can't query user: server is null");
-		return query(serv->get_user(name, true));
+		return query(serv->get_user(name, true, false));
 	}
 
 	ui::window * client::query(std::shared_ptr<pingpong::user> whom) {

@@ -1,4 +1,5 @@
 #include "pingpong/core/util.h"
+#include "pingpong/events/nick_updated.h"
 
 #include "spjalla/core/client.h"
 #include "spjalla/core/util.h"
@@ -81,6 +82,12 @@ namespace spjalla::plugins {
 				widget_right = std::make_shared<window_info_right_widget>(client, 15);
 				client->add_status_widget(widget_left);
 				client->add_status_widget(widget_right);
+
+				pingpong::events::listen<pingpong::nick_updated_event>([&, client](pingpong::nick_updated_event *ev) {
+					// If this user's window is open, redraw the statusbar to update the widget.
+					if (client->get_ui().get_active_user() == ev->who)
+						client->get_ui().update_statusbar();
+				});
 			}
 	};
 }

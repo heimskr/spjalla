@@ -17,7 +17,7 @@ namespace spjalla::lines {
 			line(parent_, stamp_), user(user_), name(user_->name), message(message_) {}
 
 		quit_line(client *parent_, const pingpong::quit_command &cmd):
-			quit_line(parent_, cmd.serv->get_user(cmd.serv->get_nick(), true), cmd.reason, cmd.sent_time) {}
+			quit_line(parent_, cmd.serv->get_user(cmd.serv->get_nick(), true, true), cmd.reason, cmd.sent_time) {}
 
 		quit_line(client *parent_, const std::string &name_, const std::string &message_, long stamp_):
 			line(parent_, stamp_), user(nullptr), name(name_), message(message_) {}

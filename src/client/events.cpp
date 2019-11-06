@@ -134,7 +134,7 @@ namespace spjalla {
 			if (ev->is_channel()) {
 				*ui.get_window(ev->get_channel(ev->serv), true) += nline;
 			} else if (ev->speaker && ev->speaker->is_self()) {
-				*ui.get_window(ev->serv->get_user(ev->where, true), true) += nline;
+				*ui.get_window(ev->serv->get_user(ev->where, true, true), true) += nline;
 			} else if (in_status) {
 				*ui.status_window += nline;
 			} else {
@@ -162,7 +162,7 @@ namespace spjalla {
 				if (ev->speaker->is_self()) { // privmsg_events are dispatched when we send messages too.
 					lines::privmsg_line privline {this, *ev, direct_only};
 					privline.serv = ev->serv;
-					*ui.get_window(ev->serv->get_user(ev->where, true), true) += privline;
+					*ui.get_window(ev->serv->get_user(ev->where, true, true), true) += privline;
 				} else {
 					*ui.get_window(ev->speaker, true) += lines::privmsg_line(this, *ev, direct_only);
 				}

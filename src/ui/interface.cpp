@@ -276,32 +276,60 @@ namespace spjalla::ui {
 		if (!chan)
 			return nullptr;
 
-		const std::string name = chan->serv->id + "/" + chan->name;
-		window *win = get_window(name, false);
-
-		if (create && !win) {
-			win = new_window(name, window_type::channel);
-			win->chan = chan;
-			win->serv = chan->serv;
+		// First, search for a window that has a matching channel pointer.
+		for (haunted::ui::control *ctrl: swappo->get_children()) {
+			window *win = dynamic_cast<window *>(ctrl);
+			if (win && win->serv == chan->serv && win->chan == chan)
+				return win;
 		}
 
-		return win;
+		// If there's no window with a matching pointer, check the name case-insensitively.
+		const std::string lower = chan->serv->id + "/" + formicine::util::lower(chan->name);
+		for (haunted::ui::control *ctrl: swappo->get_children()) {
+			window *win = dynamic_cast<window *>(ctrl);
+			if (formicine::util::lower(win->window_name) == lower)
+				return win;
+		}
+
+		// If we couldn't find anything, optionally create a window with the correct characteristics.
+		if (create) {
+			window *win = new_window(chan->serv->id + "/" + chan->name, window_type::channel);
+			win->chan = chan;
+			win->serv = chan->serv;
+			return win;
+		}
+
+		return nullptr;
 	}
 
 	window * interface::get_window(const std::shared_ptr<pingpong::user> &user, bool create) {
 		if (!user)
 			return nullptr;
 
-		const std::string name = user->serv->id + "/" + user->name;
-		window *win = get_window(name, false);
-
-		if (create && !win) {
-			win = new_window(name, window_type::user);
-			win->user = user;
-			win->serv = user->serv;
+		// First, search for a window that has a matching channel pointer.
+		for (haunted::ui::control *ctrl: swappo->get_children()) {
+			window *win = dynamic_cast<window *>(ctrl);
+			if (win && win->serv == user->serv && win->user == user)
+				return win;
 		}
 
-		return win;
+		// If there's no window with a matching pointer, check the name case-insensitively.
+		const std::string lower = user->serv->id + "/" + formicine::util::lower(user->name);
+		for (haunted::ui::control *ctrl: swappo->get_children()) {
+			window *win = dynamic_cast<window *>(ctrl);
+			if (formicine::util::lower(win->window_name) == lower)
+				return win;
+		}
+
+		// If we couldn't find anything, optionally create a window with the correct characteristics.
+		if (create) {
+			window *win = new_window(user->serv->id + "/" + user->name, window_type::user);
+			win->user = user;
+			win->serv = user->serv;
+			return win;
+		}
+
+		return nullptr;
 	}
 
 	window * interface::new_window(const std::string &name, window_type type) {

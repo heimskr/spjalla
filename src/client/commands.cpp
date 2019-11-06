@@ -47,7 +47,7 @@ namespace spjalla {
 				return;
 			}
 
-			std::shared_ptr<pingpong::user> user = serv->get_user(il.first(), false);
+			std::shared_ptr<pingpong::user> user = serv->get_user(il.first(), false, false);
 			if (!user) {
 				ui.error("Unknown user: " + il.first());
 				return;
