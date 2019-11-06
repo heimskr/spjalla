@@ -21,32 +21,32 @@ namespace spjalla::plugins {
 			spjalla::client *client = dynamic_cast<spjalla::client *>(host);
 			if (!client) { DBG("Error: expected client as plugin host"); return; }
 
-			client->add({"rmraw", {0, 0, false, [client](pingpong::server *, const input_line &) {
+			client->add("rmraw", 0, 0, false, [client](pingpong::server *, const input_line &) {
 				client->get_ui().get_active_window()->remove_rows([](const haunted::ui::textline *line) -> bool {
 					return dynamic_cast<const lines::raw_line *>(line);
 				});
-			}, {}}});
+			});
 
-			client->add({"_foo", {0, 0, false, [client](pingpong::server *serv, const input_line &) {
+			client->add("_foo", 0, 0, false, [client](pingpong::server *serv, const input_line &) {
 				ui::window *win = client->get_ui().get_active_window();
 				for (int i = 0; i < win->get_position().height - 2; ++i)
 					*win += lines::raw_line(client, "Foo " + std::to_string(i), serv);
 				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 				DBG("Go.");
 				*win += lines::raw_line(client, std::string(405, '.'), serv);
-			}, {}}});
+			});
 
-			client->add({"_bar", {0, 0, false, [client](pingpong::server *serv, const input_line &) {
+			client->add("_bar", 0, 0, false, [client](pingpong::server *serv, const input_line &) {
 				*client->get_ui().get_active_window() += lines::raw_line(client, std::string(405, '.'), serv);
-			}, {}}});
+			});
 
-			client->add({"_asc", {0, 0, false, [client](pingpong::server *, const input_line &) {
+			client->add("_asc", 0, 0, false, [client](pingpong::server *, const input_line &) {
 				ui::window *win = client->get_ui().get_active_window();
 				win->set_autoscroll(!win->get_autoscroll());
 				DBG("Autoscroll is now " << ansi::bold(win->get_autoscroll()? "on" : "off") << ".");
-			}, {}}});
+			});
 
-			client->add({"_args", {0, -1, false, [client](pingpong::server *, const input_line &il) {
+			client->add("_args", 0, -1, false, [client](pingpong::server *, const input_line &il) {
 				ui::interface &ui = client->get_ui();
 				std::vector<std::string> strings {};
 				ui.log("Body: " + "\""_d + util::escape(il.body) + "\""_d);
@@ -63,13 +63,13 @@ namespace spjalla::plugins {
 				std::string joined = "Args: " + formicine::util::join(strings.begin(), strings.end());
 				ui.log(joined, ui.get_active_window());
 				DBG(joined);
-			}, {}}});
+			});
 
-			client->add({"_dbg", {0, 0, false, [client](pingpong::server *, const input_line &) {
+			client->add("_dbg", 0, 0, false, [client](pingpong::server *, const input_line &) {
 				client->debug_servers();
-			}, {}}});
+			});
 
-			client->add({"_info", {0, 1, false, [client](pingpong::server *, const input_line &il) {
+			client->add("_info", 0, 1, false, [client](pingpong::server *, const input_line &il) {
 				if (il.args.size() == 0) {
 					pingpong::debug::print_all(client->get_irc());
 					return;
@@ -77,17 +77,26 @@ namespace spjalla::plugins {
 
 				const std::string &first = il.first();
 				client->get_ui().log("Unknown option: " + first);
-			}, {}}});
+			});
 
-			client->add({"_time", {0, 0, false, [](pingpong::server *, const input_line &) {
+			client->add("_time", 0, 0, false, [](pingpong::server *, const input_line &) {
 				DBG("Default time: " << pingpong::util::timestamp());
 				DBG("Seconds:      " << pingpong::util::seconds());
 				DBG("Milliseconds: " << pingpong::util::millistamp());
 				DBG("Microseconds: " << pingpong::util::microstamp());
 				DBG("Nanoseconds:  " << pingpong::util::nanostamp());
-			}, {}}});
+			});
 
-			client->add({"_win", {0, 0, false, [client](pingpong::server *, const input_line &) {
+			client->add("_users", 0, 0, true, [](pingpong::server *serv, const input_line &) {
+				std::ostringstream to_print;
+				to_print << serv->id << ":";
+				for (std::shared_ptr<pingpong::user> user: serv->users) {
+					to_print << " "  << user->name;
+				}
+				DBG(to_print.str());
+			});
+
+			client->add("_win", 0, 0, false, [client](pingpong::server *, const input_line &) {
 				if (ui::window *win = client->get_ui().get_active_window()) {
 					DBG("Window name:    " << ansi::bold(win->window_name));
 					switch (win->type) {
@@ -113,7 +122,7 @@ namespace spjalla::plugins {
 				} else {
 					DBG("Window: " << "null"_d);
 				}
-			}, {}}});
+			});
 		}
 	};
 }
