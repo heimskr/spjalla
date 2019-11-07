@@ -14,61 +14,54 @@ namespace spjalla::ui {
 	 */
 	class renderer {
 		public:
-			using fn_str         = std::function<std::string(const std::string &)>;
-			using fn_nick_str    = std::function<std::string(const std::string &, bool)>;
-			using fn_channel_ptr = std::function<std::string(std::shared_ptr<pingpong::channel>)>;
-			using fn_nick_ptr =
-				std::function<std::string(std::shared_ptr<pingpong::user>, std::shared_ptr<pingpong::channel>, bool)>;
-
-		private:
-			config::cache *cache;
-
-			fn_nick_str    provider_nick_str;
-			fn_nick_ptr    provider_nick_ptr;
-			fn_str         provider_channel_str;
-			fn_channel_ptr provider_channel_ptr;
-
-		public:
 			/**
 			 * normal:  In most places, like join messages.
-			 * message: At the beginning of messages.
+			 * message: At the beginning of privmsgs, like the "someone" in "< someone>".
+			 * action: At the beginning of actions, like the "someone" in "* someone".
+			 * notice: In a notice.
 			 */
-			enum class nick_place {normal, message};
+			enum class nick_situation {normal, message, action, notice};
+
+			// Original format, some string.
+			using fn_str  = std::function<std::string(std::string, const std::string &)>;
+
+			// Original format, channel.
+			using fn_cptr = std::function<std::string(std::string, std::shared_ptr<pingpong::channel>)>;
+
+			// Original format, nick, location of message, situation.
+			using fn_nick =
+				std::function<std::string(std::string, const std::string &, const std::string &, nick_situation)>;
 
 			renderer(config::cache &cache_): cache(&cache_) {}
 
 
 // Wrappers
 
-			/** Formats a nick according to interface.nick_format. */
-			std::string nick(const std::string &, bool bright = false) const;
-
-			/** Formats a nick according to interface.nick_format. */
-			std::string nick(std::shared_ptr<pingpong::user>, std::shared_ptr<pingpong::channel>, bool bright = false)
+			std::string nick(const std::string &nick, const std::string &where, nick_situation, bool bright = false)
 				const;
-
-			/** Formats a channel name according to interface.channel_format. */
 			std::string channel(const std::string &) const;
-
-			/** Formats a channel name according to interface.channel_format. */
 			std::string channel(std::shared_ptr<pingpong::channel>) const;
 
 
 // Implementations
 
-			std::string nick_impl(const std::string &, bool bright = false) const;
-			std::string nick_impl(std::shared_ptr<pingpong::user>, std::shared_ptr<pingpong::channel>,
-				bool bright = false) const;
-			std::string channel_impl(const std::string &) const;
-			std::string channel_impl(std::shared_ptr<pingpong::channel>) const;
+			std::string nick_impl(std::string format, const std::string &nick) const;
+			std::string channel_impl(std::string format, const std::string &chan) const;
 
 
 // Providers
 
-			void provide_nick(fn_nick_str);
-			void provide_nick(fn_nick_ptr);
+			void provide_nick(fn_nick);
 			void provide_channel(fn_str);
-			void provide_channel(fn_channel_ptr);
+			void provide_channel(fn_cptr);
+
+
+		private:
+			config::cache *cache;
+
+			fn_nick provider_nick;
+			fn_str  provider_channel_str;
+			fn_cptr provider_channel_ptr;
 	};
 }
 

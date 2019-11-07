@@ -16,6 +16,7 @@ namespace spjalla::lines {
 			*message = "^d-^D#s^d-^0 #m",
 			*action  = "^d-^b*^B #s^d-^0 #m",
 			*ctcp    = "^d[^D#s^d]^0 #m";
+		static constexpr bool is_notice = true;
 		template <typename T>
 		static void postprocess(T *line, std::string &str) {
 			client *parent = line->parent;

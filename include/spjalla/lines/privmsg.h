@@ -16,6 +16,7 @@ namespace spjalla::lines {
 			*message = "^d<^D#h#s^d>^D #m",
 			*action  = "^b*^B #h#s #m",
 			*ctcp    = "^d|^D#h#s^d|^D #m";
+		static constexpr bool is_notice = false;
 		template <typename T>
 		static void postprocess(T *, std::string &) {}
 	};

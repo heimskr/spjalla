@@ -30,7 +30,7 @@ namespace spjalla::lines {
 		return pingpong::util::timestamp();
 	}
 
-	int line::get_continuation() const {
+	int line::get_continuation() {
 		if (ui::window *win = dynamic_cast<ui::window *>(box)) {
 			if (!win->show_times())
 				return base_continuation;

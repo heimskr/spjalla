@@ -1,5 +1,3 @@
-
-
 namespace spjalla::lines {
 	template <typename T>
 	message_line<T>::message_line(client *parent_, std::shared_ptr<pingpong::user> speaker, const std::string &where_,
@@ -44,7 +42,7 @@ namespace spjalla::lines {
 
 
 	template <typename T>
-	int message_line<T>::get_continuation() const {
+	int message_line<T>::get_continuation() {
 		std::string format = ansi::strip(get_format());
 
 		const size_t mpos = format.find("#m");
@@ -55,7 +53,7 @@ namespace spjalla::lines {
 
 		// If the speaker comes before the message in the format, we need to adjust the return value accordingly.
 		if (format.find("#s") < mpos)
-			out += name.length() - 2;
+			out += render_name().length() - 2;
 
 		// Same for the hat string.
 		if (format.find("#h") < mpos)
@@ -118,17 +116,32 @@ namespace spjalla::lines {
 		return time_length + spos + addition;
 	}
 
+	template <typename T>
+	const std::string & message_line<T>::render_name() {
+		if (rendered_name.empty()) {
+			ui::renderer::nick_situation situation = ui::renderer::nick_situation::message;
+			if (T::is_notice) {
+				situation = ui::renderer::nick_situation::notice;
+			} else if (is_action()) {
+				situation = ui::renderer::nick_situation::action;
+			}
+
+			rendered_name = parent->get_ui().render.nick(name, where, situation, util::is_highlight(message, self, direct_only));
+		}
+		return rendered_name;
+	}
+
 
 // Protected instance methods
 
 
 	template <typename T>
 	std::string message_line<T>::process(const std::string &str) {
-		std::string name_fmt = is_action() || is_self? ansi::bold(name) : name;
+		std::string name_fmt = is_action() || is_self? ansi::bold(render_name()) : render_name();
 		const std::string time = "";
 
-		if (util::is_highlight(message, self, direct_only))
-			name_fmt = ansi::yellow(name_fmt);
+		// if (util::is_highlight(message, self, direct_only))
+		// 	name_fmt = ansi::yellow(name_fmt);
 
 		std::string out = ansi::format(get_format());
 		const size_t spos = out.find("#s");

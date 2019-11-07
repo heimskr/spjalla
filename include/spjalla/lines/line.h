@@ -49,7 +49,7 @@ namespace spjalla::lines {
 			line(client *parent_, long stamp_ = pingpong::util::timestamp(), int base_continuation_ = 0):
 				base_continuation(base_continuation_), parent(parent_), stamp(stamp_) {}
 
-			int get_continuation() const override;
+			int get_continuation() override;
 			operator std::string() override;
 
 			virtual notification_type get_notification_type() const { return notification_type::none; }

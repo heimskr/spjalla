@@ -24,7 +24,7 @@ namespace spjalla::lines {
 	template <typename T>
 	class message_line: public line, public pingpong::local {
 		 /**
-		  *   struct T { static constexpr const char *message, *action, *ctcp; };
+		  *   struct T { static constexpr const char *message, *action, *ctcp; bool is_notice; };
 		  * 
 		  * `message`, `action` and `ctcp` are strings in which "#s" is replaced with the name of the speaker, "#m" is
 		  * replaced with the message and "#h" is replaced with the user's hats. `action` is used for CTCP ACTIONs,
@@ -33,6 +33,9 @@ namespace spjalla::lines {
 		private:
 			bool is_self = false;
 			std::string processed_message;
+
+			/** A cached copy of the name after it's been rendered. */
+			std::string rendered_name;
 
 			/** Returns the appropriate format string. */
 			const char * get_format() const;
@@ -54,12 +57,15 @@ namespace spjalla::lines {
 			/** Returns the index of the first character of the name in the rendered line. */
 			int get_name_index() const;
 
+			/** Renders the name. */
+			const std::string & render_name();
+
 		protected:
 			/** Formats a message by processing colors and actions and adding the user's name. */
 			std::string process(const std::string &);
 
 			/** Finds the continuation for the line. */
-			int get_continuation() const override;
+			int get_continuation() override;
 
 			pingpong::server * get_associated_server() const override { return serv; }
 

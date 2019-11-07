@@ -16,7 +16,8 @@ namespace spjalla::lines {
 
 		const std::string modestr = mset.mode_str();
 		const std::string &extra = mset.extra;
-		const std::string styled_name = parent->get_ui().render.nick(who, true) + " ";
+		const std::string styled_name =
+			parent->get_ui().render.nick(who, where, ui::renderer::nick_situation::normal, true) + " ";
 
 		if (!extra.empty()) {
 			auto iter = verbs.find(modestr);
