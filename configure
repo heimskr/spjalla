@@ -1,3 +1,62 @@
+#!/bin/bash
+
+export YIKES="\x1b[2m[\x1b[0;31m\xe2\x9c\x98\x1b[0;2m]\x1b[0m"
+export INFO="\x1b[2m[\x1b[0;36mi\x1b[0;2m]\x1b[0m"
+export GOOD="\x1b[2m[\x1b[0;32m\xe2\x9c\x94\x1b[0;2m]\x1b[0m"
+
+yikes() { echo -e "$YIKES $*"; exit 1; }
+info()  { echo -e "$INFO $*"; }
+good()  { echo -e "$GOOD $*"; }
+
+escape_name() { echo "$1" | sed -E 's/[^A-Za-z0-9]/_/g'; }
+to_upper()    { printf '%s\n' "$1" | awk '{ print toupper($0) }'; }
+
+check_for() {
+	for dep in "$@"; do
+		info "Checking for $dep..."
+		pkg-config --exists "$dep" 2>/dev/null
+		if [ $? -eq 0 ]; then
+			good "Found $dep version `pkg-config --modversion "$dep"`."
+			echo
+		else
+			yikes "Couldn't find $dep."
+		fi
+		upper=$(to_upper `escape_name "$dep"`)
+		export LD_$upper="`pkg-config --libs "$dep"`"
+		export CFLAGS_$upper="`pkg-config --cflags "$dep"`"
+	done
+}
+
+add_dep() {
+	for dep in "$@"; do
+		upper=$(to_upper `escape_name "$dep"`)
+		libs="LD_$upper"
+		cflags="CFLAGS_$upper"
+		printf "%-16s:= " "LD_$upper" >> Makefile
+		echo ${!libs} >> Makefile
+		printf "%-16s:= " "CFLAGS_$upper" >> Makefile
+		echo ${!cflags} >> Makefile
+		echo "DEP_LD          += \$($libs)" >> Makefile
+		echo "DEP_CFLAGS      += \$($cflags)" >> Makefile
+		echo >> Makefile
+	done
+}
+
+init_makefile() {
+	echo "DEP_LD          :=" > Makefile
+	echo "DEP_CFLAGS      :=" >> Makefile
+	echo >> Makefile
+}
+
+do_all() {
+	check_for $*
+	init_makefile
+	add_dep $*
+}
+
+do_all icu-uc
+
+cat >> Makefile <<"BASE"
 COMPILER		:= g++
 ifeq ($(OFLAGS),)
 	OFLAGS		:= -g -O0
@@ -5,7 +64,7 @@ endif
 CFLAGS			:= -std=c++2a $(OFLAGS) -Wall -Wextra -fPIC
 CFLAGS_ORIG		:= $(CFLAGS)
 INCLUDE			:= 
-LDFLAGS			:= -pthread -ldl
+LDFLAGS			:= $(strip -pthread -ldl $(DEP_LD))
 CC				 = $(COMPILER) $(strip $(CFLAGS) $(CHECKFLAGS))
 CHECKFLAGS		:=
 MKBUILD			:= mkdir -p build
@@ -53,9 +112,9 @@ OBJECTS_PL		:= $(addsuffix .$(SHARED_EXT),$(addprefix build/plugins/,$(shell ls 
 
 OBJECTS			= $(OBJECTS_PP) $(OBJECTS_HN) $(OBJECTS_SP)
 
-sinclude $(shell find src -name 'targets.mk')
+ALLFLAGS		 = $(CPPFLAGS) $(CXXFLAGS) $(DEP_CFLAGS)
 
-ALLFLAGS		 = $(CPPFLAGS) $(CXXFLAGS)
+sinclude $(shell find src -name 'targets.mk')
 
 plugins: $(OBJECTS_PL)
 
@@ -132,3 +191,6 @@ depend:
 	@ rm $(DEPFILE).bak $(DEPFILE).sed
 
 sinclude $(DEPFILE)
+BASE
+
+good "Wrote Makefile."

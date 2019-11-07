@@ -8,6 +8,7 @@ node_modules
 build
 massif.out.*
 mp.*
+Makefile
 
 # Prerequisites
 *.d
