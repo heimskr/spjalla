@@ -1,18 +1,18 @@
-#ifndef SPJALLA_CORE_CONFIGCACHE_H_
-#define SPJALLA_CORE_CONFIGCACHE_H_
+#ifndef SPJALLA_CONFIG_CACHE_H_
+#define SPJALLA_CONFIG_CACHE_H_
 
 #include "spjalla/config/defaults.h"
 #include "lib/formicine/ansi.h"
 
-namespace spjalla {
-	class configcache {
+namespace spjalla::config {
+	class cache {
 		private:
 			static std::string get_string(const std::string &key);
 			static ansi::color get_color(const std::string &key);
 			static bool get_bool(const std::string &key);
 			static long get_long(const std::string &key);
 		public:
-			configcache() {}
+			cache() {}
 
 			ansi::color appearance_bar_background     = get_color("appearance.bar_background"),
 			            appearance_bar_foreground     = get_color("appearance.bar_foreground"),

@@ -4,12 +4,12 @@
 namespace spjalla::lines {
 	std::string kick_line::render(ui::window *) {
 		if (is_self) {
-			return red_notice + parent->get_ui().format_nick(whom, false) + " was kicked from "
-				+ parent->get_ui().format_channel(chan->name) + " by " + parent->get_ui().format_nick(who, true)
+			return red_notice + parent->get_ui().render.nick(whom, false) + " was kicked from "
+				+ parent->get_ui().render.channel(chan->name) + " by " + parent->get_ui().render.nick(who, true)
 				+ " ["_d + reason + "]"_d;
 		} else {
-			return notice + parent->get_ui().format_nick(whom, false) + " was kicked from "
-				+ parent->get_ui().format_channel(chan->name) + " by " + parent->get_ui().format_nick(who, true)
+			return notice + parent->get_ui().render.nick(whom, false) + " was kicked from "
+				+ parent->get_ui().render.channel(chan->name) + " by " + parent->get_ui().render.nick(who, true)
 				+ " ["_d + reason + "]"_d;
 		}
 	}

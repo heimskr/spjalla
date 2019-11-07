@@ -16,7 +16,7 @@ namespace spjalla::lines {
 
 		const std::string modestr = mset.mode_str();
 		const std::string &extra = mset.extra;
-		const std::string styled_name = parent->get_ui().format_nick(who, true) + " ";
+		const std::string styled_name = parent->get_ui().render.nick(who, true) + " ";
 
 		if (!extra.empty()) {
 			auto iter = verbs.find(modestr);
@@ -33,7 +33,7 @@ namespace spjalla::lines {
 			}
 		}
 
-		return prefix + styled_name + "set modes for " + parent->get_ui().format_channel(where) + suffix;
+		return prefix + styled_name + "set modes for " + parent->get_ui().render.channel(where) + suffix;
 	}
 
 	std::unordered_map<std::string, std::string> mode_line::verbs = {

@@ -15,7 +15,6 @@
 #include "pingpong/core/irc.h"
 #include "pingpong/core/server.h"
 
-#include "spjalla/client/configcache.h"
 
 #include "spjalla/commands/command.h"
 
@@ -24,6 +23,7 @@
 #include "spjalla/core/plugin_host.h"
 #include "spjalla/core/tab_completion.h"
 
+#include "spjalla/config/cache.h"
 #include "spjalla/config/config.h"
 
 #include "spjalla/plugins/plugin.h"
@@ -82,7 +82,7 @@ namespace spjalla {
 		public:
 			config::database configs;
 			aliases alias_db;
-			configcache cache;
+			config::cache cache;
 
 			client(int heartbeat_period_ = pingpong::util::precision / 10);
 

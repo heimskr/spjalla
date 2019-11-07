@@ -3,7 +3,7 @@
 
 namespace spjalla::lines {
 	std::string part_line::render(ui::window *) {
-		return notice + parent->get_ui().format_nick(name, false) + " left " +
-			parent->get_ui().format_channel(chan_name) + " ["_d + reason + "]"_d;
+		return notice + parent->get_ui().render.nick(name, false) + " left " +
+			parent->get_ui().render.channel(chan_name) + " ["_d + reason + "]"_d;
 	}
 }

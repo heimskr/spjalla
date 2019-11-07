@@ -24,6 +24,7 @@
 #include "spjalla/lines/error.h"
 #include "spjalla/lines/warning.h"
 
+#include "spjalla/ui/renderer.h"
 #include "spjalla/ui/window.h"
 
 namespace spjalla {
@@ -77,7 +78,7 @@ namespace spjalla::ui {
 			haunted::ui::container::type::iterator window_iterator() const;
 
 			/** Returns whether it's okay to immediately remove a given window. */
-			bool can_remove(window * = nullptr) const;
+			bool can_remove(window *) const;
 
 			/** Sets the terminal's on_interrupt function. */
 			void set_interrupt();
@@ -85,8 +86,9 @@ namespace spjalla::ui {
 		public:
 			std::function<void(window *)> update_statusbar_fn;
 			unsigned int scroll_buffer = 0;
+			renderer render;
 
-			interface(haunted::terminal *, client * = nullptr);
+			interface(haunted::terminal &, client &);
 
 			/** Redraws the interface. */
 			void draw();
@@ -224,19 +226,6 @@ namespace spjalla::ui {
 
 			/** Scrolls the active window (unless it's the overlay) by half a page. */
 			void scroll_page(bool up);
-
-			/** Formats a nick according to interface.nick_format. */
-			std::string format_nick(const std::string &, bool bright = false) const;
-
-			/** Formats a nick according to interface.nick_format. */
-			std::string format_nick(std::shared_ptr<pingpong::user>, std::shared_ptr<pingpong::channel>,
-			                        bool bright = false) const;
-
-			/** Formats a channel name according to interface.channel_format. */
-			std::string format_channel(const std::string &) const;
-
-			/** Formats a channel name according to interface.channel_format. */
-			std::string format_channel(std::shared_ptr<pingpong::channel>) const;
 
 			/** Handles keypresses that aren't handled by the textinput. */
 			bool on_key(const haunted::key &);
