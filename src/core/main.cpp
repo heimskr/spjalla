@@ -31,7 +31,7 @@ namespace spjalla {
 	void run(int argc, char **argv) {
 		haunted::dbgstream << "--------------------------------\n";
 		haunted::dbgstream.clear().jump().flush();
-		DBG("PID: " << getpid());
+		DBG(ansi::style::bold << "    " << getpid());
 
 		std::shared_ptr<spjalla::client> instance = std::make_shared<spjalla::client>();
 		instance->get_terminal().mouse(haunted::mouse_mode::motion);

@@ -152,10 +152,8 @@ namespace spjalla::ui {
 
 	void interface::set_interrupt() {
 		term->on_interrupt = [this]() {
-			for (auto &pair: parent->get_irc().servers) {
-				DBG("Killing " << pair.first);
+			for (auto &pair: parent->get_irc().servers)
 				pair.second->kill();
-			}
 
 			return true;
 		};
