@@ -7,3 +7,6 @@
 [submodule "haunted"]
 	path = haunted
 	url = https://github.com/heimskr/haunted.git
+[submodule "strender"]
+	path = strender
+	url = https://github.com/heimskr/strender
