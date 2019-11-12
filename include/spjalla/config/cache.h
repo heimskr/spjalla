@@ -42,6 +42,27 @@ namespace spjalla::config {
 			std::string server_default_nick = get_string("server.default_nick"),
 			            server_default_user = get_string("server.default_user"),
 			            server_default_real = get_string("server.default_real");
+
+			std::string format_action = get_string("format.action"),
+			            format_channel = get_string("format.channel"),
+			            format_privmsg = get_string("format.privmsg"),
+			            format_notice = get_string("format.notice"),
+			            format_header_action  = get_string("format.header_action"),
+			            format_header_privmsg = get_string("format.header_privmsg"),
+			            format_header_notice  = get_string("format.header_notice"),
+			            format_message_action  = get_string("format.message_action"),
+			            format_message_privmsg = get_string("format.message_privmsg"),
+			            format_message_notice  = get_string("format.message_notice"),
+			            format_nick_action  = get_string("format.nick_action"),
+			            format_nick_general = get_string("format.nick_general"),
+			            format_nick_general_bright = get_string("format.nick_general_bright"),
+			            format_nick_privmsg = get_string("format.nick_privmsg"),
+			            format_nick_notice  = get_string("format.nick_notice");
+
+			std::string format_join = get_string("format.join"),
+			            format_kick = get_string("format.kick"),
+			            format_part = get_string("format.part"),
+			            format_quit = get_string("format.quit");
 	};
 }
 

@@ -168,8 +168,13 @@ namespace spjalla::ui {
 		term->draw();
 	}
 
-	void interface::start() {
+	void interface::init() {
 		term->watch_size();
+		render.init_strnodes();
+	}
+
+	void interface::postinit() {
+		render.copy_strnodes();
 	}
 
 	void interface::log(const std::string &line, window *win) {

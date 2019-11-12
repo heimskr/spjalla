@@ -129,6 +129,61 @@ namespace spjalla::config {
 		register_key("debug", "show_raw", false, validate_bool, CACHE_BOOL(debug_show_raw),
 			"Whether to log raw input/output in the status window.");
 
+		// Format
+
+		register_key("format", "action", "$header$ $message$", validate_string, CACHE_STRING(format_action),
+			"The format string for actions. Available variables: header, message.");
+
+		register_key("format", "channel", "^b$raw_channel$^B", validate_string, CACHE_STRING(format_channel),
+			"The format string for channels in messages like joins. Available variables: raw_channel.");
+
+		register_key("format", "header_action", "^b* $hats$^0", validate_string,
+			CACHE_STRING(format_header_action),
+			"The format string for headers in actions. Available variables: hats, nick.");
+
+		register_key("format", "header_privmsg", "^d<^D$hats$$nick$^d>^D", validate_string,
+			CACHE_STRING(format_header_privmsg),
+			"The format string for headers in privmsgs. Available variables: hats, nick.");
+
+		register_key("format", "header_notice", "^[magenta]-$hats$$nick$^0^[magenta]-^0", validate_string,
+			CACHE_STRING(format_header_notice),
+			"The format string for headers in notices. Available variables: hats, nick.");
+
+		register_key("format", "message_action", "$raw_message$", validate_string,
+			CACHE_STRING(format_message_action),
+			"The format string for messages in actions. Available variables: hats, nick.");
+
+		register_key("format", "message_privmsg", "$raw_message$", validate_string,
+			CACHE_STRING(format_message_privmsg),
+			"The format string for messages in privmsgs. Available variables: hats, nick.");
+
+		register_key("format", "message_notice", "$raw_message$", validate_string,
+			CACHE_STRING(format_message_notice),
+			"The format string for messages in notices. Available variables: hats, nick.");
+
+		register_key("format", "notice", "$header$ $message$", validate_string, CACHE_STRING(format_notice),
+			"The format string for notices. Available variables: header, notice.");
+
+		register_key("format", "nick_action", "$raw_nick$", validate_string, CACHE_STRING(format_nick_action),
+			"The format string for nicks in actions. Available variables: raw_nick.");
+
+		register_key("format", "nick_general_bright", "^[cyan!]$raw_nick$^[/f]", validate_string,
+			CACHE_STRING(format_nick_general_bright),
+			"The format string for nicks in messages like joins. Available variables: raw_nick.");
+
+		register_key("format", "nick_general", "^[cyan]$raw_nick$^[/f]", validate_string,
+			CACHE_STRING(format_nick_general),
+			"The format string for nicks in messages like quits and parts. Available variables: raw_nick.");
+
+		register_key("format", "nick_privmsg", "$raw_nick$", validate_string, CACHE_STRING(format_nick_privmsg),
+			"The format string for nicks in privmsgs. Available variables: raw_nick.");
+
+		register_key("format", "nick_notice", "$raw_nick$", validate_string, CACHE_STRING(format_nick_notice),
+			"The format string for nicks in notices. Available variables: raw_nick.");
+
+		register_key("format", "privmsg", "$header$ $message$", validate_string, CACHE_STRING(format_privmsg),
+			"The format string for privmsgs. Available variables: header, message.");
+
 		// Interface
 
 		register_key("interface", "close_on_part", true, validate_bool, {},
@@ -138,16 +193,6 @@ namespace spjalla::config {
 			db.get_parent().get_ui().set_scroll_buffer(static_cast<unsigned int>(new_val.long_()));
 			db.get_parent().cache.interface_scroll_buffer = new_val.long_();
 		}, "The number of lines to leave at the top when running /clear.");
-
-		register_key("interface", "nick_format_bright", "^[cyan!]#n^[/f]", validate_string,
-			CACHE_STRING(interface_nick_format_bright),
-			"The format string for nicks in messages like joins. \"#n\" is replaced with the user's name.");
-
-		register_key("interface", "nick_format", "^[cyan]#n^[/f]", validate_string, CACHE_STRING(interface_nick_format),
-			"The format string for nicks in messages like quits and parts. \"#n\" is replaced with the user's name.");
-
-		register_key("interface", "channel_format", "^b#c^B", validate_string, CACHE_STRING(interface_channel_format),
-			"The format string for channels in messages like joins. \"#c\" is replaced with the channel's name.");
 
 		// Messages
 

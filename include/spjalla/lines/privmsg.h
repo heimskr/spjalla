@@ -11,19 +11,16 @@
 #include "spjalla/lines/message.h"
 
 namespace spjalla::lines {
-	struct privmsg_format {
-		static constexpr const char
-			*message = "^d<^D#h#s^d>^D #m",
-			*action  = "^b*^B #h#s #m",
-			*ctcp    = "^d|^D#h#s^d|^D #m";
-		static constexpr bool is_notice = false;
-		template <typename T>
-		static void postprocess(T *, std::string &) {}
-	};
-
-	class privmsg_line: public message_line<privmsg_format> {
+	class privmsg_line: public message_line {
 		public:
-			using message_line::message_line;
+			privmsg_line(client *, std::shared_ptr<pingpong::user>, const std::string &where_,
+			             const std::string &message_, long stamp_, bool direct_only_ = false);
+
+			privmsg_line(client *, const std::string &name_, const std::string &where_, const std::string &self_,
+			             const std::string &message_, long, const pingpong::hat_set &, bool direct_only_ = false);
+
+			privmsg_line(client *, const std::string &combined_, const std::string &where_, const std::string &self_,
+			             const std::string &message_, long, bool direct_only_ = false);
 
 			privmsg_line(client *parent_, const pingpong::privmsg_command &cmd, bool direct_only_ = false):
 				privmsg_line(parent_, cmd.serv->get_self(), cmd.where, cmd.message, cmd.sent_time, direct_only_) {}

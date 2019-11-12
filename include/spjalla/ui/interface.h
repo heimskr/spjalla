@@ -94,7 +94,9 @@ namespace spjalla::ui {
 			void draw();
 
 			/** Starts any workers (or the like) needed for this interface. */
-			void start();
+			void init();
+
+			void postinit();
 
 			/** Logs a line of output for a given target window. */
 			template <typename T>

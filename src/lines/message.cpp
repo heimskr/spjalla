@@ -1,6 +1,7 @@
+#include "spjalla/lines/message.h"
+
 namespace spjalla::lines {
-	template <typename T>
-	message_line<T>::message_line(client *parent_, std::shared_ptr<pingpong::user> speaker, const std::string &where_,
+	message_line::message_line(client *parent_, std::shared_ptr<pingpong::user> speaker, const std::string &where_,
 	                              const std::string &message_, long stamp_, bool direct_only_):
 	line(parent_, stamp_), pingpong::local(where_), name(speaker->name), self(speaker->serv->get_nick()),
 	message(message_), verb(get_verb(message_)), body(get_body(message_)), direct_only(direct_only_),
@@ -16,8 +17,7 @@ namespace spjalla::lines {
 		processed = process(message_);
 	}
 
-	template <typename T>
-	message_line<T>::message_line(client *parent_, const std::string &name_, const std::string &where_,
+	message_line::message_line(client *parent_, const std::string &name_, const std::string &where_,
 	                              const std::string &self_, const std::string &message_, long stamp_,
 	                              const pingpong::hat_set &hats_, bool direct_only_):
 	line(parent_, stamp_), pingpong::local(where_), name(name_), self(self_), message(message_),
@@ -26,8 +26,7 @@ namespace spjalla::lines {
 		processed = process(message_);
 	}
 
-	template <typename T>
-	message_line<T>::message_line(client *parent_, const std::string &combined_, const std::string &where_,
+	message_line::message_line(client *parent_, const std::string &combined_, const std::string &where_,
 	                              const std::string &self_, const std::string &message_, long stamp_,
 	                              bool direct_only_):
 	line(parent_, stamp_), pingpong::local(where_), self(self_), message(message_), verb(get_verb(message_)),
@@ -41,8 +40,7 @@ namespace spjalla::lines {
 // Protected instance methods
 
 
-	template <typename T>
-	int message_line<T>::get_continuation() {
+	int message_line::get_continuation() {
 		std::string format = ansi::strip(get_format());
 
 		const size_t mpos = format.find("#m");
@@ -66,41 +64,29 @@ namespace spjalla::lines {
 // Private instance methods
 
 
-	template <typename T>
-	const char * message_line<T>::get_format() const {
-		if (is_action()) return T::action;
-		if (is_ctcp())   return T::ctcp;
-		return T::message;
-	}
-
-	template <typename T>
-	std::string message_line<T>::get_verb(const std::string &str) {
+	std::string message_line::get_verb(const std::string &str) {
 		if (!is_ctcp(str))
 			return "";
 		const size_t space = str.find(' '), length = str.length();
 		return space == std::string::npos? str.substr(1, length - 2) : str.substr(space, length - space - 1);
 	}
 
-	template <typename T>
-	std::string message_line<T>::get_body(const std::string &str) {
+	std::string message_line::get_body(const std::string &str) {
 		if (!is_ctcp(str))
 			return "";
 		const size_t space = str.find(' ');
 		return space == std::string::npos? "" : str.substr(space + 1, str.length() - space - 2);
 	}
 
-	template <typename T>
-	bool message_line<T>::is_action(const std::string &str) {
+	bool message_line::is_action(const std::string &str) {
 		return !str.empty() && str.find("\1ACTION ") == 0 && str.back() == '\1';
 	}
 
-	template <typename T>
-	bool message_line<T>::is_ctcp(const std::string &str) {
+	bool message_line::is_ctcp(const std::string &str) {
 		return !str.empty() && str.front() == '\1' && str.back() == '\1';
 	}
 
-	template <typename T>
-	int message_line<T>::get_name_index() const {
+	int message_line::get_name_index() const {
 		std::string stripped = ansi::strip(get_format());
 		size_t hpos = stripped.find("#h"), spos = stripped.find("#s"), mpos = stripped.find("#m");
 
@@ -116,32 +102,16 @@ namespace spjalla::lines {
 		return time_length + spos + addition;
 	}
 
-	template <typename T>
-	const std::string & message_line<T>::render_name() {
-		if (rendered_name.empty()) {
-			ui::renderer::nick_situation situation = ui::renderer::nick_situation::message;
-			if (T::is_notice) {
-				situation = ui::renderer::nick_situation::notice;
-			} else if (is_action()) {
-				situation = ui::renderer::nick_situation::action;
-			}
-
-			rendered_name = parent->get_ui().render.nick(name, where, situation, util::is_highlight(message, self, direct_only));
-		}
-		return rendered_name;
-	}
-
 
 // Protected instance methods
 
 
-	template <typename T>
-	std::string message_line<T>::process(const std::string &str) {
+	std::string message_line::process(const std::string &str) {
 		std::string name_fmt = is_action() || is_self? ansi::bold(render_name()) : render_name();
 		const std::string time = "";
 
-		// if (util::is_highlight(message, self, direct_only))
-		// 	name_fmt = ansi::yellow(name_fmt);
+		if (util::is_highlight(message, self, direct_only))
+			name_fmt = ansi::yellow(name_fmt);
 
 		std::string out = ansi::format(get_format());
 		const size_t spos = out.find("#s");
@@ -174,18 +144,15 @@ namespace spjalla::lines {
 // Public instance methods
 
 
-	template <typename T>
-	bool message_line<T>::is_action() const {
+	bool message_line::is_action() const {
 		return is_action(message);
 	}
 
-	template <typename T>
-	bool message_line<T>::is_ctcp() const {
+	bool message_line::is_ctcp() const {
 		return is_ctcp(message);
 	}
 
-	template <typename T>
-	std::string message_line<T>::trimmed(const std::string &str) const {
+	std::string message_line::trimmed(const std::string &str) const {
 		if (str.empty() || str.front() != '\1')
 			return str;
 
@@ -203,28 +170,24 @@ namespace spjalla::lines {
 		return str_copy;
 	}
 
-	template <typename T>
-	std::string message_line<T>::hat_str() const {
+	std::string message_line::hat_str() const {
 		if (!is_channel())
 			return "";
 
 		return hats == pingpong::hat::none? " " : std::string(hats);
 	}
 
-	template <typename T>
-	std::string message_line<T>::render(ui::window *) {
+	std::string message_line::render(ui::window *) {
 		return processed;
 	}
 
-	template <typename T>
-	notification_type message_line<T>::get_notification_type() const {
+	notification_type message_line::get_notification_type() const {
 		if (util::is_highlight(message, self, direct_only) || where == self)
 			return notification_type::highlight;
 		return notification_type::message;
 	}
 
-	template <typename T>
-	void message_line<T>::on_mouse(const haunted::mouse_report &report) {
+	void message_line::on_mouse(const haunted::mouse_report &report) {
 		if (report.action == haunted::mouse_action::up) {
 			const int name_index = get_name_index();
 			if (name_index <= report.x && report.x < name_index + static_cast<int>(name.length())) {

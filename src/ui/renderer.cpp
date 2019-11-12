@@ -1,59 +1,34 @@
 #include "spjalla/config/cache.h"
+#include "spjalla/core/client.h"
 #include "spjalla/ui/renderer.h"
 
 namespace spjalla::ui {
+	renderer::renderer(config::cache &cache_): cache(&cache_) {}
 
+	void renderer::init_strnodes() {
+		action  = strender::strnode("*", cache->format_action);
+		message = strender::strnode("*", cache->format_privmsg);
+		notice  = strender::strnode("*", cache->format_notice);
 
-// Implementations
+		action_header  = strender::strnode("header", cache->format_header_action,  &action);
+		privmsg_header = strender::strnode("header", cache->format_header_privmsg, &message);
+		notice_header  = strender::strnode("header", cache->format_header_notice,  &notice);
 
+		action_message  = strender::strnode("message", cache->format_message_action,  &action_header);
+		privmsg_message = strender::strnode("message", cache->format_message_privmsg, &privmsg_header);
+		notice_message  = strender::strnode("message", cache->format_message_notice,  &notice_header);
 
-	std::string renderer::nick_impl(std::string format, const std::string &nick) const {
-		const size_t nick_pos = format.find("#n");
-		if (nick_pos != std::string::npos) {
-			format.erase(nick_pos, 2);
-			format.insert(nick_pos, nick);
-		}
+		action_nick  = strender::strnode("nick", cache->format_nick_action,  &action_header);
+		privmsg_nick = strender::strnode("nick", cache->format_nick_privmsg, &privmsg_header);
+		notice_nick  = strender::strnode("nick", cache->format_nick_notice,  &notice_header);
 
-		return ansi::format(format);
+		quit = strender::strnode("*", cache->format_quit);
+		kick = strender::strnode("*", cache->format_kick);
+		join = strender::strnode("*", cache->format_join);
+		part = strender::strnode("*", cache->format_part);
 	}
 
-	std::string renderer::channel_impl(std::string format, const std::string &chan) const {
-		const size_t channel_pos = format.find("#c");
-		if (channel_pos != std::string::npos) {
-			format.erase(channel_pos, 2);
-			format.insert(channel_pos, chan);
-		}
+	void renderer::copy_strnodes() {
 
-		return ansi::format(format);
 	}
-
-
-// Wrappers
-
-
-	std::string renderer::nick(const std::string &nick, const std::string &where, nick_situation situation, bool bright)
-	const {
-		DBG((provider_nick? "nick fn provided" : "nick fn not provided"));
-		std::string format = bright? cache->interface_nick_format_bright : cache->interface_nick_format;
-		return provider_nick? provider_nick(format, nick, where, situation) : nick_impl(format, nick);
-	}
-
-	std::string renderer::channel(const std::string &chan) const {
-		std::string format = cache->interface_channel_format;
-		return provider_channel_str? provider_channel_str(format, chan) : channel_impl(format, chan);
-	}
-
-	std::string renderer::channel(std::shared_ptr<pingpong::channel> chan) const {
-		std::string format = cache->interface_channel_format;
-		return provider_channel_ptr? provider_channel_ptr(format, chan) : channel_impl(format, chan->name);
-	}
-
-
-// Providers
-
-
-	void renderer::provide_nick   (renderer::fn_nick fn) { provider_nick = fn;        }
-	void renderer::provide_channel(renderer::fn_str  fn) { provider_channel_str = fn; }
-	void renderer::provide_channel(renderer::fn_cptr fn) { provider_channel_ptr = fn; }
-
 }

@@ -49,6 +49,7 @@ namespace spjalla {
 		instance->preinit_plugins();
 		instance->init();
 		instance->postinit_plugins();
+		instance->postinit();
 		instance->join();
 	}
 }

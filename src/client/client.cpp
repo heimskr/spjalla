@@ -80,7 +80,7 @@ namespace spjalla {
 	void client::init() {
 		configs.read_if_empty(DEFAULT_CONFIG_DB, true);
 		alias_db.read_if_empty(DEFAULT_ALIAS_DB, true);
-		ui.start();
+		ui.init();
 		irc.init();
 		add_events();
 		add_commands();
@@ -88,6 +88,10 @@ namespace spjalla {
 		term.start_input();
 		init_heartbeat();
 		init_statusbar();
+	}
+
+	void client::postinit() {
+		ui.postinit();
 	}
 
 	void client::server_removed(pingpong::server *serv) {

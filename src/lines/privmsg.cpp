@@ -1,6 +1,11 @@
 #include "pingpong/core/util.h"
+
+#include "strender/strnode.h"
+
 #include "spjalla/core/util.h"
 #include "spjalla/lines/privmsg.h"
+#include "spjalla/ui/renderer.h"
+
 #include "lib/formicine/futil.h"
 
 namespace spjalla::lines {
@@ -11,6 +16,7 @@ namespace spjalla::lines {
 	}
 
 	std::string privmsg_line::to_string(const pingpong::privmsg_event &ev) {
+		ui::renderer &renderer = parent->get_ui().render;
 		privmsg_line line {nullptr, ev};
 		return ansi::strip(line.process(ev.content));
 	}
