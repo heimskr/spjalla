@@ -3,7 +3,8 @@
 
 namespace spjalla::lines {
 	std::string join_line::render(ui::window *) {
-		return notice + parent->get_ui().render.nick(name, chan_name, ui::renderer::nick_situation::normal, true)
-			+ " joined " + parent->get_ui().render.channel(chan_name);
+		strender::strnode &node = parent->get_ui().render.nodes.at("join");
+		node = {{"raw_who", who}, {"raw_channel", chan->name}};
+		return node.render();
 	}
 }

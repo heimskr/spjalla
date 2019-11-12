@@ -3,19 +3,9 @@
 
 namespace spjalla::lines {
 	std::string kick_line::render(ui::window *) {
-		if (is_self) {
-			return red_notice
-				+ parent->get_ui().render.nick(whom, chan->name, ui::renderer::nick_situation::normal, false)
-				+ " was kicked from " + parent->get_ui().render.channel(chan->name) + " by "
-				+ parent->get_ui().render.nick(who, chan->name, ui::renderer::nick_situation::normal, true)
-				+ " ["_d + reason + "]"_d;
-		} else {
-			return notice
-				+ parent->get_ui().render.nick(whom, chan->name, ui::renderer::nick_situation::normal, false)
-				+ " was kicked from " + parent->get_ui().render.channel(chan->name) + " by "
-				+ parent->get_ui().render.nick(who, chan->name, ui::renderer::nick_situation::normal, true)
-				+ " ["_d + reason + "]"_d;
-		}
+		strender::strnode &node = parent->get_ui().render.nodes.at(is_self? "kick_self" : "kick");
+		node = {{"raw_who", who}, {"raw_whom", whom}, {"raw_channel", chan->name}, {"raw_reason", reason}};
+		return node.render();
 	}
 
 	notification_type kick_line::get_notification_type() const {

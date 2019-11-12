@@ -5,6 +5,7 @@
 
 namespace spjalla::lines {
 	std::string mode_line::render(ui::window *) {
+
 		if (!mset.is_type_valid())
 			throw std::logic_error("Unknown mode type: " + std::to_string(static_cast<int>(mset.type)));
 

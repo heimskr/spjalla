@@ -1,6 +1,8 @@
 #ifndef SPJALLA_UI_RENDERER_H_
 #define SPJALLA_UI_RENDERER_H_
 
+#include <unordered_map>
+
 #include "pingpong/core/channel.h"
 #include "pingpong/core/user.h"
 #include "strender/strnode.h"
@@ -15,24 +17,13 @@ namespace spjalla::ui {
 	 */
 	class renderer {
 		private:
-			strender::strnode privmsg_header, action_header, notice_header;
-			strender::strnode privmsg_message, action_message, notice_message;
-			strender::strnode privmsg_nick, action_nick, notice_nick;
-
 			config::cache *cache;
 
-		public:
-			/**
-			 * normal:  In most places, like join messages.
-			 * message: At the beginning of privmsgs, like the "someone" in "< someone>".
-			 * action: At the beginning of actions, like the "someone" in "* someone".
-			 * notice: In a notice.
-			 */
-			enum class nick_situation {normal, message, action, notice};
+			/** Creates and inserts a group of strnodes for a simple message like joins, kicks, parts and quits. */
+			void simple(const char *name, const std::string &format);
 
-			strender::strnode message;
-			strender::strnode action;
-			strender::strnode notice;
+		public:
+			std::unordered_map<std::string, strender::strnode> nodes {};
 
 			renderer(config::cache &);
 
@@ -40,8 +31,9 @@ namespace spjalla::ui {
 			 *  called. */
 			void init_strnodes();
 
-			/** Copies common strnodes to multiple parents. */
-			void copy_strnodes();
+			void more_strnodes();
+
+			std::string channel(const std::string &);
 	};
 }
 

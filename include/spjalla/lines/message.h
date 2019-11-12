@@ -44,9 +44,6 @@ namespace spjalla::lines {
 			/** Formats a message by processing colors and actions and adding the user's name. */
 			std::string process(const std::string &);
 
-			/** Finds the continuation for the line. */
-			int get_continuation() override;
-
 			pingpong::server * get_associated_server() const override { return serv; }
 
 		public:

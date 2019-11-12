@@ -37,30 +37,6 @@ namespace spjalla::lines {
 	}
 
 
-// Protected instance methods
-
-
-	int message_line::get_continuation() {
-		std::string format = ansi::strip(get_format());
-
-		const size_t mpos = format.find("#m");
-		if (mpos == std::string::npos)
-			throw std::invalid_argument("Invalid message format string");
-
-		int out = line::get_continuation() + mpos;
-
-		// If the speaker comes before the message in the format, we need to adjust the return value accordingly.
-		if (format.find("#s") < mpos)
-			out += render_name().length() - 2;
-
-		// Same for the hat string.
-		if (format.find("#h") < mpos)
-			out += hat_str().length() - 2;
-
-		return out;
-	}
-
-
 // Private instance methods
 
 

@@ -174,7 +174,7 @@ namespace spjalla::ui {
 	}
 
 	void interface::postinit() {
-		render.copy_strnodes();
+		render.more_strnodes();
 	}
 
 	void interface::log(const std::string &line, window *win) {

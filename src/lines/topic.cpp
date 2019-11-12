@@ -3,10 +3,14 @@
 
 namespace spjalla::lines {
 	std::string topic_line::render(ui::window *) {
-		if (who.empty())
-			return lines::notice + "Topic for " + parent->get_ui().render.channel(where) + " is " + topic;
+		if (who.empty()) {
+			strender::strnode &node = parent->get_ui().render.nodes.at("topic_is");
+			node = {{"raw_channel", where}, {"raw_topic", topic}};
+			return node.render();
+		}
 
-		return lines::notice + parent->get_ui().render.nick(who, where, ui::renderer::nick_situation::normal, true)
-			+ " changed the topic of " + parent->get_ui().render.channel(where) + " to: " + topic;
+		strender::strnode &node = parent->get_ui().render.nodes.at("topic_change");
+		node = {{"raw_who", who}, {"raw_channel", where}, {"raw_topic", topic}};
+		return node.render();
 	}
 }
