@@ -3,4 +3,5 @@
 - Add color/bold input.
 - Make events::listen take a string identifying the source of the listener. This could enable plugins to intercept or
   remove listeners.
-- Make a nick coloring plugin.
+- Maintain a list of the most recently used windows (windows that were focused more recently are closer to the front of
+  the list). Use this to decide which window to switch to when closing a window.
