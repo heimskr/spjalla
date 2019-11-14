@@ -57,21 +57,20 @@ namespace spjalla::ui {
 	}
 
 	void renderer::simple(const char *name, const std::string &format) {
+		using namespace std::literals;
 		insert(name, name, format);
 		strender::strnode &node = *nodes.at(name);
 		insert(name + std::string("_who"),     "who",     replace_nick("$raw_who$"),  &node);
 		insert(name + std::string("_whom"),    "whom",    replace_nick("$raw_whom$"), &node);
 		insert(name + std::string("_channel"), "channel", cache->format_channel,      &node);
-		node = {{"-!-", lines::notice}, {"-!!-", lines::red_notice}, {"-!?-", lines::yellow_notice}};
+		node = {{"-!-"s, lines::notice}, {"-!!-"s, lines::red_notice}, {"-!?-"s, lines::yellow_notice}};
 	}
 
 	std::string renderer::channel(const std::string &chan) {
-		return nodes.at("channel")->render({{"raw_channel", chan}});
+		return nodes.at("channel")->render({{std::string("raw_channel"), chan}});
 	}
 
 	std::string renderer::nick(const std::string &nick, bool bright) {
-		strender::strnode &node = *nodes.at(bright? "nick_general" : "nick_general_bright");
-		node = {{"raw_nick", nick}};
-		return node.render();
+		return nodes.at(bright? "nick_general" : "nick_general_bright")->render({{std::string("raw_nick"), nick}});
 	}
 }

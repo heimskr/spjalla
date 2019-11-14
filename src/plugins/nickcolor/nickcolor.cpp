@@ -39,12 +39,16 @@ namespace spjalla::plugins {
 		if (val.get_type() != config::value_type::string_)
 			return config::validation_result::bad_type;
 
-		return val.string_().find_first_not_of("0123456789 ") == std::string::npos?
-			config::validation_result::valid : config::validation_result::bad_value;
-	}
+		std::vector<std::string> split = formicine::util::split(val.string_(), " ");
+		if (split.empty())
+			return config::validation_result::bad_value;
 
-	void nickcolor_plugin::apply_colorlist(config::database &, const config::value &) {
+		for (const std::string &name: split) {
+			if (!ansi::has_color(name))
+				return config::validation_result::bad_value;
+		}
 
+		return config::validation_result::valid;
 	}
 
 	void nickcolor_plugin::preinit(plugin_host *host) {
@@ -52,16 +56,28 @@ namespace spjalla::plugins {
 		if (!client) { DBG("Error: expected client as plugin host"); return; }
 		parent = client;
 
-		config::register_key("appearance", "nick_colors", true, validate_colorlist, apply_colorlist,
-			"A list of colors to use for nick colorization.");
+		config::register_key("appearance", "nick_colors", "red orange yellow green blue magenta", validate_colorlist,
+			[this](config::database &, const config::value &val) {
+				std::vector<std::string> split = formicine::util::split(val.string_(), " ");
+				colorlist.clear();
+				for (const std::string &name: split)
+					colorlist.push_back(ansi::get_color(name));
+			}, "A list of colors to use for nick colorization.");
 	}
 
 	void nickcolor_plugin::postinit(plugin_host *host) {
 		spjalla::client *client = dynamic_cast<spjalla::client *>(host);
 		if (!client) { DBG("Error: expected client as plugin host"); return; }
 
-		client->get_ui().render["privmsg_nick"] = [](strender::piece_map &pieces) -> std::string {
-			return formicine::util::upper(pieces.at("raw_nick").render());
+		client->get_ui().render["privmsg_nick"] = [this](strender::piece_map &pieces) -> std::string {
+			const std::string raw = pieces.at("raw_nick").render();
+			std::ostringstream out;
+
+			int i = -1;
+			const size_t list_size = colorlist.size();
+			for (char ch: raw)
+				out << ansi::get_fg(colorlist[++i % list_size]) << ch;
+			return out.str() + ansi::reset_fg;
 		};
 	}
 }

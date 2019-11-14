@@ -8,7 +8,7 @@
 namespace spjalla::plugins {
 	class nickcolor_plugin: public plugin {
 		private:
-			std::unordered_map<client *, std::vector<int>> colorlists {};
+			std::vector<ansi::color> colorlist {};
 
 		public:
 			std::string get_name()        const override { return "Nick Colorizer"; }
@@ -18,7 +18,6 @@ namespace spjalla::plugins {
 			void postinit(plugin_host *) override;
 
 			static config::validation_result validate_colorlist(const config::value &);
-			static void apply_colorlist(config::database &, const config::value &);
 	};
 }
 
