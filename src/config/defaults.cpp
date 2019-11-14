@@ -149,7 +149,7 @@ namespace spjalla::config {
 			CACHE_STRING(format_header_notice),
 			"The format string for headers in notices. Available variables: hats, nick.");
 
-		register_key("format", "join", "$-!-$ $who$^0 joined from $channel$^0",
+		register_key("format", "join", "$-!-$ $who$^0 joined $channel$^0",
 			validate_string, CACHE_STRING(format_join),
 			"The format string for joins. Available variables: -!-, -!!-, -!?-, channel, who.");
 

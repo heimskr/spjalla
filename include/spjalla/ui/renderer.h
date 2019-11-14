@@ -46,7 +46,7 @@ namespace spjalla::ui {
 			template <typename... Args>
 			std::shared_ptr<strender::strnode> insert(const std::string &id, Args && ...args) {
 				if (nodes.count(id) == 0)
-					nodes.insert(id, std::make_shared<strender::strnode>(std::forward<Args>(args)...));
+					nodes.insert({id, std::make_shared<strender::strnode>(std::forward<Args>(args)...)});
 				return nodes.at(id);
 			}
 	};

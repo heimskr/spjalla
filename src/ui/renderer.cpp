@@ -27,17 +27,17 @@ namespace spjalla::ui {
 		insert("reason",    "reason",    cache->format_reason);
 		insert("timestamp", "timestamp", cache->format_reason);
 
-		insert("action_header",  "header", cache->format_header_action,  &nodes.at("action"));
-		insert("privmsg_header", "header", cache->format_header_privmsg, &nodes.at("privmsg"));
-		insert("notice_header",  "header", cache->format_header_notice,  &nodes.at("notice"));
+		insert("action_header",  "header", cache->format_header_action,  &*nodes.at("action"));
+		insert("privmsg_header", "header", cache->format_header_privmsg, &*nodes.at("privmsg"));
+		insert("notice_header",  "header", cache->format_header_notice,  &*nodes.at("notice"));
 
-		insert("action_message",  "message", cache->format_message_action,  &nodes.at("action_header"));
-		insert("privmsg_message", "message", cache->format_message_privmsg, &nodes.at("privmsg_header"));
-		insert("notice_message",  "message", cache->format_message_notice,  &nodes.at("notice_header"));
+		insert("action_message",  "message", cache->format_message_action,  &*nodes.at("action_header"));
+		insert("privmsg_message", "message", cache->format_message_privmsg, &*nodes.at("privmsg_header"));
+		insert("notice_message",  "message", cache->format_message_notice,  &*nodes.at("notice_header"));
 
-		insert("action_nick",  "nick", cache->format_nick_action,  &nodes.at("action_header"));
-		insert("privmsg_nick", "nick", cache->format_nick_privmsg, &nodes.at("privmsg_header"));
-		insert("notice_nick",  "nick", cache->format_nick_notice,  &nodes.at("notice_header"));
+		insert("action_nick",  "nick", cache->format_nick_action,  &*nodes.at("action_header"));
+		insert("privmsg_nick", "nick", cache->format_nick_privmsg, &*nodes.at("privmsg_header"));
+		insert("notice_nick",  "nick", cache->format_nick_notice,  &*nodes.at("notice_header"));
 	}
 
 	void renderer::more_strnodes() {
@@ -45,9 +45,9 @@ namespace spjalla::ui {
 		simple("kick", cache->format_kick);
 		simple("join", cache->format_join);
 		simple("part", cache->format_part);
-		insert("quit_reason", "reason", cache->format_reason, &nodes.at("quit"));
-		insert("kick_reason", "reason", cache->format_reason, &nodes.at("kick"));
-		insert("part_reason", "reason", cache->format_reason, &nodes.at("part"));
+		insert("quit_reason", "reason", cache->format_reason, &*nodes.at("quit"));
+		insert("kick_reason", "reason", cache->format_reason, &*nodes.at("kick"));
+		insert("part_reason", "reason", cache->format_reason, &*nodes.at("part"));
 		insert("nick_change", "nick_change", cache->format_nick_change);
 		strender::strnode &nick_change = *nodes.at("nick_change");
 		insert("nick_change_new", "new", replace_nick("$raw_new$"), &nick_change);

@@ -9,6 +9,7 @@ build
 massif.out.*
 mp.*
 Makefile
+/_*
 
 # Prerequisites
 *.d
