@@ -36,6 +36,9 @@ namespace spjalla::ui {
 		insert("action_nick",  "nick", cache->format_nick_action,  &*nodes.at("action_header"));
 		insert("privmsg_nick", "nick", cache->format_nick_privmsg, &*nodes.at("privmsg_header"));
 		insert("notice_nick",  "nick", cache->format_nick_notice,  &*nodes.at("notice_header"));
+
+		insert("nick_general", "nick", cache->format_nick_general);
+		insert("nick_general_bright", "nick", cache->format_nick_general_bright);
 	}
 
 	void renderer::more_strnodes() {
