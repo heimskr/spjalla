@@ -18,9 +18,7 @@ namespace spjalla::ui {
 	}
 
 	void renderer::init_strnodes() {
-		DBG("HELLO");
 		insert("action", "action", cache->format_action);
-		DBG("BYE");
 		insert("privmsg",   "privmsg",   cache->format_privmsg);
 		insert("notice",    "notice",    cache->format_notice);
 		insert("channel",   "channel",   cache->format_channel);
