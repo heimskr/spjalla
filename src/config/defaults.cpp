@@ -112,13 +112,16 @@ namespace spjalla::config {
 
 		// Interface
 
-		register_key("interface", "close_on_part", true, validate_bool, {},
+		register_key("interface", "close_on_part", true, validate_bool, CACHE_BOOL(interface_close_on_part),
 			"Whether to close a channel's window after parting it.");
 
 		register_key("interface", "scroll_buffer", 0, validate_int32nn, [](database &db, const value &new_val) {
 			db.get_parent().get_ui().set_scroll_buffer(static_cast<unsigned int>(new_val.long_()));
 			db.get_parent().cache.interface_scroll_buffer = new_val.long_();
 		}, "The number of lines to leave at the top when running /clear.");
+
+		register_key("interface", "show_motds", true, validate_bool, CACHE_BOOL(interface_show_motds),
+			"Whether to show server MOTDs.");
 
 		// Messages
 

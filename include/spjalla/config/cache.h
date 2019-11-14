@@ -30,7 +30,8 @@ namespace spjalla::config {
 
 			bool debug_show_raw = get_bool("debug.show_raw");
 
-			bool interface_close_on_part = get_bool("interface.close_on_part");
+			bool interface_close_on_part = get_bool("interface.close_on_part"),
+			     interface_show_motds    = get_bool("interface.show_motds");
 			long interface_scroll_buffer = get_long("interface.scroll_buffer");
 
 			bool messages_direct_only       = get_bool("messages.direct_only"),

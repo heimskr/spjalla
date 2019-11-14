@@ -103,7 +103,8 @@ namespace spjalla {
 		});
 
 		pingpong::events::listen<pingpong::motd_event>([&](pingpong::motd_event *ev) {
-			ui.log(lines::motd_line(this, ev->content, ev->serv, ev->stamp));
+			if (cache.interface_show_motds)
+				ui.log(lines::motd_line(this, ev->content, ev->serv, ev->stamp));
 		});
 
 		pingpong::events::listen<pingpong::names_updated_event>([&](pingpong::names_updated_event *ev) {
