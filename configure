@@ -50,11 +50,12 @@ init_makefile() {
 
 do_all() {
 	check_for $*
-	init_makefile
 	add_dep $*
 }
 
-do_all icu-uc
+init_makefile
+
+# do_all icu-uc
 
 cat >> Makefile <<"BASE"
 COMPILER		:= g++
@@ -94,6 +95,10 @@ endif
 
 all: $(OBJECTS) $(OUTPUT)
 
+INCLUDE_SR		:= -Istrender/include
+SOURCES_SR		:= $(shell find strender/src -name '*.cpp' | sed -nE '/(tests?|test_.+|ansi|futil)\.cpp$$/!p')
+OBJECTS_SR		:= $(patsubst strender/src/%.cpp,strender/build/%.o,$(SOURCES_SR))
+
 INCLUDE_PP		:= -Ipingpong/include
 SOURCES_PP		:= $(shell find pingpong/src -name '*.cpp' | sed -nE '/(tests?|test_.+|ansi|futil)\.cpp$$/!p')
 OBJECTS_PP		:= $(patsubst pingpong/src/%.cpp,pingpong/build/%.o,$(SOURCES_PP))
@@ -105,12 +110,12 @@ OBJECTS_HN		:= $(patsubst haunted/src/%.cpp,haunted/build/%.o,$(SOURCES_HN))
 INCLUDE_SP		:= -Iinclude
 SOURCES_SP		:= $(shell find -L src -name '*.cpp' | sed -nE '/(^src\/plugins\/)|((tests?|test_.+)\.cpp$$)/!p')
 OBJECTS_SP		:= $(patsubst src/%.cpp,build/%.o,$(SOURCES_SP))
-INCLUDE_LIBS	:= $(INCLUDE_PP) $(INCLUDE_HN)
+INCLUDE_LIBS	:= $(INCLUDE_SR) $(INCLUDE_PP) $(INCLUDE_HN)
 
 SOURCES_PL		:= $(shell ls src/plugins | sed -nE '/\./!p' | sed -E 's/(.+)/src\/plugins\/\1\/\1.cpp/')
 OBJECTS_PL		:= $(addsuffix .$(SHARED_EXT),$(addprefix build/plugins/,$(shell ls src/plugins)))
 
-OBJECTS			= $(OBJECTS_PP) $(OBJECTS_HN) $(OBJECTS_SP)
+OBJECTS			= $(OBJECTS_SR) $(OBJECTS_PP) $(OBJECTS_HN) $(OBJECTS_SP)
 
 ALLFLAGS		 = $(CPPFLAGS) $(CXXFLAGS) $(DEP_CFLAGS)
 
