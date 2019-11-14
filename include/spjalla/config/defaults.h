@@ -69,6 +69,8 @@ namespace spjalla::config {
 
 	/** Registers the standard Spjalla configuration keys. */
 	void register_defaults();
+	void register_appearance();
+	void register_format();
 
 	extern registered_map registered;
 

@@ -86,30 +86,7 @@ namespace spjalla::config {
 	void register_defaults() {
 		// Appearance
 
-		//// Bar
-		register_key("appearance", "bar_background", "blood", validate_color, APPLY_COLOR(bar_background),
-			"The background color of the status bar and title bar.");
-
-		register_key("appearance", "bar_foreground", "normal", validate_color, APPLY_COLOR(bar_foreground),
-			"The text color of the status bar and title bar.");
-
-		//// Overlay
-		register_key("appearance", "overlay_background", "verydark", validate_color, APPLY_COLOR(overlay_background),
-			"The background color of the overlay window.");
-
-		register_key("appearance", "overlay_foreground", "white", validate_color, APPLY_COLOR(overlay_foreground),
-			"The text color of the overlay window.");
-
-		//// Input
-		register_key("appearance", "input_background", "normal", validate_color, APPLY_COLOR(input_background),
-			"The background color of the input box.");
-
-		register_key("appearance", "input_foreground", "normal", validate_color, APPLY_COLOR(input_foreground),
-			"The text color of the input box.");
-
-		//// Notices
-		register_key("appearance", "notice_foreground", "magenta", validate_color, CACHE_COLOR(notice_foreground),
-			"The text color of names in notice messages.");
+		register_appearance();
 
 		// Behavior
 
@@ -131,6 +108,73 @@ namespace spjalla::config {
 
 		// Format
 
+		register_format();
+
+		// Interface
+
+		register_key("interface", "close_on_part", true, validate_bool, {},
+			"Whether to close a channel's window after parting it.");
+
+		register_key("interface", "scroll_buffer", 0, validate_int32nn, [](database &db, const value &new_val) {
+			db.get_parent().get_ui().set_scroll_buffer(static_cast<unsigned int>(new_val.long_()));
+			db.get_parent().cache.interface_scroll_buffer = new_val.long_();
+		}, "The number of lines to leave at the top when running /clear.");
+
+		// Messages
+
+		register_key("messages", "direct_only", false, validate_bool, CACHE_BOOL(messages_direct_only),
+			"Whether to count only messages that begin with your name as highlights.");
+
+		register_key("messages", "highlight_notices", true, validate_bool, CACHE_BOOL(messages_highlight_notices),
+			"Whether to treat all notices as highlights.");
+
+		register_key("messages", "notices_in_status", true, validate_bool, CACHE_BOOL(messages_notices_in_status),
+			"Whether non-channel notices should be displayed in the status window instead of a user window.");
+
+		// Server
+
+		register_key("server", "default_nick", pingpong::irc::default_nick, validate_string,
+			CACHE_STRING(server_default_nick), "The nickname to use when connecting to a new server.");
+
+		register_key("server", "default_real", pingpong::irc::default_realname, validate_string,
+		             [](database &db, const value &new_val) {
+			db.get_parent().cache.server_default_real = db.get_parent().get_irc().realname = new_val.string_();
+		}, "The real name to use when connecting to a new server.");
+
+		register_key("server", "default_user", pingpong::irc::default_user, validate_string,
+		             [](database &db, const value &new_val) {
+			db.get_parent().cache.server_default_user = db.get_parent().get_irc().username = new_val.string_();
+		}, "The username to use when connecting to a new server.");
+	}
+
+	void register_appearance() {
+		// Bar
+		register_key("appearance", "bar_background", "blood", validate_color, APPLY_COLOR(bar_background),
+			"The background color of the status bar and title bar.");
+
+		register_key("appearance", "bar_foreground", "normal", validate_color, APPLY_COLOR(bar_foreground),
+			"The text color of the status bar and title bar.");
+
+		// Overlay
+		register_key("appearance", "overlay_background", "verydark", validate_color, APPLY_COLOR(overlay_background),
+			"The background color of the overlay window.");
+
+		register_key("appearance", "overlay_foreground", "white", validate_color, APPLY_COLOR(overlay_foreground),
+			"The text color of the overlay window.");
+
+		// Input
+		register_key("appearance", "input_background", "normal", validate_color, APPLY_COLOR(input_background),
+			"The background color of the input box.");
+
+		register_key("appearance", "input_foreground", "normal", validate_color, APPLY_COLOR(input_foreground),
+			"The text color of the input box.");
+
+		// Notices
+		register_key("appearance", "notice_foreground", "magenta", validate_color, CACHE_COLOR(notice_foreground),
+			"The text color of names in notice messages.");
+	}
+
+	void register_format() {
 		register_key("format", "action", "$header$ $message$", validate_string, CACHE_STRING(format_action),
 			"The format string for actions. Available variables: header, message.");
 
@@ -224,41 +268,5 @@ namespace spjalla::config {
 		register_key("format", "topic_change", "$-!-$$who$ changed the topic of $channel$ to $topic$", validate_string,
 			CACHE_STRING(format_topic_change), "The format string for topic changes. Available variables: -!-, -!!-, "
 			"-!?-, channel, topic, who.");
-
-		// Interface
-
-		register_key("interface", "close_on_part", true, validate_bool, {},
-			"Whether to close a channel's window after parting it.");
-
-		register_key("interface", "scroll_buffer", 0, validate_int32nn, [](database &db, const value &new_val) {
-			db.get_parent().get_ui().set_scroll_buffer(static_cast<unsigned int>(new_val.long_()));
-			db.get_parent().cache.interface_scroll_buffer = new_val.long_();
-		}, "The number of lines to leave at the top when running /clear.");
-
-		// Messages
-
-		register_key("messages", "direct_only", false, validate_bool, CACHE_BOOL(messages_direct_only),
-			"Whether to count only messages that begin with your name as highlights.");
-
-		register_key("messages", "highlight_notices", true, validate_bool, CACHE_BOOL(messages_highlight_notices),
-			"Whether to treat all notices as highlights.");
-
-		register_key("messages", "notices_in_status", true, validate_bool, CACHE_BOOL(messages_notices_in_status),
-			"Whether non-channel notices should be displayed in the status window instead of a user window.");
-
-		// Server
-
-		register_key("server", "default_nick", pingpong::irc::default_nick, validate_string,
-			CACHE_STRING(server_default_nick), "The nickname to use when connecting to a new server.");
-
-		register_key("server", "default_user", pingpong::irc::default_user, validate_string,
-		             [](database &db, const value &new_val) {
-			db.get_parent().cache.server_default_user = db.get_parent().get_irc().username = new_val.string_();
-		}, "The username to use when connecting to a new server.");
-
-		register_key("server", "default_real", pingpong::irc::default_realname, validate_string,
-		             [](database &db, const value &new_val) {
-			db.get_parent().cache.server_default_real = db.get_parent().get_irc().realname = new_val.string_();
-		}, "The real name to use when connecting to a new server.");
 	}
 }
