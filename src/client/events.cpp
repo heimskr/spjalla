@@ -9,6 +9,7 @@
 #include "pingpong/events/kick.h"
 #include "pingpong/events/message.h"
 #include "pingpong/events/mode.h"
+#include "pingpong/events/motd.h"
 #include "pingpong/events/names_updated.h"
 #include "pingpong/events/nick.h"
 #include "pingpong/events/nick_in_use.h"
@@ -34,6 +35,7 @@
 #include "spjalla/lines/join.h"
 #include "spjalla/lines/kick.h"
 #include "spjalla/lines/mode.h"
+#include "spjalla/lines/motd.h"
 #include "spjalla/lines/nick_change.h"
 #include "spjalla/lines/notice.h"
 #include "spjalla/lines/part.h"
@@ -98,6 +100,10 @@ namespace spjalla {
 				win = try_window(ev->get_channel(ev->serv));
 
 			ui.log(mline, win);
+		});
+
+		pingpong::events::listen<pingpong::motd_event>([&](pingpong::motd_event *ev) {
+			ui.log(lines::motd_line(this, ev->content, ev->serv, ev->stamp));
 		});
 
 		pingpong::events::listen<pingpong::names_updated_event>([&](pingpong::names_updated_event *ev) {
