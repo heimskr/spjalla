@@ -41,9 +41,6 @@ namespace spjalla::lines {
 			static bool is_ctcp(const std::string &);
 
 		protected:
-			/** Formats a message by processing colors and actions and adding the user's name. */
-			std::string process(const std::string &);
-
 			pingpong::server * get_associated_server() const override { return serv; }
 
 		public:
@@ -57,9 +54,6 @@ namespace spjalla::lines {
 
 			const bool direct_only;
 			pingpong::server *serv = nullptr;
-
-			/** The message after colors and actions have been processed. */
-			std::string processed;
 
 			message_line(client *, std::shared_ptr<pingpong::user>, const std::string &where_,
 			             const std::string &message_, long stamp_, bool direct_only_ = false);
@@ -92,7 +86,7 @@ namespace spjalla::lines {
 			/** Returns a string representing the user's hat (empty if the destination isn't a channel). */
 			std::string hat_str() const;
 
-			virtual std::string render(ui::window *) override;
+			// virtual std::string render(ui::window *);
 			virtual notification_type get_notification_type() const override;
 
 			void on_mouse(const haunted::mouse_report &) override;

@@ -17,19 +17,8 @@ namespace spjalla::lines {
 
 	std::string privmsg_line::render(ui::window *) {
 		return parent->get_ui().render(is_action()? "action" : "privmsg", {
-			{"raw_nick", name}, {"hats", hat_str()}, {"raw_message", message}
+			{"raw_nick", name}, {"hats", hat_str()},
+			{"raw_message", pingpong::util::irc2ansi(is_action()? trimmed(message) : message)}
 		});
 	}
-
-	// std::string privmsg_line::to_string(client *parent, const pingpong::privmsg_event &ev) {
-	// 	ui::renderer &renderer = parent->get_ui().render;
-
-	// 	strender::strnode &node = renderer.nodes.at(is_action()? "action" : "privmsg");
-	// 	node = {
-	// 		{"raw_nick", ev.speaker->name}, {"hats", ev.is_channel()? ev.get_channel()->get_hats(ev.speaker) : ""},
-	// 		{"raw_message", ev.content}
-	// 	};
-
-	// 	return node.render();
-	// }
 }

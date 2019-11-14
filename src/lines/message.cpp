@@ -2,7 +2,7 @@
 
 namespace spjalla::lines {
 	message_line::message_line(client *parent_, std::shared_ptr<pingpong::user> speaker, const std::string &where_,
-	                              const std::string &message_, long stamp_, bool direct_only_):
+	                           const std::string &message_, long stamp_, bool direct_only_):
 	line(parent_, stamp_), pingpong::local(where_), name(speaker->name), self(speaker->serv->get_nick()),
 	message(message_), verb(get_verb(message_)), body(get_body(message_)), direct_only(direct_only_),
 	serv(speaker->serv) {
@@ -13,27 +13,22 @@ namespace spjalla::lines {
 			std::shared_ptr<pingpong::channel> chan = get_channel(speaker->serv);
 			hats = chan->get_hats(speaker);
 		}
-
-		processed = process(message_);
 	}
 
 	message_line::message_line(client *parent_, const std::string &name_, const std::string &where_,
-	                              const std::string &self_, const std::string &message_, long stamp_,
-	                              const pingpong::hat_set &hats_, bool direct_only_):
+	                           const std::string &self_, const std::string &message_, long stamp_,
+	                           const pingpong::hat_set &hats_, bool direct_only_):
 	line(parent_, stamp_), pingpong::local(where_), name(name_), self(self_), message(message_),
 	verb(get_verb(message_)), body(get_body(message_)), hats(hats_), direct_only(direct_only_) {
 		is_self = name_ == self_;
-		processed = process(message_);
 	}
 
 	message_line::message_line(client *parent_, const std::string &combined_, const std::string &where_,
-	                              const std::string &self_, const std::string &message_, long stamp_,
-	                              bool direct_only_):
+	                           const std::string &self_, const std::string &message_, long stamp_, bool direct_only_):
 	line(parent_, stamp_), pingpong::local(where_), self(self_), message(message_), verb(get_verb(message_)),
 	body(get_body(message_)), direct_only(direct_only_) {
 		std::tie(hats, name) = pingpong::hat_set::separate(combined_);
 		is_self = name == self_;
-		processed = process(message_);
 	}
 
 
@@ -66,7 +61,7 @@ namespace spjalla::lines {
 // Protected instance methods
 
 
-	std::string message_line::process(const std::string &) {
+	// std::string message_line::process(const std::string &) {
 		// std::string name_fmt = is_action() || is_self? ansi::bold(render_name()) : render_name();
 		// std::string out = ansi::format(get_format());
 
@@ -99,8 +94,8 @@ namespace spjalla::lines {
 		T::postprocess(this, out);
 		return out;
 		//*/
-		return "???";
-	}
+	// 	return "???";
+	// }
 
 
 // Public instance methods
@@ -137,10 +132,6 @@ namespace spjalla::lines {
 			return "";
 
 		return hats == pingpong::hat::none? " " : std::string(hats);
-	}
-
-	std::string message_line::render(ui::window *) {
-		return processed;
 	}
 
 	notification_type message_line::get_notification_type() const {

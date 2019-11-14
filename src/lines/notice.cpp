@@ -11,8 +11,9 @@ namespace spjalla::lines {
 		return notification_type::message;
 	}
 
-	std::string notice_line::to_string(const pingpong::notice_event &ev) {
-		notice_line line {nullptr, ev};
-		return ansi::strip(line.process(ev.content));
+	std::string notice_line::render(ui::window *) {
+		return parent->get_ui().render("notice", {
+			{"raw_nick", name}, {"hats", hat_str()}, {"raw_message", pingpong::util::irc2ansi(message)}
+		});
 	}
 }
