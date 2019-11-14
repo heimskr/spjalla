@@ -90,12 +90,18 @@ namespace spjalla::ui {
 		if (win->get_parent() != swappo)
 			throw std::invalid_argument("Can't remove window: not a child of swappo.");
 
+		// Remove the window from the windows list.
+		auto iter = std::find(windows.begin(), windows.end(), win);
+		if (iter != windows.end())
+			windows.erase(iter);
+
 		if (active_window == win)
-			focus_window(status_window);
+			focus_window(windows.front());
 
 		win->unnotify();
 		pingpong::events::dispatch<events::window_closed_event>(win);
 		swappo->remove_child(win);
+
 		delete win;
 	}
 
@@ -210,6 +216,13 @@ namespace spjalla::ui {
 		if (win == overlay) {
 			update_overlay();
 			overlay->focus();
+		} else if (win != windows.front()) {
+			// Move the window to the front of the windows list.
+			auto iter = std::find(windows.begin(), windows.end(), win);
+			if (iter == windows.end())
+				throw std::runtime_error("Window is inexplicably not in the windows list");
+			windows.erase(iter);
+			windows.push_front(win);
 		}
 
 		update_statusbar();
@@ -343,6 +356,7 @@ namespace spjalla::ui {
 		win->set_name("window" + std::to_string(++win_count));
 		win->set_terminal(nullptr); // inactive windows are marked by their null terminals
 		win->set_autoscroll(true);
+		windows.push_back(win);
 		win->scroll_buffer = scroll_buffer;
 		return win;
 	}
