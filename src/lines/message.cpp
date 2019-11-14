@@ -106,7 +106,7 @@ namespace spjalla::lines {
 			return 0;
 		}
 #endif
-		return time_length + static_cast<int>(parent->get_ui().render[get_format_key()].positions.at("message"));
+		return line::get_continuation() + parent->get_ui().render[get_format_key()].positions.at("message");
 	}
 
 	int message_line::get_name_index() const {
