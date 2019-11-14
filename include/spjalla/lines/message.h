@@ -86,8 +86,14 @@ namespace spjalla::lines {
 			/** Returns a string representing the user's hat (empty if the destination isn't a channel). */
 			std::string hat_str() const;
 
+			int get_continuation() override;
+			int get_name_index() const;
+
+			virtual std::string get_format_key() const = 0;
+
 			// virtual std::string render(ui::window *);
 			virtual notification_type get_notification_type() const override;
+			virtual std::string render(ui::window *) override;
 
 			void on_mouse(const haunted::mouse_report &) override;
 	};

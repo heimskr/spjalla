@@ -15,10 +15,7 @@ namespace spjalla::lines {
 		return notification_type::message;
 	}
 
-	std::string privmsg_line::render(ui::window *) {
-		return parent->get_ui().render(is_action()? "action" : "privmsg", {
-			{"raw_nick", name}, {"hats", hat_str()},
-			{"raw_message", pingpong::util::irc2ansi(is_action()? trimmed(message) : message)}
-		});
+	std::string privmsg_line::get_format_key() const {
+		return is_action()? "action" : "privmsg";
 	}
 }

@@ -30,17 +30,17 @@ namespace spjalla::lines {
 	std::string render_time(long stamp, bool with_ansi = true);
 
 	class line: public haunted::ui::textline {
-		private:
-#ifndef RERENDER_LINES
-			std::string rendered;
-#endif
-			std::string render();
 
 		protected:
 			/** Returns whether the server the line is associated with, if any. */
 			virtual pingpong::server * get_associated_server() const { return nullptr; }
 			virtual std::string render(ui::window *) = 0;
 			int base_continuation = 0;
+
+#ifndef RERENDER_LINES
+			std::string rendered;
+#endif
+			std::string render();
 
 		public:
 			client *parent;

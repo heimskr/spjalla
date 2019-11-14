@@ -18,15 +18,6 @@ namespace spjalla::lines {
 		public:
 			using message_line::message_line;
 
-			// notice_line(client *, std::shared_ptr<pingpong::user>, const std::string &where_,
-			//              const std::string &message_, long stamp_, bool direct_only_ = false):
-
-			// notice_line(client *, const std::string &name_, const std::string &where_, const std::string &self_,
-			//              const std::string &message_, long, const pingpong::hat_set &, bool direct_only_ = false);
-
-			// notice_line(client *, const std::string &combined_, const std::string &where_, const std::string &self_,
-			//              const std::string &message_, long, bool direct_only_ = false);
-
 			notice_line(client *parent_, const pingpong::notice_command &cmd, bool direct_only_ = false):
 				notice_line(parent_, cmd.serv->get_self(), cmd.where, cmd.message, cmd.sent_time, direct_only_) {}
 
@@ -37,7 +28,7 @@ namespace spjalla::lines {
 			}
 
 			notification_type get_notification_type() const override;
-			virtual std::string render(ui::window *) override;
+			std::string get_format_key() const override;
 	};
 }
 

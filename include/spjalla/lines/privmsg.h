@@ -22,7 +22,7 @@ namespace spjalla::lines {
 				privmsg_line(parent_, ev.speaker, ev.where, ev.content, ev.stamp, direct_only_) {}
 
 			notification_type get_notification_type() const override;
-			virtual std::string render(ui::window *) override;
+			std::string get_format_key() const override;
 	};
 }
 

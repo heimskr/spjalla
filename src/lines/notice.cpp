@@ -11,9 +11,7 @@ namespace spjalla::lines {
 		return notification_type::message;
 	}
 
-	std::string notice_line::render(ui::window *) {
-		return parent->get_ui().render("notice", {
-			{"raw_nick", name}, {"hats", hat_str()}, {"raw_message", pingpong::util::irc2ansi(message)}
-		});
+	std::string notice_line::get_format_key() const {
+		return "notice";
 	}
 }

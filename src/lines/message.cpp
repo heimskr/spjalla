@@ -58,46 +58,6 @@ namespace spjalla::lines {
 	}
 
 
-// Protected instance methods
-
-
-	// std::string message_line::process(const std::string &) {
-		// std::string name_fmt = is_action() || is_self? ansi::bold(render_name()) : render_name();
-		// std::string out = ansi::format(get_format());
-
-		// if (util::is_highlight(message, self, direct_only))
-		// 	name_fmt = ansi::yellow(name_fmt);
-
-		/*
-		const size_t spos = out.find("#s");
-		if (spos == std::string::npos)
-			throw std::invalid_argument("Invalid message format string");
-
-		out.erase(spos, 2);
-		out.insert(spos, name_fmt);
-
-		const size_t hpos = out.find("#h");
-		if (hpos != std::string::npos) {
-			out.erase(hpos, 2);
-			if (is_channel())
-				out.insert(hpos, hat_str());
-		}
-
-		const size_t mpos = out.find("#m");
-		if (mpos == std::string::npos)
-			throw std::invalid_argument("Invalid message format string");
-
-		out.erase(mpos, 2);
-		processed_message = pingpong::util::irc2ansi(is_action()? trimmed(str) : str);
-		out.insert(mpos, processed_message);
-
-		T::postprocess(this, out);
-		return out;
-		//*/
-	// 	return "???";
-	// }
-
-
 // Public instance methods
 
 
@@ -137,14 +97,45 @@ namespace spjalla::lines {
 		return std::string(hats);
 	}
 
+	int message_line::get_continuation() {
+#ifdef RERENDER_LINES
+		render(nullptr);
+#else
+		if (rendered.empty()) {
+			DBG("message_line::get_continuation(): rendered is empty");
+			return 0;
+		}
+#endif
+		return time_length + static_cast<int>(parent->get_ui().render[get_format_key()].positions.at("message"));
+	}
+
+	int message_line::get_name_index() const {
+#ifdef RERENDER_LINES
+		render(nullptr);
+#else
+		if (rendered.empty()) {
+			DBG("message_line::get_name_index(): rendered is empty");
+			return 0;
+		}
+#endif
+		return time_length + static_cast<int>(parent->get_ui().render[get_format_key()].positions.at("nick"));
+	}
+
 	notification_type message_line::get_notification_type() const {
 		if (util::is_highlight(message, self, direct_only) || where == self)
 			return notification_type::highlight;
 		return notification_type::message;
 	}
 
-	void message_line::on_mouse(const haunted::mouse_report &) {
-		/*
+	std::string message_line::render(ui::window *) {
+		return parent->get_ui().render(get_format_key(), {
+			{"raw_nick", name}, {"hats", hat_str()},
+			{"raw_message", pingpong::util::irc2ansi(is_action()? trimmed(message) : message)}
+		});
+	}
+
+	void message_line::on_mouse(const haunted::mouse_report &report) {
+		//*
 		if (report.action == haunted::mouse_action::up) {
 			const int name_index = get_name_index();
 			if (name_index <= report.x && report.x < name_index + static_cast<int>(name.length())) {
@@ -160,7 +151,8 @@ namespace spjalla::lines {
 			if (box) {
 				// Compute the clicked character's index within the message.
 				ssize_t n = -get_continuation();
-				// I'm there's nothing after the message in the format strings.
+				DBG("base_continuation[" << base_continuation << "], n[" << n << "]");
+				// I'm assuming there's nothing after the message in the format strings.
 				ssize_t message_width = box->get_position().width + n;
 				n += report.x + report.y * message_width;
 				ssize_t windex, sindex;
