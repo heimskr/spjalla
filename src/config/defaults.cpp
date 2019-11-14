@@ -181,7 +181,7 @@ namespace spjalla::config {
 		register_key("format", "channel", "^b$raw_channel$^B", validate_string, CACHE_STRING(format_channel),
 			"The format string for channels in messages like joins. Available variables: raw_channel.");
 
-		register_key("format", "header_action", "^b* $hats$^0", validate_string,
+		register_key("format", "header_action", "^b* $hats$$nick$^0", validate_string,
 			CACHE_STRING(format_header_action),
 			"The format string for headers in actions. Available variables: hats, nick.");
 
