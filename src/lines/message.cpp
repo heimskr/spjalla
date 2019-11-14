@@ -131,7 +131,10 @@ namespace spjalla::lines {
 		if (!is_channel())
 			return "";
 
-		return hats == pingpong::hat::none? " " : std::string(hats);
+		if (!parent->cache.appearance_allow_empty_hats)
+			return hats == pingpong::hat::none && !is_action()? " " : std::string(hats);
+
+		return std::string(hats);
 	}
 
 	notification_type message_line::get_notification_type() const {

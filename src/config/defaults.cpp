@@ -172,6 +172,10 @@ namespace spjalla::config {
 		// Notices
 		register_key("appearance", "notice_foreground", "magenta", validate_color, CACHE_COLOR(notice_foreground),
 			"The text color of names in notice messages.");
+
+		// Miscellaneous
+		register_key("appearance", "allow_empty_hats", false, validate_bool, CACHE_BOOL(appearance_allow_empty_hats),
+			"Whether to use a blank hat string instead of a space when a user has no hats.");
 	}
 
 	void register_format() {

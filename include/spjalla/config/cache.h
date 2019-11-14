@@ -21,6 +21,7 @@ namespace spjalla::config {
 			            appearance_input_background   = get_color("appearance.input_background"),
 			            appearance_input_foreground   = get_color("appearance.input_foreground"),
 			            appearance_notice_foreground  = get_color("appearance.notice_foreground");
+			bool appearance_allow_empty_hats = get_bool("appearance.allow_empty_hats");
 			
 			bool behavior_answer_version_requests = get_bool("behavior.answer_version_requests"),
 			     behavior_hide_version_requests   = get_bool("behavior.hide_version_requests");
