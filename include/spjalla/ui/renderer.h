@@ -22,8 +22,10 @@ namespace spjalla::ui {
 			/** Creates and inserts a group of strnodes for a simple message like joins, kicks, parts and quits. */
 			void simple(const char *name, const std::string &format);
 
+			std::string replace_nick(const std::string &varname) const;
+
 		public:
-			std::unordered_map<std::string, strender::strnode> nodes {};
+			std::unordered_map<std::string, std::shared_ptr<strender::strnode>> nodes {};
 
 			renderer(config::cache &);
 
@@ -33,7 +35,20 @@ namespace spjalla::ui {
 
 			void more_strnodes();
 
+			std::string operator()(const std::string &, const strender::piece_map &);
+			std::string operator()(const std::string &);
+
+			strender::strnode & operator[](const std::string &);
+
 			std::string channel(const std::string &);
+			std::string nick(const std::string &, bool bright = false);
+
+			template <typename... Args>
+			std::shared_ptr<strender::strnode> insert(const std::string &id, Args && ...args) {
+				if (nodes.count(id) == 0)
+					nodes.insert(id, std::make_shared<strender::strnode>(std::forward<Args>(args)...));
+				return nodes.at(id);
+			}
 	};
 }
 

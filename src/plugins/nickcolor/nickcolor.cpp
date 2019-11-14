@@ -60,14 +60,9 @@ namespace spjalla::plugins {
 		spjalla::client *client = dynamic_cast<spjalla::client *>(host);
 		if (!client) { DBG("Error: expected client as plugin host"); return; }
 
-		client->get_ui().render.provide_nick(
-			[client](std::string format, const std::string &nick, const std::string &,
-			         ui::renderer::nick_situation situation) -> std::string {
-				if (situation == ui::renderer::nick_situation::normal)
-					return client->get_ui().render.nick_impl(format, nick);
-				// return "\e[39m" + nick;
-				return nick;
-			});
+		client->get_ui().render["privmsg_nick"] = [](strender::piece_map &pieces) -> std::string {
+			return formicine::util::upper(pieces.at("raw_nick").render());
+		};
 	}
 }
 

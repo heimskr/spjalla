@@ -62,34 +62,18 @@ namespace spjalla::lines {
 		return !str.empty() && str.front() == '\1' && str.back() == '\1';
 	}
 
-	int message_line::get_name_index() const {
-		std::string stripped = ansi::strip(get_format());
-		size_t hpos = stripped.find("#h"), spos = stripped.find("#s"), mpos = stripped.find("#m");
-
-		// Instead of performing multiple expensive erases and inserts, we can just offset spos.
-		int addition = 0;
-
-		if (hpos < spos)
-			addition += hat_str().length() - 2;
-
-		if (mpos < spos)
-			addition += ansi::length(processed_message) - 2;
-
-		return time_length + spos + addition;
-	}
-
 
 // Protected instance methods
 
 
-	std::string message_line::process(const std::string &str) {
-		std::string name_fmt = is_action() || is_self? ansi::bold(render_name()) : render_name();
-		const std::string time = "";
+	std::string message_line::process(const std::string &) {
+		// std::string name_fmt = is_action() || is_self? ansi::bold(render_name()) : render_name();
+		// std::string out = ansi::format(get_format());
 
-		if (util::is_highlight(message, self, direct_only))
-			name_fmt = ansi::yellow(name_fmt);
+		// if (util::is_highlight(message, self, direct_only))
+		// 	name_fmt = ansi::yellow(name_fmt);
 
-		std::string out = ansi::format(get_format());
+		/*
 		const size_t spos = out.find("#s");
 		if (spos == std::string::npos)
 			throw std::invalid_argument("Invalid message format string");
@@ -113,7 +97,9 @@ namespace spjalla::lines {
 		out.insert(mpos, processed_message);
 
 		T::postprocess(this, out);
-		return time + out;
+		return out;
+		//*/
+		return "???";
 	}
 
 
@@ -163,7 +149,8 @@ namespace spjalla::lines {
 		return notification_type::message;
 	}
 
-	void message_line::on_mouse(const haunted::mouse_report &report) {
+	void message_line::on_mouse(const haunted::mouse_report &) {
+		/*
 		if (report.action == haunted::mouse_action::up) {
 			const int name_index = get_name_index();
 			if (name_index <= report.x && report.x < name_index + static_cast<int>(name.length())) {
@@ -190,5 +177,6 @@ namespace spjalla::lines {
 					pingpong::join_command(serv, word).send();
 			}
 		}
+		//*/
 	}
 }

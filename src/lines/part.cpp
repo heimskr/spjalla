@@ -3,8 +3,8 @@
 
 namespace spjalla::lines {
 	std::string part_line::render(ui::window *) {
-		strender::strnode &node = parent->get_ui().render.nodes.at("part");
-		node = {{"raw_who", who}, {"raw_channel", chan->name}, {"raw_reason", reason}};
-		return node.render();
+		return parent->get_ui().render("part", {
+			{"raw_who", user->name}, {"raw_channel", chan->name}, {"raw_reason", reason}
+		});
 	}
 }

@@ -180,6 +180,9 @@ namespace spjalla::config {
 		register_key("format", "nick_action", "$raw_nick$", validate_string, CACHE_STRING(format_nick_action),
 			"The format string for nicks in actions. Available variables: raw_nick.");
 
+		register_key("format", "nick_change", "$old$ is now known as $new$", validate_string,
+			CACHE_STRING(format_nick_change), "The format string for nick changes. Available variables: new, old.");
+
 		register_key("format", "nick_general_bright", "^[cyan!]$raw_nick$^[/f]", validate_string,
 			CACHE_STRING(format_nick_general_bright),
 			"The format string for nicks in messages like joins. Available variables: raw_nick.");
@@ -208,8 +211,8 @@ namespace spjalla::config {
 			validate_string, CACHE_STRING(format_quit),
 			"The format string for quits. Available variables: -!-, -!!-, -!?-, reason, who.");
 
-		register_key("format", "timestamp", "^d[^D$h$:$m$:$s$^d]^D", validate_string, CACHE_STRING(format_timestamp),
-			"The format string for timestamps. Available variables: h, m, s.");
+		// register_key("format", "timestamp", "^d[^D$h$:$m$:$s$^d]^D", validate_string, CACHE_STRING(format_timestamp),
+		// 	"The format string for timestamps. Available variables: h, m, s.");
 
 		register_key("format", "topic", "$raw_topic$", validate_string, CACHE_STRING(format_topic),
 			"The format string for topics. Available variables: raw_topic.");

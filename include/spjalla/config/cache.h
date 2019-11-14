@@ -52,6 +52,7 @@ namespace spjalla::config {
 			DEF_FORMAT(message_privmsg);
 			DEF_FORMAT(message_notice);
 			DEF_FORMAT(nick_action);
+			DEF_FORMAT(nick_change);
 			DEF_FORMAT(nick_general);
 			DEF_FORMAT(nick_general_bright);
 			DEF_FORMAT(nick_privmsg);
@@ -61,7 +62,7 @@ namespace spjalla::config {
 			DEF_FORMAT(privmsg);
 			DEF_FORMAT(quit);
 			DEF_FORMAT(reason);
-			DEF_FORMAT(timestamp);
+			// DEF_FORMAT(timestamp);
 			DEF_FORMAT(topic);
 			DEF_FORMAT(topic_is);
 			DEF_FORMAT(topic_change);

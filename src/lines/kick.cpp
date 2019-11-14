@@ -3,9 +3,9 @@
 
 namespace spjalla::lines {
 	std::string kick_line::render(ui::window *) {
-		strender::strnode &node = parent->get_ui().render.nodes.at(is_self? "kick_self" : "kick");
-		node = {{"raw_who", who}, {"raw_whom", whom}, {"raw_channel", chan->name}, {"raw_reason", reason}};
-		return node.render();
+		return parent->get_ui().render(is_self? "kick_self" : "kick", {
+			{"raw_who", who}, {"raw_whom", whom}, {"raw_channel", chan->name}, {"raw_reason", reason}
+		});
 	}
 
 	notification_type kick_line::get_notification_type() const {

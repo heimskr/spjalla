@@ -5,7 +5,6 @@
 
 namespace spjalla::lines {
 	std::string mode_line::render(ui::window *) {
-
 		if (!mset.is_type_valid())
 			throw std::logic_error("Unknown mode type: " + std::to_string(static_cast<int>(mset.type)));
 
@@ -18,7 +17,7 @@ namespace spjalla::lines {
 		const std::string modestr = mset.mode_str();
 		const std::string &extra = mset.extra;
 		const std::string styled_name =
-			parent->get_ui().render.nick(who, where, ui::renderer::nick_situation::normal, true) + " ";
+			parent->get_ui().render.nick(who) + " ";
 
 		if (!extra.empty()) {
 			auto iter = verbs.find(modestr);

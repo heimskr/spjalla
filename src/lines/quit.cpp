@@ -3,8 +3,6 @@
 
 namespace spjalla::lines {
 	std::string quit_line::render(ui::window *) {
-		strender::strnode &node = parent->get_ui().render.nodes.at("quit");
-		node = {{"raw_who", name}, {"raw_reason", message}};
-		return node.render();
+		return parent->get_ui().render("quit", {{"raw_who", name}, {"raw_reason", message}});
 	}
 }
