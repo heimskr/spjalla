@@ -71,13 +71,7 @@ namespace spjalla::plugins {
 
 		client->get_ui().render["privmsg_nick"] = [this](strender::piece_map &pieces) -> std::string {
 			const std::string raw = pieces.at("raw_nick").render();
-			std::ostringstream out;
-
-			int i = -1;
-			const size_t list_size = colorlist.size();
-			for (char ch: raw)
-				out << ansi::get_fg(colorlist[++i % list_size]) << ch;
-			return out.str() + ansi::reset_fg;
+			return ansi::wrap(raw, colorlist[std::hash<std::string>()(raw) % colorlist.size()]);
 		};
 	}
 }
