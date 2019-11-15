@@ -24,10 +24,9 @@ namespace spjalla {
 
 namespace spjalla::lines {
 	extern std::string notice, red_notice, yellow_notice;
-	extern size_t time_length; // The length of render_time's returned values.
 
 	/** Renders a UNIX timestamp as an hours-minutes-seconds set. */
-	std::string render_time(long stamp, bool with_ansi = true);
+	std::string render_time(client *, long stamp);
 
 	class line: public haunted::ui::textline {
 

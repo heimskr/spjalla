@@ -18,12 +18,12 @@ namespace spjalla::ui {
 	}
 
 	void renderer::init_strnodes() {
-		insert("action", "action", cache->format_action);
+		insert("action",    "action",    cache->format_action);
 		insert("privmsg",   "privmsg",   cache->format_privmsg);
 		insert("notice",    "notice",    cache->format_notice);
 		insert("channel",   "channel",   cache->format_channel);
 		insert("reason",    "reason",    cache->format_reason);
-		insert("timestamp", "timestamp", cache->format_reason);
+		insert("timestamp", "timestamp", cache->format_timestamp);
 
 		insert("action_header",  "header", cache->format_header_action,  &*nodes.at("action"));
 		insert("privmsg_header", "header", cache->format_header_privmsg, &*nodes.at("privmsg"));
@@ -39,15 +39,38 @@ namespace spjalla::ui {
 
 		insert("nick_general", "nick", cache->format_nick_general);
 		insert("nick_general_bright", "nick", cache->format_nick_general_bright);
+
+		insert("bang",      "!",     cache->format_bang);
+		insert("bang_bad",  "bad!",  cache->format_bang_bad);
+		insert("bang_good", "good!", cache->format_bang_good);
+		insert("bang_warn", "warn!", cache->format_bang_warn);
+	}
+
+	std::string renderer::bang() {
+		return (*this)("!");
+	}
+
+	std::string renderer::bad() {
+		return (*this)("bad!");
+	}
+
+	std::string renderer::good() {
+		return (*this)("good!");
+	}
+
+	std::string renderer::warn() {
+		return (*this)("warn!");
 	}
 
 	void renderer::more_strnodes() {
 		simple("quit", cache->format_quit);
 		simple("kick", cache->format_kick);
+		simple("kick_self", cache->format_kick_self);
 		simple("join", cache->format_join);
 		simple("part", cache->format_part);
 		insert("quit_reason", "reason", cache->format_reason, &*nodes.at("quit"));
 		insert("kick_reason", "reason", cache->format_reason, &*nodes.at("kick"));
+		insert("kick_self_reason", "reason", cache->format_reason, &*nodes.at("kick_self"));
 		insert("part_reason", "reason", cache->format_reason, &*nodes.at("part"));
 		insert("nick_change", "nick_change", cache->format_nick_change);
 		strender::strnode &nick_change = *nodes.at("nick_change");
@@ -59,14 +82,17 @@ namespace spjalla::ui {
 		return formicine::util::replace_all(cache->format_nick_general, "$raw_nick$", varname);
 	}
 
-	void renderer::simple(const char *name, const std::string &format) {
-		using namespace std::literals;
-		insert(name, name, format);
+	void renderer::simple(const std::string &name, const std::string &format) {
+		insert(name, name.c_str(), format);
 		strender::strnode &node = *nodes.at(name);
-		insert(name + std::string("_who"),     "who",     replace_nick("$raw_who$"),  &node);
-		insert(name + std::string("_whom"),    "whom",    replace_nick("$raw_whom$"), &node);
-		insert(name + std::string("_channel"), "channel", cache->format_channel,      &node);
-		node = {{"-!-"s, lines::notice}, {"-!!-"s, lines::red_notice}, {"-!?-"s, lines::yellow_notice}};
+		insert(name + "_who",     "who",     replace_nick("$raw_who$"),  &node);
+		insert(name + "_whom",    "whom",    replace_nick("$raw_whom$"), &node);
+		insert(name + "_channel", "channel", cache->format_channel,      &node);
+		insert(name + "_bang",      "!",     cache->format_bang,      &node);
+		insert(name + "_bang_bad",  "bad!",  cache->format_bang_bad,  &node);
+		insert(name + "_bang_good", "good!", cache->format_bang_good, &node);
+		insert(name + "_bang_warn", "warn!", cache->format_bang_warn, &node);
+		// node = {{"-!-"s, lines::notice}, {"-!!-"s, lines::red_notice}, {"-!?-"s, lines::yellow_notice}};
 	}
 
 	std::string renderer::channel(const std::string &chan) {

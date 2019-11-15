@@ -109,7 +109,7 @@ namespace spjalla::lines {
 		return line::get_continuation() + parent->get_ui().render[get_format_key()].positions.at("message");
 	}
 
-	int message_line::get_name_index() const {
+	int message_line::get_name_index() {
 #ifdef RERENDER_LINES
 		render(nullptr);
 #else
@@ -118,7 +118,7 @@ namespace spjalla::lines {
 			return 0;
 		}
 #endif
-		return time_length + static_cast<int>(parent->get_ui().render[get_format_key()].positions.at("nick"));
+		return line::get_continuation() + parent->get_ui().render[get_format_key()].positions.at("nick");
 	}
 
 	notification_type message_line::get_notification_type() const {

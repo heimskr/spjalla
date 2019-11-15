@@ -28,7 +28,9 @@ namespace spjalla::lines {
 						return lines::red_notice + styled_name + iter->second + " " +
 							ansi::bold(extra);
 					}
-				} catch (const pingpong::parse_error &) {}
+				} catch (const pingpong::parse_error &err) {
+					DBG("Parse error: " << err.what());
+				}
 
 				return prefix + styled_name + iter->second + " " + ansi::bold(extra);
 			}

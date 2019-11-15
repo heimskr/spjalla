@@ -185,6 +185,19 @@ namespace spjalla::config {
 		register_key("format", "action", "$header$ $message$", validate_string, CACHE_STRING(format_action),
 			"The format string for actions. Available variables: header, message.");
 
+		register_key("format", "bang", "^d-^b!^D^d-^D", validate_string, CACHE_STRING(format_bang),
+			"The format string for neutral bangs. Bangs are the little pieces of text in a line that indicate the "
+			"urgency of the line.");
+
+		register_key("format", "bang_bad", "^[red]^d-^D!^D^d-^D^[/f]", validate_string, CACHE_STRING(format_bang_bad),
+			"The format string for bangs that indicate an error.");
+
+		register_key("format", "bang_good", "^[green]^d-^D!^D^d-^D^[/f]", validate_string,
+			CACHE_STRING(format_bang_good), "The format string for bangs that indicate success.");
+
+		register_key("format", "bang_warn", "^[yellow]^d-^D!^D^d-^D^[/f]", validate_string,
+			CACHE_STRING(format_bang_warn), "The format string for bangs that indicate a warning.");
+
 		register_key("format", "channel", "^b$raw_channel$^B", validate_string, CACHE_STRING(format_channel),
 			"The format string for channels in messages like joins. Available variables: raw_channel.");
 
@@ -200,16 +213,16 @@ namespace spjalla::config {
 			CACHE_STRING(format_header_notice),
 			"The format string for headers in notices. Available variables: hats, nick.");
 
-		register_key("format", "join", "$-!-$$who$^0 joined $channel$^0",
+		register_key("format", "join", "$!$ $who$^0 joined $channel$^0",
 			validate_string, CACHE_STRING(format_join),
 			"The format string for joins. Available variables: -!-, -!!-, -!?-, channel, who.");
 
-		register_key("format", "kick", "$-!-$$whom$^0 was kicked from $channel$^0 by $who$^0 ^d[^D$reason$^0^d]^0",
+		register_key("format", "kick", "$!$ $whom$^0 was kicked from $channel$^0 by $who$^0 ^d[^D$reason$^0^d]^0",
 			validate_string, CACHE_STRING(format_kick),
 			"The format string for kicks. Available variables: -!-, -!!-, -!?-, channel, reason, who, whom.");
 
-		register_key("format", "kick_self", "$-!!-$$whom$^0 was kicked from $channel$^0 by $who$^0 ^d[^D$reason$^0^d]"
-			"^0", validate_string, CACHE_STRING(format_kick),
+		register_key("format", "kick_self", "$bad!$ You were kicked from $channel$^0 by $who$^0 ^d[^D$reason$^0^d]"
+			"^0", validate_string, CACHE_STRING(format_kick_self),
 			"The format string for kicks when you're the kicked user. Available variables: -!-, -!!-, -!?-, channel, "
 			"reason, who, whom.");
 
@@ -248,7 +261,7 @@ namespace spjalla::config {
 		register_key("format", "nick_notice", "$raw_nick$", validate_string, CACHE_STRING(format_nick_notice),
 			"The format string for nicks in notices. Available variables: raw_nick.");
 
-		register_key("format", "part", "$-!-$$who$^0 left $channel$^0 ^d[^D$reason$^0^d]^0",
+		register_key("format", "part", "$!$ $who$^0 left $channel$^0 ^d[^D$reason$^0^d]^0",
 			validate_string, CACHE_STRING(format_part),
 			"The format string for parts. Available variables: -!-, -!!-, -!?-, channel, reason, who.");
 
@@ -258,21 +271,21 @@ namespace spjalla::config {
 		register_key("format", "reason", "$raw_reason$", validate_string, CACHE_STRING(format_reason),
 			"The format string for reasons. Available variables: raw_reason.");
 
-		register_key("format", "quit", "$-!-$$who$^0 quit ^d[^D$reason$^0^d]^0",
+		register_key("format", "quit", "$!$ $who$^0 quit ^d[^D$reason$^0^d]^0",
 			validate_string, CACHE_STRING(format_quit),
 			"The format string for quits. Available variables: -!-, -!!-, -!?-, reason, who.");
 
-		// register_key("format", "timestamp", "^d[^D$h$:$m$:$s$^d]^D", validate_string, CACHE_STRING(format_timestamp),
-		// 	"The format string for timestamps. Available variables: h, m, s.");
+		register_key("format", "timestamp", "%H^d:^D%M^d:^D%S", validate_string, CACHE_STRING(format_timestamp),
+			"The format string for timestamps. Uses strftime syntax. Shouldn't exceed 32 characters when rendered.");
 
 		register_key("format", "topic", "$raw_topic$", validate_string, CACHE_STRING(format_topic),
 			"The format string for topics. Available variables: raw_topic.");
 
-		register_key("format", "topic_is", "$-!-$Topic for $channel$ is $topic$", validate_string,
+		register_key("format", "topic_is", "$!$ Topic for $channel$ is $topic$", validate_string,
 			CACHE_STRING(format_topic_is), "The format string for topic notices. Available variables: -!-, -!!-, -!?-, "
 			"channel, topic.");
 
-		register_key("format", "topic_change", "$-!-$$who$ changed the topic of $channel$ to $topic$", validate_string,
+		register_key("format", "topic_change", "$!$ $who$ changed the topic of $channel$ to $topic$", validate_string,
 			CACHE_STRING(format_topic_change), "The format string for topic changes. Available variables: -!-, -!!-, "
 			"-!?-, channel, topic, who.");
 	}

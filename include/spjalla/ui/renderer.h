@@ -20,7 +20,7 @@ namespace spjalla::ui {
 			config::cache *cache;
 
 			/** Creates and inserts a group of strnodes for a simple message like joins, kicks, parts and quits. */
-			void simple(const char *name, const std::string &format);
+			void simple(const std::string &name, const std::string &format);
 
 			std::string replace_nick(const std::string &varname) const;
 
@@ -32,6 +32,11 @@ namespace spjalla::ui {
 			/** Performs initial setup of the strnodes. The setup process isn't complete until copy_strnodes() is
 			 *  called. */
 			void init_strnodes();
+
+			std::string bang();
+			std::string bad();
+			std::string good();
+			std::string warn();
 
 			void more_strnodes();
 

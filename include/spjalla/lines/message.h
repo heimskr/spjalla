@@ -87,7 +87,7 @@ namespace spjalla::lines {
 			std::string hat_str() const;
 
 			int get_continuation() override;
-			int get_name_index() const;
+			int get_name_index();
 
 			virtual std::string get_format_key() const = 0;
 

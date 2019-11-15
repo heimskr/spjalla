@@ -44,12 +44,17 @@ namespace spjalla::config {
 
 #define DEF_FORMAT(n) std::string format_##n = get_string("format."#n);
 			DEF_FORMAT(action);
+			DEF_FORMAT(bang);
+			DEF_FORMAT(bang_bad);
+			DEF_FORMAT(bang_good);
+			DEF_FORMAT(bang_warn);
 			DEF_FORMAT(channel);
 			DEF_FORMAT(header_action);
 			DEF_FORMAT(header_privmsg);
 			DEF_FORMAT(header_notice);
 			DEF_FORMAT(join);
 			DEF_FORMAT(kick);
+			DEF_FORMAT(kick_self);
 			DEF_FORMAT(message_action);
 			DEF_FORMAT(message_privmsg);
 			DEF_FORMAT(message_notice);
@@ -64,7 +69,7 @@ namespace spjalla::config {
 			DEF_FORMAT(privmsg);
 			DEF_FORMAT(quit);
 			DEF_FORMAT(reason);
-			// DEF_FORMAT(timestamp);
+			DEF_FORMAT(timestamp);
 			DEF_FORMAT(topic);
 			DEF_FORMAT(topic_is);
 			DEF_FORMAT(topic_change);

@@ -183,6 +183,9 @@ namespace spjalla::config {
 	}
 
 	std::pair<std::string, std::string> database::apply_line(const std::string &line) {
+		if (!line.empty() && line.front() == '#')
+			return {"", ""};
+
 		std::string group, key, gk, value;
 		std::tie(gk, value) = parse_kv_pair(line);
 		std::tie(group, key) = parse_pair(gk);

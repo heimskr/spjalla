@@ -56,6 +56,9 @@ namespace spjalla {
 	}
 
 	std::pair<std::string, std::string> aliases::apply_line(const std::string &line) {
+		if (!line.empty() && line.front() == '#')
+			return {"", ""};
+
 		std::string key, expansion;
 		std::tie(key, expansion) = parse_kv_pair(line);
 		if (has_alias(key))
