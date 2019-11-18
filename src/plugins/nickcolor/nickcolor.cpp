@@ -65,14 +65,15 @@ namespace spjalla::plugins {
 			}, "A list of colors to use for nick colorization.");
 	}
 
-	void nickcolor_plugin::postinit(plugin_host *host) {
-		spjalla::client *client = dynamic_cast<spjalla::client *>(host);
-		if (!client) { DBG("Error: expected client as plugin host"); return; }
-
-		client->get_ui().render["privmsg_nick"] = [this](strender::piece_map &pieces) -> std::string {
+	void nickcolor_plugin::postinit(plugin_host *) {
+		parent->get_ui().render["privmsg_nick"] = [this](strender::piece_map &pieces) -> std::string {
 			const std::string raw = pieces.at("raw_nick").render();
 			return ansi::wrap(raw, colorlist[std::hash<std::string>()(raw) % colorlist.size()]);
 		};
+	}
+
+	void nickcolor_plugin::cleanup(plugin_host *) {
+		parent->get_ui().render["privmsg_nick"] = parent->cache.format_nick_privmsg;
 	}
 }
 
