@@ -3,6 +3,6 @@
 
 namespace spjalla::lines {
 	std::string join_line::render(ui::window *) {
-		return parent->get_ui().render("join", {{"raw_who", name}, {"raw_channel", chan->name}});
+		return parent->get_ui().render("join", {{"raw_who", name}, {"raw_channel", chan_name}});
 	}
 }

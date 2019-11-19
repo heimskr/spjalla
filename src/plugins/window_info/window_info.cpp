@@ -13,12 +13,8 @@ namespace spjalla::plugins {
 		private:
 			long stamp = pingpong::util::timestamp();
 
-		public:
-			using status_widget::status_widget;
-
-			virtual ~window_info_left_widget() {}
-
-			std::string render(const ui::window *win, bool) const {
+		protected:
+			std::string _render(const ui::window *win, bool) const {
 				if (!win)
 					return "null?";
 
@@ -34,18 +30,19 @@ namespace spjalla::plugins {
 					return ansi::bold(win->window_name);
 				}
 			}
+
+		public:
+			using status_widget::status_widget;
+
+			virtual ~window_info_left_widget() {}
 	};
 
 	class window_info_right_widget: public spjalla::ui::status_widget {
 		private:
 			long stamp = pingpong::util::timestamp();
 
-		public:
-			using status_widget::status_widget;
-
-			virtual ~window_info_right_widget() {}
-
-			std::string render(const ui::window *win, bool) const {
+		protected:
+			std::string _render(const ui::window *win, bool) const {
 				if (!win) {
 					return "null?";
 				} else if (win->is_status() || win->is_channel() || win->is_user()) {
@@ -56,6 +53,11 @@ namespace spjalla::plugins {
 					return "~";
 				}
 			}
+
+		public:
+			using status_widget::status_widget;
+
+			virtual ~window_info_right_widget() {}
 	};
 
 	class window_info_widget_plugin: public plugin {

@@ -99,6 +99,9 @@ namespace spjalla {
 			/** Joins any threads associated with the client. */
 			void join();
 
+			/** Joins threads and unloads plugins. */
+			// virtual void cleanup() override;
+
 			/** Returns the client's ui::interface instance. */
 			ui::interface & get_ui() { return ui; }
 
@@ -156,6 +159,9 @@ namespace spjalla {
 
 // client/heartbeat.cpp
 
+		public:
+			using heartbeat_listener = std::shared_ptr<std::function<void(int)>>;
+
 		private:
 			bool heartbeat_alive = false;
 
@@ -166,7 +172,7 @@ namespace spjalla {
 			int heartbeat_period;
 
 			/** Contains all the functions to execute on each heartbeat. */
-			std::list<std::function<void(int)>> heartbeat_listeners {};
+			std::list<heartbeat_listener> heartbeat_listeners {};
 
 			/** Keeps executing all the heartbeat listeners and waiting for the heartbeat period. Stops when
 			 *  heartbeat_alive turns false. */
@@ -174,7 +180,10 @@ namespace spjalla {
 
 		public:
 			/** Adds a function to the list of heartbeat listeners. The heartbeat period is passed as an argument. */
-			void add_heartbeat_listener(const std::function<void(int)> &);
+			void add_heartbeat_listener(const heartbeat_listener &);
+
+			/** Removes a function from the list of heartbeat listeners. */
+			void remove_heartbeat_listener(const heartbeat_listener &);
 
 			/** Starts the heartbeat thread, which executes all the heartbeat listeners at regular intervals. */
 			void init_heartbeat();

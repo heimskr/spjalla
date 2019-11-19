@@ -34,8 +34,10 @@ namespace spjalla {
 	}
 
 	client::~client() {
-		term.join();
-		formicine::perf.results();
+		status_widgets.clear();
+		heartbeat_listeners.clear();
+		command_handlers.clear();
+		close_plugins();
 	}
 
 
@@ -116,6 +118,17 @@ namespace spjalla {
 			heartbeat.join();
 		}
 	}
+
+	// void client::cleanup() {
+	// 	plugin_host::cleanup();
+	// 	command_handlers.clear();
+	// 	heartbeat_listeners.clear();
+	// 	status_widgets.clear();
+	// 	join();
+	// 	close_plugins();
+	// 	term.join();
+	// 	formicine::perf.results();
+	// }
 
 	pingpong::server * client::active_server() {
 		ui::window *win = ui.active_window;

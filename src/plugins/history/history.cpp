@@ -27,7 +27,8 @@ namespace spjalla::plugins {
 				return;
 			}
 
-			client->handle_pre([&, client](const haunted::key &key, bool) {
+			client->handle_pre(std::make_shared<plugin_host::pre_function<haunted::key>>(
+			[&, client](const haunted::key &key, bool) {
 				if (!input_history.empty()) {
 					if (key == haunted::ktype::up_arrow && 0 < command_index) {
 						client->get_ui().set_input(input_history[--command_index]);
@@ -41,16 +42,16 @@ namespace spjalla::plugins {
 				}
 
 				return cancelable_result::pass;
-			});
+			}));
 
-			client->handle_post([&](const input_line &il) {
+			client->handle_post(std::make_shared<plugin_host::post_function<input_line>>([&](const input_line &il) {
 				input_history.push_back(il.original);
 
 				if (max_length < input_history.size())
 					input_history.pop_front();
 
 				command_index = input_history.size();
-			});
+			}));
 		}
 	};
 }

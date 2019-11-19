@@ -7,6 +7,9 @@
 
 namespace spjalla::plugins {
 	class notifications_widget: public spjalla::ui::status_widget {
+		protected:
+			std::string _render(const ui::window *, bool) const;
+
 		public:
 			ansi::color highlight_color = ansi::color::yellow;
 			bool highlight_bold = true;
@@ -15,7 +18,6 @@ namespace spjalla::plugins {
 
 			virtual ~notifications_widget() {}
 
-			std::string render(const ui::window *, bool) const;
 			void window_focused(ui::window *window);
 	};
 }

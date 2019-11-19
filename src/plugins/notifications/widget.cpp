@@ -2,7 +2,7 @@
 #include "spjalla/plugins/notifications/widget.h"
 
 namespace spjalla::plugins {
-	std::string notifications_widget::render(const ui::window *, bool) const {
+	std::string notifications_widget::_render(const ui::window *, bool) const {
 		std::vector<std::string> indicators;
 
 		std::deque<haunted::ui::control *> controls = parent->get_window_controls();

@@ -4,7 +4,7 @@
 namespace spjalla::lines {
 	std::string part_line::render(ui::window *) {
 		return parent->get_ui().render("part", {
-			{"raw_who", user->name}, {"raw_channel", chan->name}, {"raw_reason", reason}
+			{"raw_who", name}, {"raw_channel", chan_name}, {"raw_reason", reason}
 		});
 	}
 }

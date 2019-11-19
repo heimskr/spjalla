@@ -17,6 +17,9 @@ namespace spjalla::ui {
 		protected:
 			client *parent;
 
+			/** Implementation for render(). */
+			virtual std::string _render(const window *, bool overlay_visible) const = 0;
+
 		public:
 			status_widget(client *parent_, int priority_ = 50): parent(parent_), priority(priority_) {}
 
@@ -31,7 +34,7 @@ namespace spjalla::ui {
 			virtual void update();
 
 			/** Returns a string to be displayed in the status bar. */
-			virtual std::string render(const window *, bool overlay_visible) const = 0;
+			std::string render(const window *, bool overlay_visible) const;
 
 			/** Returns whether the widget should be displayed when the given window is the current window. */
 			virtual bool visible_for(const window *, bool overlay_visible) const;

@@ -9,6 +9,10 @@ namespace spjalla::ui {
 
 	void status_widget::update() {}
 
+	std::string status_widget::render(const window *win, bool overlay_visible) const {
+		return parent? _render(win, overlay_visible) : "";
+	}
+
 	bool status_widget::visible_for(const window *, bool) const {
 		return true;
 	}
