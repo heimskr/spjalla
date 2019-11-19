@@ -9,13 +9,10 @@ namespace spjalla::plugins {
 	plugin_host::~plugin_host() {}
 
 	void plugin_host::close_plugins() {
-		DBG("Closing plugins.");
-
 		std::vector<void *> handles;
 		handles.reserve(plugins.size());
 
 		for (const plugin_tuple &tuple: plugins) {
-			DBG("Closing " << std::get<0>(tuple));
 			std::get<1>(tuple)->cleanup(this);
 			handles.push_back(std::get<2>(tuple));
 		}
@@ -24,8 +21,6 @@ namespace spjalla::plugins {
 
 		for (void *handle: handles)
 			dlclose(handle);
-
-		DBG("Done closing plugins.");
 	}
 
 	plugin_host::plugin_tuple plugin_host::load_plugin(const std::string &path) {

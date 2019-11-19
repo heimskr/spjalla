@@ -85,11 +85,16 @@ namespace spjalla::plugins {
 				client->add_status_widget(widget_left);
 				client->add_status_widget(widget_right);
 
-				pingpong::events::listen<pingpong::nick_updated_event>([&, client](pingpong::nick_updated_event *ev) {
-					// If this user's window is open, redraw the statusbar to update the widget.
-					if (client->get_ui().get_active_user() == ev->who)
-						client->get_ui().update_statusbar();
-				});
+				pingpong::events::listen<pingpong::nick_updated_event>("p:window_info",
+					[&, client](pingpong::nick_updated_event *ev) {
+						// If this user's window is open, redraw the statusbar to update the widget.
+						if (client->get_ui().get_active_user() == ev->who)
+							client->get_ui().update_statusbar();
+					});
+			}
+
+			void cleanup(plugin_host *) override {
+				pingpong::events::unlisten<pingpong::nick_updated_event>("p:window_info");
 			}
 	};
 }

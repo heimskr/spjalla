@@ -87,26 +87,33 @@ namespace spjalla::plugins {
 				start_gathering();
 		});
 
-		pingpong::events::listen<events::notification_event>([=, this](events::notification_event *ev) {
-			if (gathering() && ev->line->get_notification_type() == notification_type::highlight)
-				gathered_lines.push_back(ev->line);
-		});
+		pingpong::events::listen<events::notification_event>("p:notifications",
+			[=, this](events::notification_event *ev) {
+				if (gathering() && ev->line->get_notification_type() == notification_type::highlight)
+					gathered_lines.push_back(ev->line);
+			});
 
-		pingpong::events::listen<events::window_changed_event>([=, this](events::window_changed_event *ev) {
-			widget->window_focused(ev->to);
-		});
+		pingpong::events::listen<events::window_changed_event>("p:notifications",
+			[=, this](events::window_changed_event *ev) {
+				widget->window_focused(ev->to);
+			});
 
-		pingpong::events::listen<events::window_notification_event>([=](events::window_notification_event *ev) {
-			if (ev->window == client->get_ui().get_active_window())
-				ev->window->highest_notification = notification_type::none;
-			else
-				client->render_statusbar();
-		});
+		pingpong::events::listen<events::window_notification_event>("p:notifications",
+			[=](events::window_notification_event *ev) {
+				if (ev->window == client->get_ui().get_active_window())
+					ev->window->highest_notification = notification_type::none;
+				else
+					client->render_statusbar();
+			});
 	}
 
 	void notifications_plugin::cleanup(plugin_host *) {
 		config::unregister("appearance", "highlight_color");
 		config::unregister("appearance", "highlight_bold");
+
+		pingpong::events::unlisten<events::notification_event>("p:notifications");
+		pingpong::events::unlisten<events::window_changed_event>("p:notifications");
+		pingpong::events::unlisten<events::window_notification_event>("p:notifications");
 	}
 }
 
