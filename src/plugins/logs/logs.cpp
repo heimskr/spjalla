@@ -184,18 +184,18 @@ namespace spjalla::plugins::logs {
 			restore(serv, il);
 		});
 
-		pingpong::events::listen<pingpong::join_event>([&](pingpong::join_event *event) {
+		pingpong::events::listen<pingpong::join_event>("p:logs", [&](pingpong::join_event *event) {
 			log({event->serv, event->chan->name}, event->who->name, "join");
 		});
 
 
-		pingpong::events::listen<pingpong::kick_event>([&](pingpong::kick_event *event) {
+		pingpong::events::listen<pingpong::kick_event>("p:logs", [&](pingpong::kick_event *event) {
 			log({event->serv, event->chan->name}, event->who->name + " " + event->whom->name + " :" + event->content,
 				"kick");
 		});
 
 
-		pingpong::events::listen<pingpong::mode_event>([&](pingpong::mode_event *event) {
+		pingpong::events::listen<pingpong::mode_event>("p:logs", [&](pingpong::mode_event *event) {
 			// Ignore self mode changes.
 			if (event->get_name() == event->where)
 				return;
@@ -206,12 +206,12 @@ namespace spjalla::plugins::logs {
 		});
 
 
-		pingpong::events::listen<pingpong::nick_event>([&](pingpong::nick_event *event) {
+		pingpong::events::listen<pingpong::nick_event>("p:logs", [&](pingpong::nick_event *event) {
 			log(event->who, event->content + " " + event->who->name, "nick");
 		});
 
 
-		pingpong::events::listen<pingpong::notice_event>([&, this](pingpong::notice_event *event) {
+		pingpong::events::listen<pingpong::notice_event>("p:logs", [&, this](pingpong::notice_event *event) {
 			if (event->serv->get_parent() != &parent->get_irc())
 				return;
 
@@ -230,7 +230,7 @@ namespace spjalla::plugins::logs {
 		});
 
 
-		pingpong::events::listen<pingpong::part_event>([&](pingpong::part_event *event) {
+		pingpong::events::listen<pingpong::part_event>("p:logs", [&](pingpong::part_event *event) {
 			log({event->serv, event->chan->name}, event->who->name + " :" + event->content, "part");
 
 			// If you parted the channel, close the channel's stream.
@@ -239,7 +239,7 @@ namespace spjalla::plugins::logs {
 		});
 
 
-		pingpong::events::listen<pingpong::privmsg_event>([&, this](pingpong::privmsg_event *event) {
+		pingpong::events::listen<pingpong::privmsg_event>("p:logs", [&, this](pingpong::privmsg_event *event) {
 			if (event->serv->get_parent() != &parent->get_irc()) {
 				DBG("Different parent IRCs: " << event->serv->get_parent() << " vs. " << &parent->get_irc());
 				return;
@@ -252,7 +252,7 @@ namespace spjalla::plugins::logs {
 		});
 
 
-		pingpong::events::listen<pingpong::quit_event>([&](pingpong::quit_event *event) {
+		pingpong::events::listen<pingpong::quit_event>("p:logs", [&](pingpong::quit_event *event) {
 			log(event->who, event->who->name + " :" + event->content, "quit");
 
 			// If you quit, close all logs associated with the server you quit from.
@@ -270,12 +270,12 @@ namespace spjalla::plugins::logs {
 		});
 
 
-		pingpong::events::listen<pingpong::topic_event>([&](pingpong::topic_event *event) {
+		pingpong::events::listen<pingpong::topic_event>("p:logs", [&](pingpong::topic_event *event) {
 			log({event->serv, event->chan->name}, event->who->name + " :" + event->content, "topic_set");
 		});
 
 
-		pingpong::events::listen<pingpong::topic_updated_event>([&](pingpong::topic_updated_event *event) {
+		pingpong::events::listen<pingpong::topic_updated_event>("p:logs", [&](pingpong::topic_updated_event *event) {
 			log({event->serv, event->chan->name}, ":" + event->content, "topic_is");
 		});
 	}
@@ -284,6 +284,17 @@ namespace spjalla::plugins::logs {
 		config::unregister("logs", "autoclean");
 		config::unregister("logs", "default_restore");
 		config::unregister("logs", "enabled");
+
+		pingpong::events::unlisten<pingpong::join_event>("p:logs");
+		pingpong::events::unlisten<pingpong::kick_event>("p:logs");
+		pingpong::events::unlisten<pingpong::mode_event>("p:logs");
+		pingpong::events::unlisten<pingpong::nick_event>("p:logs");
+		pingpong::events::unlisten<pingpong::notice_event>("p:logs");
+		pingpong::events::unlisten<pingpong::part_event>("p:logs");
+		pingpong::events::unlisten<pingpong::privmsg_event>("p:logs");
+		pingpong::events::unlisten<pingpong::quit_event>("p:logs");
+		pingpong::events::unlisten<pingpong::topic_event>("p:logs");
+		pingpong::events::unlisten<pingpong::topic_updated_event>("p:logs");
 	}
 }
 
