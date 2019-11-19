@@ -1,9 +1,9 @@
 #ifndef SPJALLA_CORE_PLUGIN_HOST_H_
 #define SPJALLA_CORE_PLUGIN_HOST_H_
 
+#include <list>
 #include <map>
 #include <string>
-#include <vector>
 
 #include "haunted/core/key.h"
 
@@ -25,46 +25,51 @@ namespace spjalla::plugins {
 			using post_function = std::function<void(const T &)>;
 
 			template <typename T>
-			using pre_ptr = std::shared_ptr<pre_function<T>>;
+			using pre_ptr = std::weak_ptr<pre_function<T>>;
 
 			template <typename T>
-			using post_ptr = std::shared_ptr<post_function<T>>;
+			using post_ptr = std::weak_ptr<post_function<T>>;
 
 		private:
-			std::vector<plugin_tuple> plugins {};
-			std::map<plugins::priority, std::vector<pre_ptr<pingpong::command>>> plugin_command_handlers =
+			std::list<plugin_tuple> plugins {};
+			std::map<plugins::priority, std::list<pre_ptr<pingpong::command>>> plugin_command_handlers =
 				{{plugins::priority::high, {}}, {plugins::priority::normal, {}}, {plugins::priority::low, {}}};
 
 			/** Holds prehandlers for keypresses. Note that keypresses handled by the textinput aren't passed on to pre-
 			 *  or posthandlers. */
-			std::vector<pre_ptr<haunted::key>>  keyhandlers_pre  {};
+			std::list<pre_ptr<haunted::key>>  keyhandlers_pre  {};
 
 			/** Holds posthandlers for keypresses. Note that keypresses handled by the textinput aren't passed on to
 			 *  pre- or posthandlers. */
-			std::vector<post_ptr<haunted::key>> keyhandlers_post {};
+			std::list<post_ptr<haunted::key>> keyhandlers_post {};
 
 			/** Holds prehandlers for input lines. Note that input lines handled by the textinput aren't passed on to
 			 *  pre- or posthandlers. */
-			std::vector<pre_ptr<input_line>>  inputhandlers_pre  {};
+			std::list<pre_ptr<input_line>>  inputhandlers_pre  {};
 
 			/** Holds posthandlers for input lines. Note that input lines handled by the textinput aren't passed on to
 			 *  pre- or posthandlers. */
-			std::vector<post_ptr<input_line>> inputhandlers_post {};
+			std::list<post_ptr<input_line>> inputhandlers_post {};
 
 			/** Determines whether a pre-event should go through. */
 			template <typename T>
-			bool before(T &obj, const std::vector<pre_ptr<T>> &funcs) {
+			bool before(T &obj, const std::list<pre_ptr<T>> &funcs) {
 				return before_multi(obj, funcs).first;
 			}
 
 			/** Determines whether a pre-event should go through. Used inside functions like plugin_host::before_send
 			 *  that process sets of sets of handler functions. */
 			template <typename T>
-			std::pair<bool, handler_result> before_multi(T &obj, const std::vector<pre_ptr<T>> &funcs,
+			std::pair<bool, handler_result> before_multi(T &obj, const std::list<pre_ptr<T>> &funcs,
 			bool initial = true) {
 				bool should_send = initial;
 				for (auto &func: funcs) {
-					plugins::cancelable_result result = (*func)(obj, should_send);
+					if (func.expired()) {
+						DBG("before_multi: pointer is expired");
+						continue;
+					}
+
+					plugins::cancelable_result result = (*func.lock())(obj, should_send);
 
 					if (result == plugins::cancelable_result::kill || result == plugins::cancelable_result::disable) {
 						should_send = false;
@@ -81,9 +86,29 @@ namespace spjalla::plugins {
 			}
 
 			template <typename T>
-			void after(const T &obj, const std::vector<post_ptr<T>> &funcs) {
-				for (auto &func: funcs)
-					(*func)(obj);
+			void after(const T &obj, const std::list<post_ptr<T>> &funcs) {
+				for (auto &func: funcs) {
+					if (func.expired()) {
+						DBG("after: pointer is expired");
+						continue;
+					}
+
+					(*func.lock())(obj);
+				}
+			}
+
+			template <typename T>
+			bool erase(std::list<T> &list, const T &item) {
+				auto locked = item.lock();
+
+				for (auto iter = list.begin(), end = list.end(); iter != end; ++iter) {
+					if (iter->lock() == locked) {
+						list.erase(iter);
+						return true;
+					}
+				}
+
+				return false;
 			}
 
 		public:
@@ -131,25 +156,45 @@ namespace spjalla::plugins {
 
 			/** Registers a handler to handle keypresses before the client handles them and determine whether the client
 			 *  will handle them. */
-			void handle_pre(const pre_ptr<haunted::key> &func) {
+			void handle(const pre_ptr<haunted::key> &func) {
 				keyhandlers_pre.push_back(func);
 			}
 
 			/** Registers a handler to handle keypresses after the client has handled them. */
-			void handle_post(const post_ptr<haunted::key> &func) {
+			void handle(const post_ptr<haunted::key> &func) {
 				// TODO: implement posthandlers for keypresses.
 				keyhandlers_post.push_back(func);
 			}
 
 			/** Registers a handler to handle input lines before the client handles them and determine whether the
 			 *  client will handle them. */
-			void handle_pre(const pre_ptr<input_line> &func) {
+			void handle(const pre_ptr<input_line> &func) {
 				inputhandlers_pre.push_back(func);
 			}
 
 			/** Registers a handler to handle keypresses after the client has handled them. */
-			void handle_post(const post_ptr<input_line> &func) {
+			void handle(const post_ptr<input_line> &func) {
 				inputhandlers_post.push_back(func);
+			}
+
+			void unhandle(const pre_ptr<pingpong::command> &func, plugins::priority priority) {
+				erase(plugin_command_handlers[priority], func);
+			}
+
+			void unhandle(const pre_ptr<haunted::key> &func) {
+				erase(keyhandlers_pre, func);
+			}
+
+			void unhandle(const post_ptr<haunted::key> &func) {
+				erase(keyhandlers_post, func);
+			}
+
+			void unhandle(const pre_ptr<input_line> &func) {
+				erase(inputhandlers_pre, func);
+			}
+
+			void unhandle(const post_ptr<input_line> &func) {
+				erase(inputhandlers_post, func);
 			}
 
 			// virtual void cleanup();

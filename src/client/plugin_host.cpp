@@ -6,9 +6,7 @@
 #include "spjalla/core/plugin_host.h"
 
 namespace spjalla::plugins {
-	plugin_host::~plugin_host() {
-		inputhandlers_post.clear();
-	}
+	plugin_host::~plugin_host() {}
 
 	void plugin_host::close_plugins() {
 		DBG("Closing plugins.");

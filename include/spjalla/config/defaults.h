@@ -61,6 +61,9 @@ namespace spjalla::config {
 	bool register_key(const std::string &group, const std::string &key, const value &default_val,
 		const validator_fn & = {}, const applicator_fn & = {}, const std::string &description = "");
 
+	/** Attempts to unregister a key. Returns true if the key existed and was removed. */
+	bool unregister(const std::string &group, const std::string &key);
+
 	/** Runs the applicators of all registered defaults with their default values. */
 	void apply_defaults(database &db);
 

@@ -66,6 +66,14 @@ namespace spjalla::config {
 		return true;
 	}
 
+	bool unregister(const std::string &group, const std::string &key) {
+		std::string combined = group + "." + key;
+		if (registered.count(group + "." + key) == 0)
+			return false;
+		registered.erase(combined);
+		return true;
+	}
+
 	void apply_defaults(database &db) {
 		for (auto &pair: registered)
 			pair.second.apply(db, pair.second.default_value);

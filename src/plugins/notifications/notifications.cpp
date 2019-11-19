@@ -103,6 +103,11 @@ namespace spjalla::plugins {
 				client->render_statusbar();
 		});
 	}
+
+	void notifications_plugin::cleanup(plugin_host *) {
+		config::unregister("appearance", "highlight_color");
+		config::unregister("appearance", "highlight_bold");
+	}
 }
 
 spjalla::plugins::notifications_plugin ext_plugin {};

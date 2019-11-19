@@ -175,12 +175,12 @@ namespace spjalla::plugins::logs {
 	}
 
 	void logs_plugin::postinit(plugin_host *host) {
-		spjalla::client *client = dynamic_cast<spjalla::client *>(host);
-		if (!client) { DBG("Error: expected client as plugin host"); return; }
+		parent = dynamic_cast<spjalla::client *>(host);
+		if (!parent) { DBG("Error: expected client as plugin host"); return; }
 
-		client->add("clean", 0, 1, true, [this](pingpong::server *, const input_line &) { clean(); });
+		parent->add("clean", 0, 1, true, [this](pingpong::server *, const input_line &) { clean(); });
 
-		client->add("restore", 0, 1, true, [this](pingpong::server *serv, const input_line &il) {
+		parent->add("restore", 0, 1, true, [this](pingpong::server *serv, const input_line &il) {
 			restore(serv, il);
 		});
 
@@ -211,12 +211,12 @@ namespace spjalla::plugins::logs {
 		});
 
 
-		pingpong::events::listen<pingpong::notice_event>([&, client](pingpong::notice_event *event) {
-			if (event->serv->get_parent() != &client->get_irc())
+		pingpong::events::listen<pingpong::notice_event>([&, this](pingpong::notice_event *event) {
+			if (event->serv->get_parent() != &parent->get_irc())
 				return;
 
-			lines::notice_line line = event->is_channel() || event->speaker? lines::notice_line(client, *event) :
-				lines::notice_line(client, event->serv->id, "*", event->serv->get_nick(), event->content, event->stamp,
+			lines::notice_line line = event->is_channel() || event->speaker? lines::notice_line(parent, *event) :
+				lines::notice_line(parent, event->serv->id, "*", event->serv->get_nick(), event->content, event->stamp,
 					{}, true);
 
 			// A '$' logfile is for messages received from the server itself.
@@ -239,13 +239,13 @@ namespace spjalla::plugins::logs {
 		});
 
 
-		pingpong::events::listen<pingpong::privmsg_event>([&, client](pingpong::privmsg_event *event) {
-			if (event->serv->get_parent() != &client->get_irc()) {
-				DBG("Different parent IRCs: " << event->serv->get_parent() << " vs. " << &client->get_irc());
+		pingpong::events::listen<pingpong::privmsg_event>([&, this](pingpong::privmsg_event *event) {
+			if (event->serv->get_parent() != &parent->get_irc()) {
+				DBG("Different parent IRCs: " << event->serv->get_parent() << " vs. " << &parent->get_irc());
 				return;
 			}
 
-			lines::privmsg_line line {client, *event};
+			lines::privmsg_line line {parent, *event};
 			log({event->serv, event->is_channel()? event->where : event->speaker->name},
 				formicine::util::ltrim(line.hat_str() + line.name) + " " + event->serv->get_nick() + " " +
 				(line.is_action()? "*" : ":") + line.trimmed(line.message), "msg");
@@ -278,6 +278,12 @@ namespace spjalla::plugins::logs {
 		pingpong::events::listen<pingpong::topic_updated_event>([&](pingpong::topic_updated_event *event) {
 			log({event->serv, event->chan->name}, ":" + event->content, "topic_is");
 		});
+	}
+
+	void logs_plugin::cleanup(plugin_host *) {
+		config::unregister("logs", "autoclean");
+		config::unregister("logs", "default_restore");
+		config::unregister("logs", "enabled");
 	}
 }
 

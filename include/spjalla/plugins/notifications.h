@@ -24,8 +24,9 @@ namespace spjalla::plugins {
 			void start_gathering();
 			void stop_gathering();
 
-			void preinit(plugin_host *host)  override;
+			void preinit(plugin_host  *host) override;
 			void postinit(plugin_host *host) override;
+			void cleanup(plugin_host  *host) override;
 	};
 }
 

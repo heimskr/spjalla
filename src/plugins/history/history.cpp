@@ -18,40 +18,49 @@ namespace spjalla::plugins {
 
 		int command_index = 0;
 		size_t max_length = 4096;
-		std::deque<std::string> input_history {};
+		std::deque<std::string> history {};
 
-		void postinit(plugin_host *host) override {
-			spjalla::client *client = dynamic_cast<spjalla::client *>(host);
-			if (!client) {
-				DBG("Error: expected client as plugin host");
-				return;
-			}
-
-			client->handle_pre(std::make_shared<plugin_host::pre_function<haunted::key>>(
-			[&, client](const haunted::key &key, bool) {
-				if (!input_history.empty()) {
+		std::shared_ptr<plugin_host::pre_function<haunted::key>> prekey = 
+			std::make_shared<plugin_host::pre_function<haunted::key>>([this](const haunted::key &key, bool) {
+				if (!history.empty()) {
 					if (key == haunted::ktype::up_arrow && 0 < command_index) {
-						client->get_ui().set_input(input_history[--command_index]);
+						parent->get_ui().set_input(history[--command_index]);
 						return cancelable_result::disable;
 					}
 
-					if (key == haunted::ktype::down_arrow && command_index < static_cast<int>(input_history.size()) - 1) {
-						client->get_ui().set_input(input_history[++command_index]);
+					if (key == haunted::ktype::down_arrow && command_index < static_cast<int>(history.size()) - 1) {
+						parent->get_ui().set_input(history[++command_index]);
 						return cancelable_result::disable;
 					}
 				}
 
 				return cancelable_result::pass;
-			}));
+			});
 
-			client->handle_post(std::make_shared<plugin_host::post_function<input_line>>([&](const input_line &il) {
-				input_history.push_back(il.original);
+		std::shared_ptr<plugin_host::post_function<input_line>> postinput =
+			std::make_shared<plugin_host::post_function<input_line>>([this](const input_line &il) {
+				history.push_back(il.original);
 
-				if (max_length < input_history.size())
-					input_history.pop_front();
+				if (max_length < history.size())
+					history.pop_front();
 
-				command_index = input_history.size();
-			}));
+				command_index = history.size();
+			});
+
+		void postinit(plugin_host *host) override {
+			parent = dynamic_cast<spjalla::client *>(host);
+			if (!parent) {
+				DBG("Error: expected client as plugin host");
+				return;
+			}
+
+			parent->handle(prekey);
+			parent->handle(postinput);
+		}
+
+		void cleanup(plugin_host *host) override {
+			parent->unhandle(prekey);
+			parent->unhandle(postinput);
 		}
 	};
 }

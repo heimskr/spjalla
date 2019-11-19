@@ -25,8 +25,9 @@ namespace spjalla::plugins::logs {
 			std::string get_name()        const override { return "Logger"; }
 			std::string get_description() const override { return "Logs messages."; }
 			std::string get_version()     const override { return "0.1.0"; }
-			void preinit(plugin_host *)  override;
+			void preinit(plugin_host  *) override;
 			void postinit(plugin_host *) override;
+			void cleanup(plugin_host  *) override;
 
 			/** Logs a message of a given type ("_" by default) to a single location. */
 			void log(const log_pair &, const std::string &message, const std::string &type = "_");

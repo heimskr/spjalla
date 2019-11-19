@@ -73,6 +73,7 @@ namespace spjalla::plugins {
 	}
 
 	void nickcolor_plugin::cleanup(plugin_host *) {
+		config::unregister("appearance", "nick_colors");
 		parent->get_ui().render["privmsg_nick"] = parent->cache.format_nick_privmsg;
 	}
 }
