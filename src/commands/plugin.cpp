@@ -28,7 +28,7 @@ namespace spjalla::commands {
 
 			const auto &plugins = cli.get_plugins();
 			if (plugins.empty()) {
-				cli.log("No plugins are loaded.");
+				cli.get_ui().warn("No plugins are loaded.");
 			} else {
 				cli.log("Plugins:");
 				size_t max_name = 0, max_version = 0;
