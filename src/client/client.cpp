@@ -79,6 +79,13 @@ namespace spjalla {
 		add({command_name, {min_args, max_args, needs_server, handler_fn, completion_fn, suggestors}});
 	}
 
+	bool client::remove_command(const std::string &name) {
+		if (command_handlers.count(name) == 0)
+			return false;
+		command_handlers.erase(name);
+		return true;
+	}
+
 	void client::init() {
 		configs.read_if_empty(DEFAULT_CONFIG_DB, true);
 		alias_db.read_if_empty(DEFAULT_ALIAS_DB, true);

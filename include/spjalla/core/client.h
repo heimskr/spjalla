@@ -84,6 +84,8 @@ namespace spjalla {
 			         const completions::completion_fn & = {},
 			         const std::vector<completions::completion_state::suggestor_fn> & = {});
 
+			bool remove_command(const std::string &);
+
 			/** Initializes the client. */
 			void init();
 

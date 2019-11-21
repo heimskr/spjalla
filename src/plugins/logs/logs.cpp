@@ -295,6 +295,9 @@ namespace spjalla::plugins::logs {
 		pingpong::events::unlisten<pingpong::quit_event>("p:logs");
 		pingpong::events::unlisten<pingpong::topic_event>("p:logs");
 		pingpong::events::unlisten<pingpong::topic_updated_event>("p:logs");
+
+		parent->remove_command("clean");
+		parent->remove_command("restore");
 	}
 }
 
