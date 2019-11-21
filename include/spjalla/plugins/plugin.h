@@ -55,6 +55,9 @@ namespace spjalla::plugins {
 
 		/** Called when the client is shutting down. */
 		virtual void cleanup(plugin_host *) {}
+
+		/** Tries to unload the plugin. Returns true if the plugin was successfully unloaded. */
+		bool unload();
 	};
 }
 

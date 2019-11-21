@@ -8,19 +8,15 @@
 namespace spjalla::plugins {
 	plugin_host::~plugin_host() {}
 
-	void plugin_host::close_plugins() {
-		std::vector<void *> handles;
-		handles.reserve(plugins.size());
+	void plugin_host::unload_plugin(plugin_tuple &tuple) {
+		std::get<1>(tuple)->cleanup(this);
+		dlclose(std::get<2>(tuple));
+	}
 
-		for (const plugin_tuple &tuple: plugins) {
-			std::get<1>(tuple)->cleanup(this);
-			handles.push_back(std::get<2>(tuple));
-		}
-
+	void plugin_host::unload_plugins() {
+		for (plugin_tuple &tuple: plugins)
+			unload_plugin(tuple);
 		plugins.clear();
-
-		for (void *handle: handles)
-			dlclose(handle);
 	}
 
 	plugin_host::plugin_tuple plugin_host::load_plugin(const std::string &path) {
@@ -46,6 +42,22 @@ namespace spjalla::plugins {
 					load_plugin(entry.path().c_str());
 			}
 		}
+	}
+
+	plugin_host::plugin_tuple * plugin_host::get_plugin(const std::string &name) {
+		auto iter = std::find_if(plugins.begin(), plugins.end(), [&](const plugin_tuple &tuple) {
+			return std::get<0>(tuple) == name || std::get<1>(tuple)->get_name() == name;
+		});
+
+		return iter == plugins.end()? nullptr : &*iter;
+	}
+
+	plugin_host::plugin_tuple * plugin_host::get_plugin(const plugins::plugin *plugin) {
+		auto iter = std::find_if(plugins.begin(), plugins.end(), [&](const plugin_tuple &tuple) {
+			return std::get<1>(tuple) == plugin;
+		});
+
+		return iter == plugins.end()? nullptr : &*iter;
 	}
 
 	void plugin_host::preinit_plugins() {
@@ -77,12 +89,4 @@ namespace spjalla::plugins {
 
 		return iter == plugins.end()? nullptr : std::get<1>(*iter);
 	}
-
-	// void plugin_host::cleanup() {
-	// 	plugin_command_handlers.clear();
-	// 	keyhandlers_pre.clear();
-	// 	keyhandlers_post.clear();
-	// 	inputhandlers_pre.clear();
-	// 	inputhandlers_post.clear();
-	// }
 }

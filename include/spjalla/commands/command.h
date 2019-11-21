@@ -51,6 +51,7 @@ namespace spjalla::commands {
 	void do_mode(ui::interface &, pingpong::server *, const input_line &);
 	void do_nick(ui::interface &, pingpong::server *, const input_line &);
 	void do_part(client &, pingpong::server *, const input_line &);
+	void do_plugin(client &, const input_line &);
 	void do_set(client &, const input_line &);
 	void do_spam(ui::interface &, const input_line &);
 	void do_topic(client &, pingpong::server *, const input_line &);

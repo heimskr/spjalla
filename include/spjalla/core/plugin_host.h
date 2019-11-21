@@ -114,13 +114,23 @@ namespace spjalla::plugins {
 		public:
 			virtual ~plugin_host() = 0;
 
-			void close_plugins();
+			/** Unloads a plugin. */
+			void unload_plugin(plugin_tuple &);
+
+			/** Unloads all plugins. */
+			void unload_plugins();
 
 			/** Loads a plugin from a given shared object. */
 			plugin_tuple load_plugin(const std::string &path);
 
 			/** Loads all plugins in a given directory. */
 			void load_plugins(const std::string &path);
+
+			/** Returns a pointer to a plugin tuple by path or name. Returns nullptr if no match was found. */
+			plugin_tuple * get_plugin(const std::string &);
+
+			/** Returns a pointer to a plugin's tuple. Returns nullptr if no match was found. */
+			plugin_tuple * get_plugin(const plugins::plugin *);
 
 			/** Initializes all loaded plugins before client initialization. */
 			void preinit_plugins();

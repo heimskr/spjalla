@@ -37,7 +37,7 @@ namespace spjalla {
 		status_widgets.clear();
 		heartbeat_listeners.clear();
 		command_handlers.clear();
-		close_plugins();
+		unload_plugins();
 	}
 
 

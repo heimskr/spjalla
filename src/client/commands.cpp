@@ -132,6 +132,7 @@ namespace spjalla {
 		add("nick",    0,  1, true,  [&](sptr serv, line il) { commands::do_nick(ui, serv, il);    });
 		add("overlay", 0,  0, false, [&](sptr,      line)    { ui.update_overlay();                });
 		add("part",    0, -1, true,  [&](sptr serv, line il) { commands::do_part(*this, serv, il); });
+		add("plugin",  0, -1, false, [&](sptr, line il)      { commands::do_plugin(*this, il);     });
 
 		add("quit", 0, -1, false, [&](sptr, line il) {
 			for (pingpong::server *serv: irc.server_order)

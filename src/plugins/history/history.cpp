@@ -58,7 +58,7 @@ namespace spjalla::plugins {
 			parent->handle(postinput);
 		}
 
-		void cleanup(plugin_host *host) override {
+		void cleanup(plugin_host *) override {
 			parent->unhandle(prekey);
 			parent->unhandle(postinput);
 		}
