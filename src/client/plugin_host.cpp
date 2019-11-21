@@ -11,6 +11,10 @@ namespace spjalla::plugins {
 	void plugin_host::unload_plugin(plugin_tuple &tuple) {
 		std::get<1>(tuple)->cleanup(this);
 		dlclose(std::get<2>(tuple));
+		auto iter = std::find(plugins.begin(), plugins.end(), tuple);
+		if (iter == plugins.end())
+			throw std::runtime_error("Couldn't find plugin tuple: " + std::get<0>(tuple));
+		plugins.erase(iter);
 	}
 
 	void plugin_host::unload_plugins() {

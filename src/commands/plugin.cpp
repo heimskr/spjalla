@@ -51,6 +51,23 @@ namespace spjalla::commands {
 				}
 			}
 		}
+
+		void unload(client &cli, const int argc, const input_line &il) {
+			if (argc < 2) {
+				cli.get_ui().warn("Usage: " + "/plugin unload "_b + "<plugin name>"_bd);
+				return;
+			}
+
+			const std::string name = formicine::util::trim(il.body.substr(il.body.find("unload ") + 7));
+			plugins::plugin_host::plugin_tuple *tuple = cli.get_plugin(name, true);
+			if (!tuple) {
+				cli.get_ui().error("Couldn't find a plugin matching " + ansi::red(name) + ".");
+			} else {
+				const std::string plugin_name = std::get<1>(*tuple)->get_name();
+				cli.unload_plugin(*tuple);
+				cli.log("Unloaded " + ansi::bold(plugin_name) + ".");
+			}
+		}
 	}
 
 	void do_plugin(client &cli, const input_line &il) {
@@ -70,6 +87,8 @@ namespace spjalla::commands {
 			plugin::info(cli, argc, il);
 		} else if (sub == "list") {
 			plugin::list(cli, argc);
+		} else if (sub == "unload") {
+			plugin::unload(cli, argc, il);
 		} else {
 			cli.get_ui().error("Unknown /plugin subcommand: " + ansi::red(sub));
 		}
