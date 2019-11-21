@@ -3,7 +3,24 @@
 
 namespace spjalla::commands {
 	namespace plugin {
-		void list(client &cli, int argc) {
+		void info(client &cli, const int argc, const input_line &il) {
+			if (argc < 2) {
+				cli.get_ui().warn("Usage: " + "/plugin info "_b + "<plugin name>"_bd);
+				return;
+			}
+
+			const std::string name = formicine::util::trim(il.body.substr(il.body.find("info ") + 5));
+			plugins::plugin_host::plugin_tuple *tuple = cli.get_plugin(name, true);
+			if (!tuple) {
+				cli.get_ui().error("Couldn't find a plugin matching " + ansi::red(name) + ".");
+			} else {
+				plugins::plugin *plugin = std::get<1>(*tuple);
+				cli.log(ansi::bold(plugin->get_name()) + "  v"_d + ansi::dim(plugin->get_version()) + "  "
+					+ plugin->get_description());
+			}
+		}
+
+		void list(client &cli, const int argc) {
 			if (argc != 1) {
 				cli.get_ui().warn("/plugin list"_b + " takes no arguments.");
 				return;
@@ -49,7 +66,9 @@ namespace spjalla::commands {
 
 		const std::string sub = il.first();
 
-		if (sub == "list") {
+		if (sub == "info") {
+			plugin::info(cli, argc, il);
+		} else if (sub == "list") {
 			plugin::list(cli, argc);
 		} else {
 			cli.get_ui().error("Unknown /plugin subcommand: " + ansi::red(sub));
