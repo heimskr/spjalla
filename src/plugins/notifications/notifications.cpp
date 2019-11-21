@@ -74,13 +74,12 @@ namespace spjalla::plugins {
 	}
 
 	void notifications_plugin::postinit(plugin_host *host) {
-		spjalla::client *client = dynamic_cast<spjalla::client *>(host);
-		if (!client) { DBG("Error: expected client as plugin host"); return; }
-		parent = client;
+		parent = dynamic_cast<spjalla::client *>(host);
+		if (!parent) { DBG("Error: expected client as plugin host"); return; }
 
-		client->add_status_widget(widget);
+		parent->add_status_widget(widget);
 
-		client->add("gather", 0, 0, false, [&](pingpong::server *, const input_line &) {
+		parent->add("gather", 0, 0, false, [&](pingpong::server *, const input_line &) {
 			if (gathering())
 				stop_gathering();
 			else
@@ -100,10 +99,10 @@ namespace spjalla::plugins {
 
 		pingpong::events::listen<events::window_notification_event>("p:notifications",
 			[=](events::window_notification_event *ev) {
-				if (ev->window == client->get_ui().get_active_window())
+				if (ev->window == parent->get_ui().get_active_window())
 					ev->window->highest_notification = notification_type::none;
 				else
-					client->render_statusbar();
+					parent->render_statusbar();
 			});
 	}
 
@@ -114,6 +113,7 @@ namespace spjalla::plugins {
 		pingpong::events::unlisten<events::notification_event>("p:notifications");
 		pingpong::events::unlisten<events::window_changed_event>("p:notifications");
 		pingpong::events::unlisten<events::window_notification_event>("p:notifications");
+		parent->remove_status_widget(widget);
 	}
 }
 

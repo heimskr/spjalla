@@ -74,27 +74,26 @@ namespace spjalla::plugins {
 			std::string get_version()     const override { return "0.1.0"; }
 
 			void postinit(plugin_host *host) override {
-				spjalla::client *client = dynamic_cast<spjalla::client *>(host);
-				if (!client) {
-					DBG("Error: expected client as plugin host");
-					return;
-				}
+				parent = dynamic_cast<spjalla::client *>(host);
+				if (!parent) { DBG("Error: expected client as plugin host"); return; }
 
-				widget_left  = std::make_shared<window_info_left_widget> (client, 10);
-				widget_right = std::make_shared<window_info_right_widget>(client, 15);
-				client->add_status_widget(widget_left);
-				client->add_status_widget(widget_right);
+				widget_left  = std::make_shared<window_info_left_widget> (parent, 10);
+				widget_right = std::make_shared<window_info_right_widget>(parent, 15);
+				parent->add_status_widget(widget_left);
+				parent->add_status_widget(widget_right);
 
 				pingpong::events::listen<pingpong::nick_updated_event>("p:window_info",
-					[&, client](pingpong::nick_updated_event *ev) {
+					[&, this](pingpong::nick_updated_event *ev) {
 						// If this user's window is open, redraw the statusbar to update the widget.
-						if (client->get_ui().get_active_user() == ev->who)
-							client->get_ui().update_statusbar();
+						if (parent->get_ui().get_active_user() == ev->who)
+							parent->get_ui().update_statusbar();
 					});
 			}
 
 			void cleanup(plugin_host *) override {
 				pingpong::events::unlisten<pingpong::nick_updated_event>("p:window_info");
+				parent->remove_status_widget(widget_left);
+				parent->remove_status_widget(widget_right);
 			}
 	};
 }

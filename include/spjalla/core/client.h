@@ -203,13 +203,15 @@ namespace spjalla {
 // client/statusbar.cpp
 
 		private:
-			std::deque<std::shared_ptr<ui::status_widget>> status_widgets;
+			std::list<std::shared_ptr<ui::status_widget>> status_widgets;
 
 			/** Sorts all the statusbar widgets by priority. */
 			void sort_widgets();
 
 		public:
-			void add_status_widget(std::shared_ptr<ui::status_widget> widget);
+			void add_status_widget(std::shared_ptr<ui::status_widget>);
+
+			bool remove_status_widget(std::shared_ptr<ui::status_widget>);
 
 			void init_statusbar();
 

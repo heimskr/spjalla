@@ -58,6 +58,7 @@ namespace spjalla::plugins {
 			}
 
 			void cleanup(plugin_host *) override {
+				parent->remove_status_widget(widget);
 				parent->remove_heartbeat_listener(tick_listener);
 			}
 

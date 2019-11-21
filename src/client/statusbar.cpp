@@ -2,7 +2,7 @@
 
 namespace spjalla {
 	void client::sort_widgets() {
-		std::sort(status_widgets.begin(), status_widgets.end(),
+		status_widgets.sort(
 			[&](const std::shared_ptr<ui::status_widget> &first, const std::shared_ptr<ui::status_widget> &second) {
 				return first->priority < second->priority;
 			}
@@ -14,6 +14,15 @@ namespace spjalla {
 	void client::add_status_widget(std::shared_ptr<ui::status_widget> widget) {
 		status_widgets.push_back(widget);
 		sort_widgets();
+	}
+
+	bool client::remove_status_widget(std::shared_ptr<ui::status_widget> widget) {
+		auto iter = std::find(status_widgets.begin(), status_widgets.end(), widget);
+		if (iter == status_widgets.end())
+			return false;
+		status_widgets.erase(iter);
+		render_statusbar();
+		return true;
 	}
 
 	void client::init_statusbar() {
