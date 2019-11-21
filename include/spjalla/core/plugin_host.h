@@ -127,10 +127,13 @@ namespace spjalla::plugins {
 			void load_plugins(const std::string &path);
 
 			/** Returns a pointer to a plugin tuple by path or name. Returns nullptr if no match was found. */
-			plugin_tuple * get_plugin(const std::string &);
+			plugin_tuple * get_plugin(const std::string &, bool insensitive = false);
 
 			/** Returns a pointer to a plugin's tuple. Returns nullptr if no match was found. */
 			plugin_tuple * get_plugin(const plugins::plugin *);
+
+			/** Returns a const reference to the plugin list. */
+			const std::list<plugin_tuple> & get_plugins() const;
 
 			/** Initializes all loaded plugins before client initialization. */
 			void preinit_plugins();

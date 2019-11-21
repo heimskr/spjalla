@@ -49,6 +49,10 @@ public:
 		ui.log(obj);
 	}
 
+	void log(const char *str) {
+		ui.log(std::string(str));
+	}
+
 	template <typename T, typename P>
 	void log(const T &obj, P *ptr) {
 		ui.log(obj, ptr);

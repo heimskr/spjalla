@@ -68,7 +68,7 @@ namespace spjalla::plugins {
 		public:
 			virtual ~window_info_widget_plugin() {}
 
-			std::string get_name()        const override { return "Window name"; }
+			std::string get_name()        const override { return "Window Name"; }
 			std::string get_description() const override { return "Shows the name of the current window in the status"
 				" bar."; }
 			std::string get_version()     const override { return "0.1.0"; }

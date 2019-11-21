@@ -44,10 +44,18 @@ namespace spjalla::plugins {
 		}
 	}
 
-	plugin_host::plugin_tuple * plugin_host::get_plugin(const std::string &name) {
-		auto iter = std::find_if(plugins.begin(), plugins.end(), [&](const plugin_tuple &tuple) {
-			return std::get<0>(tuple) == name || std::get<1>(tuple)->get_name() == name;
-		});
+	plugin_host::plugin_tuple * plugin_host::get_plugin(const std::string &name, bool insensitive) {
+		decltype(plugins)::iterator iter;
+		if (insensitive) {
+			const std::string lower = formicine::util::lower(name);
+			iter = std::find_if(plugins.begin(), plugins.end(), [&](const plugin_tuple &tuple) {
+				return std::get<0>(tuple) == name || formicine::util::lower(std::get<1>(tuple)->get_name()) == lower;
+			});
+		} else {
+			iter = std::find_if(plugins.begin(), plugins.end(), [&](const plugin_tuple &tuple) {
+				return std::get<0>(tuple) == name || std::get<1>(tuple)->get_name() == name;
+			});
+		}
 
 		return iter == plugins.end()? nullptr : &*iter;
 	}
@@ -58,6 +66,10 @@ namespace spjalla::plugins {
 		});
 
 		return iter == plugins.end()? nullptr : &*iter;
+	}
+
+	const std::list<plugin_host::plugin_tuple> & plugin_host::get_plugins() const {
+		return plugins;
 	}
 
 	void plugin_host::preinit_plugins() {

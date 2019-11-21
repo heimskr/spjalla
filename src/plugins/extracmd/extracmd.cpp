@@ -15,7 +15,7 @@ namespace spjalla::plugins {
 
 		std::string get_name()        const override { return "Extra Commands"; }
 		std::string get_description() const override { return "Adds a few extra utility commands."; }
-		std::string get_version()     const override { return "0.0.1"; }
+		std::string get_version()     const override { return "0.1.0"; }
 
 		void postinit(plugin_host *host) override {
 			spjalla::client *client = dynamic_cast<spjalla::client *>(host);
