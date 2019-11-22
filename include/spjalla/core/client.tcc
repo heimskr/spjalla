@@ -57,3 +57,45 @@ public:
 	void log(const T &obj, P *ptr) {
 		ui.log(obj, ptr);
 	}
+
+	template <typename T>
+	void error(const T &obj) {
+		ui.error(obj);
+	}
+
+	void error(const char *str) {
+		ui.error(std::string(str));
+	}
+
+	template <typename T, typename P>
+	void error(const T &obj, P *ptr) {
+		ui.error(obj, ptr);
+	}
+
+	template <typename T>
+	void warn(const T &obj) {
+		ui.warn(obj);
+	}
+
+	void warn(const char *str) {
+		ui.warn(std::string(str));
+	}
+
+	template <typename T, typename P>
+	void warn(const T &obj, P *ptr) {
+		ui.warn(obj, ptr);
+	}
+
+	template <typename T>
+	void success(const T &obj) {
+		ui.success(obj);
+	}
+
+	void success(const char *str) {
+		ui.success(std::string(str));
+	}
+
+	template <typename T, typename P>
+	void success(const T &obj, P *ptr) {
+		ui.success(obj, ptr);
+	}

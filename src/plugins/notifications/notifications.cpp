@@ -55,28 +55,25 @@ namespace spjalla::plugins {
 	}
 
 	void notifications_plugin::preinit(plugin_host *host) {
-		spjalla::client *client = dynamic_cast<spjalla::client *>(host);
-		if (!client) { DBG("Error: expected client as plugin host"); return; }
-
-		widget = std::make_shared<notifications_widget>(client, 20);
-
-		config::register_key("appearance", "highlight_color", "red", config::validate_color,
-			[&, client](config::database &, const config::value &value) {
-				widget->highlight_color = ansi::get_color(value.string_());
-				client->render_statusbar();
-			}, "The text color for highlight notifications.");
-
-		config::register_key("appearance", "highlight_bold", true, config::validate_bool,
-			[&, client](config::database &, const config::value &value) {
-				widget->highlight_bold = value.bool_();
-				client->render_statusbar();
-			}, "Whether to render highlight notifications in bold.");
-	}
-
-	void notifications_plugin::postinit(plugin_host *host) {
 		parent = dynamic_cast<spjalla::client *>(host);
 		if (!parent) { DBG("Error: expected client as plugin host"); return; }
 
+		widget = std::make_shared<notifications_widget>(parent, 20);
+
+		config::register_key("appearance", "highlight_color", "red", config::validate_color,
+			[&, this](config::database &, const config::value &value) {
+				widget->highlight_color = ansi::get_color(value.string_());
+				parent->render_statusbar();
+			}, "The text color for highlight notifications.");
+
+		config::register_key("appearance", "highlight_bold", true, config::validate_bool,
+			[&, this](config::database &, const config::value &value) {
+				widget->highlight_bold = value.bool_();
+				parent->render_statusbar();
+			}, "Whether to render highlight notifications in bold.");
+	}
+
+	void notifications_plugin::postinit(plugin_host *) {
 		parent->add_status_widget(widget);
 
 		parent->add("gather", 0, 0, false, [&](pingpong::server *, const input_line &) {

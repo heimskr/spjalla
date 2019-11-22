@@ -11,7 +11,6 @@
 #include "lib/formicine/ansi.h"
 
 namespace spjalla::config {
-
 	registered_map registered {};
 	std::map<std::string, validator_fn> validators {};
 

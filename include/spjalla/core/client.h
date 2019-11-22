@@ -129,7 +129,7 @@ namespace spjalla {
 			/** Logs a message indicated that there is no active channel. */
 			void no_channel();
 
-// client/commands.cpp
+// stt/commands.cpp
 
 		private:
 			/** Handles the parsing for the /ban command. */
@@ -212,6 +212,8 @@ namespace spjalla {
 			void add_status_widget(std::shared_ptr<ui::status_widget>);
 
 			bool remove_status_widget(std::shared_ptr<ui::status_widget>);
+
+			const std::list<std::shared_ptr<ui::status_widget>> & get_status_widgets() const { return status_widgets; }
 
 			void init_statusbar();
 

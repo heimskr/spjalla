@@ -22,6 +22,7 @@
 #include "pingpong/core/defs.h"
 
 #include "spjalla/lines/error.h"
+#include "spjalla/lines/success.h"
 #include "spjalla/lines/warning.h"
 
 #include "spjalla/ui/renderer.h"
@@ -145,6 +146,19 @@ namespace spjalla::ui {
 			template <typename E, typename D>
 			void error(const E &error, const D &destination, pingpong::server *serv = nullptr) {
 				lines::error_line eline {parent, error};
+				eline.serv = serv;
+				log(eline, destination);
+			}
+
+			void success(const std::string &message, pingpong::server *serv = nullptr) {
+				lines::success_line eline {parent, message};
+				eline.serv = serv;
+				log(eline);
+			}
+
+			template <typename E, typename D>
+			void success(const E &message, const D &destination, pingpong::server *serv = nullptr) {
+				lines::success_line eline {parent, message};
 				eline.serv = serv;
 				log(eline, destination);
 			}

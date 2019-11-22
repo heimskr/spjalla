@@ -8,7 +8,7 @@
 namespace spjalla::plugins {
 	class notifications_widget: public spjalla::ui::status_widget {
 		protected:
-			std::string _render(const ui::window *, bool) const;
+			std::string _render(const ui::window *, bool) const override;
 
 		public:
 			ansi::color highlight_color = ansi::color::yellow;
@@ -16,7 +16,9 @@ namespace spjalla::plugins {
 
 			using status_widget::status_widget;
 
-			virtual ~notifications_widget() {}
+			virtual ~notifications_widget();
+
+			const char * get_name() const override { return "Notifications"; }
 
 			void window_focused(ui::window *window);
 	};

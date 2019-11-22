@@ -24,6 +24,11 @@ namespace spjalla::plugins {
 	}
 
 	plugin_host::plugin_tuple plugin_host::load_plugin(const std::string &path) {
+		if (!std::filesystem::exists(path)) {
+			throw std::filesystem::filesystem_error("No plugin found at path",
+				std::error_code(ENOENT, std::generic_category()));
+		}
+
 		void *lib = dlopen(path.c_str(), RTLD_NOW | RTLD_LOCAL);
 		if (lib == nullptr)
 			throw std::runtime_error("dlopen returned nullptr");
@@ -70,6 +75,25 @@ namespace spjalla::plugins {
 		});
 
 		return iter == plugins.end()? nullptr : &*iter;
+	}
+
+	bool plugin_host::has_plugin(const std::filesystem::path &path) const {
+		return plugins.end() != std::find_if(plugins.begin(), plugins.end(), [&](const plugin_tuple &tuple) {
+			return path == std::get<0>(tuple);
+		});
+	}
+
+	bool plugin_host::has_plugin(const std::string &name, bool insensitive) const {
+		if (insensitive) {
+			const std::string lower = formicine::util::lower(name);
+			return plugins.end() != std::find_if(plugins.begin(), plugins.end(), [&](const plugin_tuple &tuple) {
+				return formicine::util::lower(std::get<1>(tuple)->get_name()) == lower;
+			});
+		}
+
+		return plugins.end() != std::find_if(plugins.begin(), plugins.end(), [&](const plugin_tuple &tuple) {
+			return std::get<1>(tuple)->get_name() == name;
+		});
 	}
 
 	const std::list<plugin_host::plugin_tuple> & plugin_host::get_plugins() const {

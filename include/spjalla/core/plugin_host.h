@@ -132,6 +132,10 @@ namespace spjalla::plugins {
 			/** Returns a pointer to a plugin's tuple. Returns nullptr if no match was found. */
 			plugin_tuple * get_plugin(const plugins::plugin *);
 
+			bool has_plugin(const std::filesystem::path &) const;
+
+			bool has_plugin(const std::string &name, bool insensitive = false) const;
+
 			/** Returns a const reference to the plugin list. */
 			const std::list<plugin_tuple> & get_plugins() const;
 

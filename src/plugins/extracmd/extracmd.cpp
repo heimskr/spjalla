@@ -79,6 +79,13 @@ namespace spjalla::plugins {
 				parent->get_ui().log("Unknown option: " + first);
 			});
 
+			parent->add("_sw", 0, 0, false, [this](pingpong::server *, const input_line &) {
+				DBG("Number of status widgets: " << parent->get_status_widgets().size());
+				for (const auto &widget: parent->get_status_widgets()) {
+					DBG("- " << widget->get_name());
+				}
+			});
+
 			parent->add("_time", 0, 0, false, [](pingpong::server *, const input_line &) {
 				DBG("Default time: " << pingpong::util::timestamp());
 				DBG("Seconds:      " << pingpong::util::seconds());
@@ -133,6 +140,7 @@ namespace spjalla::plugins {
 			parent->remove_command("_args");
 			parent->remove_command("_dbg");
 			parent->remove_command("_info");
+			parent->remove_command("_sw");
 			parent->remove_command("_time");
 			parent->remove_command("_users");
 			parent->remove_command("_win");

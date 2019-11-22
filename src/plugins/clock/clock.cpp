@@ -16,7 +16,9 @@ namespace spjalla::plugins {
 
 			virtual ~clock_widget() = default;
 
-			std::string _render(const ui::window *, bool) const {
+			const char * get_name() const override { return "Clock"; }
+
+			std::string _render(const ui::window *, bool) const override {
 				std::chrono::system_clock::time_point tpoint {pingpong::util::timetype(stamp)};
 				std::time_t time = std::chrono::system_clock::to_time_t(tpoint);
 				char str[64];
@@ -24,7 +26,7 @@ namespace spjalla::plugins {
 				return str;
 			}
 
-			void update() {
+			void update() override {
 				stamp = pingpong::util::timestamp();
 				parent->render_statusbar();
 			}

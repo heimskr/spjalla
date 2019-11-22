@@ -2,6 +2,8 @@
 #include "spjalla/plugins/notifications/widget.h"
 
 namespace spjalla::plugins {
+	notifications_widget::~notifications_widget() = default;
+
 	std::string notifications_widget::_render(const ui::window *, bool) const {
 		std::vector<std::string> indicators;
 

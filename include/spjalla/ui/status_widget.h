@@ -21,10 +21,12 @@ namespace spjalla::ui {
 			virtual std::string _render(const window *, bool overlay_visible) const = 0;
 
 		public:
-			status_widget(client *parent_, int priority_ = 50): parent(parent_), priority(priority_) {}
-
 			/** A lower priority indicates the widget should be ordered more towards the left of the status bar. */
 			int priority;
+
+			status_widget(client *parent_, int priority_ = 50): parent(parent_), priority(priority_) {}
+
+			virtual const char * get_name() const { return "?"; }
 
 			/** Surrounds a string (the rendered contents of the widget) with characters at each end ("[" and "]" by
 			 *  default). */
