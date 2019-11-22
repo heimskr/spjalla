@@ -123,6 +123,10 @@ sinclude $(shell find src -name 'targets.mk')
 
 plugins: $(OBJECTS_PL)
 
+strender/build/%.o: strender/src/%.cpp
+	@ mkdir -p "$(shell dirname "$@")"
+	$(CC) $(strip $(ALLFLAGS) $(INCLUDE_SR)) -c $< -o $@
+
 pingpong/build/%.o: pingpong/src/%.cpp
 	@ mkdir -p "$(shell dirname "$@")"
 	$(CC) $(strip $(ALLFLAGS) $(INCLUDE_PP)) -c $< -o $@
@@ -189,9 +193,9 @@ DEPFLAGS = -f $(DEPFILE) -s $(DEPTOKEN)
 
 depend:
 	@ echo $(DEPTOKEN) > $(DEPFILE)
-	makedepend $(DEPFLAGS) -- $(CC) $(strip $(INCLUDE_LIBS) $(INCLUDE_SP) $(MDEP_INCLUDE)) -- $(SOURCES_PP) $(SOURCES_HN) $(SOURCES_SP) $(SOURCES_TESTS) $(SOURCES_PL) 2>/dev/null
+	makedepend $(DEPFLAGS) -- $(CC) $(strip $(INCLUDE_LIBS) $(INCLUDE_SP) $(MDEP_INCLUDE)) -- $(SOURCES_SR) $(SOURCES_PP) $(SOURCES_HN) $(SOURCES_SP) $(SOURCES_TESTS) $(SOURCES_PL) 2>/dev/null
 	@ sed -i.sed 's/^src\//build\//' $(DEPFILE)
-	@ sed -i.sed -E 's/^(pingpong|haunted)\/src\//\1\/build\//' $(DEPFILE)
+	@ sed -i.sed -E 's/^(pingpong|haunted|strender)\/src\//\1\/build\//' $(DEPFILE)
 	@ sed -i.sed '/\/usr\/include\//d' $(DEPFILE)
 	@ rm $(DEPFILE).bak $(DEPFILE).sed
 
