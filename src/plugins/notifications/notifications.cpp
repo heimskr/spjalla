@@ -95,7 +95,7 @@ namespace spjalla::plugins {
 			});
 
 		pingpong::events::listen<events::window_notification_event>("p:notifications",
-			[=](events::window_notification_event *ev) {
+			[=, this](events::window_notification_event *ev) {
 				if (ev->window == parent->get_ui().get_active_window())
 					ev->window->highest_notification = notification_type::none;
 				else
