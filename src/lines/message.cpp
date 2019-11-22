@@ -151,10 +151,11 @@ namespace spjalla::lines {
 			if (box) {
 				// Compute the clicked character's index within the message.
 				ssize_t n = -get_continuation();
-				DBG("base_continuation[" << base_continuation << "], n[" << n << "]");
+				const ssize_t old_n = n;
 				// I'm assuming there's nothing after the message in the format strings.
 				ssize_t message_width = box->get_position().width + n;
 				n += report.x + report.y * message_width;
+				DBG("base_continuation[" << base_continuation << "], -get_continuation[" << old_n << "], n[" << n << "]");
 				ssize_t windex, sindex;
 				std::tie(windex, sindex) = formicine::util::word_indices(message, n);
 				std::string word = formicine::util::nth_word(message, windex);

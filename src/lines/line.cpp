@@ -53,19 +53,20 @@ namespace spjalla::lines {
 			if (win->type == ui::window_type::status) {
 				if (pingpong::server *serv = get_associated_server()) {
 					return
-#ifdef RERENDER_LINES
+#ifndef RERENDER_LINES
 						result =
 #endif
-						render_time(parent, stamp).length() + 3 + serv->id.length() + base_continuation;
+
+						ansi::length(render_time(parent, stamp)) + 3 + serv->id.length() + base_continuation;
 				}
 			}
 		}
 
 		return
-#ifdef RERENDER_LINES
+#ifndef RERENDER_LINES
 			result =
 #endif
-			render_time(parent, stamp).length() + base_continuation;
+			ansi::length(render_time(parent, stamp)) + base_continuation;
 	}
 
 
