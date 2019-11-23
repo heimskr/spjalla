@@ -18,8 +18,8 @@ namespace spjalla::plugins {
 	}
 
 	void plugin_host::unload_plugins() {
-		for (plugin_tuple &tuple: plugins)
-			unload_plugin(tuple);
+		while (!plugins.empty())
+			unload_plugin(plugins.front());
 		plugins.clear();
 	}
 
