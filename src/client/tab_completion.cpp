@@ -142,7 +142,6 @@ namespace spjalla {
 		ssize_t windex, sindex;
 		std::tie(windex, sindex) = formicine::util::word_indices(text, cursor);
 
-
 		if (il.is_command()) {
 			const std::string old_text {text};
 
@@ -158,13 +157,21 @@ namespace spjalla {
 				}
 
 				// The user has entered a command and the cursor is at or past the first argument.
+
+				// Search through each command handler.
 				for (const auto &handler: command_handlers) {
 					const std::string &name = handler.first;
 					const commands::command &cmd = handler.second;
 
+					// If the command handler's name matches the command name...
 					if (name == il.command) {
-						if (cmd.completion_fn)
+						// ...and the completion function is valid...
+						if (cmd.completion_fn) {
+							// ...then call the completion function.
 							handled = cmd.completion_fn(*this, il, text, cursor, windex, sindex);
+						}
+
+						// Even if the completion function is invalid, stop the search.
 						break;
 					}
 				}

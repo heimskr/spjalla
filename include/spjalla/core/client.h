@@ -225,6 +225,9 @@ namespace spjalla {
 
 			void tab_complete();
 
+			/** Completes a message for a given cursor position. The word_offset parameter represents the index of the
+			 *  word for which the completion suffix will be added. This can be set to a negative value to disable the
+			 *  completion suffix. */
 			void complete_message(std::string &, size_t cursor, ssize_t word_offset = 0);
 
 			void key_postlistener(const haunted::key &);
