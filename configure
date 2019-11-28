@@ -55,7 +55,7 @@ do_all() {
 
 init_makefile
 
-# do_all icu-uc
+do_all icu-uc
 
 cat >> Makefile <<"BASE"
 COMPILER		:= g++

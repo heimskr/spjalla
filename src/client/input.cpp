@@ -5,9 +5,11 @@
 
 namespace spjalla {
 	void client::add_input_listener() {
-		ui.input->listen(haunted::ui::textinput::event::submit, [&](const haunted::superstring &sstr, int) -> void {
-			if (sstr.empty()) return;
-			std::string str = sstr.str();
+		ui.input->listen(haunted::ui::textinput::event::submit, [&](const haunted::ustring &ustr, int) -> void {
+			if (ustr.empty())
+				return;
+
+			std::string str = ustr;
 			ui.input->clear();
 
 			input_line il = get_input_line(str);
