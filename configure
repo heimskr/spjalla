@@ -36,15 +36,15 @@ add_dep() {
 		echo ${!libs} >> Makefile
 		printf "%-16s:= " "CFLAGS_$upper" >> Makefile
 		echo ${!cflags} >> Makefile
-		echo "DEP_LD          += \$($libs)" >> Makefile
-		echo "DEP_CFLAGS      += \$($cflags)" >> Makefile
+		echo "DEP_LD			+= \$($libs)" >> Makefile
+		echo "DEP_CFLAGS		+= \$($cflags)" >> Makefile
 		echo >> Makefile
 	done
 }
 
 init_makefile() {
-	echo "DEP_LD          :=" > Makefile
-	echo "DEP_CFLAGS      :=" >> Makefile
+	echo "DEP_LD			:=" > Makefile
+	echo "DEP_CFLAGS		:=" >> Makefile
 	echo >> Makefile
 }
 
@@ -59,9 +59,7 @@ do_all icu-uc
 
 cat >> Makefile <<"BASE"
 COMPILER		:= g++
-ifeq ($(OFLAGS),)
-	OFLAGS		:= -g -O0
-endif
+OFLAGS			:= -g -O0
 CFLAGS			:= -std=c++2a $(OFLAGS) -Wall -Wextra -fPIC
 CFLAGS_ORIG		:= $(CFLAGS)
 INCLUDE			:= 
@@ -75,9 +73,7 @@ SHARED_EXT		:= so
 SHARED_FLAG		:= -shared
 LIBPATHVAR		:= LD_LIBRARY_PATH
 LIBPATH			 = $(LIBPATHVAR)="`pwd`/build"
-ifeq ($(DEBUGGER),)
-	DEBUGGER	:= lldb
-endif
+DEBUGGER		?= lldb
 
 ifeq ($(shell uname -s), Darwin)
 	SHARED_EXT	:= dylib
