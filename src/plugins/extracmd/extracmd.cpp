@@ -8,6 +8,7 @@
 #include "spjalla/plugins/plugin.h"
 
 #include "lib/formicine/ansi.h"
+#include "lib/haunted/lib/ustring.h"
 
 namespace spjalla::plugins {
 	struct extracmd_plugin: public plugin {
@@ -130,6 +131,13 @@ namespace spjalla::plugins {
 					DBG("Window: " << "null"_d);
 				}
 			});
+
+			parent->add("_findemoji", 0, 0, false, [this](pingpong::server *, const input_line &) {
+				for (UChar32 i = 0; i < 99999; ++i) {
+					haunted::ustring ustr = icu::UnicodeString::fromUTF32(&i, 1);
+					DBG("[" << ustr << "] " << (u_hasBinaryProperty(i, UCHAR_EMOJI)? "true" : "false"));
+				}
+			});
 		}
 
 		void cleanup(plugin_host *) override {
@@ -144,6 +152,7 @@ namespace spjalla::plugins {
 			parent->remove_command("_time");
 			parent->remove_command("_users");
 			parent->remove_command("_win");
+			parent->remove_command("_findemoji");
 		}
 	};
 }

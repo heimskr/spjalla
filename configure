@@ -42,10 +42,17 @@ add_dep() {
 	done
 }
 
+add_include() {
+	for dep in "$@"; do
+		upper=$(to_upper `escape_name "$dep"`)
+		cflags="CFLAGS_$upper"
+		printf "%-16s:= " "CFLAGS_$upper" >> Makefile
+		echo ${!cflags} >> Makefile
+	done
+}
+
 init_makefile() {
-	echo "DEP_LD			:=" > Makefile
-	echo "DEP_CFLAGS		:=" >> Makefile
-	echo >> Makefile
+	> Makefile
 }
 
 do_all() {
@@ -54,6 +61,9 @@ do_all() {
 }
 
 init_makefile
+
+check_for boost
+add_include boost
 
 do_all icu-uc
 
@@ -137,11 +147,11 @@ build/%.o: src/%.cpp
 
 
 define PLUGINRULE
-build/plugins/$P.$(SHARED_EXT): $(patsubst %.cpp,%.o,$(addprefix build/plugins/$P/,$(shell ls "src/plugins/$P"))) $(MAINLIB)
-	$(CC) $(SHARED_FLAG) $$+ -o $$@
+build/plugins/$P.$(SHARED_EXT): $(patsubst %.cpp,%.o,$(addprefix build/plugins/$P/,$(filter %.cpp,$(shell ls "src/plugins/$P")))) $(MAINLIB)
+	$(CC) $(SHARED_FLAG) $$+ -o $$@ $(LDFLAGS)
 endef
 
-$(foreach P,$(shell ls src/plugins),$(eval $(PLUGINRULE)))
+$(foreach P,$(notdir $(shell find src/plugins -mindepth 1 -maxdepth 1 -type d '!' -exec test -e "{}/targets.mk" ';' -print)),$(eval $(PLUGINRULE)))
 
 
 test: $(OUTPUT)
