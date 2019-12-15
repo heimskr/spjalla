@@ -11,7 +11,7 @@ namespace spjalla::plugins {
 	namespace slashdot {
 		struct story {
 			std::string title, url, author, department, section;
-			int comments; 
+			int comments;
 		};
 
 		class parser {
@@ -19,7 +19,7 @@ namespace spjalla::plugins {
 				std::string get_text(tinyxml2::XMLElement *);
 			public:
 				std::vector<story> stories {};
-				void parse(const std::string &);
+				std::vector<story> & parse(const std::string &);
 		};
 	}
 

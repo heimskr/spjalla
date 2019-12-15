@@ -10,3 +10,6 @@
 [submodule "strender"]
 	path = strender
 	url = https://github.com/heimskr/strender
+[submodule "cpr"]
+	path = cpr
+	url = https://github.com/whoshuu/cpr.git

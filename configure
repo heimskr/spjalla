@@ -72,18 +72,18 @@ do_all() {
 
 init_makefile
 
-check_for tinyxml2
-add_both tinyxml2
+check_for tinyxml2 curlpp
+add_both tinyxml2 curlpp
 
 do_all icu-uc
 
 cat >> Makefile <<"BASE"
 COMPILER		:= g++
 OFLAGS			:= -g -O0
-CFLAGS			:= -std=c++2a $(OFLAGS) -Wall -Wextra -fPIC
+CFLAGS			+= -std=c++2a $(OFLAGS) -Wall -Wextra -fPIC
 CFLAGS_ORIG		:= $(CFLAGS)
 INCLUDE			:= 
-LDFLAGS			:= $(strip -pthread -ldl $(DEP_LD))
+LDFLAGS			+= $(strip -pthread -ldl $(DEP_LD))
 CC				 = $(COMPILER) $(strip $(CFLAGS) $(CHECKFLAGS))
 CHECKFLAGS		:=
 MKBUILD			:= mkdir -p build
