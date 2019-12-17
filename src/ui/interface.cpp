@@ -350,14 +350,8 @@ namespace spjalla::ui {
 	}
 
 	window * interface::new_window(const std::string &name, window_type type) {
-		static size_t win_count = 0;
-		window *win = new window(swappo, swappo->get_position(), name);
+		window *win = new_window<window>(name);
 		win->type = type;
-		win->set_name("window" + std::to_string(++win_count));
-		win->set_terminal(nullptr); // inactive windows are marked by their null terminals
-		win->set_autoscroll(true);
-		windows.push_back(win);
-		win->scroll_buffer = scroll_buffer;
 		return win;
 	}
 

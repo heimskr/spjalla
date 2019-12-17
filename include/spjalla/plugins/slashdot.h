@@ -12,6 +12,8 @@ namespace spjalla::plugins {
 		struct story {
 			std::string title, url, author, department, section;
 			int comments;
+
+			std::string text;
 		};
 
 		class parser {
@@ -19,7 +21,8 @@ namespace spjalla::plugins {
 				std::string get_text(tinyxml2::XMLElement *);
 			public:
 				std::vector<story> stories {};
-				std::vector<story> & parse(const std::string &);
+				void parse(const std::string &);
+				void fetch();
 		};
 	}
 

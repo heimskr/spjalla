@@ -54,6 +54,8 @@ namespace spjalla::ui {
 			haunted::ui::label     *titlebar, *statusbar;
 			haunted::ui::textinput *input;
 
+			size_t win_count = 0;
+
 			/** Sets up the labels, overlay and textinput. */
 			void init_basic();
 
@@ -193,6 +195,24 @@ namespace spjalla::ui {
 
 			/** Creates a new window, configures it as appropriate and appends it to the swapbox. */
 			window * new_window(const std::string &name, window_type);
+
+			template <typename T>
+			T * new_window(const std::string &name, bool force = false) {
+				if (!force) {
+					for (window *win: windows) {
+						if (win->get_name() == name)
+							return dynamic_cast<T *>(win);
+					}
+				}
+
+				T *win = new T(swappo, swappo->get_position(), name);
+				// win->set_name("window" + std::to_string(++win_count));
+				win->set_terminal(nullptr); // inactive windows are marked by their null terminals
+				win->set_autoscroll(true);
+				windows.push_back(win);
+				win->scroll_buffer = scroll_buffer;
+				return win;
+			}
 
 			/** Switches to the next server in the list. */
 			void next_server();
