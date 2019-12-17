@@ -1,6 +1,7 @@
 #include "spjalla/core/client.h"
 #include "spjalla/plugins/slashdot.h"
 #include "spjalla/ui/basic_window.h"
+#include "spjalla/lines/basic.h"
 
 namespace spjalla::plugins {
 	void slashdot_plugin::postinit(plugin_host *host) {
@@ -19,7 +20,16 @@ namespace spjalla::plugins {
 			slash.fetch();
 
 			ui::window *win = parent->get_ui().new_window<ui::basic_window>("slashdot");
-			*win += "Hello";
+			for (const slashdot::story &story: slash.stories) {
+				*win += ansi::bold(story.title) + " (posted by " + ansi::underline(story.author) + " from the " +
+				        ansi::italic(story.department) + " dept.)";
+				*win += "";
+				for (const std::string &str: formicine::util::split(story.text, "\n", false))
+					*win += lines::basic_line(parent, "    " + str, 4);
+				*win += "";
+				*win += "";
+			}
+
 			parent->get_ui().focus_window(win);
 		});
 	}

@@ -31,7 +31,7 @@ namespace spjalla::plugins::slashdot {
 	}
 
 	void parser::fetch() {
-		for (slashdot::story &story: stories) {
+		for (story &story: stories) {
 			DBG("Retrieving " << story.url << "...");
 			auto res = cpr::Get(cpr::Url(story.url));
 			DBG("Done.");

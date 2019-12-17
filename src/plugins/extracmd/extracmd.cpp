@@ -132,7 +132,7 @@ namespace spjalla::plugins {
 				}
 			});
 
-			parent->add("_findemoji", 0, 0, false, [this](pingpong::server *, const input_line &) {
+			parent->add("_findemoji", 0, 0, false, [](pingpong::server *, const input_line &) {
 				for (UChar32 i = 0; i < 99999; ++i) {
 					haunted::ustring ustr = icu::UnicodeString::fromUTF32(&i, 1);
 					DBG("[" << ustr << "] " << (u_hasBinaryProperty(i, UCHAR_EMOJI)? "true" : "false"));
