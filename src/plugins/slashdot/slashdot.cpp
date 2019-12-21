@@ -37,26 +37,19 @@ namespace spjalla::plugins {
 				win->set_voffset(0);
 				slash.fetch();
 
-				// const int old_voffset = win->get_voffset();
 				win->clear_lines();
 
-				// int added_lines = 0;
-				// const size_t width = win->get_position().width;
 				for (const slashdot::story &story: slash.stories) {
 					*win += ansi::bold(story.title) + " (posted under " + ansi::italic(story.section) + " on " +
 					        story.time + " by " + story.author + " from the " + ansi::italic(story.department) +
 					        " dept.)";
 					*win += "";
-					for (const std::string &str: formicine::util::split(story.text, "\n", false)) {
+					for (const std::string &str: formicine::util::split(story.text, "\n", false))
 						*win += lines::basic_line(parent, "    " + str, 4);
-						// if (win->total_rows() < old_voffset)
-						// 	added_lines += win->get_lines().back()->num_rows(width) - 1;
-					}
 					*win += "";
 					*win += "";
 				}
 
-				// win->set_voffset(old_voffset + added_lines);
 				win->set_voffset(0);
 				if (parent->get_ui().get_active_window() == win)
 					win->draw();
