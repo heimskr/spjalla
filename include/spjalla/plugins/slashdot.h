@@ -10,7 +10,7 @@ namespace tinyxml2 {
 namespace spjalla::plugins {
 	namespace slashdot {
 		struct story {
-			std::string title, url, author, department, section;
+			std::string title, url, author, department, section, time;
 			int comments;
 
 			std::string text;
@@ -22,7 +22,7 @@ namespace spjalla::plugins {
 			public:
 				std::vector<story> stories {};
 				void parse(const std::string &);
-				void fetch(std::function<void(int)>);
+				void fetch();
 		};
 	}
 

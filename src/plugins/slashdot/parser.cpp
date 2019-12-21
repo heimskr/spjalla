@@ -1,4 +1,5 @@
 #include <cpr/cpr.h>
+#include <thread>
 #include <tinyxml2.h>
 
 #include "spjalla/plugins/slashdot.h"
@@ -65,7 +66,8 @@ namespace spjalla::plugins::slashdot {
 					.url        = get_text(element->FirstChildElement("url")),
 					.author     = get_text(element->FirstChildElement("author")),
 					.department = get_text(element->FirstChildElement("department")),
-					.section    = get_text(element->FirstChildElement("section"))
+					.section    = get_text(element->FirstChildElement("section")),
+					.time       = get_text(element->FirstChildElement("time"))
 				});
 
 				story new_story = stories.back();
@@ -76,45 +78,48 @@ namespace spjalla::plugins::slashdot {
 		}
 	}
 
-	void parser::fetch(std::function<void(int)> progress_fn) {
-		int i = 0;
+	void parser::fetch() {
+		std::vector<std::thread> threads;
+
 		for (story &story: stories) {
-			DBG("Retrieving " << story.url << "...");
-			auto res = cpr::Get(cpr::Url(story.url));
-			DBG("Done.");
-			if (res.status_code != 200) {
-				DBG("Status: " << res.status_code);
-				continue;
-			}
+			threads.emplace_back([&story]() {
+				DBG("Retrieving " << story.url << "...");
+				auto res = cpr::Get(cpr::Url(story.url));
+				DBG("Done.");
+				if (res.status_code != 200) {
+					DBG("Status: " << res.status_code);
+					return;
+				}
 
-			const size_t text_div = res.text.find("<div id=\"text-");
-			if (text_div == std::string::npos) {
-				DBG("Couldn't find text div.");
-				continue;
-			}
+				const size_t text_div = res.text.find("<div id=\"text-");
+				if (text_div == std::string::npos) {
+					DBG("Couldn't find text div.");
+					return;
+				}
 
-			res.text.erase(0, text_div);
+				res.text.erase(0, text_div);
 
-			const size_t div_end = res.text.find("</div>");
-			if (div_end == std::string::npos) {
-				DBG("Couldn't find </div>.");
-				continue;
-			}
+				const size_t div_end = res.text.find("</div>");
+				if (div_end == std::string::npos) {
+					DBG("Couldn't find </div>.");
+					return;
+				}
 
-			res.text.erase(div_end);
+				res.text.erase(div_end);
 
-			const size_t newline = res.text.find("\n");
-			if (newline == std::string::npos) {
-				DBG("Couldn't find newline.");
-				continue;
-			}
+				const size_t newline = res.text.find("\n");
+				if (newline == std::string::npos) {
+					DBG("Couldn't find newline.");
+					return;
+				}
 
-			res.text.erase(0, newline);
-			story.text = formicine::util::trim(formicine::util::remove_html(res.text));
-
-			if (progress_fn)
-				progress_fn(i++);
+				res.text.erase(0, newline);
+				story.text = formicine::util::trim(formicine::util::remove_html(res.text));
+			});
 		}
+
+		for (std::thread &thread: threads)
+			thread.join();
 	}
 
 	std::string parser::get_text(tinyxml2::XMLElement *element) {

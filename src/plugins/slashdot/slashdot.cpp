@@ -25,38 +25,41 @@ namespace spjalla::plugins {
 				parent->get_ui().focus_window(win);
 
 				for (const slashdot::story &story: slash.stories) {
-					*win += ansi::bold(story.title) + " (posted by " + ansi::underline(story.author) + " from the " +
-							ansi::italic(story.department) + " dept.)";
+					*win += ansi::bold(story.title) + " (posted under " + ansi::italic(story.section) + " on " +
+					        story.time + " by " + story.author + " from the " + ansi::italic(story.department) +
+					        " dept.)";
 					*win += "";
 					*win += ansi::dim("...");
 					*win += "";
 					*win += "";
 				}
 
-				win->draw();
-				int added_lines = 0;
-				slash.fetch([this, win, &slash, &added_lines](int i) {
-					auto split = formicine::util::split(slash.stories[i].text, "\n", false);
-					if (!split.empty())
-						win->get_lines()[i + added_lines] = std::make_shared<lines::basic_line>(parent, "    " + split[0], 4);
-					auto iter = win->get_lines().begin() + 1;
-					for (size_t j = 1, len = split.size(); j < len; ++j, ++added_lines)
-						win->get_lines().insert(std::next(win->get_lines().begin(), i + j + 1), std::make_shared<lines::basic_line>(parent, "    " + slash.stories[i].text, 4));
-					if (parent->get_ui().get_active_window() == win)
-						win->draw();
-				});
+				win->set_voffset(0);
+				slash.fetch();
 
-				// win->clear_lines();
+				// const int old_voffset = win->get_voffset();
+				win->clear_lines();
 
-				// for (const slashdot::story &story: slash.stories) {
-				// 	*win += ansi::bold(story.title) + " (posted by " + ansi::underline(story.author) + " from the " +
-				// 			ansi::italic(story.department) + " dept.)";
-				// 	*win += "";
-				// 	for (const std::string &str: formicine::util::split(story.text, "\n", false))
-				// 		*win += lines::basic_line(parent, "    " + str, 4);
-				// 	*win += "";
-				// 	*win += "";
-				// }
+				// int added_lines = 0;
+				// const size_t width = win->get_position().width;
+				for (const slashdot::story &story: slash.stories) {
+					*win += ansi::bold(story.title) + " (posted under " + ansi::italic(story.section) + " on " +
+					        story.time + " by " + story.author + " from the " + ansi::italic(story.department) +
+					        " dept.)";
+					*win += "";
+					for (const std::string &str: formicine::util::split(story.text, "\n", false)) {
+						*win += lines::basic_line(parent, "    " + str, 4);
+						// if (win->total_rows() < old_voffset)
+						// 	added_lines += win->get_lines().back()->num_rows(width) - 1;
+					}
+					*win += "";
+					*win += "";
+				}
+
+				// win->set_voffset(old_voffset + added_lines);
+				win->set_voffset(0);
+				if (parent->get_ui().get_active_window() == win)
+					win->draw();
 			});
 
 			thread.detach();
