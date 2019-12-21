@@ -22,7 +22,7 @@ namespace spjalla::plugins {
 			public:
 				std::vector<story> stories {};
 				void parse(const std::string &);
-				void fetch();
+				void fetch(std::function<void(int)>);
 		};
 	}
 

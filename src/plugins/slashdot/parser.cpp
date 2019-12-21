@@ -76,7 +76,8 @@ namespace spjalla::plugins::slashdot {
 		}
 	}
 
-	void parser::fetch() {
+	void parser::fetch(std::function<void(int)> progress_fn) {
+		int i = 0;
 		for (story &story: stories) {
 			DBG("Retrieving " << story.url << "...");
 			auto res = cpr::Get(cpr::Url(story.url));
@@ -110,6 +111,9 @@ namespace spjalla::plugins::slashdot {
 
 			res.text.erase(0, newline);
 			story.text = formicine::util::trim(formicine::util::remove_html(res.text));
+
+			if (progress_fn)
+				progress_fn(i++);
 		}
 	}
 
