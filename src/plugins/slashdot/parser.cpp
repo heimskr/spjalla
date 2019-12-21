@@ -7,8 +7,36 @@
 namespace spjalla::plugins::slashdot {
 	void parser::parse(const std::string &text) {
 		tinyxml2::XMLDocument doc;
-		doc.Parse(text.c_str(), text.length());
-		tinyxml2::XMLElement *element = doc.FirstChildElement("backslash");
+
+		size_t wbr_index = text.find("<wbr>");
+		// size_t nobr_index = text.find("<nobr> </nobr>");
+		if (wbr_index == std::string::npos) {
+			doc.Parse(text.c_str(), text.length());
+		} else {
+			std::string copy;
+			copy.reserve(text.size());
+			copy.append(text.substr(0, wbr_index));
+			while (wbr_index != std::string::npos) {
+				const size_t next_index = text.find("<wbr>", wbr_index + 1);
+				copy.append(text.substr(wbr_index + 5, next_index != std::string::npos? next_index - (wbr_index + 5) : next_index));
+				wbr_index = next_index;
+			}
+			DBG(copy);
+			doc.Parse(copy.c_str(), copy.length());
+		}
+
+		tinyxml2::XMLElement *element = doc.RootElement();
+
+		if (doc.Error()) {
+			DBG(doc.ErrorStr());
+			return;
+		}
+
+		if (!element) {
+			DBG("Couldn't find root element in \"" << text.substr(0, 32) << "...\"");
+			return;
+		}
+
 		for (element = element->FirstChildElement("story"); element != nullptr; element = element->NextSiblingElement()) {
 			if (std::string(element->Name()) != "story")
 				continue;
