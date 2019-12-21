@@ -9,19 +9,37 @@ namespace spjalla::plugins::slashdot {
 		tinyxml2::XMLDocument doc;
 
 		size_t wbr_index = text.find("<wbr>");
-		// size_t nobr_index = text.find("<nobr> </nobr>");
+		size_t nobr_index = text.find("<nobr> </nobr>");
 		if (wbr_index == std::string::npos) {
 			doc.Parse(text.c_str(), text.length());
 		} else {
-			std::string copy;
-			copy.reserve(text.size());
-			copy.append(text.substr(0, wbr_index));
+			// Aggressively fix up some of the garbage I've seen end up in Slashdot titles, e.g.
+			// https://tech.slashdot.org/story/19/12/16/2133236/
+
+			std::string copy = text;
+
 			while (wbr_index != std::string::npos) {
-				const size_t next_index = text.find("<wbr>", wbr_index + 1);
-				copy.append(text.substr(wbr_index + 5, next_index != std::string::npos? next_index - (wbr_index + 5) : next_index));
-				wbr_index = next_index;
+				copy.erase(wbr_index, 5);
+				wbr_index = copy.find("<wbr>");
 			}
-			DBG(copy);
+
+			while (nobr_index != std::string::npos) {
+				copy.erase(nobr_index, 14);
+				nobr_index = copy.find("<nobr> </nobr>");
+			}
+
+			nobr_index = copy.find("<nobr>");
+			while (nobr_index != std::string::npos) {
+				copy.erase(nobr_index, 6);
+				nobr_index = copy.find("<nobr>");
+			}
+
+			nobr_index = copy.find("</nobr>");
+			while (nobr_index != std::string::npos) {
+				copy.erase(nobr_index, 7);
+				nobr_index = copy.find("</nobr>");
+			}
+
 			doc.Parse(copy.c_str(), copy.length());
 		}
 
