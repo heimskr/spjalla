@@ -33,6 +33,7 @@ namespace spjalla::plugins {
 					return;
 				}
 
+
 				for (const slashdot::story &story: slash.stories) {
 					*win += ansi::bold(story.title) + " (posted under " + ansi::italic(story.section) + " on " +
 					        story.time + " by " + story.author + " from the " + ansi::italic(story.department) +

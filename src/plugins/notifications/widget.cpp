@@ -7,12 +7,12 @@ namespace spjalla::plugins {
 	std::string notifications_widget::_render(const ui::window *, bool) const {
 		std::vector<std::string> indicators;
 
-		std::deque<Haunted::UI::Control *> controls = parent->get_window_controls();
-		std::sort(controls.begin(), controls.end(), [](Haunted::UI::Control *one, Haunted::UI::Control *two) {
+		std::deque<haunted::ui::control *> controls = parent->get_window_controls();
+		std::sort(controls.begin(), controls.end(), [](haunted::ui::control *one, haunted::ui::control *two) {
 			return one && two && one->get_index() < two->get_index();
 		});
 
-		for (Haunted::UI::Control *control: controls) {
+		for (haunted::ui::control *control: controls) {
 			if (!control)
 				continue;
 

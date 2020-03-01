@@ -26,11 +26,11 @@
 #include "lib/formicine/performance.h"
 
 namespace spjalla {
-	client::client(int heartbeat_period_): out_stream(ansi::out), term(Haunted::terminal(std::cin, out_stream)),
+	client::client(int heartbeat_period_): out_stream(ansi::out), term(haunted::terminal(std::cin, out_stream)),
 	ui(term, *this), completer(*this), configs({*this, false}), heartbeat_period(heartbeat_period_) {
 		config::register_defaults();
 		DBG("Set up configs.");
-		term.key_postlistener = [&](const Haunted::key &k) { key_postlistener(k); };
+		term.key_postlistener = [&](const haunted::key &k) { key_postlistener(k); };
 	}
 
 	client::~client() {
@@ -109,7 +109,7 @@ namespace spjalla {
 
 		// We need to check the windows in reverse because we're removing some along the way. Removing elements while
 		// looping through a vector causes all kinds of problems unless you loop in reverse.
-		Haunted::UI::container::type &windows = ui.swappo->get_children();
+		haunted::ui::container::type &windows = ui.swappo->get_children();
 		for (auto iter = windows.rbegin(), rend = windows.rend(); iter != rend; ++iter) {
 			ui::window *win = dynamic_cast<ui::window *>(*iter);
 			if (win->serv == serv) {
@@ -150,7 +150,7 @@ namespace spjalla {
 		return "";
 	}
 
-	std::deque<Haunted::UI::Control *> client::get_window_controls() const {
+	std::deque<haunted::ui::control *> client::get_window_controls() const {
 		return ui.swappo->get_children();
 	}
 

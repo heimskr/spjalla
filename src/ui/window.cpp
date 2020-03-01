@@ -5,7 +5,7 @@
 
 namespace spjalla::ui {
 	void swap(window &left, window &right) {
-		swap(static_cast<Haunted::UI::textbox &>(left), static_cast<Haunted::UI::textbox &>(right));
+		swap(static_cast<haunted::ui::textbox &>(left), static_cast<haunted::ui::textbox &>(right));
 		std::swap(left.window_name, right.window_name);
 		std::swap(left.type, right.type);
 		std::swap(left.serv, right.serv);
@@ -18,7 +18,7 @@ namespace spjalla::ui {
 		return type != window_type::overlay;
 	}
 
-	void window::add_line(std::shared_ptr<Haunted::UI::textline> line) {
+	void window::add_line(std::shared_ptr<haunted::ui::textline> line) {
 		do_scroll(line->num_rows(pos.width));
 		lines.push_back(line);
 		rows_dirty();
@@ -83,12 +83,12 @@ namespace spjalla::ui {
 		highest_notification = notification_type::none;
 	}
 
-	void window::remove_rows(std::function<bool(const Haunted::UI::textline *)> fn) {
+	void window::remove_rows(std::function<bool(const haunted::ui::textline *)> fn) {
 		auto w = formicine::perf.watch("window::remove_rows");
-		std::deque<Haunted::UI::textbox::line_ptr> new_lines {};
+		std::deque<haunted::ui::textbox::line_ptr> new_lines {};
 		int rows_removed = 0, lines_removed = 0, total_rows = 0;
 
-		for (Haunted::UI::textbox::line_ptr &ptr: lines) {
+		for (haunted::ui::textbox::line_ptr &ptr: lines) {
 			int rows = ptr->num_rows(pos.width);
 			total_rows += rows;
 			if (fn(ptr.get())) {

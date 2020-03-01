@@ -134,9 +134,9 @@ namespace spjalla::lines {
 		});
 	}
 
-	void message_line::on_mouse(const Haunted::mouse_report &report) {
+	void message_line::on_mouse(const haunted::mouse_report &report) {
 		//*
-		if (report.action == Haunted::mouse_action::up) {
+		if (report.action == haunted::mouse_action::up) {
 			const int name_index = get_name_index();
 			if (name_index <= report.x && report.x < name_index + static_cast<int>(name.length())) {
 				if (!serv) {

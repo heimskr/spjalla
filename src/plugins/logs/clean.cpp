@@ -4,7 +4,7 @@
 
 namespace spjalla::plugins::logs {
 	void logs_plugin::clean() {
-		parent->get_ui().get_active_window()->remove_rows([&](const Haunted::UI::textline *line) -> bool {
+		parent->get_ui().get_active_window()->remove_rows([&](const haunted::ui::textline *line) -> bool {
 			return dynamic_cast<const log_line *>(line);
 		});
 	}

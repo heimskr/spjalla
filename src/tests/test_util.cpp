@@ -2,12 +2,12 @@
 #include "spjalla/core/util.h"
 
 int main(int, char **) {
-	Haunted::tests::testing unit;
+	haunted::tests::testing unit;
 	spjalla::tests::test_util(unit);	
 }
 
 namespace spjalla::tests {
-	void test_util(Haunted::tests::testing &unit) {
+	void test_util(haunted::tests::testing &unit) {
 		using namespace std::string_literals;
 
 		unit.check({

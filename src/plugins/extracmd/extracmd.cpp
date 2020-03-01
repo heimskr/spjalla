@@ -23,7 +23,7 @@ namespace spjalla::plugins {
 			if (!parent) { DBG("Error: expected client as plugin host"); return; }
 
 			parent->add("rmraw", 0, 0, false, [this](pingpong::server *, const input_line &) {
-				parent->get_ui().get_active_window()->remove_rows([](const Haunted::UI::textline *line) -> bool {
+				parent->get_ui().get_active_window()->remove_rows([](const haunted::ui::textline *line) -> bool {
 					return dynamic_cast<const lines::raw_line *>(line);
 				});
 			});
@@ -134,7 +134,7 @@ namespace spjalla::plugins {
 
 			parent->add("_findemoji", 0, 0, false, [](pingpong::server *, const input_line &) {
 				for (UChar32 i = 0; i < 99999; ++i) {
-					Haunted::ustring ustr = icu::UnicodeString::fromUTF32(&i, 1);
+					haunted::ustring ustr = icu::UnicodeString::fromUTF32(&i, 1);
 					DBG("[" << ustr << "] " << (u_hasBinaryProperty(i, UCHAR_EMOJI)? "true" : "false"));
 				}
 			});

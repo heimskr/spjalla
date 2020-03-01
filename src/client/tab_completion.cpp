@@ -12,9 +12,9 @@
 #include "spjalla/config/defaults.h"
 
 namespace spjalla::completions {
-	void command_completer::on_key(const Haunted::key &k) {
+	void command_completer::on_key(const haunted::key &k) {
 		// If tab is pressed, complete is called before on_key, so we don't handle filling in partial here.
-		if (k != Haunted::ktype::tab) {
+		if (k != haunted::ktype::tab) {
 			partial.clear();
 			has_partial = false;
 			for (auto &pair: parent.completion_states)
@@ -291,7 +291,7 @@ namespace spjalla {
 		ui.input->jump_cursor();
 	}
 
-	void client::key_postlistener(const Haunted::key &k) {
+	void client::key_postlistener(const haunted::key &k) {
 		completer.on_key(k);
 	}
 }

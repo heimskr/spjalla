@@ -13,8 +13,8 @@
 #include "spjalla/config/validation.h"
 #include "spjalla/config/value.h"
 
-namespace Haunted::tests { class testing; }
-namespace spjalla::tests { void test_config(Haunted::tests::testing &); }
+namespace haunted::tests { class testing; }
+namespace spjalla::tests { void test_config(haunted::tests::testing &); }
 
 namespace spjalla {
 	class client;
@@ -116,7 +116,7 @@ namespace spjalla::config {
 
 			client & get_parent() { return parent; }
 
-			friend void spjalla::tests::test_config(Haunted::tests::testing &);
+			friend void spjalla::tests::test_config(haunted::tests::testing &);
 	};
 }
 

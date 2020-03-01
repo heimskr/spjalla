@@ -5,7 +5,7 @@
 
 namespace spjalla::config {
 	struct keys {
-		static Haunted::key toggle_overlay, switch_server, next_window, previous_window, toggle_mouse;
+		static haunted::key toggle_overlay, switch_server, next_window, previous_window, toggle_mouse;
 	};
 }
 

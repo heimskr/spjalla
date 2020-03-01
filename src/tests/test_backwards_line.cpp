@@ -7,7 +7,7 @@
 #include "spjalla/util/backward_reader.h"
 
 namespace spjalla::tests {
-	void test_backwards_line(Haunted::tests::testing &unit) {
+	void test_backwards_line(haunted::tests::testing &unit) {
 		std::vector<std::string> original_lines {};
 		std::string line;
 		const int min = -10, max = 64;
@@ -45,6 +45,6 @@ namespace spjalla::tests {
 }
 
 int main(int, char **) {
-	Haunted::tests::testing unit;
+	haunted::tests::testing unit;
 	spjalla::tests::test_backwards_line(unit);	
 }

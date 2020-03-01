@@ -95,7 +95,7 @@ namespace spjalla::lines {
 			virtual notification_type get_notification_type() const override;
 			virtual std::string render(ui::window *) override;
 
-			void on_mouse(const Haunted::mouse_report &) override;
+			void on_mouse(const haunted::mouse_report &) override;
 	};
 }
 

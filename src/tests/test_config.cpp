@@ -2,12 +2,12 @@
 #include "spjalla/core/util.h"
 
 int main(int, char **) {
-	Haunted::tests::testing unit;
+	haunted::tests::testing unit;
 	spjalla::tests::test_config(unit);	
 }
 
 namespace spjalla::tests {
-	void test_config(Haunted::tests::testing &unit) {
+	void test_config(haunted::tests::testing &unit) {
 		using namespace std::string_literals;
 
 		config::database cfg {true};
@@ -71,7 +71,7 @@ namespace spjalla::tests {
 		}, &config::database::parse_double_line, "config::parse_double_line");
 
 		unit.check(cfg.has_group("foo"), false, "has_group(\"foo\")");
-		ansi::out << ansi::info << "Inserting " << Haunted::tests::testing::stringify({"foo", "bar", "hello"}) << "\n";
+		ansi::out << ansi::info << "Inserting " << haunted::tests::testing::stringify({"foo", "bar", "hello"}) << "\n";
 		cfg.insert("foo", "bar", "hello");
 		unit.check(cfg.has_group("foo"), true, "has_group(\"foo\")");
 		unit.check(cfg.key_count("foo"), 1L, "key_count(\"foo\")");
