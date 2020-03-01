@@ -28,7 +28,7 @@ namespace spjalla::lines {
 	/** Renders a UNIX timestamp as an hours-minutes-seconds set. */
 	std::string render_time(client *, long stamp);
 
-	class line: public haunted::ui::textline {
+	class line: public Haunted::UI::textline {
 
 		protected:
 			/** Returns whether the server the line is associated with, if any. */

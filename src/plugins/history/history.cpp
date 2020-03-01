@@ -20,15 +20,15 @@ namespace spjalla::plugins {
 		size_t max_length = 4096;
 		std::deque<std::string> history {};
 
-		std::shared_ptr<plugin_host::pre_function<haunted::key>> prekey = 
-			std::make_shared<plugin_host::pre_function<haunted::key>>([this](const haunted::key &key, bool) {
+		std::shared_ptr<plugin_host::pre_function<Haunted::key>> prekey = 
+			std::make_shared<plugin_host::pre_function<Haunted::key>>([this](const Haunted::key &key, bool) {
 				if (!history.empty()) {
-					if (key == haunted::ktype::up_arrow && 0 < command_index) {
+					if (key == Haunted::ktype::up_arrow && 0 < command_index) {
 						parent->get_ui().set_input(history[--command_index]);
 						return cancelable_result::disable;
 					}
 
-					if (key == haunted::ktype::down_arrow && command_index < static_cast<int>(history.size()) - 1) {
+					if (key == Haunted::ktype::down_arrow && command_index < static_cast<int>(history.size()) - 1) {
 						parent->get_ui().set_input(history[++command_index]);
 						return cancelable_result::disable;
 					}

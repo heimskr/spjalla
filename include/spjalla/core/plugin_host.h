@@ -37,11 +37,11 @@ namespace spjalla::plugins {
 
 			/** Holds prehandlers for keypresses. Note that keypresses handled by the textinput aren't passed on to pre-
 			 *  or posthandlers. */
-			std::list<pre_ptr<haunted::key>>  keyhandlers_pre  {};
+			std::list<pre_ptr<Haunted::key>>  keyhandlers_pre  {};
 
 			/** Holds posthandlers for keypresses. Note that keypresses handled by the textinput aren't passed on to
 			 *  pre- or posthandlers. */
-			std::list<post_ptr<haunted::key>> keyhandlers_post {};
+			std::list<post_ptr<Haunted::key>> keyhandlers_post {};
 
 			/** Holds prehandlers for input lines. Note that input lines handled by the textinput aren't passed on to
 			 *  pre- or posthandlers. */
@@ -151,7 +151,7 @@ namespace spjalla::plugins {
 
 			/** Determines whether a key should be processed by the client. Returns true if so, or false if a plugin
 			 *  chose to block the key. Can modify the input. */
-			bool before_key(haunted::key &key) {
+			bool before_key(Haunted::key &key) {
 				return before(key, keyhandlers_pre);
 			}
 
@@ -173,12 +173,12 @@ namespace spjalla::plugins {
 
 			/** Registers a handler to handle keypresses before the client handles them and determine whether the client
 			 *  will handle them. */
-			void handle(const pre_ptr<haunted::key> &func) {
+			void handle(const pre_ptr<Haunted::key> &func) {
 				keyhandlers_pre.push_back(func);
 			}
 
 			/** Registers a handler to handle keypresses after the client has handled them. */
-			void handle(const post_ptr<haunted::key> &func) {
+			void handle(const post_ptr<Haunted::key> &func) {
 				// TODO: implement posthandlers for keypresses.
 				keyhandlers_post.push_back(func);
 			}
@@ -198,11 +198,11 @@ namespace spjalla::plugins {
 				erase(plugin_command_handlers[priority], func);
 			}
 
-			void unhandle(const pre_ptr<haunted::key> &func) {
+			void unhandle(const pre_ptr<Haunted::key> &func) {
 				erase(keyhandlers_pre, func);
 			}
 
-			void unhandle(const post_ptr<haunted::key> &func) {
+			void unhandle(const post_ptr<Haunted::key> &func) {
 				erase(keyhandlers_post, func);
 			}
 

@@ -79,14 +79,14 @@ namespace spjalla {
 		});
 
 		add("_recalc", 0, 0, false, [&](sptr, line) {
-			for (std::shared_ptr<haunted::ui::textline> textline: ui.active_window->get_lines())
+			for (std::shared_ptr<Haunted::UI::textline> textline: ui.active_window->get_lines())
 				textline->mark_dirty();
 			ui.active_window->rows_dirty();
 			ui.active_window->draw();
 		});
 
 		add("_lines", 0, 0, false, [&](sptr, line) {
-			for (std::shared_ptr<haunted::ui::textline> textline: ui.active_window->get_lines()) {
+			for (std::shared_ptr<Haunted::UI::textline> textline: ui.active_window->get_lines()) {
 				DBG("Line: " << std::string(*textline));
 				DBG("   num_rows_ = " << textline->num_rows_);
 				DBG("   #lines_   = " << textline->lines_.size());

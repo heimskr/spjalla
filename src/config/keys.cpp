@@ -1,9 +1,9 @@
 #include "spjalla/config/keys.h"
 
 namespace spjalla::config {
-	haunted::key keys::toggle_overlay  = {haunted::ktype::semicolon, haunted::kmod::ctrl};
-	haunted::key keys::switch_server   = {haunted::ktype::x,         haunted::kmod::ctrl};
-	haunted::key keys::next_window     = {haunted::ktype::n,         haunted::kmod::ctrl};
-	haunted::key keys::previous_window = {haunted::ktype::p,         haunted::kmod::ctrl};
-	haunted::key keys::toggle_mouse    = {haunted::ktype::m,         haunted::kmod::ctrl};
+	Haunted::key keys::toggle_overlay  = {Haunted::ktype::semicolon, Haunted::kmod::ctrl};
+	Haunted::key keys::switch_server   = {Haunted::ktype::x,         Haunted::kmod::ctrl};
+	Haunted::key keys::next_window     = {Haunted::ktype::n,         Haunted::kmod::ctrl};
+	Haunted::key keys::previous_window = {Haunted::ktype::p,         Haunted::kmod::ctrl};
+	Haunted::key keys::toggle_mouse    = {Haunted::ktype::m,         Haunted::kmod::ctrl};
 }

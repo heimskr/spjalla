@@ -4,17 +4,17 @@
 #include "spjalla/core/util.h"
 
 namespace spjalla::tests {
-	void test_aliases(haunted::tests::testing &);
+	void test_aliases(Haunted::tests::testing &);
 }
 
 int main(int, char **) {
-	haunted::tests::testing unit;
+	Haunted::tests::testing unit;
 	spjalla::tests::test_aliases(unit);	
 }
 
 namespace spjalla::tests {
-	void test_aliases(haunted::tests::testing &unit) {
-		using haunted::tests::testing;
+	void test_aliases(Haunted::tests::testing &unit) {
+		using Haunted::tests::testing;
 
 		using namespace std::string_literals;
 

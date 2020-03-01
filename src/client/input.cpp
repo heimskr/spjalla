@@ -5,7 +5,7 @@
 
 namespace spjalla {
 	void client::add_input_listener() {
-		ui.input->listen(haunted::ui::textinput::event::submit, [&](const haunted::ustring &ustr, int) -> void {
+		ui.input->listen(Haunted::UI::textinput::event::submit, [&](const Haunted::ustring &ustr, int) -> void {
 			if (ustr.empty())
 				return;
 

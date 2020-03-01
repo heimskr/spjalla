@@ -23,12 +23,12 @@ namespace spjalla::ui {
 	};
 
 	/**
-	 * Represents a type of textbox for use within a swapbox. It has a window name separate from the control ID, in
+	 * Represents a type of textbox for use within a SwapBox. It has a window name separate from the control ID, in
 	 * addition to other data and metadata.
 	 */
-	class window: public haunted::ui::textbox {
+	class window: public Haunted::UI::textbox {
 		private:
-			void add_line(std::shared_ptr<haunted::ui::textline>);
+			void add_line(std::shared_ptr<Haunted::UI::textline>);
 
 		public:
 			std::string window_name;
@@ -46,19 +46,19 @@ namespace spjalla::ui {
 			window & operator=(const window &) = delete;
 
 			/** Constructs a window with a parent, a position and initial contents. */
-			window(haunted::ui::container *parent_, haunted::position pos_, const std::vector<std::string> &contents_,
+			window(Haunted::UI::Container *parent_, Haunted::position pos_, const std::vector<std::string> &contents_,
 				const std::string &window_name_): textbox(parent_, pos_, contents_), window_name(window_name_) {}
 
 			/** Constructs a window with a parent and position and empty contents. */
-			window(haunted::ui::container *parent_, haunted::position pos_, const std::string &window_name_):
+			window(Haunted::UI::Container *parent_, Haunted::position pos_, const std::string &window_name_):
 				window(parent_, pos_, {}, window_name_) {}
 
 			/** Constructs a window with a parent, initial contents and a default position. */
-			window(haunted::ui::container *parent_, const std::vector<std::string> &contents_,
+			window(Haunted::UI::Container *parent_, const std::vector<std::string> &contents_,
 				const std::string &window_name_): textbox(parent_, contents_), window_name(window_name_) {}
 
 			/** Constructs a window with a parent, a default position and empty contents. */
-			window(haunted::ui::container *parent_, const std::string &window_name_):
+			window(Haunted::UI::Container *parent_, const std::string &window_name_):
 				window(parent_, std::vector<std::string> {}, window_name_) {}
 
 			/** Constructs a window with no parent and no contents. */
@@ -73,7 +73,7 @@ namespace spjalla::ui {
 				return *this += std::make_shared<T>(line);
 			}
 
-			template <typename T, typename std::enable_if_t<std::is_base_of_v<haunted::ui::textline, T>> * = nullptr,
+			template <typename T, typename std::enable_if_t<std::is_base_of_v<Haunted::UI::textline, T>> * = nullptr,
 			                      typename std::enable_if_t<!std::is_base_of_v<lines::line, T>> * = nullptr>
 			textbox & operator+=(const T &line) {
 				auto w = formicine::perf.watch("template <!line> window::operator+=");
@@ -107,7 +107,7 @@ namespace spjalla::ui {
 				return *this;
 			}
 
-			template <typename T, typename std::enable_if_t<std::is_base_of_v<haunted::ui::textline, T>> * = nullptr,
+			template <typename T, typename std::enable_if_t<std::is_base_of_v<Haunted::UI::textline, T>> * = nullptr,
 			                      typename std::enable_if_t<!std::is_base_of_v<lines::line, T>> * = nullptr>
 			window & operator+=(std::shared_ptr<T> line) {
 				auto w = formicine::perf.watch("window::operator+=(shared_ptr<textline>)");
@@ -138,7 +138,7 @@ namespace spjalla::ui {
 			void unnotify();
 
 			/** Removes rows for which a given function returns true. */
-			void remove_rows(std::function<bool(const haunted::ui::textline *)>);
+			void remove_rows(std::function<bool(const Haunted::UI::textline *)>);
 
 			friend void swap(window &left, window &right);
 	};

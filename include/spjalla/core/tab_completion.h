@@ -44,7 +44,7 @@ namespace spjalla::completions {
 		public:
 			command_completer(client &parent_): parent(parent_) {}
 
-			void on_key(const haunted::key &);
+			void on_key(const Haunted::key &);
 			void complete(std::string &, size_t &);
 	};
 

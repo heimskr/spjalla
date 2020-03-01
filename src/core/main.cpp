@@ -29,12 +29,12 @@ namespace spjalla {
 	}
 
 	void run(int argc, char **argv) {
-		haunted::dbgstream << "--------------------------------\n";
-		haunted::dbgstream.clear().jump().flush();
+		Haunted::dbgstream << "--------------------------------\n";
+		Haunted::dbgstream.clear().jump().flush();
 		DBG(ansi::style::bold << "    " << getpid());
 
 		std::shared_ptr<spjalla::client> instance = std::make_shared<spjalla::client>();
-		instance->get_terminal().mouse(haunted::mouse_mode::motion);
+		instance->get_terminal().mouse(Haunted::mouse_mode::motion);
 		instance->get_irc().version = "Spjalla " SPJALLA_VERSION_NUMBER " with pingpong " PINGPONG_VERSION_NUMBER;
 
 		const std::string plugin_dir = get_plugin_dir(argc, argv);

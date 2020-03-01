@@ -24,7 +24,7 @@
 #include "spjalla/lines/userlist.h"
 
 namespace spjalla::ui {
-	interface::interface(haunted::terminal &term_, client &parent_):
+	interface::interface(Haunted::terminal &term_, client &parent_):
                term(&term_), parent(&parent_), render(parent_.cache) {
 		init_basic();
 		init_swappo();
@@ -41,14 +41,14 @@ namespace spjalla::ui {
 
 
 	void interface::init_basic() {
-		input = new haunted::ui::textinput(term);
+		input = new Haunted::UI::textinput(term);
 		input->set_name("input");
 		input->set_prefix(ansi::dim(">> "));
 	
-		titlebar = new haunted::ui::label(term);
+		titlebar = new Haunted::UI::label(term);
 		titlebar->set_name("titlebar");
 
-		statusbar = new haunted::ui::label(term);
+		statusbar = new Haunted::UI::label(term);
 		statusbar->set_name("statusbar");
 	}
 
@@ -59,8 +59,8 @@ namespace spjalla::ui {
 		overlay->set_terminal(term);
 		overlay->set_name("overlay_window");
 		windows.push_front(overlay);
-		overlay->key_fn = [&](const haunted::key &k) {
-			if (k == haunted::ktype::mouse)
+		overlay->key_fn = [&](const Haunted::key &k) {
+			if (k == Haunted::ktype::mouse)
 				return true;
 			toggle_overlay();
 			return k == config::keys::toggle_overlay || input->on_key(k);
@@ -74,16 +74,16 @@ namespace spjalla::ui {
 		active_window = status_window;
 		windows.push_front(status_window);
 
-		swappo = new haunted::ui::boxes::swapbox(term, {}, {active_window, overlay});
+		swappo = new Haunted::UI::Boxes::SwapBox(term, {}, {active_window, overlay});
 		swappo->set_name("swappo");
 	}
 
 	void interface::init_expando() {
-		expando = new haunted::ui::boxes::expandobox(term, term->get_position(),
-			haunted::ui::boxes::box_orientation::vertical, {{titlebar, 1}, {swappo, -1}, {statusbar, 1}, {input, 1}});
+		expando = new Haunted::UI::Boxes::expandobox(term, term->get_position(),
+			Haunted::UI::Boxes::box_orientation::vertical, {{titlebar, 1}, {swappo, -1}, {statusbar, 1}, {input, 1}});
 		expando->set_name("expando");
 		term->set_root(expando);
-		expando->key_fn = [&](const haunted::key &k) { return on_key(k); };
+		expando->key_fn = [&](const Haunted::key &k) { return on_key(k); };
 	}
 
 	void interface::remove_window(window *win) {
@@ -107,7 +107,7 @@ namespace spjalla::ui {
 
 	void interface::update_overlay(const std::shared_ptr<pingpong::channel> &chan) {
 		overlay->clear_lines();
-		*overlay += haunted::ui::simpleline(ansi::bold(chan->name) + " [" + chan->mode_str() + "]");
+		*overlay += Haunted::UI::simpleline(ansi::bold(chan->name) + " [" + chan->mode_str() + "]");
 		chan->users.sort([&](std::shared_ptr<pingpong::user> left, std::shared_ptr<pingpong::user> right) -> bool {
 			const pingpong::hat_set &left_hats = chan->get_hats(left), &right_hats = chan->get_hats(right);
 			if (left_hats < right_hats)
@@ -129,12 +129,12 @@ namespace spjalla::ui {
 
 	void interface::update_overlay(const std::shared_ptr<pingpong::user> &user) {
 		overlay->clear_lines();
-		*overlay += haunted::ui::simpleline(ansi::bold(user->name));
+		*overlay += Haunted::UI::simpleline(ansi::bold(user->name));
 		for (std::weak_ptr<pingpong::channel> chan: user->channels)
 			*overlay += spjalla::lines::chanlist_line(parent, user, chan.lock());
 	}
 
-	haunted::ui::container::type::iterator interface::window_iterator() const {
+	Haunted::UI::container::type::iterator interface::window_iterator() const {
 		auto iter = std::find(swappo->begin(), swappo->end(), active_window);
 		if (iter == swappo->end())
 			throw std::runtime_error("The active window isn't a child of swappo");
@@ -192,7 +192,7 @@ namespace spjalla::ui {
 	}
 
 	void interface::log(const std::exception &err) {
-		log(ansi::red(haunted::util::demangle_object(err)) + ": "_d + ansi::bold(err.what()));
+		log(ansi::red(Haunted::Util::demangle_object(err)) + ": "_d + ansi::bold(err.what()));
 	}
 
 	void interface::focus_window(window *win) {
@@ -234,7 +234,7 @@ namespace spjalla::ui {
 	}
 
 	bool interface::focus_window(size_t index) {
-		for (haunted::ui::control *ctrl: swappo->get_children()) {
+		for (Haunted::UI::Control *ctrl: swappo->get_children()) {
 			ssize_t control_index = ctrl->get_index();
 			if (0 <= control_index && static_cast<size_t>(control_index) == index) {
 				focus_window(dynamic_cast<window *>(ctrl));
@@ -249,7 +249,7 @@ namespace spjalla::ui {
 		if (!win)
 			return -1;
 
-		std::deque<haunted::ui::control *> &controls = swappo->get_children();
+		std::deque<Haunted::UI::Control *> &controls = swappo->get_children();
 
 		if (std::find(controls.begin(), controls.end(), win) == controls.end())
 			return -1;
@@ -280,7 +280,7 @@ namespace spjalla::ui {
 		if (swappo->empty())
 			return nullptr;
 
-		for (haunted::ui::control *ctrl: swappo->get_children()) {
+		for (Haunted::UI::Control *ctrl: swappo->get_children()) {
 			window *win = dynamic_cast<window *>(ctrl);
 			if (win && win->window_name == window_name)
 				return win;
@@ -294,7 +294,7 @@ namespace spjalla::ui {
 			return nullptr;
 
 		// First, search for a window that has a matching channel pointer.
-		for (haunted::ui::control *ctrl: swappo->get_children()) {
+		for (Haunted::UI::Control *ctrl: swappo->get_children()) {
 			window *win = dynamic_cast<window *>(ctrl);
 			if (win && win->serv == chan->serv && win->chan == chan)
 				return win;
@@ -302,7 +302,7 @@ namespace spjalla::ui {
 
 		// If there's no window with a matching pointer, check the name case-insensitively.
 		const std::string lower = chan->serv->id + "/" + formicine::util::lower(chan->name);
-		for (haunted::ui::control *ctrl: swappo->get_children()) {
+		for (Haunted::UI::Control *ctrl: swappo->get_children()) {
 			window *win = dynamic_cast<window *>(ctrl);
 			if (formicine::util::lower(win->window_name) == lower)
 				return win;
@@ -324,7 +324,7 @@ namespace spjalla::ui {
 			return nullptr;
 
 		// First, search for a window that has a matching channel pointer.
-		for (haunted::ui::control *ctrl: swappo->get_children()) {
+		for (Haunted::UI::Control *ctrl: swappo->get_children()) {
 			window *win = dynamic_cast<window *>(ctrl);
 			if (win && win->serv == user->serv && win->user == user)
 				return win;
@@ -332,7 +332,7 @@ namespace spjalla::ui {
 
 		// If there's no window with a matching pointer, check the name case-insensitively.
 		const std::string lower = user->serv->id + "/" + formicine::util::lower(user->name);
-		for (haunted::ui::control *ctrl: swappo->get_children()) {
+		for (Haunted::UI::Control *ctrl: swappo->get_children()) {
 			window *win = dynamic_cast<window *>(ctrl);
 			if (formicine::util::lower(win->window_name) == lower)
 				return win;
@@ -424,10 +424,10 @@ namespace spjalla::ui {
 
 	void interface::toggle_mouse() {
 		DBG("Toggling mouse.");
-		if (term->mouse() == haunted::mouse_mode::none) {
-			term->mouse(haunted::mouse_mode::motion);
+		if (term->mouse() == Haunted::mouse_mode::none) {
+			term->mouse(Haunted::mouse_mode::motion);
 		} else {
-			term->mouse(haunted::mouse_mode::none);
+			term->mouse(Haunted::mouse_mode::none);
 		}
 	}
 
@@ -458,7 +458,7 @@ namespace spjalla::ui {
 			return;
 
 		if (before_overlay == status_window) {
-			*overlay += haunted::ui::simpleline(ansi::bold("Servers"));
+			*overlay += Haunted::UI::simpleline(ansi::bold("Servers"));
 			for (pingpong::server *serv: parent->irc.server_order) {
 				serv->sort_channels();
 				if (serv->is_active()) {
@@ -507,7 +507,7 @@ namespace spjalla::ui {
 
 		std::deque<window *> found {};
 
-		for (haunted::ui::control *ctrl: swappo->get_children()) {
+		for (Haunted::UI::Control *ctrl: swappo->get_children()) {
 			window *win = dynamic_cast<window *>(ctrl);
 			if (!win)
 				continue;
@@ -520,7 +520,7 @@ namespace spjalla::ui {
 	}
 
 	window * interface::window_for_channel(std::shared_ptr<pingpong::channel> chan) const {
-		for (haunted::ui::control *ctrl: swappo->get_children()) {
+		for (Haunted::UI::Control *ctrl: swappo->get_children()) {
 			window *win = dynamic_cast<window *>(ctrl);
 			if (win && win->chan == chan)
 				return win;
@@ -560,8 +560,8 @@ namespace spjalla::ui {
 		active_window->vscroll(std::max(1, active_window->get_position().height / 2) * (up? -1 : 1));
 	}
 
-	bool interface::on_key(const haunted::key &key) {
-		haunted::key copy {key};
+	bool interface::on_key(const Haunted::key &key) {
+		Haunted::key copy {key};
 		if (!parent->before_key(copy))
 			return false;
 
@@ -575,15 +575,15 @@ namespace spjalla::ui {
 			previous_window();
 		} else if (copy == config::keys::toggle_mouse) {
 			toggle_mouse();
-		} else if (copy == haunted::kmod::ctrl) {
+		} else if (copy == Haunted::kmod::ctrl) {
 			switch (copy.type) {
-				case haunted::ktype::g: log("Active server: " + parent->active_server_id()); break;
-				case haunted::ktype::r:
+				case Haunted::ktype::g: log("Active server: " + parent->active_server_id()); break;
+				case Haunted::ktype::r:
 					if (active_window)
 						DBG("v == " << active_window->get_voffset() << ", autoscroll == "
 							<< (active_window->get_autoscroll()? "true" : "false"));
 					break;
-				case haunted::ktype::m: {
+				case Haunted::ktype::m: {
 					if (active_window->get_autoscroll())
 						DBG("autoscroll: true -> false");
 					else
@@ -595,13 +595,13 @@ namespace spjalla::ui {
 			}
 
 			return true;
-		} else if (copy == haunted::kmod::shift) {
+		} else if (copy == Haunted::kmod::shift) {
 			if (!active_window)
 				return false;
 			
 			switch (copy.type) {
-				case haunted::ktype::up_arrow: active_window->vscroll(-1); break;
-				case haunted::ktype::down_arrow: {
+				case Haunted::ktype::up_arrow: active_window->vscroll(-1); break;
+				case Haunted::ktype::down_arrow: {
 					active_window->vscroll(1); 
 					const int total = active_window->total_rows(), height = active_window->get_position().height,
 					          voffset = active_window->get_voffset();
@@ -609,42 +609,42 @@ namespace spjalla::ui {
 						active_window->set_autoscroll(true);
 					break;
 				}
-				case haunted::ktype::left_arrow: active_window->set_autoscroll(true); break;
+				case Haunted::ktype::left_arrow: active_window->set_autoscroll(true); break;
 				default: return false;
 			}
 
 			return true;
-		} else if (copy == haunted::kmod::alt) {
+		} else if (copy == Haunted::kmod::alt) {
 			switch (copy.type) {
-				case haunted::ktype::_1: focus_window(static_cast<size_t>(0)); return true;
-				case haunted::ktype::_2: focus_window(1);  return true;
-				case haunted::ktype::_3: focus_window(2);  return true;
-				case haunted::ktype::_4: focus_window(3);  return true;
-				case haunted::ktype::_5: focus_window(4);  return true;
-				case haunted::ktype::_6: focus_window(5);  return true;
-				case haunted::ktype::_7: focus_window(6);  return true;
-				case haunted::ktype::_8: focus_window(7);  return true;
-				case haunted::ktype::_9: focus_window(8);  return true;
-				case haunted::ktype::_0: focus_window(9);  return true;
-				case haunted::ktype::q:  focus_window(10); return true;
-				case haunted::ktype::w:  focus_window(11); return true;
-				case haunted::ktype::e:  focus_window(12); return true;
-				case haunted::ktype::r:  focus_window(13); return true;
-				case haunted::ktype::t:  focus_window(14); return true;
-				case haunted::ktype::y:  focus_window(15); return true;
-				case haunted::ktype::u:  focus_window(16); return true;
-				case haunted::ktype::i:  focus_window(17); return true;
-				case haunted::ktype::o:  focus_window(18); return true;
-				case haunted::ktype::p:  focus_window(19); return true;
+				case Haunted::ktype::_1: focus_window(static_cast<size_t>(0)); return true;
+				case Haunted::ktype::_2: focus_window(1);  return true;
+				case Haunted::ktype::_3: focus_window(2);  return true;
+				case Haunted::ktype::_4: focus_window(3);  return true;
+				case Haunted::ktype::_5: focus_window(4);  return true;
+				case Haunted::ktype::_6: focus_window(5);  return true;
+				case Haunted::ktype::_7: focus_window(6);  return true;
+				case Haunted::ktype::_8: focus_window(7);  return true;
+				case Haunted::ktype::_9: focus_window(8);  return true;
+				case Haunted::ktype::_0: focus_window(9);  return true;
+				case Haunted::ktype::q:  focus_window(10); return true;
+				case Haunted::ktype::w:  focus_window(11); return true;
+				case Haunted::ktype::e:  focus_window(12); return true;
+				case Haunted::ktype::r:  focus_window(13); return true;
+				case Haunted::ktype::t:  focus_window(14); return true;
+				case Haunted::ktype::y:  focus_window(15); return true;
+				case Haunted::ktype::u:  focus_window(16); return true;
+				case Haunted::ktype::i:  focus_window(17); return true;
+				case Haunted::ktype::o:  focus_window(18); return true;
+				case Haunted::ktype::p:  focus_window(19); return true;
 				default: return false;
 			}
 		} else if (copy.mods.none()) {
 			switch (copy.type) {
-				case haunted::ktype::page_down:
-				case haunted::ktype::page_up:
-					scroll_page(copy == haunted::ktype::page_up);
+				case Haunted::ktype::page_down:
+				case Haunted::ktype::page_up:
+					scroll_page(copy == Haunted::ktype::page_up);
 					return true;
-				case haunted::ktype::tab:
+				case Haunted::ktype::tab:
 					parent->tab_complete();
 					return true;
 				default:;
@@ -664,7 +664,7 @@ namespace spjalla::ui {
 
 	void interface::set_scroll_buffer(unsigned int new_scroll_buffer) {
 		scroll_buffer = new_scroll_buffer;
-		for (haunted::ui::control *ctrl: swappo->get_children()) {
+		for (Haunted::UI::Control *ctrl: swappo->get_children()) {
 			window *win = dynamic_cast<window *>(ctrl);
 			if (win)
 				win->scroll_buffer = scroll_buffer;

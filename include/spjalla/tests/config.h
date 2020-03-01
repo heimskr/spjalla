@@ -6,7 +6,7 @@
 #include "spjalla/config/config.h"
 
 namespace spjalla::tests {
-	void test_config(haunted::tests::testing &);
+	void test_config(Haunted::tests::testing &);
 }
 
 #endif

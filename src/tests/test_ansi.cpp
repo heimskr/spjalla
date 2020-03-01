@@ -2,7 +2,7 @@
 #include "lib/formicine/ansi.h"
 
 namespace spjalla::tests {
-	void test_ansi(haunted::tests::testing &unit) {
+	void test_ansi(Haunted::tests::testing &unit) {
 		using namespace std::string_literals;
 		
 		unit.check({
@@ -18,6 +18,6 @@ namespace spjalla::tests {
 }
 
 int main(int, char **) {
-	haunted::tests::testing unit;
+	Haunted::tests::testing unit;
 	spjalla::tests::test_ansi(unit);	
 }

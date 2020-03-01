@@ -37,7 +37,7 @@ namespace spjalla::ui {
 		friend class spjalla::client;
 
 		private:
-			haunted::terminal *term;
+			Haunted::Terminal *term;
 			client *parent;
 
 			std::list<window *> windows;
@@ -49,17 +49,17 @@ namespace spjalla::ui {
 			 *  correct window can be restored when the overlay is closed. */
 			window *before_overlay = nullptr;
 
-			haunted::ui::boxes::swapbox    *swappo;
-			haunted::ui::boxes::expandobox *expando;
-			haunted::ui::label     *titlebar, *statusbar;
-			haunted::ui::textinput *input;
+			Haunted::UI::Boxes::SwapBox    *swappo;
+			Haunted::UI::Boxes::expandobox *expando;
+			Haunted::UI::label     *titlebar, *statusbar;
+			Haunted::UI::textinput *input;
 
 			size_t win_count = 0;
 
 			/** Sets up the labels, overlay and textinput. */
 			void init_basic();
 
-			/** Sets up the swapbox that contains all the windows. */
+			/** Sets up the SwapBox that contains all the windows. */
 			void init_swappo();
 
 			/** Sets up the expandobox that serves as the program's root control. */
@@ -78,7 +78,7 @@ namespace spjalla::ui {
 			void update_titlebar(const std::shared_ptr<pingpong::channel> &);
 
 			/** Returns the iterator pointing to the active window in swappo's children. */
-			haunted::ui::container::type::iterator window_iterator() const;
+			Haunted::UI::Container::type::iterator window_iterator() const;
 
 			/** Returns whether it's okay to immediately remove a given window. */
 			bool can_remove(window *) const;
@@ -91,7 +91,7 @@ namespace spjalla::ui {
 			unsigned int scroll_buffer = 0;
 			renderer render;
 
-			interface(haunted::terminal &, client &);
+			interface(Haunted::terminal &, client &);
 
 			/** Redraws the interface. */
 			void draw();
@@ -193,7 +193,7 @@ namespace spjalla::ui {
 			 *  created for the user if `create` is true. */
 			window * get_window(const std::shared_ptr<pingpong::user> &, bool create = false);
 
-			/** Creates a new window, configures it as appropriate and appends it to the swapbox. */
+			/** Creates a new window, configures it as appropriate and appends it to the SwapBox. */
 			window * new_window(const std::string &name, window_type);
 
 			template <typename T>
@@ -264,7 +264,7 @@ namespace spjalla::ui {
 			void scroll_page(bool up);
 
 			/** Handles keypresses that aren't handled by the textinput. */
-			bool on_key(const haunted::key &);
+			bool on_key(const Haunted::key &);
 
 			/** Handles tab completion. */
 			void tab_complete();

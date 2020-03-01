@@ -28,7 +28,7 @@ namespace spjalla::plugins::logs {
 
 		if (!window->get_lines().empty()) {
 			lines::line *line;
-			for (const std::shared_ptr<haunted::ui::textline> &lineptr: window->get_lines()) {
+			for (const std::shared_ptr<Haunted::UI::textline> &lineptr: window->get_lines()) {
 				if ((line = dynamic_cast<lines::line *>(lineptr.get())))
 					break;
 			}
@@ -87,7 +87,7 @@ namespace spjalla::plugins::logs {
 			long l;
 			formicine::util::parse_long(first_word, l);
 
-			std::unique_ptr<haunted::ui::textline> line = get_line(pair, raw, autoclean);
+			std::unique_ptr<Haunted::UI::textline> line = get_line(pair, raw, autoclean);
 			if (line) {
 				line->box = win;
 				line->clean(win->get_position().width);

@@ -42,7 +42,7 @@ namespace spjalla {
 			std::multimap<std::string, commands::command> command_handlers;
 			std::mutex irc_mutex;
 			ansi::ansistream &out_stream;
-			haunted::terminal term;
+			Haunted::Terminal term;
 			ui::interface ui;
 			completions::command_completer completer;
 
@@ -111,7 +111,7 @@ namespace spjalla {
 			pingpong::irc & get_irc() { return irc; }
 
 			/** Returns a reference to the terminal. */
-			haunted::terminal & get_terminal() { return term; }
+			Haunted::Terminal & get_terminal() { return term; }
 
 			/** Returns a pointer to the active server. */
 			pingpong::server * active_server();
@@ -120,7 +120,7 @@ namespace spjalla {
 			std::string active_nick();
 
 			/** Returns all the windows as haunted::ui::control pointers. */
-			std::deque<haunted::ui::control *> get_window_controls() const;
+			std::deque<Haunted::UI::Control *> get_window_controls() const;
 
 			/** Opens a message window with a given nick. */
 			ui::window * query(const std::string &, pingpong::server *);
@@ -230,7 +230,7 @@ namespace spjalla {
 			 *  completion suffix. */
 			void complete_message(std::string &, size_t cursor, ssize_t word_offset = 0);
 
-			void key_postlistener(const haunted::key &);
+			void key_postlistener(const Haunted::key &);
 	};
 }
 
