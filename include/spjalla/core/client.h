@@ -129,7 +129,7 @@ namespace spjalla {
 			/** Logs a message indicated that there is no active channel. */
 			void no_channel();
 
-// stt/commands.cpp
+// client/commands.cpp
 
 		private:
 			/** Handles the parsing for the /ban command. */

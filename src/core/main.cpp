@@ -38,16 +38,18 @@ namespace spjalla {
 		instance->get_irc().version = "Spjalla " SPJALLA_VERSION_NUMBER " with pingpong " PINGPONG_VERSION_NUMBER;
 
 		const std::string plugin_dir = get_plugin_dir(argc, argv);
+		std::string warning;
 		try {
 			instance->load_plugins(plugin_dir);
 			DBG("Loaded plugins.");
 		} catch (const std::filesystem::filesystem_error &err) {
-			instance->log(lines::warning_line(instance.get(), "Couldn't load plugins from " + ansi::bold(plugin_dir)
-				+ ": " + err.code().message()));
+			warning = "Couldn't load plugins from " + ansi::bold(plugin_dir) + ": " + err.code().message();
 		}
 
 		instance->preinit_plugins();
 		instance->init();
+		if (!warning.empty())
+			instance->log(lines::warning_line(instance.get(), warning));
 		instance->postinit_plugins();
 		instance->postinit();
 		instance->join();
