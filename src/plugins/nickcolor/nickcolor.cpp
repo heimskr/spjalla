@@ -6,35 +6,35 @@
 #include <utility>
 #include <vector>
 
-#include "haunted/core/key.h"
+#include "haunted/core/Key.h"
 
-#include "pingpong/events/join.h"
-#include "pingpong/events/kick.h"
-#include "pingpong/events/mode.h"
-#include "pingpong/events/nick.h"
-#include "pingpong/events/notice.h"
-#include "pingpong/events/part.h"
-#include "pingpong/events/privmsg.h"
-#include "pingpong/events/quit.h"
-#include "pingpong/events/topic.h"
-#include "pingpong/events/topic_updated.h"
+#include "pingpong/events/Join.h"
+#include "pingpong/events/Kick.h"
+#include "pingpong/events/Mode.h"
+#include "pingpong/events/Nick.h"
+#include "pingpong/events/Notice.h"
+#include "pingpong/events/Part.h"
+#include "pingpong/events/Privmsg.h"
+#include "pingpong/events/Quit.h"
+#include "pingpong/events/Topic.h"
+#include "pingpong/events/TopicUpdated.h"
 
-#include "spjalla/config/config.h"
-#include "spjalla/config/defaults.h"
+#include "spjalla/config/Config.h"
+#include "spjalla/config/Defaults.h"
 
-#include "spjalla/core/client.h"
-#include "spjalla/core/input_line.h"
-#include "spjalla/core/plugin_host.h"
-#include "spjalla/core/util.h"
+#include "spjalla/core/Client.h"
+#include "spjalla/core/InputLine.h"
+#include "spjalla/core/PluginHost.h"
+#include "spjalla/core/Util.h"
 
-#include "spjalla/lines/notice.h"
-#include "spjalla/lines/privmsg.h"
+#include "spjalla/lines/Notice.h"
+#include "spjalla/lines/Privmsg.h"
 
 #include "spjalla/plugins/nickcolor.h"
 
 #include "lib/formicine/ansi.h"
 
-namespace spjalla::plugins {
+namespace Spjalla::Plugins {
 	config::validation_result nickcolor_plugin::validate_colorlist(const spjalla::config::value &val) {
 		if (val.get_type() != config::value_type::string_)
 			return config::validation_result::bad_type;
@@ -51,12 +51,12 @@ namespace spjalla::plugins {
 		return config::validation_result::valid;
 	}
 
-	void nickcolor_plugin::preinit(plugin_host *host) {
-		spjalla::client *client = dynamic_cast<spjalla::client *>(host);
+	void nickcolor_plugin::preinit(PluginHost *host) {
+		Spjalla::Client *client = dynamic_cast<Spjalla::Client *>(host);
 		if (!client) { DBG("Error: expected client as plugin host"); return; }
 		parent = client;
 
-		config::register_key("appearance", "nick_colors", "red orange yellow green blue magenta", validate_colorlist,
+		config::RegisterKey("appearance", "nick_colors", "red orange yellow green blue magenta", validate_colorlist,
 			[this](config::database &, const config::value &val) {
 				std::vector<std::string> split = formicine::util::split(val.string_(), " ");
 				colorlist.clear();
@@ -65,16 +65,16 @@ namespace spjalla::plugins {
 			}, "A list of colors to use for nick colorization.");
 	}
 
-	void nickcolor_plugin::postinit(plugin_host *) {
-		parent->get_ui().render["privmsg_nick"] = [this](strender::piece_map &pieces) -> std::string {
+	void nickcolor_plugin::postinit(PluginHost *) {
+		parent->getUI().render["privmsg_nick"] = [this](strender::piece_map &pieces) -> std::string {
 			const std::string raw = pieces.at("raw_nick").render();
 			return ansi::wrap(raw, colorlist[std::hash<std::string>()(raw) % colorlist.size()]);
 		};
 	}
 
-	void nickcolor_plugin::cleanup(plugin_host *) {
+	void nickcolor_plugin::cleanup(PluginHost *) {
 		config::unregister("appearance", "nick_colors");
-		parent->get_ui().render["privmsg_nick"] = parent->cache.format_nick_privmsg;
+		parent->getUI().render["privmsg_nick"] = parent->cache.format_nick_privmsg;
 	}
 }
 

@@ -6,55 +6,55 @@
 #include <utility>
 #include <vector>
 
-#include "spjalla/core/tab_completion.h"
+#include "spjalla/core/TabCompletion.h"
 
-namespace pingpong {
-	class server;
+namespace PingPong {
+	class Server;
 }
 
-namespace spjalla {
-	class client;
+namespace Spjalla {
+	class Client;
 }
 
-namespace spjalla::ui {
-	class interface;
+namespace Spjalla::UI {
+	class Interface;
 }
 
-namespace spjalla::commands {
-	struct command {
-		using handler_fn = std::function<void(pingpong::server *, const input_line &)>;
+namespace Spjalla::Commands {
+	struct Command {
+		using Handler_f = std::function<void(PingPong::Server *, const InputLine &)>;
 
-		int min_args, max_args;
-		bool needs_server;
-		handler_fn handler;
-		completions::completion_fn completion_fn;
-		std::vector<completions::completion_state::suggestor_fn> suggestors;
+		int minArgs, maxArgs;
+		bool needsServer;
+		Handler_f handler;
+		Completions::Completion_f completionFunction;
+		std::vector<Completions::CompletionState::Suggestor_f> suggestors;
 
-		command() = delete;
+		Command() = delete;
 
-		command(int min_args_, int max_args_, bool needs_server_, const handler_fn &handler_,
-		const completions::completion_fn &completion_fn_ = {},
-		const std::vector<completions::completion_state::suggestor_fn> &suggestors_= {}):
-			min_args(min_args_), max_args(max_args_), needs_server(needs_server_), handler(handler_),
-			completion_fn(completion_fn_), suggestors(suggestors_) {}
+		Command(int min_arg, int max_args, bool needs_server, const Handler_f &handler_,
+		const Completions::Completion_f &completion_fn = {},
+		const std::vector<Completions::CompletionState::Suggestor_f> &suggestors_= {}):
+			minArgs(min_arg), maxArgs(max_args), needsServer(needs_server), handler(handler_),
+			completionFunction(completion_fn), suggestors(suggestors_) {}
 	};
 
 	/** Command name, command */
-	using pair = std::pair<std::string, command>;
+	using Pair = std::pair<std::string, Command>;
 
-	void do_alias(client &, const input_line &);
-	void do_connect(client &, const input_line &);
-	void do_disconnect(client &, pingpong::server *, const input_line &);
-	void do_join(client &, pingpong::server *, const input_line &);
-	void do_me(ui::interface &, const input_line &);
-	void do_move(ui::interface &, const input_line &);
-	void do_mode(ui::interface &, pingpong::server *, const input_line &);
-	void do_nick(ui::interface &, pingpong::server *, const input_line &);
-	void do_part(client &, pingpong::server *, const input_line &);
-	void do_plugin(client &, const input_line &);
-	void do_set(client &, const input_line &);
-	void do_spam(ui::interface &, const input_line &);
-	void do_topic(client &, pingpong::server *, const input_line &);
+	void doAlias(Client &, const InputLine &);
+	void doConnect(Client &, const InputLine &);
+	void doDisconnect(Client &, PingPong::Server *, const InputLine &);
+	void doJoin(Client &, PingPong::Server *, const InputLine &);
+	void doMe(UI::Interface &, const InputLine &);
+	void doMove(UI::Interface &, const InputLine &);
+	void doMode(UI::Interface &, PingPong::Server *, const InputLine &);
+	void doNick(UI::Interface &, PingPong::Server *, const InputLine &);
+	void doPart(Client &, PingPong::Server *, const InputLine &);
+	void doPlugin(Client &, const InputLine &);
+	void doSet(Client &, const InputLine &);
+	void doSpam(UI::Interface &, const InputLine &);
+	void doTopic(Client &, PingPong::Server *, const InputLine &);
 }
 
 #endif

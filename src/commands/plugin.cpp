@@ -1,41 +1,41 @@
-#include "spjalla/commands/command.h"
-#include "spjalla/core/client.h"
+#include "spjalla/commands/Command.h"
+#include "spjalla/core/Client.h"
 
-namespace spjalla::commands {
-	namespace plugin {
-		void info(client &cli, const int argc, const input_line &il) {
+namespace Spjalla::Commands {
+	namespace Plugin {
+		void info(Client &client, const int argc, const InputLine &il) {
 			if (argc < 2) {
-				cli.warn("Usage: " + "/plugin info "_b + "<plugin name>"_bd);
+				client.warn("Usage: " + "/plugin info "_b + "<plugin name>"_bd);
 				return;
 			}
 
 			const std::string name = formicine::util::trim(il.body.substr(il.body.find("info ") + 5));
-			plugins::plugin_host::plugin_tuple *tuple = cli.get_plugin(name, true);
+			Plugins::PluginHost::PluginTuple *tuple = client.getPlugin(name, true);
 			if (!tuple) {
-				cli.error("Couldn't find a plugin matching " + ansi::red(name) + ".");
+				client.error("Couldn't find a plugin matching " + ansi::red(name) + ".");
 			} else {
-				plugins::plugin *plugin = std::get<1>(*tuple);
-				cli.log(ansi::bold(plugin->get_name()) + "  v"_d + ansi::dim(plugin->get_version()) + "  "
-					+ plugin->get_description());
+				Plugins::Plugin *plugin = std::get<1>(*tuple);
+				client.log(ansi::bold(plugin->getName()) + "  v"_d + ansi::dim(plugin->getVersion()) + "  "
+					+ plugin->getDescription());
 			}
 		}
 
-		void list(client &cli, const int argc) {
+		void list(Client &client, const int argc) {
 			if (argc != 1) {
-				cli.warn("/plugin list"_b + " takes no arguments.");
+				client.warn("/plugin list"_b + " takes no arguments.");
 				return;
 			}
 
-			const auto &plugins = cli.get_plugins();
+			const auto &plugins = client.getPlugins();
 			if (plugins.empty()) {
-				cli.warn("No plugins are loaded.");
+				client.warn("No plugins are loaded.");
 			} else {
-				cli.log("Plugins:");
+				client.log("Plugins:");
 				size_t max_name = 0, max_version = 0;
 
 				for (const auto &tuple: plugins) {
-					const size_t nlength = std::get<1>(tuple)->get_name().length();
-					const size_t vlength = std::get<1>(tuple)->get_version().length();
+					const size_t nlength = std::get<1>(tuple)->getName().length();
+					const size_t vlength = std::get<1>(tuple)->getVersion().length();
 					if (max_name < nlength)
 						max_name = nlength;
 					if (max_version < vlength)
@@ -43,80 +43,78 @@ namespace spjalla::commands {
 				}
 
 				for (const auto &tuple: plugins) {
-					plugins::plugin *plugin = std::get<1>(tuple);
-					const std::string name = plugin->get_name(), version = plugin->get_version(),
-					                  desc = plugin->get_description();
-					cli.log("    " + ansi::bold(name) + std::string(max_name - name.length(), ' ') + "  v"_d
+					Plugins::Plugin *plugin = std::get<1>(tuple);
+					const std::string name = plugin->getName(), version = plugin->getVersion(),
+					                  desc = plugin->getDescription();
+					client.log("    " + ansi::bold(name) + std::string(max_name - name.length(), ' ') + "  v"_d
 						+ ansi::dim(version) + std::string(max_version - version.length() + 2, ' ') + desc);
 				}
 			}
 		}
 
-		void load(client &cli, const int argc, const input_line &il) {
+		void load(Client &client, const int argc, const InputLine &il) {
 			if (argc < 2) {
-				cli.warn("Usage: " + "/plugin load "_b + "<plugin path>"_bd);
+				client.warn("Usage: " + "/plugin load "_b + "<plugin path>"_bd);
 				return;
 			}
 
 			const std::string pathname = formicine::util::trim(il.body.substr(il.body.find("load ") + 5));
-			if (cli.has_plugin(std::filesystem::path(pathname))) {
-				cli.error("The plugin at " + ansi::bold(pathname) + " is already loaded.");
+			if (client.hasPlugin(std::filesystem::path(pathname))) {
+				client.error("The plugin at " + ansi::bold(pathname) + " is already loaded.");
 				return;
 			}
 
-			std::string name;
-
 			try {
-				plugins::plugin *plugin = std::get<1>(cli.load_plugin(pathname));
-				plugin->preinit(&cli);
-				plugin->postinit(&cli);
-				cli.success("Loaded " + ansi::bold(plugin->get_name()) + ".");
+				Plugins::Plugin *plugin = std::get<1>(client.loadPlugin(pathname));
+				plugin->preinit(&client);
+				plugin->postinit(&client);
+				client.success("Loaded " + ansi::bold(plugin->getName()) + ".");
 			} catch (const std::filesystem::filesystem_error &err) {
-				cli.error(ansi::bold(pathname) + " doesn't exist.");
+				client.error(ansi::bold(pathname) + " doesn't exist.");
 			}
 		}
 
-		void unload(client &cli, const int argc, const input_line &il) {
+		void unload(Client &client, const int argc, const InputLine &il) {
 			if (argc < 2) {
-				cli.warn("Usage: " + "/plugin unload "_b + "<plugin name>"_bd);
+				client.warn("Usage: " + "/plugin unload "_b + "<plugin name>"_bd);
 				return;
 			}
 
 			const std::string name = formicine::util::trim(il.body.substr(il.body.find("unload ") + 7));
-			plugins::plugin_host::plugin_tuple *tuple = cli.get_plugin(name, true);
+			Plugins::PluginHost::PluginTuple *tuple = client.getPlugin(name, true);
 			if (!tuple) {
-				cli.error("Couldn't find a plugin matching " + ansi::red(name) + ".");
+				client.error("Couldn't find a plugin matching " + ansi::red(name) + ".");
 			} else {
-				const std::string plugin_name = std::get<1>(*tuple)->get_name();
-				cli.unload_plugin(*tuple);
-				cli.log("Unloaded " + ansi::bold(plugin_name) + ".");
+				const std::string plugin_name = std::get<1>(*tuple)->getName();
+				client.unloadPlugin(*tuple);
+				client.log("Unloaded " + ansi::bold(plugin_name) + ".");
 			}
 		}
 	}
 
-	void do_plugin(client &cli, const input_line &il) {
+	void doPlugin(Client &client, const InputLine &il) {
 		const size_t argc = il.args.size();
 		if (argc == 0) {
-			cli.log("/plugin subcommands"_u);
-			cli.log("    info"_b + "  Shows information about a loaded plugin.");
-			cli.log("    list"_b + "  Lists all loaded plugins.");
-			cli.log("    load"_b + "  Loads a plugin by path.");
-			cli.log("  unload"_b + "  Unloads a plugin by path or name.");
+			client.log("/plugin subcommands"_u);
+			client.log("    info"_b + "  Shows information about a loaded plugin.");
+			client.log("    list"_b + "  Lists all loaded plugins.");
+			client.log("    load"_b + "  Loads a plugin by path.");
+			client.log("  unload"_b + "  Unloads a plugin by path or name.");
 			return;
 		}
 
 		const std::string sub = il.first();
 
 		if (sub == "info") {
-			plugin::info(cli, argc, il);
+			Plugin::info(client, argc, il);
 		} else if (sub == "list") {
-			plugin::list(cli, argc);
+			Plugin::list(client, argc);
 		} else if (sub == "load") {
-			plugin::load(cli, argc, il);
+			Plugin::load(client, argc, il);
 		} else if (sub == "unload") {
-			plugin::unload(cli, argc, il);
+			Plugin::unload(client, argc, il);
 		} else {
-			cli.error("Unknown /plugin subcommand: " + ansi::red(sub));
+			client.error("Unknown /plugin subcommand: " + ansi::red(sub));
 		}
 	}
 }

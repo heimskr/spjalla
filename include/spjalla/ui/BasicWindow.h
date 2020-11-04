@@ -3,7 +3,7 @@
 
 #include "spjalla/ui/window.h"
 
-namespace spjalla::ui {
+namespace Spjalla::UI {
 	class basic_window: public window {
 		public:
 			using window::window;

@@ -1,24 +1,24 @@
 #ifndef SPJALLA_PLUGINS_TRIGGER_H_
 #define SPJALLA_PLUGINS_TRIGGER_H_
 
-#include "spjalla/plugins/plugin.h"
+#include "spjalla/plugins/Plugin.h"
 
-namespace spjalla::plugins {
-	class trigger_plugin: public plugin {
+namespace Spjalla::Plugins {
+	class TriggerPlugin: public Plugin {
 		private:
 			bool active = false;
 			std::string reason;
 
 		public:
-			virtual ~trigger_plugin() {}
+			virtual ~TriggerPlugin() {}
 
-			std::string get_name()        const override { return "Trigger"; }
-			std::string get_description() const override { return "Assists in quick draw op battles."; }
-			std::string get_version()     const override { return "0.0.1"; }
+			std::string getName()        const override { return "Trigger"; }
+			std::string getDescription() const override { return "Assists in quick draw op battles."; }
+			std::string getVersion()     const override { return "0.0.1"; }
 
-			void preinit(plugin_host  *host) override;
-			void postinit(plugin_host *host) override;
-			void cleanup(plugin_host  *host) override;
+			void preinit(PluginHost  *) override;
+			void postinit(PluginHost *) override;
+			void cleanup(PluginHost  *) override;
 	};
 }
 

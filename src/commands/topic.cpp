@@ -1,25 +1,25 @@
-#include "pingpong/core/channel.h"
+#include "pingpong/core/Channel.h"
 
-#include "spjalla/commands/command.h"
-#include "spjalla/core/client.h"
-#include "spjalla/lines/topic.h"
+#include "spjalla/commands/Command.h"
+#include "spjalla/core/Client.h"
+#include "spjalla/lines/Topic.h"
 
-namespace spjalla::commands {
-	void do_topic(client &cli, pingpong::server *serv, const input_line &il) {
-		ui::interface &ui = cli.get_ui();
+namespace Spjalla::Commands {
+	void doTopic(Client &cli, PingPong::Server *server, const InputLine &il) {
+		UI::Interface &ui = cli.getUI();
 		if (il.args.size() < 2) {
-			std::shared_ptr<pingpong::channel> chan = il.args.empty()?
-				ui.get_active_channel() : serv->get_channel(il.first(), false);
+			std::shared_ptr<PingPong::Channel> chan = il.args.empty()?
+				ui.getActiveChannel() : server->getChannel(il.first(), false);
 			if (!chan) {
 				ui.warn("No channel selected.");
 				return;
 			}
 
-			ui::window *win = ui.get_window(chan, false);
+			UI::Window *win = ui.getWindow(chan, false);
 			if (!win)
-				win = ui.get_window();
+				win = ui.getWindow();
 
-			ui.log(lines::topic_line(&cli, "", chan->name, chan->topic, pingpong::util::timestamp()), win);
+			ui.log(Lines::TopicLine(&cli, "", chan->name, chan->topic, PingPong::Util::timestamp()), win);
 		}
 	}
 }

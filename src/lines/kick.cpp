@@ -1,14 +1,14 @@
-#include "spjalla/core/client.h"
-#include "spjalla/lines/kick.h"
+#include "spjalla/core/Client.h"
+#include "spjalla/lines/Kick.h"
 
-namespace spjalla::lines {
-	std::string kick_line::render(ui::window *) {
-		return parent->get_ui().render(is_self? "kick_self" : "kick", {
-			{"raw_who", who}, {"raw_whom", whom}, {"raw_channel", chan->name}, {"raw_reason", reason}
+namespace Spjalla::Lines {
+	std::string KickLine::render(UI::Window *) {
+		return parent->getUI().renderer(isSelf? "kick_self" : "kick", {
+			{"raw_who", who}, {"raw_whom", whom}, {"raw_channel", channel->name}, {"raw_reason", reason}
 		});
 	}
 
-	notification_type kick_line::get_notification_type() const {
-		return is_self? notification_type::highlight : notification_type::info;
+	NotificationType KickLine::getNotificationType() const {
+		return isSelf? NotificationType::Highlight : NotificationType::Info;
 	}
 }

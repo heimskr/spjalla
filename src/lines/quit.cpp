@@ -1,8 +1,8 @@
-#include "spjalla/core/client.h"
-#include "spjalla/lines/quit.h"
+#include "spjalla/core/Client.h"
+#include "spjalla/lines/Quit.h"
 
-namespace spjalla::lines {
-	std::string quit_line::render(ui::window *) {
-		return parent->get_ui().render("quit", {{"raw_who", name}, {"raw_reason", message}});
+namespace Spjalla::Lines {
+	std::string QuitLine::render(UI::Window *) {
+		return parent->getUI().renderer("quit", {{"raw_who", name}, {"raw_reason", message}});
 	}
 }

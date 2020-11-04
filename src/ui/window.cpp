@@ -1,96 +1,96 @@
-#include "pingpong/events/event.h"
-#include "spjalla/events/notification.h"
-#include "spjalla/lines/basic.h"
-#include "spjalla/ui/window.h"
+#include "spjalla/ui/Window.h"
+#include "pingpong/events/Event.h"
+#include "spjalla/events/Notification.h"
+#include "spjalla/lines/Basic.h"
 
-namespace spjalla::ui {
-	void swap(window &left, window &right) {
-		swap(static_cast<haunted::ui::textbox &>(left), static_cast<haunted::ui::textbox &>(right));
-		std::swap(left.window_name, right.window_name);
+namespace Spjalla::UI {
+	void swap(Window &left, Window &right) {
+		swap(static_cast<Haunted::UI::Textbox &>(left), static_cast<Haunted::UI::Textbox &>(right));
+		std::swap(left.windowName, right.windowName);
 		std::swap(left.type, right.type);
-		std::swap(left.serv, right.serv);
-		std::swap(left.chan, right.chan);
+		std::swap(left.server, right.server);
+		std::swap(left.channel, right.channel);
 		std::swap(left.user, right.user);
-		std::swap(left.highest_notification, right.highest_notification);
+		std::swap(left.highestNotification, right.highestNotification);
 	}
 
-	bool window::show_times() const {
-		return type != window_type::overlay;
+	bool Window::show_times() const {
+		return type != WindowType::Overlay;
 	}
 
-	void window::add_line(std::shared_ptr<haunted::ui::textline> line) {
-		if (pos.width != -1)
-			do_scroll(line->num_rows(pos.width));
+	void Window::addLine(std::shared_ptr<Haunted::UI::TextLine> line) {
+		if (position.width != -1)
+			doScroll(line->numRows(position.width));
 		lines.push_back(line);
-		rows_dirty();
-		draw_new_line(*line, true);
+		rowsDirty();
+		drawNewLine(*line, true);
 	}
 
-	window & window::operator+=(const std::string &str) {
-		*this += lines::basic_line(str);
+	Window &Window::operator+=(const std::string &str) {
+		*this += Lines::BasicLine(str);
 		return *this;
 	}
 
-	bool window::is_status() const {
-		return type == window_type::status;
+	bool Window::isStatus() const {
+		return type == WindowType::Status;
 	}
 
-	bool window::is_overlay() const {
-		return type == window_type::overlay;
+	bool Window::isOverlay() const {
+		return type == WindowType::Overlay;
 	}
 
-	bool window::is_channel() const {
-		return type == window_type::channel;
+	bool Window::isChannel() const {
+		return type == WindowType::Channel;
 	}
 
-	bool window::is_user() const {
-		return type == window_type::user;
+	bool Window::isUser() const {
+		return type == WindowType::User;
 	}
 
-	bool window::is_other() const {
-		return type == window_type::other;
+	bool Window::isOther() const {
+		return type == WindowType::Other;
 	}
 
-	bool window::is_dead() const {
+	bool Window::isDead() const {
 		return dead;
 	}
 
-	void window::kill() {
+	void Window::kill() {
 		dead = true;
 	}
 
-	void window::resurrect() {
+	void Window::resurrect() {
 		dead = false;
 	}
 
-	void window::notify(std::shared_ptr<lines::line> line, notification_type type) {
-		pingpong::events::dispatch<events::notification_event>(this, line, type);
-		if (highest_notification < type) {
-			highest_notification = type;
-			pingpong::events::dispatch<events::window_notification_event>(this, line, highest_notification, type);
+	void Window::notify(std::shared_ptr<Lines::Line> line, NotificationType type) {
+		PingPong::Events::dispatch<Events::NotificationEvent>(this, line, type);
+		if (highestNotification < type) {
+			highestNotification = type;
+			PingPong::Events::dispatch<Events::WindowNotificationEvent>(this, line, highestNotification, type);
 		}
 	}
 
-	void window::notify(std::shared_ptr<lines::line> line) {
-		notify(line, line->get_notification_type());
+	void Window::notify(std::shared_ptr<Lines::Line> line) {
+		notify(line, line->getNotificationType());
 	}
 
-	void window::unnotify() {
-		if (highest_notification != notification_type::none) {
-			pingpong::events::dispatch<events::window_notification_event>(this, nullptr, highest_notification,
-				notification_type::none);
+	void Window::unnotify() {
+		if (highestNotification != NotificationType::None) {
+			PingPong::Events::dispatch<Events::WindowNotificationEvent>(
+				this, nullptr, highestNotification, NotificationType::None);
 		}
 
-		highest_notification = notification_type::none;
+		highestNotification = NotificationType::None;
 	}
 
-	void window::remove_rows(std::function<bool(const haunted::ui::textline *)> fn) {
-		auto w = formicine::perf.watch("window::remove_rows");
-		std::deque<haunted::ui::textbox::line_ptr> new_lines {};
+	void Window::removeRows(std::function<bool(const Haunted::UI::TextLine *)> fn) {
+		auto w = formicine::perf.watch("Window::remove_rows");
+		std::list<Haunted::UI::Textbox::LinePtr> new_lines {};
 		int rows_removed = 0, lines_removed = 0, total_rows = 0;
 
-		for (haunted::ui::textbox::line_ptr &ptr: lines) {
-			int rows = ptr->num_rows(pos.width);
+		for (Haunted::UI::Textbox::LinePtr &ptr : lines) {
+			int rows = ptr->numRows(position.width);
 			total_rows += rows;
 			if (fn(ptr.get())) {
 				if (total_rows < voffset)

@@ -1,37 +1,37 @@
 #include <deque>
 #include <ostream>
 
-#include "haunted/core/key.h"
+#include "haunted/core/Key.h"
 
-#include "pingpong/core/channel.h"
+#include "pingpong/core/Channel.h"
 
-#include "spjalla/core/client.h"
-#include "spjalla/core/input_line.h"
-#include "spjalla/core/util.h"
-#include "spjalla/core/tab_completion.h"
-#include "spjalla/config/defaults.h"
+#include "spjalla/core/Client.h"
+#include "spjalla/core/InputLine.h"
+#include "spjalla/core/Util.h"
+#include "spjalla/core/TabCompletion.h"
+#include "spjalla/config/Defaults.h"
 
-namespace spjalla::completions {
-	void command_completer::on_key(const haunted::key &k) {
-		// If tab is pressed, complete is called before on_key, so we don't handle filling in partial here.
-		if (k != haunted::ktype::tab) {
+namespace Spjalla::Completions {
+	void CommandCompleter::onKey(const Haunted::Key &k) {
+		// If tab is pressed, complete is called before onKey, so we don't handle filling in partial here.
+		if (k != Haunted::KeyType::Tab) {
 			partial.clear();
-			has_partial = false;
-			for (auto &pair: parent.completion_states)
+			hasPartial = false;
+			for (auto &pair: parent->completionStates)
 				pair.second.reset();
 		}
 	}
 
-	void command_completer::complete(std::string &raw, size_t &cursor) {
+	void CommandCompleter::complete(std::string &raw, size_t &cursor) {
 		std::vector<std::string> split = formicine::util::split(raw, " ", true);
 		std::string first = split[0].substr(1);
 
-		if (!has_partial) {
+		if (!hasPartial) {
 			partial = first;
-			has_partial = true;
+			hasPartial = true;
 		}
 
-		std::vector<std::string> matches = parent.command_matches(partial);
+		std::vector<std::string> matches = parent->commandMatches(partial);
 
 		// Don't bother doing anything if there are no matches.
 		if (matches.size() == 0)
@@ -66,9 +66,9 @@ namespace spjalla::completions {
 		cursor = matches[0].length() + 1;
 	}
 
-	bool complete_set(client &client_, const input_line &line, std::string &raw, size_t &cursor, long arg_index,
+	bool completeSet(Client &client_, const InputLine &line, std::string &raw, size_t &cursor, long arg_index,
 	long arg_subindex) {
-		completion_state &state = client_.completion_states["set"];
+		CompletionState &state = client_.completionStates["set"];
 		if (2 <= arg_index)
 			return true;
 
@@ -82,7 +82,7 @@ namespace spjalla::completions {
 		if (arg_index == 1) {
 			const std::string rest = raw.substr(formicine::util::last_index_of_word(raw, 1));
 			const std::string piece = first_arg.substr(0, arg_subindex);
-			std::vector<std::string> keys = config::starts_with(state.partial);
+			std::vector<std::string> keys = Config::startsWith(state.partial);
 			if (keys.empty())
 				return true;
 			std::sort(keys.begin(), keys.end());
@@ -94,12 +94,12 @@ namespace spjalla::completions {
 		return false;
 	}
 
-	bool complete_plain(client &client_, const input_line &, std::string &raw, size_t &cursor, long, long) {
-		client_.complete_message(raw, cursor, -1);
+	bool completePlain(Client &client_, const InputLine &, std::string &raw, size_t &cursor, long, long) {
+		client_.completeMessage(raw, cursor, -1);
 		return true;
 	}
 
-	void completion_state::reset() {
+	void CompletionState::reset() {
 		if (partial.empty())
 			return;
 
@@ -110,39 +110,39 @@ namespace spjalla::completions {
 		cursor = -1;
 	}
 
-	bool completion_state::empty() const {
+	bool CompletionState::empty() const {
 		return partial_index == -1 && partial.empty() && windex == -1 && sindex == -1;
 	}
 
-	completion_state::operator std::string() const {
+	CompletionState::operator std::string() const {
 		return "[" + std::to_string(partial_index) + "] \"" + partial + "\"";
 	}
 
-	std::ostream & operator<<(std::ostream &os, const completion_state &state) {
+	std::ostream & operator<<(std::ostream &os, const CompletionState &state) {
 		return os << std::string(state);
 	}
 }
 
-namespace spjalla {
-	void client::tab_complete() {
-		std::string text = ui.input->get_text();
+namespace Spjalla {
+	void Client::tabComplete() {
+		std::string text = ui.input->getText();
 		if (text.empty())
 			return;
 
-		size_t cursor = ui.input->get_cursor();
+		size_t cursor = ui.input->getCursor();
 
-		if (ui.active_window == ui.status_window && text.front() != '/') {
+		if (ui.activeWindow == ui.statusWindow && text.front() != '/') {
 			text.insert(0, "/");
-			ui.input->set_text(text);
-			ui.input->move_to(++cursor);
-			ui.input->jump_cursor();
+			ui.input->setText(text);
+			ui.input->moveTo(++cursor);
+			ui.input->jumpCursor();
 		}
 
-		input_line il = get_input_line(text);
+		InputLine il = getInputLine(text);
 		ssize_t windex, sindex;
 		std::tie(windex, sindex) = formicine::util::word_indices(text, cursor);
 
-		if (il.is_command()) {
+		if (il.isCommand()) {
 			const std::string old_text {text};
 
 			bool handled = false;
@@ -159,16 +159,16 @@ namespace spjalla {
 				// The user has entered a command and the cursor is at or past the first argument.
 
 				// Search through each command handler.
-				for (const auto &handler: command_handlers) {
+				for (const auto &handler: commandHandlers) {
 					const std::string &name = handler.first;
-					const commands::command &cmd = handler.second;
+					const Commands::Command &cmd = handler.second;
 
 					// If the command handler's name matches the command name...
 					if (name == il.command) {
 						// ...and the completion function is valid...
-						if (cmd.completion_fn) {
+						if (cmd.completionFunction) {
 							// ...then call the completion function.
-							handled = cmd.completion_fn(*this, il, text, cursor, windex, sindex);
+							handled = cmd.completionFunction(*this, il, text, cursor, windex, sindex);
 						}
 
 						// Even if the completion function is invalid, stop the search.
@@ -179,39 +179,39 @@ namespace spjalla {
 
 			if (!handled) {
 				if (old_text != text)
-					ui.input->set_text(text);
+					ui.input->setText(text);
 
-				ui.input->move_to(cursor);
-				ui.input->jump_cursor();
+				ui.input->moveTo(cursor);
+				ui.input->jumpCursor();
 			}
-		} else if (active_server()) {
-			if (ui.active_window == ui.status_window && text.front() != '/') {
+		} else if (activeServer()) {
+			if (ui.activeWindow == ui.statusWindow && text.front() != '/') {
 				text.insert(0, "/");
-				ui.input->set_text(text);
-				ui.input->move_to(++cursor);
-				ui.input->jump_cursor();
+				ui.input->setText(text);
+				ui.input->moveTo(++cursor);
+				ui.input->jumpCursor();
 			}
 
-			complete_message(text, cursor);
+			completeMessage(text, cursor);
 		}
 	}
 
-	void client::complete_message(std::string &text, size_t cursor, ssize_t word_offset) {
+	void Client::completeMessage(std::string &text, size_t cursor, ssize_t word_offset) {
 		if (text.empty())
 			return;
 
-		input_line il = get_input_line(text);
+		InputLine il = getInputLine(text);
 		ssize_t windex, sindex;
 		std::tie(windex, sindex) = formicine::util::word_indices(text, cursor);
 
 		const std::string old_text {text};
 
-		const ui::window *window = ui.active_window;
-		const pingpong::server *server = window->serv;
-		const std::shared_ptr<pingpong::channel> channel = window->chan;
-		const std::shared_ptr<pingpong::user> user = window->user;
+		const UI::Window *window = ui.activeWindow;
+		const PingPong::Server *server = window->server;
+		const std::shared_ptr<PingPong::Channel> channel = window->channel;
+		const std::shared_ptr<PingPong::User> user = window->user;
 
-		completions::completion_state &state = completion_states["_"];
+		Completions::CompletionState &state = completionStates["_"];
 		std::string word;
 		if (!state.empty()) {
 			windex = state.windex;
@@ -228,7 +228,7 @@ namespace spjalla {
 			}
 		}
 
-		const std::string &suffix = configs.get("completion", "ping_suffix").string_ref();
+		const std::string &suffix = configs.get("completion", "ping_suffix").stringRef();
 		formicine::util::remove_suffix(word, suffix);
 
 		std::deque<std::string> items = {};
@@ -237,19 +237,19 @@ namespace spjalla {
 		const std::string lower = formicine::util::lower(state.partial);
 
 		if (word[0] == '#') {
-			for (const std::shared_ptr<pingpong::channel> &ptr: server->channels) {
+			for (const std::shared_ptr<PingPong::Channel> &ptr: server->channels) {
 				if (formicine::util::lower(ptr->name).find(lower) == 0)
 					items.push_back(ptr->name);
 			}
 		} else if (channel) {
 			do_sort = false;
-			for (const std::shared_ptr<pingpong::user> &ptr: channel->users) {
+			for (const std::shared_ptr<PingPong::User> &ptr: channel->users) {
 				if (formicine::util::lower(ptr->name).find(lower) == 0)
 					items.push_back(ptr->name);
 			}
 		} else if (user) {
 			items.push_back(user->name);
-			items.push_back(server->get_nick());
+			items.push_back(server->getNick());
 		} else {
 			return;
 		}
@@ -261,7 +261,7 @@ namespace spjalla {
 			if (1 < items.size()) {
 				// It's reasonable to assume that you're not desparate to complete your own nick, so for your
 				// convenience we'll move your name to the end of the list.
-				const std::string self = server->get_nick();
+				const std::string self = server->getNick();
 				for (auto iter = items.begin(); iter != items.end() && iter + 1 != items.end(); ++iter) {
 					if (*iter == self) {
 						items.erase(iter);
@@ -285,13 +285,13 @@ namespace spjalla {
 		}
 
 		if (old_text != text)
-			ui.input->set_text(text);
+			ui.input->setText(text);
 
-		ui.input->move_to(cursor);
-		ui.input->jump_cursor();
+		ui.input->moveTo(cursor);
+		ui.input->jumpCursor();
 	}
 
-	void client::key_postlistener(const haunted::key &k) {
-		completer.on_key(k);
+	void Client::keyPostlistener(const Haunted::Key &k) {
+		completer.onKey(k);
 	}
 }

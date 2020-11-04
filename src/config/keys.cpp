@@ -1,9 +1,9 @@
-#include "spjalla/config/keys.h"
+#include "spjalla/config/Keys.h"
 
-namespace spjalla::config {
-	haunted::key keys::toggle_overlay  = {haunted::ktype::semicolon, haunted::kmod::ctrl};
-	haunted::key keys::switch_server   = {haunted::ktype::x,         haunted::kmod::ctrl};
-	haunted::key keys::next_window     = {haunted::ktype::n,         haunted::kmod::ctrl};
-	haunted::key keys::previous_window = {haunted::ktype::p,         haunted::kmod::ctrl};
-	haunted::key keys::toggle_mouse    = {haunted::ktype::m,         haunted::kmod::ctrl};
+namespace Spjalla::Config {
+	Haunted::Key Keys::toggleOverlay  = {Haunted::KeyType::Semicolon, Haunted::KeyMod::Ctrl};
+	Haunted::Key Keys::switchServer   = {Haunted::KeyType::x,         Haunted::KeyMod::Ctrl};
+	Haunted::Key Keys::nextWindow     = {Haunted::KeyType::n,         Haunted::KeyMod::Ctrl};
+	Haunted::Key Keys::previousWindow = {Haunted::KeyType::p,         Haunted::KeyMod::Ctrl};
+	Haunted::Key Keys::toggleMouse    = {Haunted::KeyType::m,         Haunted::KeyMod::Ctrl};
 }

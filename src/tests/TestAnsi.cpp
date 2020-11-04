@@ -1,8 +1,8 @@
-#include "haunted/tests/test.h"
+#include "haunted/tests/Test.h"
 #include "lib/formicine/ansi.h"
 
-namespace spjalla::tests {
-	void test_ansi(haunted::tests::testing &unit) {
+namespace Spjalla::Tests {
+	void test_ansi(Haunted::Tests::Testing &unit) {
 		using namespace std::string_literals;
 		
 		unit.check({
@@ -18,6 +18,6 @@ namespace spjalla::tests {
 }
 
 int main(int, char **) {
-	haunted::tests::testing unit;
-	spjalla::tests::test_ansi(unit);	
+	Haunted::Tests::Testing unit;
+	Spjalla::Tests::test_ansi(unit);	
 }

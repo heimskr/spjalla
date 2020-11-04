@@ -1,12 +1,10 @@
 #ifndef SPJALLA_TESTS_CONFIG_H_
 #define SPJALLA_TESTS_CONFIG_H_
 
-#include "haunted/tests/test.h"
+#include "haunted/tests/Test.h"
 
-#include "spjalla/config/config.h"
-
-namespace spjalla::tests {
-	void test_config(haunted::tests::testing &);
+namespace Spjalla::Tests {
+	void test_config(Haunted::Tests::Testing &);
 }
 
 #endif

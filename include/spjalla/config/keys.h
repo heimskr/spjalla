@@ -1,11 +1,11 @@
 #ifndef SPJALLA_CONFIG_KEYS_H_
 #define SPJALLA_CONFIG_KEYS_H_
 
-#include "haunted/core/key.h"
+#include "haunted/core/Key.h"
 
-namespace spjalla::config {
-	struct keys {
-		static haunted::key toggle_overlay, switch_server, next_window, previous_window, toggle_mouse;
+namespace Spjalla::Config {
+	struct Keys {
+		static Haunted::Key toggleOverlay, switchServer, nextWindow, previousWindow, toggleMouse;
 	};
 }
 

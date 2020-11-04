@@ -1,168 +1,165 @@
 #include <cstdlib>
 
-#include "pingpong/core/debug.h"
+#include "pingpong/core/Debug.h"
 
-#include "pingpong/commands/join.h"
-#include "pingpong/commands/kick.h"
-#include "pingpong/commands/mode.h"
-#include "pingpong/commands/nick.h"
-#include "pingpong/commands/privmsg.h"
-#include "pingpong/commands/quit.h"
-#include "pingpong/commands/whois.h"
+#include "pingpong/commands/Join.h"
+#include "pingpong/commands/Kick.h"
+#include "pingpong/commands/Mode.h"
+#include "pingpong/commands/Nick.h"
+#include "pingpong/commands/Privmsg.h"
+#include "pingpong/commands/Quit.h"
+#include "pingpong/commands/Whois.h"
 
-#include "pingpong/net/resolution_error.h"
+#include "pingpong/net/ResolutionError.h"
 
-#include "spjalla/core/client.h"
-#include "spjalla/core/util.h"
+#include "spjalla/core/Client.h"
+#include "spjalla/core/Util.h"
 
-#include "spjalla/config/config.h"
+#include "spjalla/config/Config.h"
 
-#include "spjalla/lines/alias.h"
-#include "spjalla/lines/config_group.h"
-#include "spjalla/lines/config_key.h"
-#include "spjalla/lines/line.h"
-#include "spjalla/lines/warning.h"
+#include "spjalla/lines/Alias.h"
+#include "spjalla/lines/ConfigGroup.h"
+#include "spjalla/lines/ConfigKey.h"
+#include "spjalla/lines/Line.h"
+#include "spjalla/lines/Warning.h"
 
 #include "lib/formicine/futil.h"
 
-#include "haunted/tests/test.h"
+#include "haunted/tests/Test.h"
 
-namespace spjalla {
-	void client::add_commands() {
-		using sptr = pingpong::server *;
-		using line = const input_line &;
+namespace Spjalla {
+	void Client::addCommands() {
+		using sptr = PingPong::Server *;
+		using line = const InputLine &;
 
-		pingpong::command::before_send = [&](pingpong::command &cmd) { return before_send(cmd); };
+		PingPong::Command::beforeSend = [&](PingPong::Command &cmd) { return beforeSend(cmd); };
 
 
 		// Handles a fake line of input as if the client had read it from a socket.
-		add("_fake", 0, -1, true, [&](sptr serv, line il) {
-			serv->handle_line(pingpong::line(serv, il.body));
+		add("_fake", 0, -1, true, [&](sptr server, line il) {
+			server->handleLine(PingPong::Line(server, il.body));
 		});
 
-		add("_front", 1, 1, true, [&](sptr serv, line il) {
-			std::shared_ptr<pingpong::channel> chan = ui.active_window->chan;
-			if (!chan) {
+		add("_front", 1, 1, true, [&](sptr server, line il) {
+			std::shared_ptr<PingPong::Channel> channel = ui.activeWindow->channel;
+			if (!channel) {
 				ui.error("/_front needs a channel.");
 				return;
 			}
 
-			std::shared_ptr<pingpong::user> user = serv->get_user(il.first(), false, false);
+			std::shared_ptr<PingPong::User> user = server->getUser(il.first(), false, false);
 			if (!user) {
 				ui.error("Unknown user: " + il.first());
 				return;
 			}
 
-			if (chan->send_to_front(user)) {
-				ui.log("User " + ansi::bold(il.first()) + " sent to front of " + ansi::bold(chan->name) + ".");
-			} else {
-				ui.log("User " + ansi::bold(il.first()) + " wasn't sent to front of " + ansi::bold(chan->name) + ".");
-			}
+			if (channel->sendToFront(user))
+				ui.log("User " + ansi::bold(il.first()) + " sent to front of " + ansi::bold(channel->name) + ".");
+			else
+				ui.log("User " + ansi::bold(il.first()) + " wasn't sent to front of " + ansi::bold(channel->name)
+					+ ".");
 
-			std::string order = "Order of " + chan->name + ":";
-			for (std::shared_ptr<pingpong::user> uptr: chan->users)
+			std::string order = "Order of " + channel->name + ":";
+			for (std::shared_ptr<PingPong::User> uptr: channel->users)
 				order += " " + uptr->name;
 			DBG(order);
 		});
 
 		add("_order", 0, 0, false, [&](sptr, line) {
-			std::shared_ptr<pingpong::channel> chan = ui.active_window->chan;
-			if (!chan) {
+			std::shared_ptr<PingPong::Channel> channel = ui.activeWindow->channel;
+			if (!channel) {
 				ui.error("/_order needs a channel.");
 				return;
 			}
 
-			std::string order = "Order of " + chan->name + ":";
-			for (std::shared_ptr<pingpong::user> uptr: chan->users)
-				order += " " + uptr->name;
+			std::string order = "Order of " + channel->name + ":";
+			for (std::shared_ptr<PingPong::User> user: channel->users)
+				order += " " + user->name;
 			DBG(order);
 		});
 
 		add("_recalc", 0, 0, false, [&](sptr, line) {
-			for (std::shared_ptr<haunted::ui::textline> textline: ui.active_window->get_lines())
-				textline->mark_dirty();
-			ui.active_window->rows_dirty();
-			ui.active_window->draw();
+			for (const std::shared_ptr<Haunted::UI::TextLine> &textline: ui.activeWindow->getLines())
+				textline->markDirty();
+			ui.activeWindow->rowsDirty();
+			ui.activeWindow->draw();
 		});
 
 		add("_lines", 0, 0, false, [&](sptr, line) {
-			for (std::shared_ptr<haunted::ui::textline> textline: ui.active_window->get_lines()) {
+			for (std::shared_ptr<Haunted::UI::TextLine> textline: ui.activeWindow->getLines()) {
 				DBG("Line: " << std::string(*textline));
-				DBG("   num_rows_ = " << textline->num_rows_);
-				DBG("   #lines_   = " << textline->lines_.size());
+				DBG("   numRows_ = " << textline->numRows_);
+				DBG("   #lines_  = " << textline->lines_.size());
 			}
 
-			DBG("total_rows_ = " << ui.active_window->total_rows_);
+			DBG("totalRows_ = " << ui.activeWindow->totalRows_);
 		});
 
-		add("alias", 0, -1, false, [&](sptr, line il) { commands::do_alias(*this, il); });
+		add("alias", 0, -1, false, [&](sptr, line il) { Commands::doAlias(*this, il); });
 
-		add("ban", 1, 2, true, [&](sptr serv, line il) {
-			ban(serv, il, "+b");
+		add("ban", 1, 2, true, [&](sptr server, line il) {
+			ban(server, il, "+b");
 		});
 
 		add("clear", 0, 0, false, [&](sptr, line) {
-			if (ui::window *win = ui.get_active_window()) {
-				win->set_voffset(win->total_rows() - ui.scroll_buffer);
-			} else {
+			if (UI::Window *window = ui.getActiveWindow())
+				window->setVoffset(window->totalRows() - ui.scrollBuffer);
+			else
 				ui.error("No window.");
-			}
 		});
 
-		add("connect",    1,  2, false, [&](sptr,      line il) { commands::do_connect(*this, il);          });
-		add("disconnect", 0, -1, true,  [&](sptr serv, line il) { commands::do_disconnect(*this, serv, il); });
-		add("join",       1,  1, true,  [&](sptr serv, line il) { commands::do_join(*this, serv, il);       });
+		add("connect",    1,  2, false, [&](sptr,        line il) { Commands::doConnect(*this, il);            });
+		add("disconnect", 0, -1, true,  [&](sptr server, line il) { Commands::doDisconnect(*this, server, il); });
+		add("join",       1,  1, true,  [&](sptr server, line il) { Commands::doJoin(*this, server, il);       });
 
-		add("kick", 1, -1, true, [&](sptr serv, line il) {
-			if (triple_command<pingpong::kick_command>(serv, il, ui.get_active_channel()))
-				no_channel();
+		add("kick", 1, -1, true, [&](sptr server, line il) {
+			if (tripleCommand<PingPong::KickCommand>(server, il, ui.getActiveChannel()))
+				noChannel();
 		});
 
 		add("me",   1, -1, true,  [&](sptr,      line il) {
-			commands::do_me(ui, il);
-		}, completions::complete_plain);
+			Commands::doMe(ui, il);
+		}, Completions::completePlain);
 
-		add("mode", 1, -1, true,  [&](sptr serv, line il) { commands::do_mode(ui, serv, il); });
-		add("move", 1,  1, false, [&](sptr,      line il) { commands::do_move(ui, il); });
+		add("mode", 1, -1, true,  [&](sptr server, line il) { Commands::doMode(ui, server, il); });
+		add("move", 1,  1, false, [&](sptr,        line il) { Commands::doMove(ui, il);         });
 
-		add("msg", 2, -1, true, [&](sptr serv, line il) {
-			pingpong::privmsg_command(serv, il.first(), il.rest()).send();
-		}, completions::complete_plain);
+		add("msg", 2, -1, true, [&](sptr server, line il) {
+			PingPong::PrivmsgCommand(server, il.first(), il.rest()).send();
+		}, Completions::completePlain);
 
-		add("nick",    0,  1, true,  [&](sptr serv, line il) { commands::do_nick(ui, serv, il);    });
-		add("overlay", 0,  0, false, [&](sptr,      line)    { ui.update_overlay();                });
-		add("part",    0, -1, true,  [&](sptr serv, line il) { commands::do_part(*this, serv, il); });
-		add("plugin",  0, -1, false, [&](sptr, line il)      { commands::do_plugin(*this, il);     });
+		add("nick",    0,  1, true,  [&](sptr server, line il) { Commands::doNick(ui, server, il);    });
+		add("overlay", 0,  0, false, [&](sptr,        line)    { ui.updateOverlay();                });
+		add("part",    0, -1, true,  [&](sptr server, line il) { Commands::doPart(*this, server, il); });
+		add("plugin",  0, -1, false, [&](sptr,        line il) { Commands::doPlugin(*this, il);     });
 
 		add("quit", 0, -1, false, [&](sptr, line il) {
-			for (pingpong::server *serv: irc.server_order)
-				serv->quit(il.body);
+			for (PingPong::Server *server: irc.serverOrder)
+				server->quit(il.body);
 		});
 
-		add("quote", 1, -1, true, [&](sptr serv, line il) {
-			serv->quote(il.body);
-		});
+		add("quote", 1, -1, true, [&](sptr server, line il) { server->quote(il.body); });
 
-		add("set",   0, -1, false, [&](sptr, line il) { commands::do_set(*this, il); }, completions::complete_set);
-		add("spam",  0,  1, false, [&](sptr, line il) { commands::do_spam(ui, il); });
-		add("topic", 0, -1, true,  [&](sptr serv, line il) { commands::do_topic(*this, serv, il); });
+		add("set",   0, -1, false, [&](sptr, line il) { Commands::doSet(*this, il); }, Completions::completeSet);
+		add("spam",  0,  1, false, [&](sptr, line il) { Commands::doSpam(ui, il); });
+		add("topic", 0, -1, true,  [&](sptr server, line il) { Commands::doTopic(*this, server, il); });
 
-		add("unban", 1, 2, true, [&](sptr serv, line il) {
-			ban(serv, il, "-b");
+		add("unban", 1, 2, true, [&](sptr server, line il) {
+			ban(server, il, "-b");
 		});
 
 		add("wc", 0, 0, false, [&](sptr, line) {
-			if (ui.can_remove(ui.active_window))
-				ui.remove_window(ui.active_window);
+			if (ui.canRemove(ui.activeWindow))
+				ui.removeWindow(ui.activeWindow);
 		});
 
-		add("whois", 1, 1, true, [&](sptr serv, line il) {
-			pingpong::whois_command(serv, il.first()).send();
-		}, completions::complete_plain);
+		add("whois", 1, 1, true, [&](sptr server, line il) {
+			PingPong::WhoisCommand(server, il.first()).send();
+		}, Completions::completePlain);
 	}
 
-	void client::ban(pingpong::server *serv, const input_line &il, const std::string &type) {
-		std::shared_ptr<pingpong::channel> chan = ui.get_active_channel();
+	void Client::ban(PingPong::Server *server, const InputLine &il, const std::string &type) {
+		std::shared_ptr<PingPong::Channel> chan = ui.getActiveChannel();
 		std::string target;
 
 		if (il.args.size() == 2) {
@@ -171,8 +168,7 @@ namespace spjalla {
 				return;
 			}
 
-			chan = serv->get_channel(il.args[0], false);
-			if (!chan) {
+			if (!server->getChannel(il.args[0], false)) {
 				ui.warn("Channel not found: " + il.args[0]);
 				return;
 			}
@@ -187,44 +183,45 @@ namespace spjalla {
 			return;
 		}
 
-		pingpong::mode_command(chan, type, target).send();
+		PingPong::ModeCommand(chan, type, target).send();
 	}
 
-	void client::debug_servers() {
+	void Client::debugServers() {
 		if (irc.servers.empty()) {
 			DBG("No servers.");
 			return;
 		}
 
 		for (const auto &pair: irc.servers) {
-			pingpong::server *serv = pair.second;
-			DBG(ansi::bold(serv->id) << " (" << serv->get_nick() << "@"_d << serv->hostname << "): "
-				<< static_cast<int>(serv->status));
-			for (std::shared_ptr<pingpong::channel> chan: serv->channels) {
-				DBG("    " << ansi::wrap(chan->name, ansi::style::underline) << " [" << chan->mode_str() << "]");
-				for (std::shared_ptr<pingpong::user> user: chan->users) {
-					std::string chans = "";
-					std::vector<std::weak_ptr<pingpong::channel>> expired_chans {};
-					for (std::weak_ptr<pingpong::channel> user_chan: user->channels) {
-						if (user_chan.expired()) {
-							expired_chans.push_back(user_chan);
+			PingPong::Server *server = pair.second;
+			DBG(ansi::bold(server->id) << " (" << server->getNick() << "@"_d << server->hostname << "): "
+				<< static_cast<int>(server->status));
+			for (std::shared_ptr<PingPong::Channel> channel: server->channels) {
+				DBG("    " << ansi::wrap(channel->name, ansi::style::underline) << " [" << channel->modeString()
+				    << "]");
+				for (std::shared_ptr<PingPong::User> user: channel->users) {
+					std::string channels = "";
+					std::vector<std::weak_ptr<PingPong::Channel>> expired_channels {};
+					for (std::weak_ptr<PingPong::Channel> user_channel: user->channels) {
+						if (user_channel.expired()) {
+							expired_channels.push_back(user_channel);
 						} else {
-							chans += " " + user_chan.lock()->name;
+							channels += " " + user_channel.lock()->name;
 						}
 					}
 
-					for (const std::weak_ptr<pingpong::channel> &expired_chan: expired_chans)
-						user->channels.erase(expired_chan);
+					for (const std::weak_ptr<PingPong::Channel> &expired_channel: expired_channels)
+						user->channels.erase(expired_channel);
 
 					std::string to_dbg = "        " + user->name;
-					if (!chans.empty())
-						to_dbg += ":" + chans;
+					if (!channels.empty())
+						to_dbg += ":" + channels;
 
-					if (user->idle_since != -1)
-						to_dbg += "; idle since " + std::to_string(user->idle_since);
+					if (user->idleSince != -1)
+						to_dbg += "; idle since " + std::to_string(user->idleSince);
 
-					if (user->signon_time != -1)
-						to_dbg += "; signon time: " + std::to_string(user->signon_time);
+					if (user->signonTime != -1)
+						to_dbg += "; signon time: " + std::to_string(user->signonTime);
 
 					if (!user->realname.empty())
 						to_dbg += "; realname: " + user->realname;

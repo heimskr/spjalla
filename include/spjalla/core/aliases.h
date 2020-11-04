@@ -6,34 +6,34 @@
 #include <string>
 #include <unordered_map>
 
-#include "spjalla/core/flatdb.h"
-#include "spjalla/core/input_line.h"
-#include "spjalla/core/options.h"
+#include "spjalla/core/FlatDB.h"
+#include "spjalla/core/InputLine.h"
+#include "spjalla/core/Options.h"
 
-namespace spjalla {
-	class aliases: public flatdb {
+namespace Spjalla {
+	class Aliases: public FlatDB {
 		private:
 			std::filesystem::path filepath;
 			std::unordered_map<std::string, std::string> db;
 
 		public:
-			aliases() {}
+			Aliases() {}
 
-			~aliases() override = default;
+			~Aliases() override = default;
 
 			/** Adds an alias. */
-			void add_alias(const std::string &key, const std::string &expansion);
+			void addAlias(const std::string &key, const std::string &expansion);
 
 			/** Returns whether a given alias is known. */
-			bool has_alias(const std::string &);
+			bool hasAlias(const std::string &);
 			
-			/** Replaces any aliased command in an input_line with its expansion in-place. */
-			input_line & expand(input_line &);
+			/** Replaces any aliased command in an InputLine with its expansion in-place. */
+			InputLine & expand(InputLine &);
 
 			/** Returns a pair representing the key and the value. */
-			virtual std::pair<std::string, std::string> apply_line(const std::string &) override;
+			virtual std::pair<std::string, std::string> applyLine(const std::string &) override;
 
-			virtual void clear_all() override { db.clear(); }
+			virtual void clearAll()    override { db.clear(); }
 			virtual bool empty() const override { return db.empty(); }
 
 			/** Inserts an alias into the database. Returns true if a preexisting value was overwritten. */

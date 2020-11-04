@@ -7,116 +7,117 @@
 #include <string>
 #include <utility>
 
-#include "spjalla/core/flatdb.h"
+#include "spjalla/core/FlatDB.h"
 
-#include "spjalla/config/keys.h"
-#include "spjalla/config/validation.h"
-#include "spjalla/config/value.h"
+#include "spjalla/config/Keys.h"
+#include "spjalla/config/Validation.h"
+#include "spjalla/config/Value.h"
+#include "spjalla/tests/Config.h"
 
-namespace haunted::tests { class testing; }
-namespace spjalla::tests { void test_config(haunted::tests::testing &); }
+namespace Haunted::Tests { class Testing; }
+namespace Spjalla::Tests { void testConfig(Haunted::Tests::Testing &); }
 
-namespace spjalla {
-	class client;
+namespace Spjalla {
+	class Client;
 }
 
-namespace spjalla::config {
+namespace Spjalla::Config {
 	/**
 	 * Represents an instance of a configuration database.
 	 */
-	class database: public flatdb {
+	class Database: public FlatDB {
 		public:
-			using   submap = std::map<std::string, value>;
-			using groupmap = std::map<std::string, submap>;
+			using   SubMap = std::map<std::string, Value>;
+			using GroupMap = std::map<std::string, SubMap>;
 
 		private:
-			client &parent;
+			Client *parent;
 
 			/** The in-memory copy of the config database. */
-			groupmap db {};
+			GroupMap db {};
 
 			/** Whether to allow unknown group+key combinations to be inserted into the database. */
-			bool allow_unknown;
+			bool allowUnknown;
 
-			static bool parse_bool(const std::string &str);
+			static bool parseBool(const std::string &str);
 
 			/** Throws a std::invalid_argument exception if a group+key pair is unknown and unknown group+key pairs
 			 *  aren't allowed. */
-			void ensure_known(const std::string &group, const std::string &key) const noexcept(false);
+			void ensureKnown(const std::string &group, const std::string &key) const noexcept(false);
 
 		public:
-			database() = delete;
-			database(client &parent_, bool allow_unknown_): parent(parent_), allow_unknown(allow_unknown_) {}
+			Database() = delete;
+			Database(Client &parent_, bool allow_unknown): parent(&parent_), allowUnknown(allow_unknown) {}
 
-			~database() override = default;
+			~Database() override = default;
 
 			/** Attempts to parse a configuration line of the form /^\w+\s*=\s*\d+$/. */
-			static std::pair<std::string, long> parse_long_line(const std::string &);
+			static std::pair<std::string, long> parseLongLine(const std::string &);
 
 			/** Attempts to parse a configuration line of the form /^\w+\s*=\s*\d+\.\d*$/. */
-			static std::pair<std::string, double> parse_double_line(const std::string &);
+			static std::pair<std::string, double> parseDoubleLine(const std::string &);
 
 			/** Attempts to parse a configuration line of the form /^\w+\s*=\s*(true|false|on|off|yes|no)$/. */
-			static std::pair<std::string, bool> parse_bool_line(const std::string &);
+			static std::pair<std::string, bool> parseBoolLine(const std::string &);
 
 			/** Attempts to split a "group.key" pair. Throws std::invalid_argument if there isn't exactly one period in
 			 *  the string or if the area before or after the period contains nothing. */
-			static std::pair<std::string, std::string> parse_pair(const std::string &);
+			static std::pair<std::string, std::string> parsePair(const std::string &);
 
 			/** Checks a value and returns its type. */
-			static value_type get_value_type(std::string) noexcept;
+			static ValueType getValueType(std::string) noexcept;
 
 			/** Inserts a value into the config database. Returns true if a preexisting value was overwritten. */
-			bool insert(const std::string &group, const std::string &key, const value &, bool save = true);
+			bool insert(const std::string &group, const std::string &key, const Value &, bool save = true);
 
 			/** Inserts a value into the config database. Returns true if a preexisting value was overwritten. */
-			bool insert_any(const std::string &group, const std::string &key, const std::string &, bool save = true);
+			bool insertAny(const std::string &group, const std::string &key, const std::string &, bool save = true);
 
 			/** Removes a value from the config database and optionally applies the default value for the key if one has
 			 *  been registered. Returns true if a value was present and removed, or false if no match was found. */
 			bool remove(const std::string &group, const std::string &key, bool apply_default = true, bool save = true);
 
 			/** Applies all settings, optionally with default settings where not overridden. */
-			void apply_all(bool with_defaults);
+			void applyAll(bool with_defaults);
 
-			virtual std::pair<std::string, std::string> apply_line(const std::string &) override;
+			virtual std::pair<std::string, std::string> applyLine(const std::string &) override;
 
-			virtual void apply_all() override { apply_all(true); }
+			virtual void applyAll() override { applyAll(true); }
 
-			virtual void clear_all() override { db.clear(); }
+			virtual void clearAll() override { db.clear(); }
 
 			virtual bool empty() const override { return db.empty(); }
 
 			/** Returns a value from the config database. If an unknown group+key pair is given and not present in the
 			 *  database, a std::out_of_range exception is thrown. */
-			value & get(const std::string &group, const std::string &key);
-			value & get_pair(const std::pair<std::string, std::string> &pair) { return get(pair.first, pair.second); }
+			Value & get(const std::string &group, const std::string &key);
+			Value & getPair(const std::pair<std::string, std::string> &pair) { return get(pair.first, pair.second); }
 
 			/** Returns whether a group name is present in the config database. */
-			bool has_group(const std::string &) const;
+			bool hasGroup(const std::string &) const;
 
 			/** Returns whether a key name is present within a given group in the config database. */
-			bool has_key(const std::string &group, const std::string &key) const;
+			bool hasKey(const std::string &group, const std::string &key) const;
 
 			/** Returns whether a group+key pair has been registered. */
-			bool key_known(const std::string &group, const std::string &key) const;
+			bool keyKnown(const std::string &group, const std::string &key) const;
 
 			/** Returns the number of keys present under a group. If the group doesn't exist in the config database, the
 			 *  function returns -1. */
-			ssize_t key_count(const std::string &group) const;
+			ssize_t keyCount(const std::string &group) const;
 
 			/** Returns a copy of the config database with all default keys filled in if not already present. */
-			groupmap with_defaults() const;
+			GroupMap withDefaults() const;
 
 			/** Stringifies the config database. */
 			operator std::string() const override;
 
-			groupmap::iterator begin() { return db.begin(); }
-			groupmap::iterator end() { return db.end(); }
+			GroupMap::iterator begin() { return db.begin(); }
+			GroupMap::iterator end() { return db.end(); }
 
-			client & get_parent() { return parent; }
+			Client * getParent() { return parent; }
 
-			friend void spjalla::tests::test_config(haunted::tests::testing &);
+			friend void Spjalla::Tests::test_config(Haunted::Tests::Testing &);
 	};
 }
 

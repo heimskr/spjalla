@@ -2,12 +2,12 @@
 #include <string>
 #include <vector>
 
-#include "haunted/tests/test.h"
-#include "spjalla/core/util.h"
-#include "spjalla/util/backward_reader.h"
+#include "haunted/tests/Test.h"
+#include "spjalla/core/Util.h"
+#include "spjalla/util/BackwardReader.h"
 
-namespace spjalla::tests {
-	void test_backwards_line(haunted::tests::testing &unit) {
+namespace Spjalla::Tests {
+	void test_backwards_line(Haunted::Tests::Testing &unit) {
 		std::vector<std::string> original_lines {};
 		std::string line;
 		const int min = -10, max = 64;
@@ -32,7 +32,7 @@ namespace spjalla::tests {
 
 		for (ssize_t chunk_size: {1, 2, 3, 4, 5, 6, 32, 33, 64, 128, 2048, 4096, 9999, 99999}) {
 			std::cout << "\n["_d << ansi::bold(std::to_string(chunk_size)) << "]"_d << "\n";
-			util::backward_reader reader {"/tmp/backwards_line", chunk_size};
+			Util::BackwardReader reader {"/tmp/backwards_line", chunk_size};
 			for (int i = min; i < max; ++i) {
 				std::string line;
 				bool result = reader.readline(line);
@@ -45,6 +45,6 @@ namespace spjalla::tests {
 }
 
 int main(int, char **) {
-	haunted::tests::testing unit;
-	spjalla::tests::test_backwards_line(unit);	
+	Haunted::Tests::Testing unit;
+	Spjalla::Tests::test_backwards_line(unit);	
 }

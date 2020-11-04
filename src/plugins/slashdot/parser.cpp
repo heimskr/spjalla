@@ -5,7 +5,7 @@
 #include "spjalla/plugins/slashdot.h"
 #include "lib/formicine/futil.h"
 
-namespace spjalla::plugins::slashdot {
+namespace Spjalla::Plugins::slashdot {
 	void parser::parse(const std::string &text) {
 		tinyxml2::XMLDocument doc;
 

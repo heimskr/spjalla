@@ -3,30 +3,30 @@
 
 #include <string>
 
-#include "spjalla/ui/window.h"
+#include "spjalla/ui/Window.h"
 
-namespace spjalla {
-	class client;
+namespace Spjalla {
+	class Client;
 }
 
-namespace spjalla::ui {
+namespace Spjalla::UI {
 	/**
 	 * Represents widgets that sit in the status bar.
 	 */
-	class status_widget {
+	class StatusWidget {
 		protected:
-			client *parent;
+			Client *parent;
 
 			/** Implementation for render(). */
-			virtual std::string _render(const window *, bool overlay_visible) const = 0;
+			virtual std::string _render(const Window *, bool overlay_visible) const = 0;
 
 		public:
 			/** A lower priority indicates the widget should be ordered more towards the left of the status bar. */
 			int priority;
 
-			status_widget(client *parent_, int priority_ = 50): parent(parent_), priority(priority_) {}
+			StatusWidget(Client *parent_, int priority_ = 50): parent(parent_), priority(priority_) {}
 
-			virtual const char * get_name() const { return "?"; }
+			virtual const char * getName() const { return "?"; }
 
 			/** Surrounds a string (the rendered contents of the widget) with characters at each end ("[" and "]" by
 			 *  default). */
@@ -36,10 +36,10 @@ namespace spjalla::ui {
 			virtual void update();
 
 			/** Returns a string to be displayed in the status bar. */
-			std::string render(const window *, bool overlay_visible) const;
+			std::string render(const Window *, bool overlay_visible) const;
 
 			/** Returns whether the widget should be displayed when the given window is the current window. */
-			virtual bool visible_for(const window *, bool overlay_visible) const;
+			virtual bool visibleFor(const Window *, bool overlay_visible) const;
 	};
 }
 

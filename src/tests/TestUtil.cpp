@@ -1,13 +1,13 @@
-#include "spjalla/tests/util.h"
-#include "spjalla/core/util.h"
+#include "spjalla/tests/Util.h"
+#include "spjalla/core/Util.h"
 
 int main(int, char **) {
-	haunted::tests::testing unit;
-	spjalla::tests::test_util(unit);	
+	Haunted::Tests::Testing unit;
+	Spjalla::Tests::test_util(unit);	
 }
 
-namespace spjalla::tests {
-	void test_util(haunted::tests::testing &unit) {
+namespace Spjalla::Tests {
+	void test_util(Haunted::Tests::Testing &unit) {
 		using namespace std::string_literals;
 
 		unit.check({
@@ -37,7 +37,7 @@ namespace spjalla::tests {
 			{{" "s, 0},             {-1, -1}},
 			{{" "s, 1},             {-1, -1}},
 			{{" "s, 2},             {-1, -1}},
-		}, &util::word_indices, "util::word_indices");
+		}, &formicine::util::word_indices, "formicine::util::word_indices");
 
 		unit.check({
 			{{"foo bar baz"s, 0},  0},
@@ -51,7 +51,7 @@ namespace spjalla::tests {
 			{{" "s,           1},  1},
 			{{"  "s,          0},  2},
 			{{"  "s,          1},  2},
-		}, &util::index_of_word, "util::index_of_word");
+		}, &formicine::util::index_of_word, "formicine::util::index_of_word");
 
 		unit.check({
 			{{"foo bar baz"s, 0},  3},
@@ -65,14 +65,14 @@ namespace spjalla::tests {
 			{{" "s,           1},  1},
 			{{"  "s,          0},  2},
 			{{"  "s,          1},  2},
-		}, &util::last_index_of_word, "util::last_index_of_word");
+		}, &formicine::util::last_index_of_word, "formicine::util::last_index_of_word");
 
 		unit.check({
 			{{"foo bar baz"s, ' ', 0}, 0},
 			{{"foo bar baz"s, ' ', 1}, 3},
 			{{"foo bar baz"s, ' ', 2}, 7},
 			{{"foo bar baz"s, ' ', 3}, std::string::npos},
-		}, &tests::nth_index, "formicine::util::nth_index");
+		}, &Tests::nth_index, "formicine::util::nth_index");
 
 		unit.check({
 			{{"foo bar baz"s, 0, false}, "foo"},

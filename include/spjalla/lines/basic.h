@@ -1,22 +1,22 @@
 #ifndef SPJALLA_LINES_BASIC_H_
 #define SPJALLA_LINES_BASIC_H_
 
-#include "pingpong/core/util.h"
+#include "pingpong/core/Util.h"
 
-#include "spjalla/lines/line.h"
+#include "spjalla/lines/Line.h"
 
-namespace spjalla::lines {
-	struct basic_line: public line {
+namespace Spjalla::Lines {
+	struct BasicLine: public Line {
 		std::string text;
 
-		basic_line(client *parent_, const std::string &text_, int base_continuation_ = 0,
-		long stamp_ = pingpong::util::timestamp()):
-			line(parent_, stamp_, base_continuation_), text(text_) {}
+		BasicLine(Client *parent_, const std::string &text_, int base_continuation = 0,
+		long stamp_ = PingPong::Util::timestamp()):
+			Line(parent_, stamp_, base_continuation), text(text_) {}
 
-		basic_line(const std::string &text_, int base_continuation_ = 0, long stamp_ = pingpong::util::timestamp()):
-			basic_line(nullptr, text_, base_continuation_, stamp_) {}
+		BasicLine(const std::string &text_, int base_continuation = 0, long stamp_ = PingPong::Util::timestamp()):
+			BasicLine(nullptr, text_, base_continuation, stamp_) {}
 
-		virtual std::string render(ui::window *) override;
+		virtual std::string render(UI::Window *) override;
 	};
 }
 

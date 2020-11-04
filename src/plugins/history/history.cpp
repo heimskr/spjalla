@@ -1,35 +1,35 @@
-#include "haunted/core/key.h"
+#include "haunted/core/Key.h"
 
-#include "spjalla/core/client.h"
-#include "spjalla/core/input_line.h"
-#include "spjalla/core/plugin_host.h"
+#include "spjalla/core/Client.h"
+#include "spjalla/core/InputLine.h"
+#include "spjalla/core/PluginHost.h"
 
-#include "spjalla/plugins/plugin.h"
+#include "spjalla/plugins/Plugin.h"
 
 #include "lib/formicine/ansi.h"
 
-namespace spjalla::plugins {
-	struct history_plugin: public plugin {
-		~history_plugin() {}
+namespace Spjalla::Plugins {
+	struct HistoryPlugin: public Plugin {
+		~HistoryPlugin() {}
 
-		std::string get_name()        const override { return "History"; }
-		std::string get_description() const override { return "Lets you repeat old inputs with the up and down keys."; }
-		std::string get_version()     const override { return "0.1.0"; }
+		std::string getName()        const override { return "History"; }
+		std::string getDescription() const override { return "Lets you repeat old inputs with the up and down keys."; }
+		std::string getVersion()     const override { return "0.1.0"; }
 
-		int command_index = 0;
-		size_t max_length = 4096;
+		int commandIndex = 0;
+		size_t maxLength = 4096;
 		std::deque<std::string> history {};
 
-		std::shared_ptr<plugin_host::pre_function<haunted::key>> prekey = 
-			std::make_shared<plugin_host::pre_function<haunted::key>>([this](const haunted::key &key, bool) {
+		std::shared_ptr<PluginHost::Pre_f<Haunted::Key>> prekey = 
+			std::make_shared<PluginHost::Pre_f<Haunted::Key>>([this](const Haunted::Key &key, bool) {
 				if (!history.empty()) {
-					if (key == haunted::ktype::up_arrow && 0 < command_index) {
-						parent->get_ui().set_input(history[--command_index]);
+					if (key == Haunted::KeyType::UpArrow && 0 < command_index) {
+						parent->getUI().set_input(history[--command_index]);
 						return cancelable_result::disable;
 					}
 
-					if (key == haunted::ktype::down_arrow && command_index < static_cast<int>(history.size()) - 1) {
-						parent->get_ui().set_input(history[++command_index]);
+					if (key == Haunted::KeyType::down_arrow && command_index < static_cast<int>(history.size()) - 1) {
+						parent->getUI().set_input(history[++command_index]);
 						return cancelable_result::disable;
 					}
 				}
@@ -37,8 +37,8 @@ namespace spjalla::plugins {
 				return cancelable_result::pass;
 			});
 
-		std::shared_ptr<plugin_host::post_function<input_line>> postinput =
-			std::make_shared<plugin_host::post_function<input_line>>([this](const input_line &il) {
+		std::shared_ptr<PluginHost::post_function<InputLine>> postinput =
+			std::make_shared<PluginHost::post_function<InputLine>>([this](const InputLine &il) {
 				history.push_back(il.original);
 
 				if (max_length < history.size())
@@ -47,8 +47,8 @@ namespace spjalla::plugins {
 				command_index = history.size();
 			});
 
-		void postinit(plugin_host *host) override {
-			parent = dynamic_cast<spjalla::client *>(host);
+		void postinit(PluginHost *host) override {
+			parent = dynamic_cast<Spjalla::Client *>(host);
 			if (!parent) {
 				DBG("Error: expected client as plugin host");
 				return;
@@ -58,11 +58,11 @@ namespace spjalla::plugins {
 			parent->handle(postinput);
 		}
 
-		void cleanup(plugin_host *) override {
+		void cleanup(PluginHost *) override {
 			parent->unhandle(prekey);
 			parent->unhandle(postinput);
 		}
 	};
 }
 
-spjalla::plugins::history_plugin ext_plugin {};
+spjalla::plugins::HistoryPlugin ext_plugin {};

@@ -1,9 +1,9 @@
-#include "spjalla/commands/command.h"
-#include "spjalla/ui/interface.h"
-#include "spjalla/core/util.h"
+#include "spjalla/commands/Command.h"
+#include "spjalla/ui/Interface.h"
+#include "spjalla/core/Util.h"
 
-namespace spjalla::commands {
-	void do_move(ui::interface &ui, const input_line &il) {
+namespace Spjalla::Commands {
+	void doMove(UI::Interface &ui, const InputLine &il) {
 		long parsed;
 		const std::string first = il.first();
 		if (!formicine::util::parse_long(first, parsed)) {
@@ -11,6 +11,6 @@ namespace spjalla::commands {
 			return;
 		}
 
-		ui.move_window(ui.get_active_window(), std::max(0L, parsed - 1));
+		ui.moveWindow(ui.getActiveWindow(), std::max(0L, parsed - 1));
 	}
 }

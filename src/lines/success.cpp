@@ -1,8 +1,8 @@
-#include "spjalla/core/client.h"
-#include "spjalla/lines/success.h"
+#include "spjalla/core/Client.h"
+#include "spjalla/lines/Success.h"
 
-namespace spjalla::lines {
-	std::string success_line::render(ui::window *) {
-		return parent->get_ui().render("bang_good") + " " + message;
+namespace Spjalla::Lines {
+	std::string SuccessLine::render(UI::Window *) {
+		return parent->getUI().renderer("bang_good") + " " + message;
 	}
 }

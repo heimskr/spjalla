@@ -1,7 +1,7 @@
-#include "spjalla/lines/alias.h"
+#include "spjalla/lines/Alias.h"
 
-namespace spjalla::lines {
-	std::string alias_line::render(ui::window *) {
+namespace Spjalla::Lines {
+	std::string AliasLine::render(UI::Window *) {
 		return key + " = "_d + ansi::bold(expansion);
 	}
 }

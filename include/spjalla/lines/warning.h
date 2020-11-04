@@ -1,22 +1,22 @@
 #ifndef SPJALLA_LINES_WARNING_H_
 #define SPJALLA_LINES_WARNING_H_
 
-#include "spjalla/lines/line.h"
+#include "spjalla/lines/Line.h"
 
-namespace spjalla::lines {
-	class warning_line: public line {
+namespace Spjalla::Lines {
+	class WarningLine: public Line {
 		protected:
-			virtual pingpong::server * get_associated_server() const override { return serv; }
+			virtual PingPong::Server * getAssociatedServer() const override { return server; }
 
 		public:
 			std::string message;
-			pingpong::server *serv = nullptr;
+			PingPong::Server *server = nullptr;
 
-			warning_line(client *parent_, const std::string &message_, long stamp_ = pingpong::util::timestamp()):
-				line(parent_, stamp_, ansi::length(lines::yellow_notice)), message(message_) {}
+			WarningLine(Client *parent_, const std::string &message_, long stamp_ = PingPong::Util::timestamp()):
+				Line(parent_, stamp_, ansi::length(Lines::yellowNotice)), message(message_) {}
 
-			virtual std::string render(ui::window *) override;
-			virtual notification_type get_notification_type() const override { return notification_type::info; }
+			virtual std::string render(UI::Window *) override;
+			virtual NotificationType getNotificationType() const override { return NotificationType::Info; }
 	};
 }
 

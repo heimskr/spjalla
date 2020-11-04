@@ -1,8 +1,8 @@
-#include "spjalla/core/client.h"
-#include "spjalla/lines/join.h"
+#include "spjalla/core/Client.h"
+#include "spjalla/lines/Join.h"
 
-namespace spjalla::lines {
-	std::string join_line::render(ui::window *) {
-		return parent->get_ui().render("join", {{"raw_who", name}, {"raw_channel", chan_name}});
+namespace Spjalla::Lines {
+	std::string JoinLine::render(UI::Window *) {
+		return parent->getUI().renderer("join", {{"raw_who", name}, {"raw_channel", channelName}});
 	}
 }

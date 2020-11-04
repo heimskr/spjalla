@@ -3,22 +3,22 @@
 
 #include <unordered_map>
 
-#include "spjalla/plugins/plugin.h"
+#include "spjalla/plugins/Plugin.h"
 
-namespace spjalla::plugins {
-	class nickcolor_plugin: public plugin {
+namespace Spjalla::Plugins {
+	class NickColorPlugin: public plugin {
 		private:
 			std::vector<ansi::color> colorlist {};
 
 		public:
-			std::string get_name()        const override { return "Nick Colorizer"; }
-			std::string get_description() const override { return "Colors nicks."; }
-			std::string get_version()     const override { return "0.1.0"; }
-			void preinit(plugin_host  *) override;
-			void postinit(plugin_host *) override;
-			void cleanup(plugin_host  *) override;
+			std::string getName()        const override { return "Nick Colorizer"; }
+			std::string getDescription() const override { return "Colors nicks."; }
+			std::string getVersion()     const override { return "0.1.0"; }
+			void preinit(PluginHost  *) override;
+			void postinit(PluginHost *) override;
+			void cleanup(PluginHost  *) override;
 
-			static config::validation_result validate_colorlist(const config::value &);
+			static Config::ValidationResult validateColorlist(const Config::Value &);
 	};
 }
 

@@ -4,143 +4,146 @@
 #include <functional>
 #include <optional>
 
-#include "haunted/core/defs.h"
-#include "haunted/ui/container.h"
-#include "haunted/ui/textbox.h"
-#include "pingpong/core/defs.h"
-#include "spjalla/core/notifications.h"
-#include "spjalla/lines/line.h"
+#include "haunted/core/Defs.h"
+#include "haunted/ui/Container.h"
+#include "haunted/ui/Textbox.h"
+#include "pingpong/core/Defs.h"
+#include "spjalla/core/Notifications.h"
+#include "spjalla/lines/Line.h"
 
 #include "lib/formicine/performance.h"
 
-namespace spjalla::ui {
-	enum class window_type {
-		status,  // The single status window where miscellaneous messages go.
-		overlay, // The window that replaces the sidebar (RIP) and can be summoned with a keypress.
-		channel, // A window containing the conversation within an IRC channel.
-		user,    // A window for a private conversation with another user.
-		other    // A window used for any purpose not covered by the other window types and when the type is unknown.
+namespace Spjalla::UI {
+	enum class WindowType {
+		Status,  // The single status window where miscellaneous messages go.
+		Overlay, // The window that replaces the sidebar (RIP) and can be summoned with a keypress.
+		Channel, // A window containing the conversation within an IRC channel.
+		User,    // A window for a private conversation with another user.
+		Other    // A window used for any purpose not covered by the other window types and when the type is unknown.
 	};
 
 	/**
 	 * Represents a type of textbox for use within a swapbox. It has a window name separate from the control ID, in
 	 * addition to other data and metadata.
 	 */
-	class window: public haunted::ui::textbox {
+	class Window: public Haunted::UI::Textbox {
 		private:
-			void add_line(std::shared_ptr<haunted::ui::textline>);
+			void addLine(std::shared_ptr<Haunted::UI::TextLine>);
 
 		public:
-			std::string window_name;
-			window_type type = window_type::other;
-			pingpong::server *serv = nullptr;
-			std::shared_ptr<pingpong::channel> chan;
-			std::shared_ptr<pingpong::user>    user;
-			notification_type highest_notification = notification_type::none;
+			std::string windowName;
+			WindowType type = WindowType::Other;
+			PingPong::Server *server = nullptr;
+			std::shared_ptr<PingPong::Channel> channel;
+			std::shared_ptr<PingPong::User>    user;
+			NotificationType highestNotification = NotificationType::None;
 
 			/** Whether whatever the window is for is dead—e.g., a channel you've been kicked from. */
 			bool dead = false;
 
-			window() = delete;
-			window(const window &) = delete;
-			window & operator=(const window &) = delete;
+			Window() = delete;
+			Window(const Window &) = delete;
+			Window & operator=(const Window &) = delete;
 
 			/** Constructs a window with a parent, a position and initial contents. */
-			window(haunted::ui::container *parent_, haunted::position pos_, const std::vector<std::string> &contents_,
-				const std::string &window_name_): textbox(parent_, pos_, contents_), window_name(window_name_) {}
+			Window(Haunted::UI::Container *parent_, Haunted::Position position_,
+			const std::vector<std::string> &contents_, const std::string &window_name):
+				Textbox(parent_, position_, contents_), windowName(window_name) {}
 
 			/** Constructs a window with a parent and position and empty contents. */
-			window(haunted::ui::container *parent_, haunted::position pos_, const std::string &window_name_):
-				window(parent_, pos_, {}, window_name_) {}
+			Window(Haunted::UI::Container *parent_, Haunted::Position position_, const std::string &window_name):
+				Window(parent_, position_, {}, window_name) {}
 
 			/** Constructs a window with a parent, initial contents and a default position. */
-			window(haunted::ui::container *parent_, const std::vector<std::string> &contents_,
-				const std::string &window_name_): textbox(parent_, contents_), window_name(window_name_) {}
+			Window(Haunted::UI::Container *parent_, const std::vector<std::string> &contents_,
+			const std::string &window_name):
+				Textbox(parent_, contents_), windowName(window_name) {}
 
 			/** Constructs a window with a parent, a default position and empty contents. */
-			window(haunted::ui::container *parent_, const std::string &window_name_):
-				window(parent_, std::vector<std::string> {}, window_name_) {}
+			Window(Haunted::UI::Container *parent_, const std::string &window_name):
+				Window(parent_, std::vector<std::string> {}, window_name) {}
 
 			/** Constructs a window with no parent and no contents. */
-			window(const std::string &window_name_): window(nullptr, std::vector<std::string> {}, window_name_) {}
+			Window(const std::string &window_name):
+				Window(nullptr, std::vector<std::string>(), window_name) {}
 
 			/** Whether lines rendered in the window should begin with a timestamp. */
 			virtual bool show_times() const;
 
-			template <typename T, typename std::enable_if_t<std::is_base_of_v<lines::line, T>> * = nullptr>
-			textbox & operator+=(const T &line) {
+			template <typename T, typename std::enable_if_t<std::is_base_of_v<Lines::Line, T>> * = nullptr>
+			Window & operator+=(const T &line) {
 				auto w = formicine::perf.watch("template <line> window::operator+=");
 				return *this += std::make_shared<T>(line);
 			}
 
-			template <typename T, typename std::enable_if_t<std::is_base_of_v<haunted::ui::textline, T>> * = nullptr,
-			                      typename std::enable_if_t<!std::is_base_of_v<lines::line, T>> * = nullptr>
-			textbox & operator+=(const T &line) {
+			template <typename T, typename std::enable_if_t<std::is_base_of_v<Haunted::UI::TextLine, T>> * = nullptr,
+			                      typename std::enable_if_t<!std::is_base_of_v<Lines::Line, T>> * = nullptr>
+			Window & operator+=(const T &line) {
 				auto w = formicine::perf.watch("template <!line> window::operator+=");
 				return *this += std::make_shared<T>(line);
 			}
 
-			template <typename T, typename std::enable_if_t<std::is_base_of_v<lines::line, T>> * = nullptr,
-			                      typename std::enable_if_t<std::is_constructible_v<lines::line, T>> * = nullptr>
-			window & operator+=(std::shared_ptr<T> line) {
-				auto w = formicine::perf.watch("window::operator+=(shared_ptr<line>)");
+			template <typename T, typename std::enable_if_t<std::is_base_of_v<Lines::Line, T>> * = nullptr,
+			                      typename std::enable_if_t<std::is_constructible_v<Lines::Line, T>> * = nullptr>
+			Window & operator+=(std::shared_ptr<T> line) {
+				auto w = formicine::perf.watch("window::operator+=(shared_ptr<Line>)");
 
 				if (line->box && line->box != this)
 					line = std::make_shared<T>(*line);
 
 				line->box = this;
-				add_line(line);
+				addLine(line);
 
-				notify(line, line->get_notification_type());
+				notify(line, line->getNotificationType());
 				return *this;
 			}
 
-			template <typename T, typename std::enable_if_t<std::is_base_of_v<lines::line, T>> * = nullptr,
+			template <typename T, typename std::enable_if_t<std::is_base_of_v<Lines::Line, T>> * = nullptr,
 			                      typename std::enable_if_t<!std::is_constructible_v<T>> * = nullptr>
-			window & operator+=(std::shared_ptr<T> line) {
-				auto w = formicine::perf.watch("window::operator+=(shared_ptr<line>)");
+			Window & operator+=(std::shared_ptr<T> line) {
+				auto w = formicine::perf.watch("window::operator+=(shared_ptr<Line>)");
 
 				line->box = this;
-				add_line(line);
+				addLine(line);
 
-				notify(line, line->get_notification_type());
+				notify(line, line->getNotificationType());
 				return *this;
 			}
 
-			template <typename T, typename std::enable_if_t<std::is_base_of_v<haunted::ui::textline, T>> * = nullptr,
-			                      typename std::enable_if_t<!std::is_base_of_v<lines::line, T>> * = nullptr>
-			window & operator+=(std::shared_ptr<T> line) {
-				auto w = formicine::perf.watch("window::operator+=(shared_ptr<textline>)");
-				add_line(line);
+			template <typename T, typename std::enable_if_t<std::is_base_of_v<Haunted::UI::TextLine, T>> * = nullptr,
+			                      typename std::enable_if_t<!std::is_base_of_v<Lines::Line, T>> * = nullptr>
+			Window & operator+=(std::shared_ptr<T> line) {
+				auto w = formicine::perf.watch("window::operator+=(shared_ptr<TextLine>)");
+				addLine(line);
 				return *this;
 			}
 
-			window & operator+=(const std::string &);
+			Window & operator+=(const std::string &);
 
 			template <typename T, typename... Args>
 			void add(Args && ...args) {
 				*this += std::make_shared<T>(std::forward<Args>(args)...);
 			}
 
-			bool is_status() const;
-			bool is_overlay() const;
-			bool is_channel() const;
-			bool is_user() const;
-			bool is_other() const;
+			bool isStatus() const;
+			bool isOverlay() const;
+			bool isChannel() const;
+			bool isUser() const;
+			bool isOther() const;
 
-			bool is_dead() const;
+			bool isDead() const;
 
 			void kill();
 			void resurrect();
 
-			void notify(std::shared_ptr<lines::line>, notification_type);
-			void notify(std::shared_ptr<lines::line>);
+			void notify(std::shared_ptr<Lines::Line>, NotificationType);
+			void notify(std::shared_ptr<Lines::Line>);
 			void unnotify();
 
 			/** Removes rows for which a given function returns true. */
-			void remove_rows(std::function<bool(const haunted::ui::textline *)>);
+			void removeRows(std::function<bool(const Haunted::UI::TextLine *)>);
 
-			friend void swap(window &left, window &right);
+			friend void swap(Window &left, Window &right);
 	};
 }
 

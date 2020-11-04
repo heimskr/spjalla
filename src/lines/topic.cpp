@@ -1,11 +1,11 @@
-#include "spjalla/core/client.h"
-#include "spjalla/lines/topic.h"
+#include "spjalla/core/Client.h"
+#include "spjalla/lines/Topic.h"
 
-namespace spjalla::lines {
-	std::string topic_line::render(ui::window *) {
+namespace Spjalla::Lines {
+	std::string TopicLine::render(UI::Window *) {
 		if (who.empty())
-			return parent->get_ui().render("topic_is", {{"raw_channel", where}, {"raw_topic", topic}});
-		return parent->get_ui().render("topic_change", {
+			return parent->getUI().renderer("topic_is", {{"raw_channel", where}, {"raw_topic", topic}});
+		return parent->getUI().renderer("topic_change", {
 			{"raw_who", who}, {"raw_channel", where}, {"raw_topic", topic}
 		});
 	}

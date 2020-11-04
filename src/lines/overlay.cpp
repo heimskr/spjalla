@@ -1,19 +1,19 @@
-#include "spjalla/lines/overlay.h"
+#include "spjalla/lines/Overlay.h"
 
-namespace spjalla::lines {
-	std::string status_server_line::render(ui::window *) {
-		std::shared_ptr<pingpong::user> self = serv->get_self();
-		std::string out = "- "_d + ansi::wrap(serv->id, ansi::style::underline) + " (" + serv->get_nick() + "@"_d +
-			serv->hostname + ")";
+namespace Spjalla::Lines {
+	std::string StatusServerLine::render(UI::Window *) {
+		std::shared_ptr<PingPong::User> self = server->getSelf();
+		std::string out = "- "_d + ansi::wrap(server->id, ansi::style::underline) + " (" + server->getNick() + "@"_d +
+			server->hostname + ")";
 		if (!self->modes.empty())
-			out += ": "_d + self->mode_str();
+			out += ": "_d + self->modeString();
 		return out;
 	}
 
-	std::string status_channel_line::render(ui::window *) {
-		std::string out = "  - "_d + chan->name;
-		if (!chan->modes.empty())
-			out += ": "_d + chan->mode_str();
+	std::string StatusChannelLine::render(UI::Window *) {
+		std::string out = "  - "_d + channel->name;
+		if (!channel->modes.empty())
+			out += ": "_d + channel->modeString();
 		return out;
 	}
 }

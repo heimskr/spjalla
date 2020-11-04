@@ -5,14 +5,14 @@
 #include <string>
 #include <vector>
 
-#include "haunted/core/key.h"
-#include "spjalla/core/input_line.h"
+#include "haunted/core/Key.h"
+#include "spjalla/core/InputLine.h"
 
-namespace spjalla {
-	class client;
+namespace Spjalla {
+	class Client;
 }
 
-namespace spjalla::completions {
+namespace Spjalla::Completions {
 	/**
 	 * Carries out the tab completion logic for a given input line. The raw string is passed as a reference that can
 	 * be modified to add completion data. The cursor index is also passed too, and it should also be updated.
@@ -20,36 +20,36 @@ namespace spjalla::completions {
 	 * argument. If either of them doesn't apply, they'll be negative. The function should return true if it handled
 	 * updating the textinput's text and jumping to the cursor itself, or false if client::tab_complete should do it.
 	 */
-	using completion_fn = std::function<bool(client &, const input_line &, std::string &raw, size_t &cursor,
-										long arg_index, long sub)>;
+	using Completion_f = std::function<bool(Client &, const InputLine &, std::string &raw, size_t &cursor,
+	                                        long arg_index, long sub)>;
 
 	/** Completes the /set command. */
-	bool complete_set(client &, const input_line &, std::string &raw, size_t &cursor, long arg_index, long sub);
+	bool completeSet(Client &, const InputLine &, std::string &raw, size_t &cursor, long arg_index, long sub);
 
-	/** Completes nicknames, but doesn't add ping suffixes. */
-	bool complete_plain(client &, const input_line &, std::string &raw, size_t &cursor, long arg_index, long sub);
+	/** Completes nicknames but doesn't add ping suffixes. */
+	bool completePlain(Client &, const InputLine &, std::string &raw, size_t &cursor, long arg_index, long sub);
 
 	/** Contains the state data and logic for dealing with some parts of tab completion for commands. Clients keep an
 	 *  instance of this and pass keypresses to it. */
-	class command_completer {
+	class CommandCompleter {
 		private:
-			client &parent;
+			Client *parent;
 
 			/** When the user types a partial command and presses tab, it's stored here. If they press any key other
 			 *  than tab, it's cleared. */
 			std::string partial;
 
-			bool has_partial = false;
+			bool hasPartial = false;
 
 		public:
-			command_completer(client &parent_): parent(parent_) {}
+			CommandCompleter(Client &parent_): parent(&parent_) {}
 
-			void on_key(const haunted::key &);
+			void onKey(const Haunted::Key &);
 			void complete(std::string &, size_t &);
 	};
 
-	struct completion_state {
-		using suggestor_fn = std::function<std::string(const std::vector<std::string>)>;
+	struct CompletionState {
+		using Suggestor_f = std::function<std::string(const std::vector<std::string>)>;
 
 		std::string partial;
 		ssize_t partial_index = -1;
@@ -57,9 +57,9 @@ namespace spjalla::completions {
 		ssize_t sindex = -1;
 		ssize_t cursor = -1;
 
-		std::vector<suggestor_fn> suggestors {};
+		std::vector<Suggestor_f> suggestors {};
 
-		completion_state(const std::vector<suggestor_fn> &suggestors_ = {}): suggestors(suggestors_) {}
+		CompletionState(const std::vector<Suggestor_f> &suggestors_ = {}): suggestors(suggestors_) {}
 
 		/** Resets the partial string and partial index. */
 		void reset();

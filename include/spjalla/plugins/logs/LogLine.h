@@ -1,9 +1,9 @@
 #ifndef SPJALLA_PLUGINS_LOGS_LOG_LINE_H_
 #define SPJALLA_PLUGINS_LOGS_LOG_LINE_H_
 
-#include "spjalla/lines/line.h"
+#include "spjalla/lines/Line.h"
 
-namespace spjalla::plugins::logs {
+namespace Spjalla::Plugins::logs {
 	/**
 	 * Represents messages like "Log opened on ...".
 	 */
@@ -13,7 +13,7 @@ namespace spjalla::plugins::logs {
 		log_line(client *parent_, const std::string &verb_, long stamp_):
 			lines::line(parent_, stamp_, 0), verb(verb_) {}
 
-		virtual std::string render(ui::window *) override;
+		virtual std::string render(UI::Window *) override;
 	};
 }
 

@@ -8,83 +8,83 @@
 #include <tuple>
 #include <unordered_map>
 
-#include "haunted/core/defs.h"
-#include "haunted/core/key.h"
+#include "haunted/core/Defs.h"
+#include "haunted/core/Key.h"
 
-#include "pingpong/messages/message.h"
-#include "pingpong/core/irc.h"
-#include "pingpong/core/server.h"
+#include "pingpong/messages/Message.h"
+#include "pingpong/core/IRC.h"
+#include "pingpong/core/Server.h"
 
 
-#include "spjalla/commands/command.h"
+#include "spjalla/commands/Command.h"
 
-#include "spjalla/core/aliases.h"
-#include "spjalla/core/input_line.h"
-#include "spjalla/core/plugin_host.h"
-#include "spjalla/core/tab_completion.h"
+#include "spjalla/core/Aliases.h"
+#include "spjalla/core/InputLine.h"
+#include "spjalla/core/PluginHost.h"
+#include "spjalla/core/TabCompletion.h"
 
-#include "spjalla/config/cache.h"
-#include "spjalla/config/config.h"
+#include "spjalla/config/Cache.h"
+#include "spjalla/config/Config.h"
 
-#include "spjalla/plugins/plugin.h"
+#include "spjalla/plugins/Plugin.h"
 
-#include "spjalla/ui/interface.h"
-#include "spjalla/ui/status_widget.h"
+#include "spjalla/ui/Interface.h"
+#include "spjalla/ui/StatusWidget.h"
 
-namespace spjalla {
-	class client: public plugins::plugin_host {
-		friend class ui::interface;
+namespace Spjalla {
+	class Client: public Plugins::PluginHost {
+		friend class UI::Interface;
 
 // client/client.cpp
 
 		private:
-			pingpong::irc irc;
-			std::multimap<std::string, commands::command> command_handlers;
-			std::mutex irc_mutex;
-			ansi::ansistream &out_stream;
-			haunted::terminal term;
-			ui::interface ui;
-			completions::command_completer completer;
+			PingPong::IRC irc;
+			std::multimap<std::string, Commands::Command> commandHandlers;
+			std::mutex ircMutex;
+			ansi::ansistream &outStream;
+			Haunted::Terminal terminal;
+			UI::Interface ui;
+			Completions::CommandCompleter completer;
 
-#include "client.tcc"
+#include "Client.tcc"
 
 		public:
-			config::database configs;
-			aliases alias_db;
-			config::cache cache;
+			Config::Database configs;
+			Aliases aliasDB;
+			Config::Cache cache;
 
-			client(int heartbeat_period_ = pingpong::util::precision / 10);
+			Client(int heartbeat_period = PingPong::Util::precision / 10);
 
-			client(const client &) = delete;
-			client(client &&) = delete;
-			client & operator=(const client &) = delete;
-			client & operator=(client &&) = delete;
-			~client();
+			Client(const Client &) = delete;
+			Client(Client &&) = delete;
+			Client & operator=(const Client &) = delete;
+			Client & operator=(Client &&) = delete;
+			~Client();
 
 			/** Returns the ID of the active server. */
-			std::string active_server_id();
+			std::string activeServerID();
 
 			/** Returns the hostname of the active server. */
-			std::string active_server_hostname();
+			std::string activeServerHostname();
 
 			/**
 			 * Adds a command handler.
 			 * @param p A pair signifying the name of the command as typed by the user plus a handler tuple.
 			 */
-			client & operator+=(const spjalla::commands::pair &p);
+			Client & operator+=(const Spjalla::Commands::Pair &);
 
 			/** Adds a server. */
-			client & operator+=(pingpong::server *ptr);
+			Client & operator+=(PingPong::Server *);
 
 			/** Adds a command handler, given a pair that signifies the name of the command as typed by the user plus a
 			 *  handler tuple. */
-			void add(const spjalla::commands::pair &);
-			void add(const std::string &, const spjalla::commands::command &);
-			void add(const std::string &, int, int, bool, const commands::command::handler_fn &,
-			         const completions::completion_fn & = {},
-			         const std::vector<completions::completion_state::suggestor_fn> & = {});
+			void add(const Spjalla::Commands::Pair &);
+			void add(const std::string &, const Spjalla::Commands::Command &);
+			void add(const std::string &, int, int, bool, const Commands::Command::Handler_f &,
+			         const Completions::Completion_f & = {},
+			         const std::vector<Completions::CompletionState::Suggestor_f> & = {});
 
-			bool remove_command(const std::string &);
+			bool removeCommand(const std::string &);
 
 			/** Initializes the client. */
 			void init();
@@ -93,10 +93,10 @@ namespace spjalla {
 			void postinit();
 
 			/** Processes a line of user input and returns whether the line was recognized as a valid input. */
-			bool handle_line(const input_line &);
+			bool handleLine(const InputLine &);
 
 			/** Updates the interface to accommodate the removal of a server. */
-			void server_removed(pingpong::server *);
+			void serverRemoved(PingPong::Server *);
 
 			/** Joins any threads associated with the client. */
 			void join();
@@ -104,133 +104,133 @@ namespace spjalla {
 			/** Joins threads and unloads plugins. */
 			// virtual void cleanup() override;
 
-			/** Returns the client's ui::interface instance. */
-			ui::interface & get_ui() { return ui; }
+			/** Returns the client's UI::Interface instance. */
+			UI::Interface & getUI() { return ui; }
 
 			/** Returns a reference to the IRC object.. */
-			pingpong::irc & get_irc() { return irc; }
+			PingPong::IRC & getIRC() { return irc; }
 
 			/** Returns a reference to the terminal. */
-			haunted::terminal & get_terminal() { return term; }
+			Haunted::Terminal & getTerminal() { return terminal; }
 
 			/** Returns a pointer to the active server. */
-			pingpong::server * active_server();
+			PingPong::Server * activeServer();
 
 			/** Returns the nickname in use on the active server if possible, or a blank string otherwise. */
-			std::string active_nick();
+			std::string activeNick();
 
-			/** Returns all the windows as haunted::ui::control pointers. */
-			std::deque<haunted::ui::control *> get_window_controls() const;
+			/** Returns all the windows as Haunted::UI::Control pointers. */
+			std::deque<Haunted::UI::Control *> getWindowControls() const;
 
 			/** Opens a message window with a given nick. */
-			ui::window * query(const std::string &, pingpong::server *);
-			ui::window * query(std::shared_ptr<pingpong::user>);
+			UI::Window * query(const std::string &, PingPong::Server *);
+			UI::Window * query(std::shared_ptr<PingPong::User>);
 
 			/** Logs a message indicated that there is no active channel. */
-			void no_channel();
+			void noChannel();
 
 // client/commands.cpp
 
 		private:
 			/** Handles the parsing for the /ban command. */
-			void ban(pingpong::server *, const input_line &, const std::string &type = "+b");
+			void ban(PingPong::Server *, const InputLine &, const std::string &type = "+b");
 
 		public:
 			/** Adds the built-in command handlers. */
-			void add_commands();
+			void addCommands();
 
 			/** Prints debug information about the server list to the log file. */
-			void debug_servers();
+			void debugServers();
 
 // client/events.cpp
 
 		private:
-			using queue_fn = std::function<void()>;
-			using queue_pair = std::pair<pingpong::server::stage, queue_fn>;
-			std::unordered_map<pingpong::server *, std::list<queue_pair>> server_status_queue {};
+			using Queue_f   = std::function<void()>;
+			using QueuePair = std::pair<PingPong::Server::Stage, Queue_f>;
+			std::unordered_map<PingPong::Server *, std::list<QueuePair>> serverStatusQueue {};
 
 			/** Calls and removes all functions in the server status queue waiting for a given server and status. */
-			void call_in_queue(pingpong::server *, pingpong::server::stage);
+			void callInQueue(PingPong::Server *, PingPong::Server::Stage);
 
 		public:
 			/** Adds listeners for pingpong events. */
-			void add_events();
+			void addEvents();
 
 			/** Adds a function to a queue to be called when a server reaches a given stage. */
-			void wait_for_server(pingpong::server *, pingpong::server::stage, const queue_fn &);
+			void waitForServer(PingPong::Server *, PingPong::Server::Stage, const Queue_f &);
 
 // client/heartbeat.cpp
 
 		public:
-			using heartbeat_listener = std::shared_ptr<std::function<void(int)>>;
+			using HeartbeatListener = std::shared_ptr<std::function<void(int)>>;
 
 		private:
-			bool heartbeat_alive = false;
+			bool heartbeatAlive = false;
 
 			/** A thread that executes actions at regular intervals. */
 			std::thread heartbeat;
 
 			/** The duration to wait between heartbeats. */
-			int heartbeat_period;
+			int heartbeatPeriod;
 
 			/** Contains all the functions to execute on each heartbeat. */
-			std::list<heartbeat_listener> heartbeat_listeners {};
+			std::list<HeartbeatListener> heartbeatListeners {};
 
 			/** Keeps executing all the heartbeat listeners and waiting for the heartbeat period. Stops when
-			 *  heartbeat_alive turns false. */
-			void heartbeat_loop();
+			 *  heartbeatAlive turns false. */
+			void heartbeatLoop();
 
 		public:
 			/** Adds a function to the list of heartbeat listeners. The heartbeat period is passed as an argument. */
-			void add_heartbeat_listener(const heartbeat_listener &);
+			void addHeartbeatListener(const HeartbeatListener &);
 
 			/** Removes a function from the list of heartbeat listeners. */
-			void remove_heartbeat_listener(const heartbeat_listener &);
+			void removeHeartbeatListener(const HeartbeatListener &);
 
 			/** Starts the heartbeat thread, which executes all the heartbeat listeners at regular intervals. */
-			void init_heartbeat();
+			void initHeartbeat();
 
 // client/input.cpp
 
 			/** Adds a listener to the textinput that processes its contents. */
-			void add_input_listener();
+			void addInputListener();
 
 			/** Tries to expand a command (e.g., "mod" → "mode"). Returns a vector of all matches. */
-			std::vector<std::string> command_matches(const std::string &);
+			std::vector<std::string> commandMatches(const std::string &);
 
-			input_line get_input_line(const std::string &) const;
+			InputLine getInputLine(const std::string &) const;
 
 // client/statusbar.cpp
 
 		private:
-			std::list<std::shared_ptr<ui::status_widget>> status_widgets;
+			std::list<std::shared_ptr<UI::StatusWidget>> statusWidgets;
 
 			/** Sorts all the statusbar widgets by priority. */
-			void sort_widgets();
+			void sortWidgets();
 
 		public:
-			void add_status_widget(std::shared_ptr<ui::status_widget>);
+			void addStatusWidget(std::shared_ptr<UI::StatusWidget>);
 
-			bool remove_status_widget(std::shared_ptr<ui::status_widget>);
+			bool removeStatusWidget(std::shared_ptr<UI::StatusWidget>);
 
-			const std::list<std::shared_ptr<ui::status_widget>> & get_status_widgets() const { return status_widgets; }
+			const std::list<std::shared_ptr<UI::StatusWidget>> & getStatusWidgets() const { return statusWidgets; }
 
-			void init_statusbar();
+			void initStatusbar();
 
-			void render_statusbar();
+			void renderStatusbar();
 
 // client/tab_completion.cpp
 
-			std::unordered_map<std::string, completions::completion_state> completion_states;
+			std::unordered_map<std::string, Completions::CompletionState> completionStates;
 
-			void tab_complete();
+			void tabComplete();
 
 			/** Completes a message for a given cursor position. The word_offset parameter represents the index of the
 			 *  word for which the completion suffix will be added. This can be set to a negative value to disable the
 			 *  completion suffix. */
-			void complete_message(std::string &, size_t cursor, ssize_t word_offset = 0);
+			void completeMessage(std::string &, size_t cursor, ssize_t word_offset = 0);
 
-			void key_postlistener(const haunted::key &);
+			void keyPostlistener(const Haunted::Key &);
 	};
 }
 

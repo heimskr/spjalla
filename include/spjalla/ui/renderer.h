@@ -3,55 +3,55 @@
 
 #include <unordered_map>
 
-#include "pingpong/core/channel.h"
-#include "pingpong/core/user.h"
-#include "strender/strnode.h"
+#include "pingpong/core/Channel.h"
+#include "pingpong/core/User.h"
+#include "strender/StrNode.h"
 
-namespace spjalla::config {
-	class cache;
+namespace Spjalla::Config {
+	class Cache;
 }
 
-namespace spjalla::ui {
+namespace Spjalla::UI {
 	/**
 	 * Handles rendering of small bits of the interface, such as nicks in messages and channel names.
 	 */
-	class renderer {
+	class Renderer {
 		private:
-			config::cache *cache;
+			Config::Cache *cache;
 
 			/** Creates and inserts a group of strnodes for a simple message like joins, kicks, parts and quits. */
 			void simple(const std::string &name, const std::string &format);
 
-			std::string replace_nick(const std::string &varname) const;
+			std::string replaceNick(const std::string &varname) const;
 
 		public:
-			std::unordered_map<std::string, std::shared_ptr<strender::strnode>> nodes {};
+			std::unordered_map<std::string, std::shared_ptr<Strender::StrNode>> nodes {};
 
-			renderer(config::cache &);
+			Renderer(Config::Cache &);
 
-			/** Performs initial setup of the strnodes. The setup process isn't complete until copy_strnodes() is
+			/** Performs initial setup of the StrNodes. The setup process isn't complete until copy_StrNodes() is
 			 *  called. */
-			void init_strnodes();
+			void initStrNodes();
 
 			std::string bang();
 			std::string bad();
 			std::string good();
 			std::string warn();
 
-			void more_strnodes();
+			void moreStrNodes();
 
-			std::string operator()(const std::string &, const strender::piece_map &);
+			std::string operator()(const std::string &, const Strender::PieceMap &);
 			std::string operator()(const std::string &);
 
-			strender::strnode & operator[](const std::string &);
+			Strender::StrNode & operator[](const std::string &);
 
 			std::string channel(const std::string &);
 			std::string nick(const std::string &, bool bright = false);
 
 			template <typename... Args>
-			std::shared_ptr<strender::strnode> insert(const std::string &id, Args && ...args) {
+			std::shared_ptr<Strender::StrNode> insert(const std::string &id, Args && ...args) {
 				if (nodes.count(id) == 0)
-					nodes.insert({id, std::make_shared<strender::strnode>(std::forward<Args>(args)...)});
+					nodes.insert({id, std::make_shared<Strender::StrNode>(std::forward<Args>(args)...)});
 				return nodes.at(id);
 			}
 	};

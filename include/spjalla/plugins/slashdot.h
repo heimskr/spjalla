@@ -1,24 +1,24 @@
 #ifndef SPJALLA_PLUGINS_SLASHDOT_H_
 #define SPJALLA_PLUGINS_SLASHDOT_H_
 
-#include "spjalla/plugins/plugin.h"
+#include "spjalla/plugins/Plugin.h"
 
 namespace tinyxml2 {
 	class XMLElement;
 };
 
-namespace spjalla::plugins {
-	namespace slashdot {
-		struct story {
+namespace Spjalla::Plugins {
+	namespace Slashdot {
+		struct Story {
 			std::string title, url, author, department, section, time;
 			int comments;
 
 			std::string text;
 		};
 
-		class parser {
+		class Parser {
 			private:
-				std::string get_text(tinyxml2::XMLElement *);
+				std::string getText(tinyxml2::XMLElement *);
 			public:
 				std::vector<story> stories {};
 				void parse(const std::string &);
@@ -26,15 +26,15 @@ namespace spjalla::plugins {
 		};
 	}
 
-	struct slashdot_plugin: public plugin {
-		~slashdot_plugin() {}
+	struct SlashdotPlugin: public Plugin {
+		~SlashdotPlugin() {}
 
-		std::string get_name()        const override { return "Slashdot"; }
-		std::string get_description() const override { return "Adds a Slashdot reader."; }
-		std::string get_version()     const override { return "0.0.1"; }
+		std::string getName()        const override { return "Slashdot"; }
+		std::string getDescription() const override { return "Adds a Slashdot reader."; }
+		std::string getVersion()     const override { return "0.0.1"; }
 
-		void postinit(plugin_host *host) override;
-		void cleanup(plugin_host *) override;
+		void postinit(PluginHost *) override;
+		void cleanup(PluginHost  *) override;
 	};
 }
 

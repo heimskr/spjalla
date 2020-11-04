@@ -1,8 +1,8 @@
-#include "spjalla/commands/command.h"
-#include "spjalla/ui/interface.h"
+#include "spjalla/commands/Command.h"
+#include "spjalla/ui/Interface.h"
 
-namespace spjalla::commands {
-	void do_spam(ui::interface &ui, const input_line &il) {
+namespace Spjalla::Commands {
+	void doSpam(UI::Interface &ui, const InputLine &il) {
 		long max = 64;
 
 		if (!il.args.empty()) {

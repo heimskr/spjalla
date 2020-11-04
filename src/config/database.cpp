@@ -5,16 +5,16 @@
 
 #include <cstdlib>
 
-#include "spjalla/core/util.h"
-#include "spjalla/config/config.h"
-#include "spjalla/config/defaults.h"
+#include "spjalla/core/Util.h"
+#include "spjalla/config/Config.h"
+#include "spjalla/config/Defaults.h"
 
-namespace spjalla::config {
+namespace Spjalla::Config {
 
 // Private static methods
 
 
-	bool database::parse_bool(const std::string &str) {
+	bool Database::parseBool(const std::string &str) {
 		return str == "true" || str == "on" || str == "yes";
 	}
 
@@ -22,8 +22,8 @@ namespace spjalla::config {
 // Private instance methods
 
 
-	void database::ensure_known(const std::string &group, const std::string &key) const {
-		if (!allow_unknown && !key_known(group, key))
+	void Database::ensureKnown(const std::string &group, const std::string &key) const {
+		if (!allowUnknown && !keyKnown(group, key))
 			throw std::invalid_argument("Unknown group+key pair");
 	}
 
@@ -31,9 +31,9 @@ namespace spjalla::config {
 // Public static methods
 
 
-	std::pair<std::string, long> database::parse_long_line(const std::string &str) {
+	std::pair<std::string, long> Database::parseLongLine(const std::string &str) {
 		std::string key, value;
-		std::tie(key, value) = parse_kv_pair(str);
+		std::tie(key, value) = parseKVPair(str);
 
 		const char *value_cstr = value.c_str();
 		char *end;
@@ -44,9 +44,9 @@ namespace spjalla::config {
 		return {key, parsed};
 	}
 
-	std::pair<std::string, double> database::parse_double_line(const std::string &str) {
+	std::pair<std::string, double> Database::parseDoubleLine(const std::string &str) {
 		std::string key, value;
-		std::tie(key, value) = parse_kv_pair(str);
+		std::tie(key, value) = parseKVPair(str);
 
 		if (value == ".")
 			return {key, 0};
@@ -59,9 +59,9 @@ namespace spjalla::config {
 		return {key, parsed};
 	}
 
-	std::pair<std::string, bool> database::parse_bool_line(const std::string &str) {
+	std::pair<std::string, bool> Database::parseBoolLine(const std::string &str) {
 		std::string key, value;
-		std::tie(key, value) = parse_kv_pair(str);
+		std::tie(key, value) = parseKVPair(str);
 
 		if (value == ".")
 			return {key, 0};
@@ -74,66 +74,66 @@ namespace spjalla::config {
 		return {key, parsed};
 	}
 
-	std::pair<std::string, std::string> database::parse_pair(const std::string &str) {
+	std::pair<std::string, std::string> Database::parsePair(const std::string &str) {
 		size_t period = str.find('.');
 		if (period == std::string::npos || period == 0 || period == str.length() - 1 || period != str.find_last_of("."))
 			throw std::invalid_argument("Invalid group+key pair");
 		return {str.substr(0, period), str.substr(period + 1)};
 	}
 
-	value_type database::get_value_type(std::string val) noexcept {
+	ValueType Database::getValueType(std::string val) noexcept {
 		formicine::util::trim(val);
 
 		if (val.empty())
-			return value_type::string_;
+			return ValueType::String;
 
 		if (val.find_first_not_of("0123456789") == std::string::npos)
-			return value_type::long_;
+			return ValueType::Long;
 
 		if (val.find_first_not_of("0123456789.") == std::string::npos) {
 			// Don't allow multiple periods in the string.
 			if (val.find('.') != val.find_last_of("."))
-				return value_type::invalid;
-			return value_type::double_;
+				return ValueType::Invalid;
+			return ValueType::Double;
 		}
 
 		if (val == "true" || val == "false" || val == "on" || val == "off" || val == "yes" || val == "no")
-			return value_type::bool_;
+			return ValueType::Bool;
 
 		if (val.size() >= 2 && val.front() == '"' && val.back() == '"')
-			return value_type::string_;
+			return ValueType::String;
 
-		return value_type::invalid;
+		return ValueType::Invalid;
 	}
 
 
 // Public instance methods
 
 
-	value & database::get(const std::string &group, const std::string &key) {
-		ensure_known(group, key);
+	Value & Database::get(const std::string &group, const std::string &key) {
+		ensureKnown(group, key);
 
-		if (has_key(group, key))
+		if (hasKey(group, key))
 			return db.at(group).at(key);
 
-		if (key_known(group, key))
-			return registered.at(group + "." + key).default_value;
+		if (keyKnown(group, key))
+			return registered.at(group + "." + key).defaultValue;
 
 		throw std::out_of_range("No value for group+key pair");
 	}
 
-	bool database::insert(const std::string &group, const std::string &key, const value &value, bool save) {
-		ensure_known(group, key);
+	bool Database::insert(const std::string &group, const std::string &key, const Value &value, bool save) {
+		ensureKnown(group, key);
 
-		submap &sub = db[group];
+		SubMap &sub = db[group];
 		bool overwritten = false;
 
 		const auto iter = registered.find(group + "." + key);
 		const bool is_registered = iter != registered.end();
 		if (is_registered) {
-			validation_result result = iter->second.validate(value);
-			if (result != validation_result::valid)
-				throw validation_failure(result);
+			ValidationResult result = iter->second.validate(value);
+			if (result != ValidationResult::Valid)
+				throw ValidationFailure(result);
 		}
 
 		if (sub.count(key) > 0) {
@@ -144,7 +144,7 @@ namespace spjalla::config {
 		sub.insert({key, value});
 
 		if (save)
-			write_db();
+			writeDB();
 
 		if (is_registered)
 			iter->second.apply(*this, value);
@@ -152,20 +152,20 @@ namespace spjalla::config {
 		return overwritten;
 	}
 
-	bool database::insert_any(const std::string &group, const std::string &key, const std::string &value, bool save) {
-		const value_type type = database::get_value_type(value);
+	bool Database::insertAny(const std::string &group, const std::string &key, const std::string &value, bool save) {
+		const ValueType type = Database::getValueType(value);
 		switch (type) {
-			case value_type::long_:   return insert(group, key, {strtol(value.c_str(), nullptr, 10)}, save);
-			case value_type::double_: return insert(group, key, {std::stod(value)}, save);
-			case value_type::bool_:   return insert(group, key, {parse_bool(value)}, save);
-			case value_type::string_: return insert(group, key, {database::parse_string(value)}, save);
+			case ValueType::Long:   return insert(group, key, {strtol(value.c_str(), nullptr, 10)}, save);
+			case ValueType::Double: return insert(group, key, {std::stod(value)}, save);
+			case ValueType::Bool:   return insert(group, key, {parseBool(value)}, save);
+			case ValueType::String: return insert(group, key, {Database::parseString(value)}, save);
 			default:
 				throw std::invalid_argument("Invalid value type");
 		}
 	}
 
-	bool database::remove(const std::string &group, const std::string &key, bool apply_default, bool save) {
-		if (!has_key(group, key))
+	bool Database::remove(const std::string &group, const std::string &key, bool apply_default, bool save) {
+		if (!hasKey(group, key))
 			return false;
 
 		db[group].erase(key);
@@ -177,27 +177,27 @@ namespace spjalla::config {
 		}
 
 		if (save)
-			write_db();
+			writeDB();
 
 		return true;
 	}
 
-	std::pair<std::string, std::string> database::apply_line(const std::string &line) {
+	std::pair<std::string, std::string> Database::applyLine(const std::string &line) {
 		if (!line.empty() && line.front() == '#')
 			return {"", ""};
 
 		std::string group, key, gk, value;
-		std::tie(gk, value) = parse_kv_pair(line);
-		std::tie(group, key) = parse_pair(gk);
-		insert_any(group, key, value);
+		std::tie(gk, value) = parseKVPair(line);
+		std::tie(group, key) = parsePair(gk);
+		insertAny(group, key, value);
 		return {group + "." + key, value};
 	}
 
-	void database::apply_all(bool with_defaults) {
+	void Database::applyAll(bool with_defaults) {
 		for (auto &pair: registered) {
 			std::string group, key;
-			std::tie(group, key) = parse_pair(pair.first);
-			if (has_key(group, key)) {
+			std::tie(group, key) = parsePair(pair.first);
+			if (hasKey(group, key)) {
 				pair.second.apply(*this, get(group, key));
 			} else if (with_defaults) {
 				pair.second.apply(*this);
@@ -205,46 +205,46 @@ namespace spjalla::config {
 		}
 	}
 
-	bool database::has_group(const std::string &group) const {
+	bool Database::hasGroup(const std::string &group) const {
 		return db.count(group) > 0;
 	}
 
-	bool database::has_key(const std::string &group, const std::string &key) const {
-		return has_group(group) && db.at(group).count(key) > 0;
+	bool Database::hasKey(const std::string &group, const std::string &key) const {
+		return hasGroup(group) && db.at(group).count(key) > 0;
 	}
 
-	bool database::key_known(const std::string &group, const std::string &key) const {
+	bool Database::keyKnown(const std::string &group, const std::string &key) const {
 		return registered.count(group + "." + key) > 0;
 	}
 
-	ssize_t database::key_count(const std::string &group) const {
-		return has_group(group)? db.at(group).size() : -1;
+	ssize_t Database::keyCount(const std::string &group) const {
+		return hasGroup(group)? db.at(group).size() : -1;
 	}
 
-	database::groupmap database::with_defaults() const {
-		groupmap copy {db};
+	Database::GroupMap Database::withDefaults() const {
+		GroupMap copy {db};
 		for (const auto &gpair: registered) {
-			const default_key &def = gpair.second;
+			const DefaultKey &def = gpair.second;
 
 			std::string group, key;
 			const std::string &combined = gpair.first;
-			std::tie(group, key) = parse_pair(combined);
+			std::tie(group, key) = parsePair(combined);
 
-			copy[group].insert({key, def.default_value});
+			copy[group].insert({key, def.defaultValue});
 		}
 
 		return copy;
 	}
 
-	database::operator std::string() const {
+	Database::operator std::string() const {
 		std::ostringstream out;
 		for (const auto &gpair: db) {
 			const std::string &group = gpair.first;
-			const submap &sub = gpair.second;
+			const SubMap &sub = gpair.second;
 
 			for (const auto &spair: sub) {
 				const std::string &key = spair.first;
-				const value &value = spair.second;
+				const Value &value = spair.second;
 				out << group << "." << key << "=" << value.escaped() << "\n";
 			}
 		}

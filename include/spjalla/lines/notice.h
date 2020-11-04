@@ -1,34 +1,34 @@
 #ifndef SPJALLA_LINES_NOTICE_H_
 #define SPJALLA_LINES_NOTICE_H_
 
-#include "pingpong/core/defs.h"
-#include "pingpong/core/hats.h"
-#include "pingpong/core/local.h"
+#include "pingpong/core/Defs.h"
+#include "pingpong/core/Hats.h"
+#include "pingpong/core/Local.h"
 
-#include "pingpong/commands/notice.h"
-#include "pingpong/events/notice.h"
+#include "pingpong/commands/Notice.h"
+#include "pingpong/events/Notice.h"
 
-#include "spjalla/lines/message.h"
+#include "spjalla/lines/Message.h"
 
-namespace spjalla::lines {
-	class notice_line: public message_line {
+namespace Spjalla::Lines {
+	class NoticeLine: public MessageLine {
 		private:
-			bool always_highlight = false;
+			bool alwaysHighlight = false;
 
 		public:
-			using message_line::message_line;
+			using MessageLine::MessageLine;
 
-			notice_line(client *parent_, const pingpong::notice_command &cmd, bool direct_only_ = false):
-				notice_line(parent_, cmd.serv->get_self(), cmd.where, cmd.message, cmd.sent_time, direct_only_) {}
+			NoticeLine(Client *parent_, const PingPong::NoticeCommand &cmd, bool direct_only_ = false):
+				NoticeLine(parent_, cmd.server->getSelf(), cmd.where, cmd.message, cmd.sentTime, direct_only_) {}
 
-			notice_line(client *parent_, const pingpong::notice_event &ev, bool direct_only_ = false,
-			            bool always_highlight_ = false):
-				notice_line(parent_, ev.speaker, ev.where, ev.content, ev.stamp, direct_only_) {
-				always_highlight = always_highlight_;
+			NoticeLine(Client *parent_, const PingPong::NoticeEvent &ev, bool direct_only_ = false,
+			bool always_highlight = false):
+			NoticeLine(parent_, ev.speaker, ev.where, ev.content, ev.stamp, direct_only_) {
+				alwaysHighlight = always_highlight;
 			}
 
-			notification_type get_notification_type() const override;
-			std::string get_format_key() const override;
+			NotificationType getNotificationType() const override;
+			std::string getFormatKey() const override;
 	};
 }
 

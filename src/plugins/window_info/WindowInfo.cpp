@@ -1,20 +1,20 @@
-#include "pingpong/core/util.h"
+#include "pingpong/core/Util.h"
 #include "pingpong/events/nick_updated.h"
 
-#include "spjalla/core/client.h"
-#include "spjalla/core/util.h"
-#include "spjalla/plugins/plugin.h"
-#include "spjalla/ui/status_widget.h"
+#include "spjalla/core/Client.h"
+#include "spjalla/core/Util.h"
+#include "spjalla/plugins/Plugin.h"
+#include "spjalla/ui/StatusWidget.h"
 
 #include "lib/formicine/ansi.h"
 
-namespace spjalla::plugins {
+namespace Spjalla::Plugins {
 	class window_info_left_widget: public spjalla::ui::status_widget {
 		private:
-			long stamp = pingpong::util::timestamp();
+			long stamp = PingPong::Util::timestamp();
 
 		protected:
-			std::string _render(const ui::window *win, bool) const override {
+			std::string _render(const UI::Window *win, bool) const override {
 				if (!win)
 					return "null?";
 
@@ -41,14 +41,14 @@ namespace spjalla::plugins {
 
 	class window_info_right_widget: public spjalla::ui::status_widget {
 		private:
-			long stamp = pingpong::util::timestamp();
+			long stamp = PingPong::Util::timestamp();
 
 		protected:
-			std::string _render(const ui::window *win, bool) const override {
+			std::string _render(const UI::Window *win, bool) const override {
 				if (!win) {
 					return "null?";
 				} else if (win->is_status() || win->is_channel() || win->is_user()) {
-					const std::string id = win->serv? win->serv->id : parent->active_server_id();
+					const std::string id = win->serv? win->server->id : parent->active_server_id();
 					return id.empty()? "none"_i : id;
 					return parent->active_server_id();
 				} else {
@@ -77,8 +77,8 @@ namespace spjalla::plugins {
 				" bar."; }
 			std::string get_version()     const override { return "0.1.0"; }
 
-			void postinit(plugin_host *host) override {
-				parent = dynamic_cast<spjalla::client *>(host);
+			void postinit(PluginHost *host) override {
+				parent = dynamic_cast<Spjalla::Client *>(host);
 				if (!parent) { DBG("Error: expected client as plugin host"); return; }
 
 				widget_left  = std::make_shared<window_info_left_widget> (parent, 10);
@@ -86,16 +86,16 @@ namespace spjalla::plugins {
 				parent->add_status_widget(widget_left);
 				parent->add_status_widget(widget_right);
 
-				pingpong::events::listen<pingpong::nick_updated_event>("p:window_info",
-					[&, this](pingpong::nick_updated_event *ev) {
+				PingPong::Events::listen<PingPong::nick_updated_event>("p:window_info",
+					[&, this](PingPong::nick_updated_event *ev) {
 						// If this user's window is open, redraw the statusbar to update the widget.
-						if (parent->get_ui().get_active_user() == ev->who)
-							parent->get_ui().update_statusbar();
+						if (parent->getUI().get_active_user() == ev->who)
+							parent->getUI().update_statusbar();
 					});
 			}
 
-			void cleanup(plugin_host *) override {
-				pingpong::events::unlisten<pingpong::nick_updated_event>("p:window_info");
+			void cleanup(PluginHost *) override {
+				PingPong::Events::unlisten<PingPong::nick_updated_event>("p:window_info");
 				parent->remove_status_widget(widget_left);
 				parent->remove_status_widget(widget_right);
 			}

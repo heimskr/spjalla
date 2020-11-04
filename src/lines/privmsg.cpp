@@ -1,21 +1,21 @@
-#include "pingpong/core/util.h"
+#include "pingpong/core/Util.h"
 
-#include "strender/strnode.h"
+#include "strender/StrNode.h"
 
-#include "spjalla/core/util.h"
-#include "spjalla/lines/privmsg.h"
-#include "spjalla/ui/renderer.h"
+#include "spjalla/core/Util.h"
+#include "spjalla/lines/Privmsg.h"
+#include "spjalla/ui/Renderer.h"
 
 #include "lib/formicine/futil.h"
 
-namespace spjalla::lines {
-	notification_type privmsg_line::get_notification_type() const {
-		if (util::is_highlight(message, self, direct_only) || where == self)
-			return notification_type::highlight;
-		return notification_type::message;
+namespace Spjalla::Lines {
+	NotificationType PrivmsgLine::getNotificationType() const {
+		if (Util::isHighlight(message, self, directOnly) || where == self)
+			return NotificationType::Highlight;
+		return NotificationType::Message;
 	}
 
-	std::string privmsg_line::get_format_key() const {
-		return is_action()? "action" : "privmsg";
+	std::string PrivmsgLine::getFormatKey() const {
+		return isAction()? "action" : "privmsg";
 	}
 }

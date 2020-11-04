@@ -1,12 +1,12 @@
-#include "pingpong/commands/join.h"
-#include "spjalla/commands/command.h"
-#include "spjalla/core/client.h"
+#include "pingpong/commands/Join.h"
+#include "spjalla/commands/Command.h"
+#include "spjalla/core/Client.h"
 
-namespace spjalla::commands {
-	void do_join(client &cli, pingpong::server *serv, const input_line &il) {
+namespace Spjalla::Commands {
+	void doJoin(Client &cli, PingPong::Server *server, const InputLine &il) {
 		const std::string &first = il.first();
-		cli.wait_for_server(serv, pingpong::server::stage::ready, [=]() {
-			pingpong::join_command(serv, first).send();
+		cli.waitForServer(server, PingPong::Server::Stage::Ready, [=]() {
+			PingPong::JoinCommand(server, first).send();
 		});
 	}
 }

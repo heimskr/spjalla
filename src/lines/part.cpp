@@ -1,10 +1,10 @@
-#include "spjalla/core/client.h"
-#include "spjalla/lines/part.h"
+#include "spjalla/core/Client.h"
+#include "spjalla/lines/Part.h"
 
-namespace spjalla::lines {
-	std::string part_line::render(ui::window *) {
-		return parent->get_ui().render("part", {
-			{"raw_who", name}, {"raw_channel", chan_name}, {"raw_reason", reason}
+namespace Spjalla::Lines {
+	std::string PartLine::render(UI::Window *) {
+		return parent->getUI().renderer("part", {
+			{"raw_who", name}, {"raw_channel", channelName}, {"raw_reason", reason}
 		});
 	}
 }

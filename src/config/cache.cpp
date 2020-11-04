@@ -1,27 +1,27 @@
-#include "spjalla/config/cache.h"
+#include "spjalla/config/Cache.h"
 
-namespace spjalla::config {
-	std::string cache::get_string(const std::string &key) {
+namespace Spjalla::Config {
+	std::string Cache::getString(const std::string &key) {
 		if (registered.empty())
-			register_defaults();
-		return registered.at(key).default_value.string_();
+			registerDefaults();
+		return registered.at(key).defaultValue.string_();
 	}
 
-	ansi::color cache::get_color(const std::string &key) {
+	ansi::color Cache::getColor(const std::string &key) {
 		if (registered.empty())
-			register_defaults();
-		return ansi::get_color(get_string(key));
+			registerDefaults();
+		return ansi::get_color(getString(key));
 	}
 
-	bool cache::get_bool(const std::string &key) {
+	bool Cache::getBool(const std::string &key) {
 		if (registered.empty())
-			register_defaults();
-		return registered.at(key).default_value.bool_();
+			registerDefaults();
+		return registered.at(key).defaultValue.bool_();
 	}
 
-	long cache::get_long(const std::string &key) {
+	long Cache::getLong(const std::string &key) {
 		if (registered.empty())
-			register_defaults();
-		return registered.at(key).default_value.long_();
+			registerDefaults();
+		return registered.at(key).defaultValue.long_();
 	}
 }

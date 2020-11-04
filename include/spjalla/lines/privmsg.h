@@ -1,28 +1,28 @@
 #ifndef SPJALLA_LINES_PRIVMSG_H_
 #define SPJALLA_LINES_PRIVMSG_H_
 
-#include "pingpong/core/defs.h"
-#include "pingpong/core/hats.h"
-#include "pingpong/core/local.h"
+#include "pingpong/core/Defs.h"
+#include "pingpong/core/Hats.h"
+#include "pingpong/core/Local.h"
 
-#include "pingpong/commands/privmsg.h"
-#include "pingpong/events/privmsg.h"
+#include "pingpong/commands/Privmsg.h"
+#include "pingpong/events/Privmsg.h"
 
-#include "spjalla/lines/message.h"
+#include "spjalla/lines/Message.h"
 
-namespace spjalla::lines {
-	class privmsg_line: public message_line {
+namespace Spjalla::Lines {
+	class PrivmsgLine: public MessageLine {
 		public:
-			using message_line::message_line;
+			using MessageLine::MessageLine;
 
-			privmsg_line(client *parent_, const pingpong::privmsg_command &cmd, bool direct_only_ = false):
-				privmsg_line(parent_, cmd.serv->get_self(), cmd.where, cmd.message, cmd.sent_time, direct_only_) {}
+			PrivmsgLine(Client *parent_, const PingPong::PrivmsgCommand &cmd, bool direct_only = false):
+				PrivmsgLine(parent_, cmd.server->getSelf(), cmd.where, cmd.message, cmd.sentTime, direct_only) {}
 
-			privmsg_line(client *parent_, const pingpong::privmsg_event &ev, bool direct_only_ = false):
-				privmsg_line(parent_, ev.speaker, ev.where, ev.content, ev.stamp, direct_only_) {}
+			PrivmsgLine(Client *parent_, const PingPong::PrivmsgEvent &ev, bool direct_only = false):
+				PrivmsgLine(parent_, ev.speaker, ev.where, ev.content, ev.stamp, direct_only) {}
 
-			notification_type get_notification_type() const override;
-			std::string get_format_key() const override;
+			NotificationType getNotificationType() const override;
+			std::string getFormatKey() const override;
 	};
 }
 

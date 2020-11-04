@@ -1,33 +1,33 @@
 #ifndef SPJALLA_LINES_KICK_H_
 #define SPJALLA_LINES_KICK_H_
 
-#include "pingpong/core/defs.h"
-#include "pingpong/core/user.h"
-#include "pingpong/core/channel.h"
+#include "pingpong/core/Defs.h"
+#include "pingpong/core/User.h"
+#include "pingpong/core/Channel.h"
 
-#include "pingpong/events/kick.h"
+#include "pingpong/events/Kick.h"
 
-#include "spjalla/lines/line.h"
+#include "spjalla/lines/Line.h"
 
-namespace spjalla::lines {
-	struct kick_line: public line {
-		std::shared_ptr<pingpong::channel> chan;
+namespace Spjalla::Lines {
+	struct KickLine: public Line {
+		std::shared_ptr<PingPong::Channel> channel;
 		const std::string who, whom, reason;
-		bool is_self;
+		bool isSelf;
 
-		kick_line(client *parent_, std::shared_ptr<pingpong::channel> chan_, const std::string &who_,
-		const std::string &whom_, const std::string &reason_, long stamp_, bool is_self_ = false):
-			line(parent_, stamp_), chan(chan_), who(who_), whom(whom_), reason(reason_), is_self(is_self_) {}
+		KickLine(Client *parent_, std::shared_ptr<PingPong::Channel> chan, const std::string &who_,
+		const std::string &whom_, const std::string &reason_, long stamp_, bool isSelf_ = false):
+			Line(parent_, stamp_), channel(chan), who(who_), whom(whom_), reason(reason_), isSelf(isSelf_) {}
 
-		kick_line(client *parent_, std::shared_ptr<pingpong::channel> chan_, std::shared_ptr<pingpong::user> who_,
-		std::shared_ptr<pingpong::user> whom_, const std::string &reason_, long stamp_):
-			kick_line(parent_, chan_, who_->name, whom_->name, reason_, stamp_, whom_->is_self()) {}
+		KickLine(Client *parent_, std::shared_ptr<PingPong::Channel> chan, std::shared_ptr<PingPong::User> who_,
+		std::shared_ptr<PingPong::User> whom_, const std::string &reason_, long stamp_):
+			KickLine(parent_, chan, who_->name, whom_->name, reason_, stamp_, whom_->isSelf()) {}
 
-		kick_line(client *parent_, const pingpong::kick_event &ev):
-			kick_line(parent_, ev.chan, ev.who, ev.whom, ev.content, ev.stamp) {}
+		KickLine(Client *parent_, const PingPong::KickEvent &ev):
+			KickLine(parent_, ev.channel, ev.who, ev.whom, ev.content, ev.stamp) {}
 
-		virtual std::string render(ui::window *) override;
-		virtual notification_type get_notification_type() const override;
+		virtual std::string render(UI::Window *) override;
+		virtual NotificationType getNotificationType() const override;
 	};
 }
 

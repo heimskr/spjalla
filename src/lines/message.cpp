@@ -1,59 +1,55 @@
-#include "spjalla/lines/message.h"
+#include "spjalla/lines/Message.h"
 
-namespace spjalla::lines {
-	message_line::message_line(client *parent_, std::shared_ptr<pingpong::user> speaker, const std::string &where_,
-	                           const std::string &message_, long stamp_, bool direct_only_):
-	line(parent_, stamp_), pingpong::local(where_), name(speaker->name), self(speaker->serv->get_nick()),
-	message(message_), verb(get_verb(message_)), body(get_body(message_)), direct_only(direct_only_),
-	serv(speaker->serv) {
-
-		is_self = speaker->is_self();
-
-		if (is_channel() && speaker) {
-			std::shared_ptr<pingpong::channel> chan = get_channel(speaker->serv);
-			hats = chan->get_hats(speaker);
-		}
+namespace Spjalla::Lines {
+	MessageLine::MessageLine(Client *parent_, std::shared_ptr<PingPong::User> speaker, const std::string &where_,
+	                         const std::string &message_, long stamp_, bool direct_only):
+	Line(parent_, stamp_), PingPong::Local(where_), name(speaker->name), self(speaker->server->getNick()),
+	message(message_), verb(getVerb(message_)), body(getBody(message_)), directOnly(direct_only),
+	server(speaker->server) {
+		isSelf = speaker->isSelf();
+		if (isChannel() && speaker)
+			hats = getChannel(speaker->server)->getHats(speaker);
 	}
 
-	message_line::message_line(client *parent_, const std::string &name_, const std::string &where_,
-	                           const std::string &self_, const std::string &message_, long stamp_,
-	                           const pingpong::hat_set &hats_, bool direct_only_):
-	line(parent_, stamp_), pingpong::local(where_), name(name_), self(self_), message(message_),
-	verb(get_verb(message_)), body(get_body(message_)), hats(hats_), direct_only(direct_only_) {
-		is_self = name_ == self_;
+	MessageLine::MessageLine(Client *parent_, const std::string &name_, const std::string &where_,
+	                         const std::string &self_, const std::string &message_, long stamp_,
+	                         const PingPong::HatSet &hats_, bool direct_only):
+	Line(parent_, stamp_), PingPong::Local(where_), name(name_), self(self_), message(message_),
+	verb(getVerb(message_)), body(getBody(message_)), hats(hats_), directOnly(direct_only) {
+		isSelf = name_ == self_;
 	}
 
-	message_line::message_line(client *parent_, const std::string &combined_, const std::string &where_,
-	                           const std::string &self_, const std::string &message_, long stamp_, bool direct_only_):
-	line(parent_, stamp_), pingpong::local(where_), self(self_), message(message_), verb(get_verb(message_)),
-	body(get_body(message_)), direct_only(direct_only_) {
-		std::tie(hats, name) = pingpong::hat_set::separate(combined_);
-		is_self = name == self_;
+	MessageLine::MessageLine(Client *parent_, const std::string &combined_, const std::string &where_,
+	                         const std::string &self_, const std::string &message_, long stamp_, bool direct_only):
+	Line(parent_, stamp_), PingPong::Local(where_), self(self_), message(message_), verb(getVerb(message_)),
+	body(getBody(message_)), directOnly(direct_only) {
+		std::tie(hats, name) = PingPong::HatSet::separate(combined_);
+		isSelf = name == self_;
 	}
 
 
 // Private instance methods
 
 
-	std::string message_line::get_verb(const std::string &str) {
-		if (!is_ctcp(str))
+	std::string MessageLine::getVerb(const std::string &str) {
+		if (!isCTCP(str))
 			return "";
 		const size_t space = str.find(' '), length = str.length();
 		return space == std::string::npos? str.substr(1, length - 2) : str.substr(space, length - space - 1);
 	}
 
-	std::string message_line::get_body(const std::string &str) {
-		if (!is_ctcp(str))
+	std::string MessageLine::getBody(const std::string &str) {
+		if (!isCTCP(str))
 			return "";
 		const size_t space = str.find(' ');
 		return space == std::string::npos? "" : str.substr(space + 1, str.length() - space - 2);
 	}
 
-	bool message_line::is_action(const std::string &str) {
+	bool MessageLine::isAction(const std::string &str) {
 		return !str.empty() && str.find("\1ACTION ") == 0 && str.back() == '\1';
 	}
 
-	bool message_line::is_ctcp(const std::string &str) {
+	bool MessageLine::isCTCP(const std::string &str) {
 		return !str.empty() && str.front() == '\1' && str.back() == '\1';
 	}
 
@@ -61,15 +57,15 @@ namespace spjalla::lines {
 // Public instance methods
 
 
-	bool message_line::is_action() const {
-		return is_action(message);
+	bool MessageLine::isAction() const {
+		return isAction(message);
 	}
 
-	bool message_line::is_ctcp() const {
-		return is_ctcp(message);
+	bool MessageLine::isCTCP() const {
+		return isCTCP(message);
 	}
 
-	std::string message_line::trimmed(const std::string &str) const {
+	std::string MessageLine::trimmed(const std::string &str) const {
 		if (str.empty() || str.front() != '\1')
 			return str;
 
@@ -81,68 +77,68 @@ namespace spjalla::lines {
 		size_t i;
 		for (i = 0; i < length && str_copy.at(i) != ' '; ++i);
 
-		if (is_action())
+		if (isAction())
 			return str_copy.substr(i + 1);
 
 		return str_copy;
 	}
 
-	std::string message_line::hat_str() const {
-		if (!is_channel())
+	std::string MessageLine::hatString() const {
+		if (!isChannel())
 			return "";
 
-		if (!parent->cache.appearance_allow_empty_hats)
-			return hats == pingpong::hat::none && !is_action()? " " : std::string(hats);
+		if (!parent->cache.appearanceAllowEmptyHats)
+			return hats == PingPong::Hat::None && !isAction()? " " : std::string(hats);
 
 		return std::string(hats);
 	}
 
-	int message_line::get_continuation() {
+	int MessageLine::getContinuation() {
 #ifdef RERENDER_LINES
 		render(nullptr);
 #else
 		if (rendered.empty()) {
-			DBG("message_line::get_continuation(): rendered is empty");
+			DBG("MessageLine::getContinuation(): rendered is empty");
 			return 0;
 		}
 #endif
-		return line::get_continuation() + parent->get_ui().render[get_format_key()].positions.at("message");
+		return Line::getContinuation() + parent->getUI().renderer[getFormatKey()].positions.at("message");
 	}
 
-	int message_line::get_name_index() {
+	int MessageLine::getNameIndex() {
 #ifdef RERENDER_LINES
 		render(nullptr);
 #else
 		if (rendered.empty()) {
-			DBG("message_line::get_name_index(): rendered is empty");
+			DBG("MessageLine::getNameIndex(): rendered is empty");
 			return 0;
 		}
 #endif
-		return line::get_continuation() + parent->get_ui().render[get_format_key()].positions.at("nick");
+		return Line::getContinuation() + parent->getUI().renderer[getFormatKey()].positions.at("nick");
 	}
 
-	notification_type message_line::get_notification_type() const {
-		if (util::is_highlight(message, self, direct_only) || where == self)
-			return notification_type::highlight;
-		return notification_type::message;
+	NotificationType MessageLine::getNotificationType() const {
+		if (Util::isHighlight(message, self, directOnly) || where == self)
+			return NotificationType::Highlight;
+		return NotificationType::Message;
 	}
 
-	std::string message_line::render(ui::window *) {
-		return parent->get_ui().render(get_format_key(), {
-			{"raw_nick", name}, {"hats", hat_str()},
-			{"raw_message", pingpong::util::irc2ansi(is_action()? trimmed(message) : message)}
+	std::string MessageLine::render(UI::Window *) {
+		return parent->getUI().renderer(getFormatKey(), {
+			{"raw_nick", name}, {"hats", hatString()},
+			{"raw_message", PingPong::Util::irc2ansi(isAction()? trimmed(message) : message)}
 		});
 	}
 
-	void message_line::on_mouse(const haunted::mouse_report &report) {
+	void MessageLine::onMouse(const Haunted::MouseReport &report) {
 		//*
-		if (report.action == haunted::mouse_action::up) {
-			const int name_index = get_name_index();
+		if (report.action == Haunted::MouseAction::Up) {
+			const int name_index = getNameIndex();
 			if (name_index <= report.x && report.x < name_index + static_cast<int>(name.length())) {
-				if (!serv) {
+				if (!server) {
 					DBG("Can't query: server is null");
 				} else {
-					parent->get_ui().focus_window(parent->query(name, serv));
+					parent->getUI().focusWindow(parent->query(name, server));
 				}
 
 				return;
@@ -150,18 +146,18 @@ namespace spjalla::lines {
 
 			if (box) {
 				// Compute the clicked character's index within the message.
-				ssize_t n = -get_continuation();
+				ssize_t n = -getContinuation();
 				const ssize_t old_n = n;
 				// I'm assuming there's nothing after the message in the format strings.
-				ssize_t message_width = box->get_position().width + n;
+				ssize_t message_width = box->getPosition().width + n;
 				n += report.x + report.y * message_width;
-				DBG("base_continuation[" << base_continuation << "], -get_continuation[" << old_n << "], n[" << n << "]");
+				DBG("baseContinuation[" << baseContinuation << "], -getContinuation[" << old_n << "], n[" << n << "]");
 				ssize_t windex, sindex;
 				std::tie(windex, sindex) = formicine::util::word_indices(message, n);
 				std::string word = formicine::util::nth_word(message, windex);
 				DBG("w[" << windex << "], s[" << sindex << "], word[" << word << "]");
 				if (!word.empty() && word.front() == '#')
-					pingpong::join_command(serv, word).send();
+					PingPong::JoinCommand(server, word).send();
 			}
 		}
 		//*/

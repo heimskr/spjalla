@@ -1,17 +1,17 @@
-#include "pingpong/core/util.h"
-#include "spjalla/core/client.h"
-#include "spjalla/core/util.h"
-#include "spjalla/lines/notice.h"
+#include "pingpong/core/Util.h"
+#include "spjalla/core/Client.h"
+#include "spjalla/core/Util.h"
+#include "spjalla/lines/Notice.h"
 #include "lib/formicine/futil.h"
 
-namespace spjalla::lines {
-	notification_type notice_line::get_notification_type() const {
-		if (util::is_highlight(message, self, direct_only) || where == self || always_highlight)
-			return notification_type::highlight;
-		return notification_type::message;
+namespace Spjalla::Lines {
+	NotificationType NoticeLine::getNotificationType() const {
+		if (Util::isHighlight(message, self, directOnly) || where == self || alwaysHighlight)
+			return NotificationType::Highlight;
+		return NotificationType::Message;
 	}
 
-	std::string notice_line::get_format_key() const {
+	std::string NoticeLine::getFormatKey() const {
 		return "notice";
 	}
 }

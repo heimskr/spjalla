@@ -1,13 +1,13 @@
-#include "pingpong/commands/nick.h"
-#include "pingpong/core/server.h"
-#include "spjalla/commands/command.h"
-#include "spjalla/ui/interface.h"
+#include "pingpong/commands/Nick.h"
+#include "pingpong/core/Server.h"
+#include "spjalla/commands/Command.h"
+#include "spjalla/ui/Interface.h"
 
-namespace spjalla::commands {
-	void do_nick(ui::interface &ui, pingpong::server *serv, const input_line &il) {
+namespace Spjalla::Commands {
+	void doNick(UI::Interface &ui, PingPong::Server *server, const InputLine &il) {
 		if (il.args.size() == 0)
-			ui.log("Current nick: " + serv->get_nick());
+			ui.log("Current nick: " + server->getNick());
 		else
-			pingpong::nick_command(serv, il.first()).send();
+			PingPong::NickCommand(server, il.first()).send();
 	}
 }

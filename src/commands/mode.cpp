@@ -1,19 +1,19 @@
-#include "pingpong/commands/mode.h"
-#include "spjalla/commands/command.h"
-#include "spjalla/ui/interface.h"
+#include "pingpong/commands/Mode.h"
+#include "spjalla/commands/Command.h"
+#include "spjalla/ui/Interface.h"
 
-namespace spjalla::commands {
-	void do_mode(ui::interface &ui, pingpong::server *serv, const input_line &il) {
+namespace Spjalla::Commands {
+	void doMode(UI::Interface &ui, PingPong::Server *server, const InputLine &il) {
 
-		std::shared_ptr<pingpong::channel> win_chan = ui.get_active_channel();
+		std::shared_ptr<PingPong::Channel> win_chan = ui.getActiveChannel();
 
 		if (il.args.size() == 1 && il.first().find_first_of("+-") == 0) {
 			// The only argument is a set of flags. If the active window is a channel, this sets the flags on the
 			// channel. Otherwise, the flags are set on yourself.
 			if (win_chan)
-				pingpong::mode_command(win_chan, il.first()).send();
+				PingPong::ModeCommand(win_chan, il.first()).send();
 			else
-				pingpong::mode_command(serv->get_nick(), serv, il.first()).send();
+				PingPong::ModeCommand(server->getNick(), server, il.first()).send();
 			return;
 		}
 
@@ -30,7 +30,7 @@ namespace spjalla::commands {
 
 				chan_str = arg;
 			} else if (front == '+' || front == '-') {
-				if (arg.find_first_not_of(pingpong::util::flag_chars) != std::string::npos) {
+				if (arg.find_first_not_of(PingPong::Util::flagChars) != std::string::npos) {
 					ui.warn("Invalid flags for mode command: " + arg);
 					return;
 				}
@@ -59,14 +59,14 @@ namespace spjalla::commands {
 		// If there's no channel indicated either in the command arguments or by the active window and you're not
 		// trying to set user flags on yourself, then what are you even trying to do? You can't set flags on someone
 		// who isn't you.
-		if (!win_chan && chan_str.empty() && extra != serv->get_nick()) {
+		if (!win_chan && chan_str.empty() && extra != server->getNick()) {
 			ui.warn("Invalid arguments for /mode.");
 			return;
 		}
 
 		// If there's no channel and we're setting arguments on ourself, it's a regular user mode command.
-		if (!win_chan && chan_str.empty() && extra == serv->get_nick()) {
-			pingpong::mode_command(serv->get_self(), flags).send();
+		if (!win_chan && chan_str.empty() && extra == server->getNick()) {
+			PingPong::ModeCommand(server->getSelf(), flags).send();
 			return;
 		}
 
@@ -75,7 +75,7 @@ namespace spjalla::commands {
 
 		// At this point, I think it's safe to assume that you're setting channel flags. The extra parameter, if
 		// present, is what/whom you're setting the flags on.
-		pingpong::mode_command(chan_str, serv, flags, extra).send();
+		PingPong::ModeCommand(chan_str, server, flags, extra).send();
 
 	}
 }

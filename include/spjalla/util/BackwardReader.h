@@ -1,12 +1,12 @@
-#ifndef SPJALLA_UTIL_BACKWARD_READER_H_
-#define SPJALLA_UTIL_BACKWARD_READER_H_
+#ifndef SPJALLA_UTIL_BACKWARDREADER_H_
+#define SPJALLA_UTIL_BACKWARDREADER_H_
 
 #include <fstream>
 #include <string>
 #include <vector>
 
-namespace spjalla::util {
-	class backward_reader {
+namespace Spjalla::Util {
+	class BackwardReader {
 		private:
 			std::fstream stream;
 
@@ -18,15 +18,16 @@ namespace spjalla::util {
 			 *  repeatedly return the same input in readline. */
 			bool done = false;
 
-			void remove_last_newline(size_t &nlpos);
+			void removeLastNewline(size_t &nlpos);
 
 		public:
-			backward_reader(std::fstream &&stream_, ssize_t chunk_size_ = 64);
-			backward_reader(const std::string &filename, ssize_t chunk_size_ = 64,
-			std::ios_base::openmode mode = std::ios_base::in):
-				backward_reader(std::fstream(filename, mode), chunk_size_) {}
+			BackwardReader(std::fstream &&stream_, ssize_t chunk_size_ = 64);
 
-			~backward_reader();
+			BackwardReader(const std::string &filename, ssize_t chunk_size_ = 64,
+			std::ios_base::openmode mode = std::ios_base::in):
+				BackwardReader(std::fstream(filename, mode), chunk_size_) {}
+
+			~BackwardReader();
 
 			/** Reads a single line. Returns true if a line was properly read, or false if there's nothing left. */
 			bool readline(std::string &);

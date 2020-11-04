@@ -1,13 +1,13 @@
-#include "spjalla/core/client.h"
-#include "spjalla/lines/line.h"
-#include "spjalla/plugins/logs.h"
-#include "spjalla/ui/interface.h"
-#include "spjalla/ui/window.h"
-#include "spjalla/util/backward_reader.h"
+#include "spjalla/core/Client.h"
+#include "spjalla/lines/Line.h"
+#include "spjalla/plugins/Logs.h"
+#include "spjalla/ui/Interface.h"
+#include "spjalla/ui/Window.h"
+#include "spjalla/util/BackwardReader.h"
 
-namespace spjalla::plugins::logs {
-	void logs_plugin::restore(pingpong::server *serv, const input_line &il) {
-		ui::interface &ui = parent->get_ui();
+namespace Spjalla::Plugins::Logs {
+	void LogsPlugin::restore(PingPong::Server *serv, const InputLine &il) {
+		UI::Interface &ui = parent->getUI();
 		long to_restore;
 		if (!il.args.empty()) {
 			if (!formicine::util::parse_long(il.first(), to_restore)) {
@@ -18,8 +18,8 @@ namespace spjalla::plugins::logs {
 			to_restore = std::max(1L, parent->configs.get("logs", "default_restore").long_());
 		}
 
-		ui::window *window = ui.get_active_window();
-		if (window->type != ui::window_type::channel && window->type != ui::window_type::user) {
+		UI::Window *window = ui.get_active_window();
+		if (window->type != UI::WindowType::channel && window->type != UI::WindowType::user) {
 			ui.warn("/restore works only for channel windows and private message windows.");
 			return;
 		}
@@ -28,7 +28,7 @@ namespace spjalla::plugins::logs {
 
 		if (!window->get_lines().empty()) {
 			lines::line *line;
-			for (const std::shared_ptr<haunted::ui::textline> &lineptr: window->get_lines()) {
+			for (const std::shared_ptr<Haunted::UI::textline> &lineptr: window->get_lines()) {
 				if ((line = dynamic_cast<lines::line *>(lineptr.get())))
 					break;
 			}
@@ -39,24 +39,24 @@ namespace spjalla::plugins::logs {
 			first_stamp = line->stamp;
 		}
 
-		pingpong::util::timetype first_time {first_stamp};
+		PingPong::Util::TimeType first_time {first_stamp};
 
 		const std::string where = window->is_user()? window->user->name : window->chan->name;
-		const log_pair pair {serv, where};
+		const LogPair pair {serv, where};
 		if (filemap.count(pair) == 0) {
-			ui.log("No scrollback found for " + ansi::bold(where) + " on " + ansi::bold(serv->id) + ".");
+			ui.log("No scrollback found for " + ansi::bold(where) + " on " + ansi::bold(server->id) + ".");
 			return;
 		}
 
 		std::vector<std::string> lines {};
 
-		util::backward_reader reader(get_path(pair).string());
+		util::BackwardReader reader(get_path(pair).string());
 
 		// Look for the last line in the log before the top of the scrollback.
 		for (;;) {
 			size_t read = reader.readlines(lines, 1);
 			if (read == 0) {
-				ui.log("No more scrollback found for " + ansi::bold(where) + " on " + ansi::bold(serv->id) + ".");
+				ui.log("No more scrollback found for " + ansi::bold(where) + " on " + ansi::bold(server->id) + ".");
 				break;
 			}
 
@@ -79,7 +79,7 @@ namespace spjalla::plugins::logs {
 		reader.readlines(lines, to_restore - 1);
 		const bool autoclean = parent->configs.get("logs", "autoclean").bool_();
 
-		ui::window *win = ui.get_active_window();
+		UI::Window *win = ui.get_active_window();
 		
 		for (const std::string &raw: lines) {
 			std::string first_word = formicine::util::nth_word(raw, 0, false);
@@ -87,7 +87,7 @@ namespace spjalla::plugins::logs {
 			long l;
 			formicine::util::parse_long(first_word, l);
 
-			std::unique_ptr<haunted::ui::textline> line = get_line(pair, raw, autoclean);
+			std::unique_ptr<Haunted::UI::textline> line = get_line(pair, raw, autoclean);
 			if (line) {
 				line->box = win;
 				line->clean(win->get_position().width);

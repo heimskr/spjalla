@@ -1,15 +1,15 @@
-#include "pingpong/core/util.h"
-#include "spjalla/lines/motd.h"
+#include "pingpong/core/Util.h"
+#include "spjalla/lines/Motd.h"
 
-namespace spjalla::lines {
-	motd_line::motd_line(client *parent_, const std::string &text_, pingpong::server *serv_, long stamp_):
-		line(parent_, stamp_, 0), serv(serv_), text(text_) {}
+namespace Spjalla::Lines {
+	MotdLine::MotdLine(Client *parent_, const std::string &text_, PingPong::Server *server_, long stamp_):
+		Line(parent_, stamp_, 0), server(server_), text(text_) {}
 
-	pingpong::server * motd_line::get_associated_server() const {
-		return serv;
+	PingPong::Server * MotdLine::getAssociatedServer() const {
+		return server;
 	}
 
-	std::string motd_line::render(ui::window *) {
-		return pingpong::util::irc2ansi(text);
+	std::string MotdLine::render(UI::Window *) {
+		return PingPong::Util::irc2ansi(text);
 	}
 }

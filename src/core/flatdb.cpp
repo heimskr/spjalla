@@ -1,18 +1,18 @@
-#include "spjalla/core/flatdb.h"
-#include "spjalla/core/util.h"
+#include "spjalla/core/FlatDB.h"
+#include "spjalla/core/Util.h"
 
-namespace spjalla {
+namespace Spjalla {
 
 // Protected static methods
 
 
-	std::filesystem::path flatdb::get_db_path(const std::string &dbname, const std::string &dirname) {
+	std::filesystem::path FlatDB::getDBPath(const std::string &dbname, const std::string &dirname) {
 		if (!dirname.empty() && dirname.front() == '/')
 			return std::filesystem::path(dirname) / dbname;
-		return util::get_home() / dirname / dbname;
+		return Util::getHome() / dirname / dbname;
 	}
 
-	std::pair<std::string, std::string> flatdb::parse_kv_pair(const std::string &str) {
+	std::pair<std::string, std::string> FlatDB::parseKVPair(const std::string &str) {
 		if (str.empty())
 			throw std::invalid_argument("Can't parse empty string as key-value pair");
 
@@ -35,7 +35,7 @@ namespace spjalla {
 		return {key, formicine::util::trim(str.substr(equals + 1))};
 	}
 
-	std::string flatdb::parse_string(std::string value) {
+	std::string FlatDB::parseString(std::string value) {
 		formicine::util::trim(value);
 		const size_t vlength = value.length();
 
@@ -49,65 +49,65 @@ namespace spjalla {
 		if (value.front() != '"' || value.back() != '"')
 			throw std::invalid_argument("Invalid quote placement in string value");
 
-		return util::unescape(value.substr(1, vlength - 2));
+		return Util::unescape(value.substr(1, vlength - 2));
 	}
 
-	std::pair<std::string, std::string> flatdb::parse_string_line(const std::string &str) {
+	std::pair<std::string, std::string> FlatDB::parseStringLine(const std::string &str) {
 		std::string key, value;
-		std::tie(key, value) = parse_kv_pair(str);
+		std::tie(key, value) = parseKVPair(str);
 
-		return {key, parse_string(value)};
+		return {key, parseString(value)};
 	}
 
 
 // Protected instance methods
 
 
-	void flatdb::write_db() {
+	void FlatDB::writeDB() {
 		std::ofstream out {filepath};
 		out << std::string(*this);
 		out.close();
 	}
 
-	void flatdb::read_db(bool apply, bool clear) {
+	void FlatDB::readDB(bool apply, bool clear) {
 		if (clear)
-			clear_all();
+			clearAll();
 
 		std::ifstream in {filepath};
 		std::string line;
 		while (std::getline(in, line)) {
-			apply_line(line);
+			applyLine(line);
 		}
 
 		if (apply)
-			apply_all();
+			applyAll();
 	}
 
 
 // Public instance methods
 
 
-	void flatdb::set_path(const std::string &dbname, bool apply, const std::string &dirname) {
-		ensure_db(dbname, dirname);
-		filepath = get_db_path(dbname, dirname);
-		read_db(apply);
+	void FlatDB::setPath(const std::string &dbname, bool apply, const std::string &dirname) {
+		ensureDB(dbname, dirname);
+		filepath = getDBPath(dbname, dirname);
+		readDB(apply);
 	}
 
-	void flatdb::read_if_empty(const std::string &dbname, bool apply, const std::string &dirname) {
+	void FlatDB::readIfEmpty(const std::string &dbname, bool apply, const std::string &dirname) {
 		if (filepath.empty())
-			set_path(dbname, apply, dirname);
+			setPath(dbname, apply, dirname);
 		else if (empty())
-			read_db(apply);
+			readDB(apply);
 	}
 
 
 // Public static methods
 
 
-	bool flatdb::ensure_dir(const std::string &name) {
+	bool FlatDB::ensureDirectory(const std::string &name) {
 		if (name.empty())
 			throw std::invalid_argument("Directory path is empty");
-		std::filesystem::path config_path = name.front() == '/'? std::filesystem::path(name) : util::get_home() / name;
+		std::filesystem::path config_path = name.front() == '/'? std::filesystem::path(name) : Util::getHome() / name;
 		if (!std::filesystem::exists(config_path)) {
 			std::filesystem::create_directory(config_path);
 			return true;
@@ -116,9 +116,9 @@ namespace spjalla {
 		return false;
 	}
 
-	bool flatdb::ensure_db(const std::string &dbname, const std::string &dirname) {
-		ensure_dir(dirname);
-		std::filesystem::path db_path = get_db_path(dbname, dirname);
+	bool FlatDB::ensureDB(const std::string &dbname, const std::string &dirname) {
+		ensureDirectory(dirname);
+		std::filesystem::path db_path = getDBPath(dbname, dirname);
 
 		bool created = false;
 		if (!std::filesystem::exists(db_path)) {

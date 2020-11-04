@@ -1,29 +1,29 @@
 #include <chrono>
 
-#include "spjalla/core/client.h"
+#include "spjalla/core/Client.h"
 
-namespace spjalla {
-	void client::heartbeat_loop() {
-		while (heartbeat_alive) {
-			for (const auto fn: heartbeat_listeners)
-				(*fn)(heartbeat_period);
+namespace Spjalla {
+	void Client::heartbeatLoop() {
+		while (heartbeatAlive) {
+			for (const auto fn: heartbeatListeners)
+				(*fn)(heartbeatPeriod);
 			
-			std::this_thread::sleep_for(pingpong::util::timetype(heartbeat_period));
+			std::this_thread::sleep_for(PingPong::Util::TimeType(heartbeatPeriod));
 		}
 	}
 
-	void client::add_heartbeat_listener(const client::heartbeat_listener &fn) {
-		heartbeat_listeners.push_back(fn);
+	void Client::addHeartbeatListener(const Client::HeartbeatListener &fn) {
+		heartbeatListeners.push_back(fn);
 	}
 
-	void client::remove_heartbeat_listener(const client::heartbeat_listener &fn) {
-		auto iter = std::find(heartbeat_listeners.begin(), heartbeat_listeners.end(), fn);
-		if (iter != heartbeat_listeners.end())
-			heartbeat_listeners.erase(iter);
+	void Client::removeHeartbeatListener(const Client::HeartbeatListener &fn) {
+		auto iter = std::find(heartbeatListeners.begin(), heartbeatListeners.end(), fn);
+		if (iter != heartbeatListeners.end())
+			heartbeatListeners.erase(iter);
 	}
 
-	void client::init_heartbeat() {
-		heartbeat_alive = true;
-		heartbeat = std::thread(&client::heartbeat_loop, this);
+	void Client::initHeartbeat() {
+		heartbeatAlive = true;
+		heartbeat = std::thread(&Client::heartbeatLoop, this);
 	}
 }

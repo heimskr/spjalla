@@ -1,23 +1,22 @@
 #ifndef SPJALLA_LINES_CHANLIST_H_
 #define SPJALLA_LINES_CHANLIST_H_
 
-#include "pingpong/core/defs.h"
-#include "pingpong/core/channel.h"
-#include "pingpong/core/user.h"
+#include "pingpong/core/Defs.h"
+#include "pingpong/core/Channel.h"
+#include "pingpong/core/User.h"
 
-#include "spjalla/lines/line.h"
+#include "spjalla/lines/Line.h"
 
-namespace spjalla::lines {
-	struct chanlist_line: public line {
-		pingpong::server * get_associated_server() const override { return chan->serv; }
+namespace Spjalla::Lines {
+	struct ChanlistLine: public Line {
+		std::shared_ptr<PingPong::User> user;
+		std::shared_ptr<PingPong::Channel> channel;
 
-		std::shared_ptr<pingpong::user> user;
-		std::shared_ptr<pingpong::channel> chan;
+		ChanlistLine(Client *parent_, std::shared_ptr<PingPong::User> user_, std::shared_ptr<PingPong::Channel> chan_):
+			Line(parent_, 2), user(user_), channel(chan_) {}
 
-		chanlist_line(client *parent_, std::shared_ptr<pingpong::user> user_, std::shared_ptr<pingpong::channel> chan_):
-			line(parent_, 2), user(user_), chan(chan_) {}
-
-		virtual std::string render(ui::window *) override;
+		PingPong::Server * getAssociatedServer() const override { return channel->server; }
+		virtual std::string render(UI::Window *) override;
 	};
 }
 

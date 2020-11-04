@@ -3,58 +3,58 @@
 
 #include <functional>
 
-#include "spjalla/commands/command.h"
-#include "spjalla/core/util.h"
+#include "spjalla/commands/Command.h"
+#include "spjalla/core/Util.h"
 
-namespace spjalla {
-	class client;
+namespace Spjalla {
+	class Client;
 }
 
-namespace spjalla::plugins {
-	class plugin_host;
+namespace Spjalla::Plugins {
+	class PluginHost;
 
 	/**
 	 * Represents the priority of a plugin's handler for an event. Right now, there's no guarantee for how plugins with
 	 * the same priority are ordered.
 	 */
-	enum class priority: int {high = 3, normal = 2, low = 1};
+	enum class Priority: int {Low = 1, Normal = 2, High = 3};
 
 	/**
 	 * Indicates what should be done after handling an event.
-	 * - `pass` indicates that the plugin has chosen not to do anything with the event.
-	 * - `kill` indicates that propagation to other plugins should be stopped.
+	 * - `Pass` indicates that the plugin has chosen not to do anything with the event.
+	 * - `Kill` indicates that propagation to other plugins should be stopped.
 	 */
-	enum class handler_result {pass, kill};
+	enum class HandlerResult {Pass, Kill};
 
 	/**
 	 * Indicates what should be done after handling a cancelable event.
-	 * - `pass` indicates that the plugin has chosen not to do anything with the event.
-	 * - `kill` indicates that propagation to other plugins should be stopped. It also indicates that the cancelable
+	 * - `Pass` indicates that the plugin has chosen not to do anything with the event.
+	 * - `Kill` indicates that propagation to other plugins should be stopped. It also indicates that the cancelable
 	 *   event shouldn't go through (like disable).
-	 * - `disable` indicates that the cancelable event shouldn't go through but continues propagation.
-	 * - `enable`  indicates that the cancelable event should go through and continues propagation.
-	 * - `approve` indicates that the cancelable event should go through (like enable) and stops propagation.
+	 * - `Disable` indicates that the cancelable event shouldn't go through but continues propagation.
+	 * - `Enable`  indicates that the cancelable event should go through and continues propagation.
+	 * - `Approve` indicates that the cancelable event should go through (like enable) and stops propagation.
 	 */
-	enum class cancelable_result {pass, kill, disable, enable, approve};
+	enum class CancelableResult {Pass, Kill, Disable, Enable, Approve};
 
 	/**
 	 * Plugins modify the client's behavior. They reside in shared objects within a global variable called "ext_plugin".
 	 */
-	struct plugin {
-		client *parent;
+	struct Plugin {
+		Client *parent;
 
-		virtual std::string get_name()        const = 0;
-		virtual std::string get_description() const = 0;
-		virtual std::string get_version()     const = 0;
+		virtual std::string getName()        const = 0;
+		virtual std::string getDescription() const = 0;
+		virtual std::string getVersion()     const = 0;
 
 		/** Called when the plugin first loads, before client initialization. Useful for registering configurations. */
-		virtual void preinit(plugin_host *) {}
+		virtual void preinit(PluginHost *) {}
 
 		/** Called after client initialization. */
-		virtual void postinit(plugin_host *) {}
+		virtual void postinit(PluginHost *) {}
 
 		/** Called when the client is shutting down. */
-		virtual void cleanup(plugin_host *) {}
+		virtual void cleanup(PluginHost *) {}
 
 		/** Tries to unload the plugin. Returns true if the plugin was successfully unloaded. */
 		bool unload();

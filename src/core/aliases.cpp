@@ -1,11 +1,11 @@
 #include <sstream>
 #include <stdexcept>
 
-#include "spjalla/core/aliases.h"
-#include "spjalla/core/util.h"
+#include "spjalla/core/Aliases.h"
+#include "spjalla/core/Util.h"
 
-namespace spjalla {
-	void aliases::add_alias(const std::string &key, const std::string &expansion) {
+namespace Spjalla {
+	void Aliases::addAlias(const std::string &key, const std::string &expansion) {
 		if (expansion.empty())
 			throw std::invalid_argument("Alias expansion is empty");
 
@@ -13,17 +13,17 @@ namespace spjalla {
 		db.insert({formicine::util::lower(key), expansion});
 	}
 
-	bool aliases::has_alias(const std::string &key) {
+	bool Aliases::hasAlias(const std::string &key) {
 		return db.count(key) != 0;
 	}
 
-	input_line & aliases::expand(input_line &line) {
+	InputLine & Aliases::expand(InputLine &line) {
 		std::string lcommand = line.command;
-		if (!line.is_command() || !has_alias(lcommand))
+		if (!line.isCommand() || !hasAlias(lcommand))
 			return line;
 
 		const std::string &expansion = db.find(lcommand)->second;
-		std::vector<std::string> split = util::split(expansion, " ", false);
+		std::vector<std::string> split = Util::split(expansion, " ", false);
 		std::string &first = split[0];
 
 		// For non-command expansions, the entire expansion is inserted into the body. For command expansions,
@@ -55,21 +55,21 @@ namespace spjalla {
 		return line;
 	}
 
-	std::pair<std::string, std::string> aliases::apply_line(const std::string &line) {
+	std::pair<std::string, std::string> Aliases::applyLine(const std::string &line) {
 		if (!line.empty() && line.front() == '#')
 			return {"", ""};
 
 		std::string key, expansion;
-		std::tie(key, expansion) = parse_kv_pair(line);
-		if (has_alias(key))
+		std::tie(key, expansion) = parseKVPair(line);
+		if (hasAlias(key))
 			remove(key);
 		insert(key, expansion);
 		return {key, db.at(key)};
 	}
 
-	bool aliases::insert(const std::string &key, const std::string &expansion, bool save) {
+	bool Aliases::insert(const std::string &key, const std::string &expansion, bool save) {
 		bool overwritten = false;
-		if (has_alias(key)) {
+		if (hasAlias(key)) {
 			remove(key, false);
 			overwritten = true;
 		}
@@ -77,31 +77,31 @@ namespace spjalla {
 		db.insert({key, expansion});
 
 		if (save)
-			write_db();
+			writeDB();
 
 		return overwritten;
 	}
 
-	bool aliases::remove(const std::string &key, bool save) {
-		if (!has_alias(key))
+	bool Aliases::remove(const std::string &key, bool save) {
+		if (!hasAlias(key))
 			return false;
 
 		db.erase(key);
 
 		if (save)
-			write_db();
+			writeDB();
 
 		return true;
 	}
 
-	std::string aliases::get(const std::string &key) {
+	std::string Aliases::get(const std::string &key) {
 		return db.at(key);
 	}
 
-	aliases::operator std::string() const {
+	Aliases::operator std::string() const {
 		std::ostringstream out;
 		for (const auto &pair: db)
-			out << pair.first << "=" << util::escape(pair.second) << "\n";
+			out << pair.first << "=" << Util::escape(pair.second) << "\n";
 		return out.str();
 	}
 }

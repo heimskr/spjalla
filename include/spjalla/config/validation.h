@@ -3,18 +3,18 @@
 
 #include <stdexcept>
 
-namespace spjalla::config {
-	enum class validation_result {valid, bad_type, bad_value};
+namespace Spjalla::Config {
+	enum class ValidationResult {Valid, BadType, BadValue};
 
-	struct validation_failure: public std::exception {
-		validation_result result;
-		validation_failure(validation_result result_): result(result_) {}
+	struct ValidationFailure: public std::exception {
+		ValidationResult result;
+		ValidationFailure(ValidationResult result_): result(result_) {}
 
 		const char * what() const noexcept {
 			switch (result) {
-				case validation_result::valid: return "Configuration validated successfully but threw anyway, somehow?";
-				case validation_result::bad_type: return "Invalid value type";
-				case validation_result::bad_value: return "Invalid value";
+				case ValidationResult::Valid:  return "Configuration validated successfully but threw anyway, somehow?";
+				case ValidationResult::BadType:  return "Invalid value type";
+				case ValidationResult::BadValue: return "Invalid value";
 				default: return "???";
 			}
 		}

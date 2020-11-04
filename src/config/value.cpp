@@ -1,121 +1,121 @@
-#include "spjalla/core/util.h"
+#include "spjalla/core/Util.h"
 
-#include "spjalla/config/value.h"
+#include "spjalla/config/Value.h"
 
-namespace spjalla::config {
-	long & value::long_ref() {
-		if (type != value_type::long_)
+namespace Spjalla::Config {
+	long & Value::longRef() {
+		if (type != ValueType::Long)
 			throw std::runtime_error("Underlying type of value isn't long");
-		return long_value;
+		return longValue;
 	}
 
-	double & value::double_ref() {
-		if (type != value_type::double_)
+	double & Value::doubleRef() {
+		if (type != ValueType::Double)
 			throw std::runtime_error("Underlying type of value isn't double");
-		return double_value;
+		return doubleValue;
 	}
 
-	bool & value::bool_ref() {
-		if (type != value_type::bool_)
+	bool & Value::boolRef() {
+		if (type != ValueType::Bool)
 			throw std::runtime_error("Underlying type of value isn't bool");
-		return bool_value;
+		return boolValue;
 	}
 
-	std::string & value::string_ref() {
-		if (type != value_type::string_)
+	std::string & Value::stringRef() {
+		if (type != ValueType::String)
 			throw std::runtime_error("Underlying type of value isn't string");
-		return string_value;
+		return stringValue;
 	}
 
-	long value::long_() const {
-		if (type != value_type::long_)
+	long Value::long_() const {
+		if (type != ValueType::Long)
 			throw std::runtime_error("Underlying type of value isn't long");
-		return long_value;
+		return longValue;
 	}
 
-	double value::double_() const {
-		if (type != value_type::double_)
+	double Value::double_() const {
+		if (type != ValueType::Double)
 			throw std::runtime_error("Underlying type of value isn't double");
-		return double_value;
+		return doubleValue;
 	}
 
-	bool value::bool_() const {
-		if (type != value_type::bool_)
+	bool Value::bool_() const {
+		if (type != ValueType::Bool)
 			throw std::runtime_error("Underlying type of value isn't bool");
-		return bool_value;
+		return boolValue;
 	}
 
-	const std::string & value::string_() const {
-		if (type != value_type::string_)
+	const std::string & Value::string_() const {
+		if (type != ValueType::String)
 			throw std::runtime_error("Underlying type of value isn't string");
-		return string_value;
+		return stringValue;
 	}
 
-	value & value::operator=(long new_long) {
-		type = value_type::long_;
-		long_value = new_long;
+	Value & Value::operator=(long new_long) {
+		type = ValueType::Long;
+		longValue = new_long;
 		return *this;
 	}
 
-	value & value::operator=(double new_double) {
-		type = value_type::double_;
-		double_value = new_double;
+	Value & Value::operator=(double new_double) {
+		type = ValueType::Double;
+		doubleValue = new_double;
 		return *this;
 	}
 
-	value & value::operator=(bool new_bool) {
-		type = value_type::bool_;
-		bool_value = new_bool;
+	Value & Value::operator=(bool new_bool) {
+		type = ValueType::Bool;
+		boolValue = new_bool;
 		return *this;
 	}
 
-	value & value::operator=(const std::string &new_string) {
-		type = value_type::string_;
-		string_value = new_string;
+	Value & Value::operator=(const std::string &new_string) {
+		type = ValueType::String;
+		stringValue = new_string;
 		return *this;
 	}
 
-	bool value::operator==(const value &other) const {
-		return type == other.type && ((type == value_type::long_ && long_value == other.long_value) ||
-			(type == value_type::double_ && double_value == other.double_value) ||
-			(type == value_type::string_ && string_value == other.string_value));
+	bool Value::operator==(const Value &other) const {
+		return type == other.type && ((type == ValueType::Long && longValue == other.longValue) ||
+			(type == ValueType::Double && doubleValue == other.doubleValue) ||
+			(type == ValueType::String && stringValue == other.stringValue));
 	}
 
-	bool value::operator==(long other) const {
-		return type == value_type::long_ && long_value == other;
+	bool Value::operator==(long other) const {
+		return type == ValueType::Long && longValue == other;
 	}
 
-	bool value::operator==(double other) const {
-		return type == value_type::double_ && double_value == other;
+	bool Value::operator==(double other) const {
+		return type == ValueType::Double && doubleValue == other;
 	}
 
-	bool value::operator==(bool other) const {
-		return type == value_type::bool_ && bool_value == other;
+	bool Value::operator==(bool other) const {
+		return type == ValueType::Bool && boolValue == other;
 	}
 
-	bool value::operator==(const std::string &other) const {
-		return type == value_type::string_ && string_value == other;
+	bool Value::operator==(const std::string &other) const {
+		return type == ValueType::String && stringValue == other;
 	}
 
-	value::operator std::string() const {
-		if (type == value_type::long_)
-			return std::to_string(long_value);
-		if (type == value_type::double_)
-			return std::to_string(double_value);
-		if (type == value_type::string_)
-			return string_value;
-		if (type == value_type::bool_)
-			return bool_value? "true" : "false";
+	Value::operator std::string() const {
+		if (type == ValueType::Long)
+			return std::to_string(longValue);
+		if (type == ValueType::Double)
+			return std::to_string(doubleValue);
+		if (type == ValueType::String)
+			return stringValue;
+		if (type == ValueType::Bool)
+			return boolValue? "true" : "false";
 		throw std::invalid_argument("Invalid value type");
 	}
 
-	std::string value::escaped() const {
-		if (type == value_type::string_)
-			return "\"" + util::escape(string_value) + "\"";
+	std::string Value::escaped() const {
+		if (type == ValueType::String)
+			return "\"" + Util::escape(stringValue) + "\"";
 		return std::string(*this);
 	}
+}
 
-	std::ostream & operator<<(std::ostream &os, const value &value) {
-		return os << std::string(value);
-	}
+std::ostream & operator<<(std::ostream &os, const Spjalla::Config::Value &value) {
+	return os << std::string(value);
 }

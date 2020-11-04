@@ -4,16 +4,16 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "spjalla/core/util.h"
-#include "spjalla/ui/window.h"
+#include "spjalla/core/Util.h"
+#include "spjalla/ui/Window.h"
 #include "lib/formicine/futil.h"
 
-namespace spjalla::util {
-	std::string colorize_if_dead(const std::string &str, const ui::window *win) {
+namespace Spjalla::Util {
+	std::string colorizeIfDead(const std::string &str, const UI::Window *win) {
 		return win->dead? ansi::red(str) : str;
 	}
 
-	std::string get_home_string(bool append_slash) {
+	std::string getHomeString(bool append_slash) {
 		const char *home = getenv("HOME");
 		if (home == nullptr)
 			home = getpwuid(getuid())->pw_dir;
@@ -23,8 +23,8 @@ namespace spjalla::util {
 		return str;
 	}
 
-	std::filesystem::path get_home() {
-		return {get_home_string(false)};
+	std::filesystem::path getHome() {
+		return {getHomeString(false)};
 	}
 
 	std::string escape(const std::string &str) {
@@ -74,7 +74,7 @@ namespace spjalla::util {
 		return out.str();
 	}
 
-	bool is_highlight(const std::string &message, const std::string &name, bool direct_only) {
+	bool isHighlight(const std::string &message, const std::string &name, bool direct_only) {
 		const std::string lmessage = formicine::util::lower(message);
 		const std::string lname = formicine::util::lower(name);
 
@@ -82,7 +82,7 @@ namespace spjalla::util {
 			return true;
 
 		if (!direct_only) {
-			std::string filtered = formicine::util::filter(lmessage, std::string(" ") + pingpong::util::nick_chars);
+			std::string filtered = formicine::util::filter(lmessage, std::string(" ") + PingPong::Util::nickChars);
 			std::vector<std::string> words = formicine::util::split(filtered, " ", true);
 			for (const std::string &word: words) {
 				if (word == lname)

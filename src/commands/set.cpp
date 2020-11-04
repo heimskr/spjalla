@@ -1,20 +1,20 @@
-#include "spjalla/commands/command.h"
-#include "spjalla/core/client.h"
-#include "spjalla/lines/config_key.h"
-#include "spjalla/lines/config_group.h"
+#include "spjalla/commands/Command.h"
+#include "spjalla/core/Client.h"
+#include "spjalla/lines/ConfigKey.h"
+#include "spjalla/lines/ConfigGroup.h"
 
-namespace spjalla::commands {
-	void do_set(client &cli, const input_line &il) {
-		spjalla::ui::interface &ui = cli.get_ui();
-		cli.configs.read_if_empty(DEFAULT_CONFIG_DB);
+namespace Spjalla::Commands {
+	void doSet(Client &client, const InputLine &il) {
+		Spjalla::UI::Interface &ui = client.getUI();
+		client.configs.readIfEmpty(DEFAULT_CONFIG_DB);
 
-		config::database::groupmap with_defaults = cli.configs.with_defaults();
+		Config::Database::GroupMap with_defaults = client.configs.withDefaults();
 
 		if (il.args.empty()) {
 			for (const auto &gpair: with_defaults) {
-				ui.log(lines::config_group_line(&cli, gpair.first));
+				ui.log(Lines::ConfigGroupLine(&client, gpair.first));
 				for (const auto &spair: gpair.second)
-					ui.log(lines::config_key_line(&cli, spair));
+					ui.log(Lines::ConfigKeyLine(&client, spair));
 			}
 
 			return;
@@ -38,7 +38,7 @@ namespace spjalla::commands {
 			}
 		} else {
 			try {
-				parsed = config::database::parse_pair(first);
+				parsed = Config::Database::parsePair(first);
 			} catch (const std::invalid_argument &) {
 				ui.warn("Couldn't parse setting " + ansi::bold(first));
 				return;
@@ -47,8 +47,8 @@ namespace spjalla::commands {
 
 		if (il.args.size() == 1) {
 			try {
-				const config::value &value = cli.configs.get_pair(parsed);
-				ui.log(lines::config_key_line(&cli, parsed.first + "." + parsed.second, value, false));
+				const Config::Value &value = client.configs.getPair(parsed);
+				ui.log(Lines::ConfigKeyLine(&client, parsed.first + "." + parsed.second, value, false));
 			} catch (const std::out_of_range &) {
 				ui.log("No configuration option for " + ansi::bold(first) + ".");
 			}
@@ -57,17 +57,17 @@ namespace spjalla::commands {
 
 			// Special case: setting a value to "-" removes it from the database.
 			if (joined == "-") {
-				if (cli.configs.remove(parsed.first, parsed.second, true, true)) {
+				if (client.configs.remove(parsed.first, parsed.second, true, true)) {
 					ui.log("Removed " + ansi::bold(parsed.first) + "."_bd + ansi::bold(parsed.second) + ".");
 				} else {
 					ui.log("Couldn't find " + ansi::bold(parsed.first) + "."_bd + ansi::bold(parsed.second) + ".");
 				}
 			} else {
-				config::value_type type = config::database::get_value_type(joined);
-				if (type == config::value_type::invalid) {
-					cli.configs.insert(parsed.first, parsed.second, {joined});
+				Config::ValueType type = Config::Database::getValueType(joined);
+				if (type == Config::ValueType::Invalid) {
+					client.configs.insert(parsed.first, parsed.second, {joined});
 				} else {
-					cli.configs.insert_any(parsed.first, parsed.second, joined);
+					client.configs.insertAny(parsed.first, parsed.second, joined);
 				}
 
 				ui.log("Set " + ansi::bold(parsed.first) + "."_bd + ansi::bold(parsed.second) + " to " +

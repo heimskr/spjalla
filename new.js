@@ -98,7 +98,7 @@ if (type.match(/^c(ore)?$/i)) {
 	%	#ifndef SPJALLA_CORE_${upper()}_H_
 	%	#define SPJALLA_CORE_${upper()}_H_
 	%
-	%	namespace spjalla {
+	%	namespace Spjalla {
 	%		class ${name} {
 	%			
 	%		};
@@ -109,7 +109,7 @@ if (type.match(/^c(ore)?$/i)) {
 	sourcetext = prepare(`
 	%	#include "spjalla/core/${name}.h"
 	%
-	%	namespace spjalla {
+	%	namespace Spjalla {
 	%		
 	%	}`);
 
@@ -122,13 +122,13 @@ if (type.match(/^c(ore)?$/i)) {
 	%	#ifndef SPJALLA_LINES_${upper()}_H_
 	%	#define SPJALLA_LINES_${upper()}_H_
 	%
-	%	#include "spjalla/lines/line.h"
+	%	#include "spjalla/lines/Line.h"
 	%
-	%	namespace spjalla::lines {
+	%	namespace Spjalla::Lines {
 	%		struct ${name}_line: public line {
 	%			${name}_line(client *parent_, long stamp_ = now()): line(parent_, stamp_) {}
 	%
-	%			virtual std::string render(ui::window *) override;
+	%			virtual std::string render(UI::Window *) override;
 	%		};
 	%	}
 	%
@@ -137,8 +137,8 @@ if (type.match(/^c(ore)?$/i)) {
 	sourcetext = prepare(`
 	%	#include "spjalla/lines/${name}.h"
 	%
-	%	namespace spjalla::lines {
-	%		std::string ${name}_line::render(ui::window *) {
+	%	namespace Spjalla::Lines {
+	%		std::string ${name}_line::render(UI::Window *) {
 	%			
 	%		}
 	%	}`);
@@ -152,13 +152,13 @@ if (type.match(/^c(ore)?$/i)) {
 	%	#ifndef SPJALLA_EVENTS_${upper()}_H_
 	%	#define SPJALLA_EVENTS_${upper()}_H_
 	%
-	%	#include "pingpong/events/event.h"
+	%	#include "pingpong/events/Event.h"
 	%
-	%	namespace spjalla::events {
+	%	namespace Spjalla::Events {
 	%		/**
 	%		 * 
 	%		 */
-	%		struct ${name}_event: public pingpong::event {
+	%		struct ${name}_event: public PingPong::Event {
 	%			
 	%		};
 	%	}
@@ -185,7 +185,7 @@ if (type.match(/^c(ore)?$/i)) {
 	sourcetext = prepare(`
 	%	#include "${headerIncl()}"
 	%	
-	%	namespace spjalla::${fullNamespace} {
+	%	namespace Spjalla::${fullNamespace} {
 	%		
 	%	}`);
 
@@ -195,7 +195,7 @@ if (type.match(/^c(ore)?$/i)) {
 	%	#ifndef ${guard}
 	%	#define ${guard}
 	%
-	%	namespace spjalla::${fullNamespace} {
+	%	namespace Spjalla::${fullNamespace} {
 	%		${noclass? "" : classDef}
 	%	}
 	%

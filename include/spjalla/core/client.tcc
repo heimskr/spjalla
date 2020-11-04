@@ -1,7 +1,7 @@
 private:
 	template <typename T>
-	ui::window * try_window(const T &where) {
-		ui::window *win = ui.get_window(where, false);
+	UI::Window * tryWindow(const T &where) {
+		UI::Window *win = ui.getWindow(where, false);
 		if (!win)
 			ui.log(ansi::yellow("!!") + " Couldn't find window for " + std::string(*where));
 		return win;
@@ -11,7 +11,7 @@ private:
 	 *  If no channel is specified, the command must be issued from a channel window.
 	 *  Returns whether a "no active channel" message should be displayed. */
 	template <typename T>
-	bool triple_command(pingpong::server *serv, const input_line &il, std::shared_ptr<pingpong::channel> chan) {
+	bool tripleCommand(PingPong::Server *serv, const InputLine &il, std::shared_ptr<PingPong::Channel> chan) {
 		const std::string first = il.first(), rest = il.rest();
 		const size_t spaces = std::count(il.body.begin(), il.body.end(), ' ');
 
@@ -39,7 +39,7 @@ public:
 	 */
 	template <typename T>
 	void add(const std::string &cmd, bool needs_serv = true) {
-		*this += {cmd, {1, 1, needs_serv, [&](pingpong::server *serv, const input_line &il) {
+		*this += {cmd, {1, 1, needs_serv, [&](PingPong::Server *serv, const InputLine &il) {
 			T(serv, il.args[0]).send();
 		}, {}}};
 	}

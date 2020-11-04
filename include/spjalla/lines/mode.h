@@ -3,29 +3,29 @@
 
 #include <unordered_map>
 
-#include "pingpong/events/mode.h"
+#include "pingpong/events/Mode.h"
 
-#include "spjalla/lines/line.h"
+#include "spjalla/lines/Line.h"
 
-namespace spjalla::lines {
-	class mode_line: public line {
+namespace Spjalla::Lines {
+	class ModeLine: public Line {
 		private:
 			/** Maps a mode change (e.g., "+o", "-b") to a verb that indicates what the mode change means. */
 			static std::unordered_map<std::string, std::string> verbs;
 
 		public:
-			pingpong::modeset mset;
+			PingPong::ModeSet modeSet;
 			std::string where, who, self;
 
-			mode_line(client *parent_, const pingpong::modeset &mset_, const std::string &where_,
-			const std::string &who_, const std::string &self_, long stamp_):
-				line(parent_, stamp_), mset(mset_), where(where_), who(who_) /*🦉*/, self(self_) {}
+			ModeLine(Client *parent_, const PingPong::ModeSet &mset, const std::string &where_, const std::string &who_,
+			const std::string &self_, long stamp_):
+				Line(parent_, stamp_), modeSet(mset), where(where_), who(who_) /*🦉*/, self(self_) {}
 
-			mode_line(client *parent_, const pingpong::mode_event &ev):
-				mode_line(parent_, ev.mset, ev.where, ev.who? ev.who->name : "", ev.serv->get_nick(), ev.stamp) {}
+			ModeLine(Client *parent_, const PingPong::ModeEvent &ev):
+				ModeLine(parent_, ev.modeSet, ev.where, ev.who? ev.who->name : "", ev.server->getNick(), ev.stamp) {}
 
-			virtual std::string render(ui::window *) override;
-			virtual notification_type get_notification_type() const override { return notification_type::info; }
+			virtual std::string render(UI::Window *) override;
+			virtual NotificationType getNotificationType() const override { return NotificationType::Info; }
 	};
 }
 

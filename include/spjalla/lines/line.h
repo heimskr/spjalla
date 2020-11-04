@@ -3,38 +3,38 @@
 
 #include <string>
 
-#include "pingpong/core/util.h"
-#include "haunted/ui/textbox.h"
+#include "pingpong/core/Util.h"
+#include "haunted/ui/Textbox.h"
 
-#include "spjalla/core/notifications.h"
-#include "spjalla/core/options.h"
+#include "spjalla/core/Notifications.h"
+#include "spjalla/core/Options.h"
 
 #include "lib/formicine/ansi.h"
 
-namespace pingpong {
-	class server;
+namespace PingPong {
+	class Server;
 }
 
-namespace spjalla {
-	class client;
-	namespace ui {
-		class window;
+namespace Spjalla {
+	class Client;
+	namespace UI {
+		class Window;
 	}
 }
 
-namespace spjalla::lines {
-	extern std::string notice, red_notice, yellow_notice;
+namespace Spjalla::Lines {
+	extern std::string notice, redNotice, yellowNotice;
 
 	/** Renders a UNIX timestamp as an hours-minutes-seconds set. */
-	std::string render_time(client *, long stamp);
+	std::string renderTime(Client *, long stamp);
 
-	class line: public haunted::ui::textline {
+	class Line: public Haunted::UI::TextLine {
 
 		protected:
 			/** Returns whether the server the line is associated with, if any. */
-			virtual pingpong::server * get_associated_server() const { return nullptr; }
-			virtual std::string render(ui::window *) = 0;
-			int base_continuation = 0;
+			virtual PingPong::Server * getAssociatedServer() const { return nullptr; }
+			virtual std::string render(UI::Window *) = 0;
+			int baseContinuation = 0;
 
 #ifndef RERENDER_LINES
 			std::string rendered;
@@ -42,16 +42,16 @@ namespace spjalla::lines {
 			std::string render();
 
 		public:
-			client *parent;
+			Client *parent;
 			long stamp;
 
-			line(client *parent_, long stamp_ = pingpong::util::timestamp(), int base_continuation_ = 0):
-				base_continuation(base_continuation_), parent(parent_), stamp(stamp_) {}
+			Line(Client *parent_, long stamp_ = PingPong::Util::timestamp(), int base_continuation = 0):
+				baseContinuation(base_continuation), parent(parent_), stamp(stamp_) {}
 
-			int get_continuation() override;
+			int getContinuation() override;
 			operator std::string() override;
 
-			virtual notification_type get_notification_type() const { return notification_type::none; }
+			virtual NotificationType getNotificationType() const { return NotificationType::None; }
 	};
 
 	/** Returns the current timestamp in seconds. */

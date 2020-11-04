@@ -1,7 +1,7 @@
-#include "spjalla/lines/basic.h"
+#include "spjalla/lines/Basic.h"
 
-namespace spjalla::lines {
-	std::string basic_line::render(ui::window *) {
+namespace Spjalla::Lines {
+	std::string BasicLine::render(UI::Window *) {
 		return text;
 	}
 }

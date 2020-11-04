@@ -1,7 +1,7 @@
-#include "spjalla/lines/chanlist.h"
+#include "spjalla/lines/Chanlist.h"
 
-namespace spjalla::lines {
-	std::string chanlist_line::render(ui::window *) {
-		return ansi::dim("- ") + std::string(chan->get_hats(user)) + chan->name;
+namespace Spjalla::Lines {
+	std::string ChanlistLine::render(UI::Window *) {
+		return ansi::dim("- ") + std::string(channel->getHats(user)) + channel->name;
 	}
 }

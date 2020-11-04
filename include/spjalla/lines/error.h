@@ -1,22 +1,22 @@
 #ifndef SPJALLA_LINES_ERROR_H_
 #define SPJALLA_LINES_ERROR_H_
 
-#include "spjalla/lines/line.h"
+#include "spjalla/lines/Line.h"
 
-namespace spjalla::lines {
-	class error_line: public line {
+namespace Spjalla::Lines {
+	class ErrorLine: public Line {
 		protected:
-			virtual pingpong::server * get_associated_server() const override { return serv; }
+			virtual PingPong::Server * getAssociatedServer() const override { return server; }
 
 		public:
 			std::string message;
-			pingpong::server *serv = nullptr;
+			PingPong::Server *server = nullptr;
 
-			error_line(client *parent_, const std::string &message_, long stamp_ = pingpong::util::timestamp()):
-				line(parent_, stamp_, ansi::length(lines::red_notice)), message(message_) {}
+			ErrorLine(Client *parent_, const std::string &message_, long stamp_ = PingPong::Util::timestamp()):
+				Line(parent_, stamp_, ansi::length(Lines::redNotice)), message(message_) {}
 
-			virtual std::string render(ui::window *) override;
-			virtual notification_type get_notification_type() const override { return notification_type::highlight; }
+			virtual std::string render(UI::Window *) override;
+			virtual NotificationType getNotificationType() const override { return NotificationType::Highlight; }
 	};
 }
 

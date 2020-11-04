@@ -1,33 +1,33 @@
 #ifndef SPJALLA_LINES_JOIN_H_
 #define SPJALLA_LINES_JOIN_H_
 
-#include "pingpong/core/defs.h"
-#include "pingpong/core/user.h"
-#include "pingpong/core/channel.h"
+#include "pingpong/core/Defs.h"
+#include "pingpong/core/User.h"
+#include "pingpong/core/Channel.h"
 
-#include "pingpong/events/join.h"
+#include "pingpong/events/Join.h"
 
-#include "spjalla/lines/line.h"
+#include "spjalla/lines/Line.h"
 
-namespace spjalla::lines {
-	struct join_line: public line {
-		std::shared_ptr<pingpong::channel> chan;
-		std::shared_ptr<pingpong::user> user;
-		const std::string chan_name;
+namespace Spjalla::Lines {
+	struct JoinLine: public Line {
+		std::shared_ptr<PingPong::Channel> channel;
+		std::shared_ptr<PingPong::User> user;
+		const std::string channelName;
 		const std::string name;
 
-		join_line(client *parent_, std::shared_ptr<pingpong::channel> chan_, std::shared_ptr<pingpong::user> user_,
+		JoinLine(Client *parent_, std::shared_ptr<PingPong::Channel> chan, std::shared_ptr<PingPong::User> user_,
 		long stamp_):
-			line(parent_, stamp_), chan(chan_), user(user_), chan_name(chan_->name), name(user_->name) {}
+			Line(parent_, stamp_), channel(chan), user(user_), channelName(chan->name), name(user_->name) {}
 
-		join_line(client *parent_, const std::string &chan_name_, const std::string &name_, long stamp_):
-			line(parent_, stamp_), chan(nullptr), user(nullptr), chan_name(chan_name_), name(name_) {}
+		JoinLine(Client *parent_, const std::string &chan_name, const std::string &name_, long stamp_):
+			Line(parent_, stamp_), channel(nullptr), user(nullptr), channelName(chan_name), name(name_) {}
 
-		join_line(client *parent_, const pingpong::join_event &ev):
-			join_line(parent_, ev.chan, ev.who, ev.stamp) {}
+		JoinLine(Client *parent_, const PingPong::JoinEvent &ev):
+			JoinLine(parent_, ev.channel, ev.who, ev.stamp) {}
 
-		virtual std::string render(ui::window *) override;
-		virtual notification_type get_notification_type() const override { return notification_type::info; }
+		virtual std::string render(UI::Window *) override;
+		virtual NotificationType getNotificationType() const override { return NotificationType::Info; }
 	};
 }
 

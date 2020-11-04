@@ -1,8 +1,8 @@
-#include "spjalla/core/client.h"
-#include "spjalla/lines/warning.h"
+#include "spjalla/core/Client.h"
+#include "spjalla/lines/Warning.h"
 
-namespace spjalla::lines {
-	std::string warning_line::render(ui::window *) {
-		return parent->get_ui().render("bang_warn") + " " + message;
+namespace Spjalla::Lines {
+	std::string WarningLine::render(UI::Window *) {
+		return parent->getUI().renderer("bang_warn") + " " + message;
 	}
 }

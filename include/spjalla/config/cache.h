@@ -1,78 +1,78 @@
 #ifndef SPJALLA_CONFIG_CACHE_H_
 #define SPJALLA_CONFIG_CACHE_H_
 
-#include "spjalla/config/defaults.h"
+#include "spjalla/config/Defaults.h"
 #include "lib/formicine/ansi.h"
 
-namespace spjalla::config {
-	class cache {
+namespace Spjalla::Config {
+	class Cache {
 		private:
-			static std::string get_string(const std::string &key);
-			static ansi::color get_color(const std::string &key);
-			static bool get_bool(const std::string &key);
-			static long get_long(const std::string &key);
+			static std::string getString(const std::string &key);
+			static ansi::color getColor(const std::string &key);
+			static bool getBool(const std::string &key);
+			static long getLong(const std::string &key);
 		public:
-			cache() {}
+			Cache() {}
 
-			ansi::color appearance_bar_background     = get_color("appearance.bar_background"),
-			            appearance_bar_foreground     = get_color("appearance.bar_foreground"),
-			            appearance_overlay_background = get_color("appearance.overlay_background"),
-			            appearance_overlay_foreground = get_color("appearance.overlay_foreground"),
-			            appearance_input_background   = get_color("appearance.input_background"),
-			            appearance_input_foreground   = get_color("appearance.input_foreground"),
-			            appearance_notice_foreground  = get_color("appearance.notice_foreground");
-			bool appearance_allow_empty_hats = get_bool("appearance.allow_empty_hats");
+			ansi::color appearanceBarBackground     = getColor("appearance.bar_background"),
+			            appearanceBarForeground     = getColor("appearance.bar_foreground"),
+			            appearanceOverlayBackground = getColor("appearance.overlay_background"),
+			            appearanceOverlayForeground = getColor("appearance.overlay_foreground"),
+			            appearanceInputBackground   = getColor("appearance.input_background"),
+			            appearanceInputForeground   = getColor("appearance.input_foreground"),
+			            appearanceNoticeForeground  = getColor("appearance.notice_foreground");
+			bool appearanceAllowEmptyHats = getBool("appearance.allow_empty_hats");
 			
-			bool behavior_answer_version_requests = get_bool("behavior.answer_version_requests"),
-			     behavior_hide_version_requests   = get_bool("behavior.hide_version_requests");
+			bool behaviorAnswerVersionRequests = getBool("behavior.answer_version_requests"),
+			     behaviorHideVersionRequests   = getBool("behavior.hide_version_requests");
 			
-			std::string completion_ping_suffix = get_string("completion.ping_suffix");
+			std::string completionPingSuffix = getString("completion.ping_suffix");
 
-			bool debug_show_raw = get_bool("debug.show_raw");
+			bool debugShowRaw = getBool("debug.show_raw");
 
-			bool interface_close_on_part = get_bool("interface.close_on_part"),
-			     interface_show_motds    = get_bool("interface.show_motds");
-			long interface_scroll_buffer = get_long("interface.scroll_buffer");
+			bool interfaceCloseOnPart  = getBool("interface.close_on_part"),
+			     interfaceShowMotds    = getBool("interface.show_motds");
+			long interfaceScrollBuffer = getLong("interface.scroll_buffer");
 
-			bool messages_direct_only       = get_bool("messages.direct_only"),
-			     messages_highlight_notices = get_bool("messages.highlight_notices"),
-			     messages_notices_in_status = get_bool("messages.notices_in_status");
+			bool messagesDirectOnly       = getBool("messages.direct_only"),
+			     messagesHighlightNotices = getBool("messages.highlight_notices"),
+			     messagesNoticesInStatus  = getBool("messages.notices_in_status");
 
-			std::string server_default_nick = get_string("server.default_nick"),
-			            server_default_user = get_string("server.default_user"),
-			            server_default_real = get_string("server.default_real");
+			std::string serverDefaultNick = getString("server.default_nick"),
+			            serverDefaultUser = getString("server.default_user"),
+			            serverDefaultReal = getString("server.default_real");
 
-#define DEF_FORMAT(n) std::string format_##n = get_string("format."#n);
-			DEF_FORMAT(action);
-			DEF_FORMAT(bang);
-			DEF_FORMAT(bang_bad);
-			DEF_FORMAT(bang_good);
-			DEF_FORMAT(bang_warn);
-			DEF_FORMAT(channel);
-			DEF_FORMAT(header_action);
-			DEF_FORMAT(header_privmsg);
-			DEF_FORMAT(header_notice);
-			DEF_FORMAT(join);
-			DEF_FORMAT(kick);
-			DEF_FORMAT(kick_self);
-			DEF_FORMAT(message_action);
-			DEF_FORMAT(message_privmsg);
-			DEF_FORMAT(message_notice);
-			DEF_FORMAT(nick_action);
-			DEF_FORMAT(nick_change);
-			DEF_FORMAT(nick_general);
-			DEF_FORMAT(nick_general_bright);
-			DEF_FORMAT(nick_privmsg);
-			DEF_FORMAT(nick_notice);
-			DEF_FORMAT(notice);
-			DEF_FORMAT(part);
-			DEF_FORMAT(privmsg);
-			DEF_FORMAT(quit);
-			DEF_FORMAT(reason);
-			DEF_FORMAT(timestamp);
-			DEF_FORMAT(topic);
-			DEF_FORMAT(topic_is);
-			DEF_FORMAT(topic_change);
+#define DEF_FORMAT(n, u) std::string format##n = getString("format."#u);
+			DEF_FORMAT(Action, action);
+			DEF_FORMAT(Bang, bang);
+			DEF_FORMAT(BangBad, bang_band);
+			DEF_FORMAT(BangGood, bang_good);
+			DEF_FORMAT(BangWarn, bang_warn);
+			DEF_FORMAT(Channel, channel);
+			DEF_FORMAT(HeaderAction, header_action);
+			DEF_FORMAT(HeaderPrivmsg, header_privmsg);
+			DEF_FORMAT(HeaderNotice, header_notice);
+			DEF_FORMAT(Join, join);
+			DEF_FORMAT(Kick, kick);
+			DEF_FORMAT(KickSelf, kick_self);
+			DEF_FORMAT(MessageAction, message_action);
+			DEF_FORMAT(MessagePrivmsg, message_privmsg);
+			DEF_FORMAT(MessageNotice, message_notice);
+			DEF_FORMAT(NickAction, nick_action);
+			DEF_FORMAT(NickChange, nick_change);
+			DEF_FORMAT(NickGeneral, nick_general);
+			DEF_FORMAT(NickGeneralBright, nick_general_bright);
+			DEF_FORMAT(NickPrivmsg, nick_privmsg);
+			DEF_FORMAT(NickNotice, nick_notice);
+			DEF_FORMAT(Notice, notice);
+			DEF_FORMAT(Part, part);
+			DEF_FORMAT(Privmsg, privmsg);
+			DEF_FORMAT(Quit, quit);
+			DEF_FORMAT(Reason, reason);
+			DEF_FORMAT(Timestamp, timestamp);
+			DEF_FORMAT(Topic, topic);
+			DEF_FORMAT(TopicIs, topic_is);
+			DEF_FORMAT(TopicChange, topic_change);
 #undef DEF_FORMAT
 	};
 }

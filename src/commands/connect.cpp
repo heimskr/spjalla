@@ -1,16 +1,17 @@
-#include "spjalla/commands/command.h"
-#include "spjalla/core/client.h"
+#include "spjalla/commands/Command.h"
+#include "spjalla/core/Client.h"
 
-namespace spjalla::commands {
-	void do_connect(client &cli, const input_line &il) {
+namespace Spjalla::Commands {
+	void doConnect(Client &client, const InputLine &il) {
 		const std::string &where = il.first();
-		const std::string nick = il.args.size() > 1? il.args[1] : cli.configs.get("server", "default_nick").string_();
-		ui::interface &ui = cli.get_ui();
+		const std::string nick = il.args.size() > 1?
+			il.args[1] : client.configs.get("server", "default_nick").string_();
+		UI::Interface &ui = client.getUI();
 
 		std::string hostname;
 		long port = 0;
 
-		std::tie(hostname, port) = cli.get_irc().connect(where, nick, 6667, [&](const std::function<void()> &fn) {
+		std::tie(hostname, port) = client.getIRC().connect(where, nick, 6667, [&](const std::function<void()> &fn) {
 			try {
 				fn();
 			} catch (const std::exception &err) {

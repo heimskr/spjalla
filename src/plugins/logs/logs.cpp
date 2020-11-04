@@ -6,102 +6,102 @@
 #include <utility>
 #include <vector>
 
-#include "haunted/core/key.h"
+#include "haunted/core/Key.h"
 
-#include "pingpong/events/join.h"
-#include "pingpong/events/kick.h"
-#include "pingpong/events/mode.h"
-#include "pingpong/events/nick.h"
-#include "pingpong/events/notice.h"
-#include "pingpong/events/part.h"
-#include "pingpong/events/privmsg.h"
-#include "pingpong/events/quit.h"
-#include "pingpong/events/topic.h"
-#include "pingpong/events/topic_updated.h"
+#include "pingpong/events/Join.h"
+#include "pingpong/events/Kick.h"
+#include "pingpong/events/Mode.h"
+#include "pingpong/events/Nick.h"
+#include "pingpong/events/Notice.h"
+#include "pingpong/events/Part.h"
+#include "pingpong/events/Privmsg.h"
+#include "pingpong/events/Quit.h"
+#include "pingpong/events/Topic.h"
+#include "pingpong/events/TopicUpdated.h"
 
-#include "spjalla/config/config.h"
-#include "spjalla/config/defaults.h"
+#include "spjalla/config/Config.h"
+#include "spjalla/config/Defaults.h"
 
-#include "spjalla/core/client.h"
-#include "spjalla/core/input_line.h"
-#include "spjalla/core/plugin_host.h"
-#include "spjalla/core/util.h"
+#include "spjalla/core/Client.h"
+#include "spjalla/core/InputLine.h"
+#include "spjalla/core/PluginHost.h"
+#include "spjalla/core/Util.h"
 
-#include "spjalla/lines/notice.h"
-#include "spjalla/lines/privmsg.h"
+#include "spjalla/lines/Notice.h"
+#include "spjalla/lines/Privmsg.h"
 
-#include "spjalla/plugins/plugin.h"
-#include "spjalla/plugins/logs.h"
+#include "spjalla/plugins/Plugin.h"
+#include "spjalla/plugins/Logs.h"
 
 #include "lib/formicine/ansi.h"
 
-namespace spjalla::plugins::logs {
-	logs_plugin::~logs_plugin() {
+namespace Spjalla::Plugins::Logs {
+	LogsPlugin::~LogsPlugin() {
 		while (!filemap.empty())
 			close(filemap.begin()->first);
 	}
 
-	void logs_plugin::log(const log_pair &pair, const std::string &message, const std::string &type) {
-		(get_stream(pair) << pingpong::util::timestamp() << precision_suffix() << " " << type << " " << message << "\n").flush();
+	void LogsPlugin::log(const LogPair &pair, const std::string &message, const std::string &type) {
+		(getStream(pair) << PingPong::Util::timestamp() << precisionSuffix() << " " << type << " " << message << "\n").flush();
 	}
 
-	void logs_plugin::log(std::shared_ptr<pingpong::user> user, const std::string &message, const std::string &type) {
-		for (ui::window *window: parent->get_ui().windows_for_user(user)) {
+	void LogsPlugin::log(std::shared_ptr<PingPong::User> user, const std::string &message, const std::string &type) {
+		for (UI::Window *window: parent->getUI().windowsForUser(user)) {
 			switch (window->type) {
-				case ui::window_type::channel:
-					log({user->serv, window->chan->name}, message, type);
+				case UI::WindowType::Channel:
+					log({user->server, window->channel->name}, message, type);
 					break;
-				case ui::window_type::user:
-					log({user->serv, window->user->name}, message, type);
-					close({user->serv, window->user->name});
+				case UI::WindowType::User:
+					log({user->server, window->user->name}, message, type);
+					close({user->server, window->user->name});
 					break;
 				default: ;
 			}
 		}
 	}
 
-	void logs_plugin::log(pingpong::local_event *event) {
-		if (event->serv->get_parent() == &parent->get_irc())
+	void LogsPlugin::log(PingPong::LocalEvent *event) {
+		if (event->server->getParent() == &parent->getIRC())
 			log({event->serv, event->where}, *event);
 	}
 
-	std::fstream & logs_plugin::get_stream(const log_pair &pair) {
+	std::fstream & LogsPlugin::getStream(const LogPair &pair) {
 		if (filemap.count(pair) == 1)
 			return filemap.at(pair);
 
-		const std::filesystem::path path = get_path(pair);
+		const std::filesystem::path path = getPath(pair);
 		const bool existed = std::filesystem::exists(path);
 		std::fstream new_stream(path, std::ios::app | std::ios::in | std::ios::out);
 		if (!new_stream)
 			throw std::runtime_error("Couldn't open file stream for " + std::string(path));
 		if (!existed)
-			new_stream << pingpong::util::timestamp() << precision_suffix() << " created" << "\n";
-		(new_stream << pingpong::util::timestamp() << precision_suffix() << " opened" << "\n").flush();
+			new_stream << PingPong::Util::timestamp() << precisionSuffix() << " created" << "\n";
+		(new_stream << PingPong::Util::timestamp() << precisionSuffix() << " opened" << "\n").flush();
 		std::vector<std::string> lines;
 		filemap.insert({pair, std::move(new_stream)});
 		return filemap.at(pair);
 	}
 
-	bool logs_plugin::close(const log_pair &pair) {
+	bool LogsPlugin::close(const LogPair &pair) {
 		if (filemap.count(pair) == 0)
 			return false;
 
-		std::fstream &stream = get_stream(pair);
-		(stream << pingpong::util::timestamp() << precision_suffix() << " closed\n").flush();
+		std::fstream &stream = getStream(pair);
+		(stream << PingPong::Util::timestamp() << precisionSuffix() << " closed\n").flush();
 		stream.close();
 		filemap.erase(pair);
 		return true;
 	}
 
-	std::filesystem::path logs_plugin::get_path(const log_pair &pair) {
-		const std::filesystem::path dir = base / sanitize_filename(std::string(pair.first->id));
+	std::filesystem::path LogsPlugin::getPath(const LogPair &pair) {
+		const std::filesystem::path dir = base / sanitizeFilename(std::string(pair.first->id));
 		if (!std::filesystem::exists(dir))
 			std::filesystem::create_directories(dir);
 
-		return dir / sanitize_filename(pair.second);
+		return dir / sanitizeFilename(pair.second);
 	}
 
-	std::string & logs_plugin::sanitize_filename(std::string &str) {
+	std::string & LogsPlugin::sanitizeFilename(std::string &str) {
 		const static std::string invalid = "\x07/ \\,.:*\0";
 		for (auto iter = str.begin(); iter != str.end(); ++iter) {
 			if (invalid.find(*iter) != std::string::npos)
@@ -110,14 +110,14 @@ namespace spjalla::plugins::logs {
 		return str;
 	}
 
-	std::string logs_plugin::sanitize_filename(const std::string &str) {
+	std::string LogsPlugin::sanitizeFilename(const std::string &str) {
 		std::string out {str};
-		sanitize_filename(out);
+		sanitizeFilename(out);
 		return out;
 	}
 
-	constexpr char logs_plugin::precision_suffix() {
-		switch (pingpong::util::precision) {
+	constexpr char LogsPlugin::precisionSuffix() {
+		switch (PingPong::Util::Precision) {
 			case 1'000'000'000L: return 'n';
 			case 1'000'000L: return 'u';
 			case 1'000L: return 'm';
@@ -125,20 +125,20 @@ namespace spjalla::plugins::logs {
 		}
 	}
 
-	std::chrono::microseconds logs_plugin::parse_stamp(std::string stamp_str) {
-		if (stamp_str.empty())
+	std::chrono::microseconds LogsPlugin::parseStamp(std::string stampStr) {
+		if (stampStr.empty())
 			throw std::invalid_argument("Timestamp is empty");
 
 		char suffix = 's';
 		const static std::string suffixes = "nums";
-		if (suffixes.find(stamp_str.back()) != std::string::npos) {
-			suffix = stamp_str.back();
-			stamp_str.pop_back();
+		if (suffixes.find(stampStr.back()) != std::string::npos) {
+			suffix = stampStr.back();
+			stampStr.pop_back();
 		}
 
 		long parsed;
-		if (!formicine::util::parse_long(stamp_str, parsed))
-			throw std::invalid_argument("Invalid timestamp: " + stamp_str);
+		if (!formicine::util::parse_long(stampStr, parsed))
+			throw std::invalid_argument("Invalid timestamp: " + stampStr);
 
 		switch (suffix) {
 			case 's':
@@ -154,16 +154,16 @@ namespace spjalla::plugins::logs {
 		}
 	}
 		
-	void logs_plugin::preinit(plugin_host *host) {
-		spjalla::client *client = dynamic_cast<spjalla::client *>(host);
+	void LogsPlugin::preinit(PluginHost *host) {
+		Spjalla::Client *client = dynamic_cast<Spjalla::Client *>(host);
 		if (!client) { DBG("Error: expected client as plugin host"); return; }
 		parent = client;
 
-		config::register_key("logs", "autoclean", true, config::validate_bool, {},
+		Config::RegisterKey("logs", "autoclean", true, Config::validateBool, {},
 			"Whether /restore should exclude lines that indicate when the log was opened, created or closed.");
-		config::register_key("logs", "default_restore", 128, config::validate_long, {},
+		Config::RegisterKey("logs", "default_restore", 128, Config::validateLong, {},
 			"The default number of scrollback lines to restore with /restore.");
-		config::register_key("logs", "enabled", true, config::validate_bool, {}, "Whether to enable logs.");
+		Config::RegisterKey("logs", "enabled", true, Config::validateBool, {}, "Whether to enable logs.");
 
 		base = util::get_home() / DEFAULT_DATA_DIR / "logs";
 		if (!std::filesystem::exists(base)) {
@@ -174,54 +174,54 @@ namespace spjalla::plugins::logs {
 		}
 	}
 
-	void logs_plugin::postinit(plugin_host *host) {
-		parent = dynamic_cast<spjalla::client *>(host);
+	void LogsPlugin::postinit(PluginHost *host) {
+		parent = dynamic_cast<Spjalla::Client *>(host);
 		if (!parent) { DBG("Error: expected client as plugin host"); return; }
 
-		parent->add("clean", 0, 1, true, [this](pingpong::server *, const input_line &) { clean(); });
+		parent->add("clean", 0, 1, true, [this](PingPong::Server *, const InputLine &) { clean(); });
 
-		parent->add("restore", 0, 1, true, [this](pingpong::server *serv, const input_line &il) {
+		parent->add("restore", 0, 1, true, [this](PingPong::Server *serv, const InputLine &il) {
 			restore(serv, il);
 		});
 
-		pingpong::events::listen<pingpong::join_event>("p:logs", [&](pingpong::join_event *event) {
+		PingPong::Events::listen<PingPong::JoinEvent>("p:logs", [&](PingPong::JoinEvent *event) {
 			log({event->serv, event->chan->name}, event->who->name, "join");
 		});
 
 
-		pingpong::events::listen<pingpong::kick_event>("p:logs", [&](pingpong::kick_event *event) {
+		PingPong::Events::listen<PingPong::KickEvent>("p:logs", [&](PingPong::KickEvent *event) {
 			log({event->serv, event->chan->name}, event->who->name + " " + event->whom->name + " :" + event->content,
 				"kick");
 		});
 
 
-		pingpong::events::listen<pingpong::mode_event>("p:logs", [&](pingpong::mode_event *event) {
+		PingPong::Events::listen<PingPong::mode_event>("p:logs", [&](PingPong::mode_event *event) {
 			// Ignore self mode changes.
 			if (event->get_name() == event->where)
 				return;
 
 			const std::string extra = !event->mset.extra.empty()? " " + event->mset.extra : "";
-			log({event->serv, event->where}, event->get_name() + " " + event->serv->get_nick() + " " +
+			log({event->serv, event->where}, event->get_name() + " " + event->server->get_nick() + " " +
 				event->mset.mode_str() + extra, "mode");
 		});
 
 
-		pingpong::events::listen<pingpong::nick_event>("p:logs", [&](pingpong::nick_event *event) {
+		PingPong::Events::listen<PingPong::nick_event>("p:logs", [&](PingPong::nick_event *event) {
 			log(event->who, event->content + " " + event->who->name, "nick");
 		});
 
 
-		pingpong::events::listen<pingpong::notice_event>("p:logs", [&, this](pingpong::notice_event *event) {
-			if (event->serv->get_parent() != &parent->get_irc())
+		PingPong::Events::listen<PingPong::notice_event>("p:logs", [&, this](PingPong::notice_event *event) {
+			if (event->server->get_parent() != &parent->getIRC())
 				return;
 
 			lines::notice_line line = event->is_channel() || event->speaker? lines::notice_line(parent, *event) :
-				lines::notice_line(parent, event->serv->id, "*", event->serv->get_nick(), event->content, event->stamp,
+				lines::notice_line(parent, event->server->id, "*", event->server->get_nick(), event->content, event->stamp,
 					{}, true);
 
 			// A '$' logfile is for messages received from the server itself.
 			const std::string where = event->is_channel()? event->where : (event->speaker? event->speaker->name : "$");
-			std::string nick = event->serv->get_nick();
+			std::string nick = event->server->get_nick();
 			if (nick.empty())
 				nick = "!"; // A '!', in this case, represents you before your nick has been set.
 
@@ -230,75 +230,75 @@ namespace spjalla::plugins::logs {
 		});
 
 
-		pingpong::events::listen<pingpong::part_event>("p:logs", [&](pingpong::part_event *event) {
+		PingPong::Events::listen<PingPong::PartEvent>("p:logs", [&](PingPong::PartEvent *event) {
 			log({event->serv, event->chan->name}, event->who->name + " :" + event->content, "part");
 
 			// If you parted the channel, close the channel's stream.
-			if (event->who->is_self())
+			if (event->who->isSelf())
 				close({event->serv, event->chan->name});
 		});
 
 
-		pingpong::events::listen<pingpong::privmsg_event>("p:logs", [&, this](pingpong::privmsg_event *event) {
-			if (event->serv->get_parent() != &parent->get_irc()) {
-				DBG("Different parent IRCs: " << event->serv->get_parent() << " vs. " << &parent->get_irc());
+		PingPong::Events::listen<PingPong::privmsg_event>("p:logs", [&, this](PingPong::privmsg_event *event) {
+			if (event->server->get_parent() != &parent->getIRC()) {
+				DBG("Different parent IRCs: " << event->server->get_parent() << " vs. " << &parent->getIRC());
 				return;
 			}
 
 			lines::privmsg_line line {parent, *event};
 			log({event->serv, event->is_channel()? event->where : event->speaker->name},
-				formicine::util::ltrim(line.hat_str() + line.name) + " " + event->serv->get_nick() + " " +
+				formicine::util::ltrim(line.hat_str() + line.name) + " " + event->server->get_nick() + " " +
 				(line.is_action()? "*" : ":") + line.trimmed(line.message), "msg");
 		});
 
 
-		pingpong::events::listen<pingpong::quit_event>("p:logs", [&](pingpong::quit_event *event) {
+		PingPong::Events::listen<PingPong::quit_event>("p:logs", [&](PingPong::quit_event *event) {
 			log(event->who, event->who->name + " :" + event->content, "quit");
 
 			// If you quit, close all logs associated with the server you quit from.
-			if (event->who->is_self()) {
-				std::vector<log_pair> to_close;
+			if (event->who->isSelf()) {
+				std::vector<LogPair> to_close;
 				to_close.reserve(filemap.size());
 				for (const auto &pair: filemap) {
 					if (pair.first.first == event->serv)
 						to_close.push_back(pair.first);
 				}
 
-				for (const log_pair &pair: to_close)
+				for (const LogPair &pair: to_close)
 					close(pair);
 			}
 		});
 
 
-		pingpong::events::listen<pingpong::topic_event>("p:logs", [&](pingpong::topic_event *event) {
+		PingPong::Events::listen<PingPong::TopicEvent>("p:logs", [&](PingPong::TopicEvent *event) {
 			log({event->serv, event->chan->name}, event->who->name + " :" + event->content, "topic_set");
 		});
 
 
-		pingpong::events::listen<pingpong::topic_updated_event>("p:logs", [&](pingpong::topic_updated_event *event) {
+		PingPong::Events::listen<PingPong::TopicUpdatedEvent>("p:logs", [&](PingPong::TopicUpdatedEvent *event) {
 			log({event->serv, event->chan->name}, ":" + event->content, "topic_is");
 		});
 	}
 
-	void logs_plugin::cleanup(plugin_host *) {
+	void LogsPlugin::cleanup(PluginHost *) {
 		config::unregister("logs", "autoclean");
 		config::unregister("logs", "default_restore");
 		config::unregister("logs", "enabled");
 
-		pingpong::events::unlisten<pingpong::join_event>("p:logs");
-		pingpong::events::unlisten<pingpong::kick_event>("p:logs");
-		pingpong::events::unlisten<pingpong::mode_event>("p:logs");
-		pingpong::events::unlisten<pingpong::nick_event>("p:logs");
-		pingpong::events::unlisten<pingpong::notice_event>("p:logs");
-		pingpong::events::unlisten<pingpong::part_event>("p:logs");
-		pingpong::events::unlisten<pingpong::privmsg_event>("p:logs");
-		pingpong::events::unlisten<pingpong::quit_event>("p:logs");
-		pingpong::events::unlisten<pingpong::topic_event>("p:logs");
-		pingpong::events::unlisten<pingpong::topic_updated_event>("p:logs");
+		PingPong::Events::unlisten<PingPong::JoinEvent>("p:logs");
+		PingPong::Events::unlisten<PingPong::KickEvent>("p:logs");
+		PingPong::Events::unlisten<PingPong::mode_event>("p:logs");
+		PingPong::Events::unlisten<PingPong::nick_event>("p:logs");
+		PingPong::Events::unlisten<PingPong::notice_event>("p:logs");
+		PingPong::Events::unlisten<PingPong::PartEvent>("p:logs");
+		PingPong::Events::unlisten<PingPong::privmsg_event>("p:logs");
+		PingPong::Events::unlisten<PingPong::quit_event>("p:logs");
+		PingPong::Events::unlisten<PingPong::TopicEvent>("p:logs");
+		PingPong::Events::unlisten<PingPong::TopicUpdatedEvent>("p:logs");
 
 		parent->remove_command("clean");
 		parent->remove_command("restore");
 	}
 }
 
-spjalla::plugins::logs::logs_plugin ext_plugin {};
+spjalla::plugins::logs::LogsPlugin ext_plugin {};

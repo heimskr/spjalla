@@ -1,8 +1,8 @@
-#include "spjalla/lines/userlist.h"
+#include "spjalla/lines/Userlist.h"
 
-namespace spjalla::lines {
-	std::string userlist_line::render(ui::window *) {
-		const std::string hats = chan->get_hats(user);
+namespace Spjalla::Lines {
+	std::string UserlistLine::render(UI::Window *) {
+		const std::string hats = channel->getHats(user);
 		const size_t hats_length = hats.length();
 		return ansi::dim("- ") + (pad <= hats_length? "" : std::string(pad - hats_length, ' ')) + ansi::bold(hats)
 			+ user->name;

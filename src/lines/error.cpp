@@ -1,8 +1,8 @@
-#include "spjalla/core/client.h"
-#include "spjalla/lines/error.h"
+#include "spjalla/core/Client.h"
+#include "spjalla/lines/Error.h"
 
-namespace spjalla::lines {
-	std::string error_line::render(ui::window *) {
-		return parent->get_ui().render("bang_bad") + " " + message;
+namespace Spjalla::Lines {
+	std::string ErrorLine::render(UI::Window *) {
+		return parent->getUI().renderer("bang_bad") + " " + message;
 	}
 }

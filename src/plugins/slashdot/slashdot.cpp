@@ -1,21 +1,21 @@
 #include <cpr/cpr.h>
 #include <thread>
 
-#include "spjalla/core/client.h"
+#include "spjalla/core/Client.h"
 #include "spjalla/plugins/slashdot.h"
 #include "spjalla/ui/basic_window.h"
 #include "spjalla/lines/basic.h"
 
-namespace spjalla::plugins {
-	void slashdot_plugin::postinit(plugin_host *host) {
-		parent = dynamic_cast<spjalla::client *>(host);
+namespace Spjalla::Plugins {
+	void slashdot_plugin::postinit(PluginHost *host) {
+		parent = dynamic_cast<Spjalla::Client *>(host);
 		if (!parent) { DBG("Error: expected client as plugin host"); return; }
 
-		parent->add(".", 0, 0, false, [this](pingpong::server *, const input_line &) {
+		parent->add(".", 0, 0, false, [this](PingPong::Server *, const InputLine &) {
 			std::thread thread([this]() {
 				DBG("Retrieving slashdot.xml...");
-				ui::window *win = parent->get_ui().new_window<ui::basic_window>("slashdot");
-				parent->get_ui().focus_window(win);
+				UI::Window *win = parent->getUI().new_window<ui::basic_window>("slashdot");
+				parent->getUI().focus_window(win);
 				*win += lines::basic_line(parent, "Fetching story metadata...");
 				auto res = cpr::Get(cpr::Url("https://slashdot.org/slashdot.xml"));
 				win->clear_lines();
@@ -61,7 +61,7 @@ namespace spjalla::plugins {
 				}
 
 				win->set_voffset(0);
-				if (parent->get_ui().get_active_window() == win)
+				if (parent->getUI().get_active_window() == win)
 					win->draw();
 			});
 
@@ -69,7 +69,7 @@ namespace spjalla::plugins {
 		});
 	}
 
-	void slashdot_plugin::cleanup(plugin_host *) {
+	void slashdot_plugin::cleanup(PluginHost *) {
 		parent->remove_command(".");
 	}
 }

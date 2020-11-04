@@ -1,15 +1,15 @@
-#include "pingpong/core/util.h"
+#include "pingpong/core/Util.h"
 
-#include "spjalla/core/client.h"
-#include "spjalla/plugins/plugin.h"
-#include "spjalla/ui/status_widget.h"
+#include "spjalla/core/Client.h"
+#include "spjalla/plugins/Plugin.h"
+#include "spjalla/ui/StatusWidget.h"
 
 #include "lib/formicine/ansi.h"
 
-namespace spjalla::plugins {
+namespace Spjalla::Plugins {
 	class clock_widget: public spjalla::ui::status_widget {
 		private:
-			long stamp = pingpong::util::timestamp();
+			long stamp = PingPong::Util::timestamp();
 
 		public:
 			using status_widget::status_widget;
@@ -18,8 +18,8 @@ namespace spjalla::plugins {
 
 			const char * get_name() const override { return "Clock"; }
 
-			std::string _render(const ui::window *, bool) const override {
-				std::chrono::system_clock::time_point tpoint {pingpong::util::timetype(stamp)};
+			std::string _render(const UI::Window *, bool) const override {
+				std::chrono::system_clock::time_point tpoint {PingPong::Util::TimeType(stamp)};
 				std::time_t time = std::chrono::system_clock::to_time_t(tpoint);
 				char str[64];
 				std::strftime(str, sizeof(str), "%H:%M:%S", std::localtime(&time));
@@ -27,7 +27,7 @@ namespace spjalla::plugins {
 			}
 
 			void update() override {
-				stamp = pingpong::util::timestamp();
+				stamp = PingPong::Util::timestamp();
 				parent->render_statusbar();
 			}
 	};
@@ -47,8 +47,8 @@ namespace spjalla::plugins {
 			std::string get_description() const override { return "Shows a clock in the status bar."; }
 			std::string get_version()     const override { return "0.1.0"; }
 
-			void postinit(plugin_host *host) override {
-				parent = dynamic_cast<spjalla::client *>(host);
+			void postinit(PluginHost *host) override {
+				parent = dynamic_cast<Spjalla::Client *>(host);
 				if (!parent) {
 					DBG("Error: expected client as plugin host");
 					return;
@@ -59,13 +59,13 @@ namespace spjalla::plugins {
 				parent->add_heartbeat_listener(tick_listener);
 			}
 
-			void cleanup(plugin_host *) override {
+			void cleanup(PluginHost *) override {
 				parent->remove_status_widget(widget);
 				parent->remove_heartbeat_listener(tick_listener);
 			}
 
 			void tick(int period) {
-				if (++ticks % (pingpong::util::precision / period) == 0 && widget)
+				if (++ticks % (PingPong::Util::Precision / period) == 0 && widget)
 					widget->update();
 			}
 	};

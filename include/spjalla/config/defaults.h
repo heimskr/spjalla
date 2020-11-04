@@ -4,86 +4,86 @@
 #include <functional>
 #include <unordered_map>
 
-#include "spjalla/config/config.h"
+#include "spjalla/config/Config.h"
 
-namespace spjalla::config {
-	using applicator_fn = std::function<void(database &, const value &)>;
-	using validator_fn  = std::function<validation_result(const value &)>;
+namespace Spjalla::Config {
+	using Applicator_f = std::function<void(Database &, const Value &)>;
+	using Validator_f  = std::function<ValidationResult(const Value &)>;
 
-	struct default_key {
+	struct DefaultKey {
 		std::string name, description;
-		value default_value;
-		validator_fn validator;
-		applicator_fn applicator;
+		Value defaultValue;
+		Validator_f validator;
+		Applicator_f applicator;
 
-		default_key(const std::string &name_, const value &default_value_, const validator_fn &validator_,
-		const applicator_fn &applicator_, const std::string &description_ = ""):
-			name(name_), description(description_), default_value(default_value_), validator(validator_),
+		DefaultKey(const std::string &name_, const Value &default_value, const Validator_f &validator_,
+		const Applicator_f &applicator_, const std::string &description_ = ""):
+			name(name_), description(description_), defaultValue(default_value), validator(validator_),
 			applicator(applicator_) {}
 
-		default_key(const std::string &name_, const value &default_value_, const validator_fn &validator_,
+		DefaultKey(const std::string &name_, const Value &default_value, const Validator_f &validator_,
 		const std::string &description_ = ""):
-			default_key(name_, default_value_, validator_, {}, description_) {}
+			DefaultKey(name_, default_value, validator_, {}, description_) {}
 
-		default_key(const std::string &name_, const value &default_value_, const applicator_fn &applicator_,
+		DefaultKey(const std::string &name_, const Value &default_value, const Applicator_f &applicator_,
 		const std::string &description_ = ""):
-			default_key(name_, default_value_, {}, applicator_, description_) {}
+			DefaultKey(name_, default_value, {}, applicator_, description_) {}
 
-		default_key(const std::string &name_, const value &default_value_, const std::string &description_ = ""):
-			default_key(name_, default_value_, {}, {}, description_) {}
+		DefaultKey(const std::string &name_, const Value &default_value, const std::string &description_ = ""):
+			DefaultKey(name_, default_value, {}, {}, description_) {}
 
-		validation_result validate(const value &val) const {
-			return validator? validator(val) : validation_result::valid;
+		ValidationResult validate(const Value &val) const {
+			return validator? validator(val) : ValidationResult::Valid;
 		}
 
-		void apply(database &db, const value &new_value) {
+		void apply(Database &db, const Value &new_value) {
 			if (applicator)
 				applicator(db, new_value);
 		}
 
-		void apply(database &db) { apply(db, default_value); }
+		void apply(Database &db) { apply(db, defaultValue); }
 	};
 
-	using registered_map = std::unordered_map<std::string, default_key>;
+	using RegisteredMap = std::unordered_map<std::string, DefaultKey>;
 
-#define APPLY_COLOR(name) [](database &db, const value &new_val) { \
-	db.get_parent().get_ui().set_##name(db.get_parent().cache.appearance_##name = ansi::get_color(new_val.string_())); }
+#define APPLY_COLOR(name) [](Database &db, const Value &new_val) { \
+	db.getParent()->getUI().set##name(db.getParent()->cache.appearance##name = ansi::get_color(new_val.string_())); }
 
-#define CACHE_COLOR(name) [](database &db, const value &new_val) { \
-	db.get_parent().cache.appearance_##name = ansi::get_color(new_val.string_()); }
+#define CACHE_COLOR(name) [](Database &db, const Value &new_val) { \
+	db.getParent()->cache.appearance##name = ansi::get_color(new_val.string_()); }
 
-#define CACHE_BOOL(name)   [](database &db, const value &new_val) { db.get_parent().cache.name = new_val.bool_();   }
-#define CACHE_LONG(name)   [](database &db, const value &new_val) { db.get_parent().cache.name = new_val.long_();   }
-#define CACHE_STRING(name) [](database &db, const value &new_val) { db.get_parent().cache.name = new_val.string_(); }
+#define CACHE_BOOL(name)   [](Database &db, const Value &new_val) { db.getParent()->cache.name = new_val.bool_();   }
+#define CACHE_LONG(name)   [](Database &db, const Value &new_val) { db.getParent()->cache.name = new_val.long_();   }
+#define CACHE_STRING(name) [](Database &db, const Value &new_val) { db.getParent()->cache.name = new_val.string_(); }
 
 	/** Attempts to register a key. If the key already exists, the function simply returns false; otherwise, it
 	 *  registers the key and returns true. */
-	bool register_key(const std::string &group, const std::string &key, const value &default_val,
-		const validator_fn & = {}, const applicator_fn & = {}, const std::string &description = "");
+	bool RegisterKey(const std::string &group, const std::string &key, const Value &default_val,
+		const Validator_f & = {}, const Applicator_f & = {}, const std::string &description = "");
 
 	/** Attempts to unregister a key. Returns true if the key existed and was removed. */
 	bool unregister(const std::string &group, const std::string &key);
 
 	/** Runs the applicators of all registered defaults with their default values. */
-	void apply_defaults(database &db);
+	void apply_defaults(Database &db);
 
 	/** Returns a vector of the names of all default keys whose full name or key name begins with a given string. */
-	std::vector<std::string> starts_with(const std::string &);
+	std::vector<std::string> startsWith(const std::string &);
 
 	/** Registers the standard Spjalla configuration keys. */
-	void register_defaults();
-	void register_appearance();
-	void register_format();
+	void registerDefaults();
+	void registerAppearance();
+	void registerFormat();
 
-	extern registered_map registered;
+	extern RegisteredMap registered;
 
-	validation_result validate_long(const value &);
-	validation_result validate_nonnegative(const value &);
-	validation_result validate_uint32(const value &);
-	validation_result validate_int32nn(const value &);
-	validation_result validate_string(const value &);
-	validation_result validate_bool(const value &);
-	validation_result validate_color(const value &);
+	ValidationResult validateLong(const Value &);
+	ValidationResult validateNonnegative(const Value &);
+	ValidationResult validateUint32(const Value &);
+	ValidationResult validateInt32nn(const Value &);
+	ValidationResult validateString(const Value &);
+	ValidationResult validateBool(const Value &);
+	ValidationResult validateColor(const Value &);
 }
 
 #endif
