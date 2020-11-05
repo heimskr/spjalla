@@ -112,15 +112,15 @@ endif
 all: $(OBJECTS) $(OUTPUT)
 
 INCLUDE_SR		:= -Istrender/include
-SOURCES_SR		:= $(shell find strender/src -name '*.cpp' | sed -nE '/(tests?|test_.+|ansi|futil)\.cpp$$/!p')
+SOURCES_SR		:= $(shell find strender/src -name '*.cpp' | sed -nE '/([Tt]ests?|Test.+|ansi|futil)\.cpp$$/!p')
 OBJECTS_SR		:= $(patsubst strender/src/%.cpp,strender/build/%.o,$(SOURCES_SR))
 
 INCLUDE_PP		:= -Ipingpong/include
-SOURCES_PP		:= $(shell find pingpong/src -name '*.cpp' | sed -nE '/(tests?|test_.+|ansi|futil)\.cpp$$/!p')
+SOURCES_PP		:= $(shell find pingpong/src -name '*.cpp' | sed -nE '/([Tt]ests?|Test.+|ansi|futil)\.cpp$$/!p')
 OBJECTS_PP		:= $(patsubst pingpong/src/%.cpp,pingpong/build/%.o,$(SOURCES_PP))
 
 INCLUDE_HN		:= -Ihaunted/include
-SOURCES_HN		:= $(shell find haunted/src -name '*.cpp' | sed -nE '/(tests?|test_.+|ansi|futil)\.cpp$$/!p')
+SOURCES_HN		:= $(shell find haunted/src -name '*.cpp' | sed -nE '/([Tt]ests?|Test.+|ansi|futil)\.cpp$$/!p')
 OBJECTS_HN		:= $(patsubst haunted/src/%.cpp,haunted/build/%.o,$(SOURCES_HN))
 
 INCLUDE_SP		:= -Iinclude
