@@ -124,7 +124,7 @@ SOURCES_HN		:= $(shell find haunted/src -name '*.cpp' | sed -nE '/([Tt]ests?|Tes
 OBJECTS_HN		:= $(patsubst haunted/src/%.cpp,haunted/build/%.o,$(SOURCES_HN))
 
 INCLUDE_SP		:= -Iinclude
-SOURCES_SP		:= $(shell find -L src -name '*.cpp' | sed -nE '/(^src\/plugins\/)|((tests?|test_.+)\.cpp$$)/!p')
+SOURCES_SP		:= $(shell find -L src -name '*.cpp' | sed -nE '/(^src\/plugins\/)|(([Tt]ests?|Test.+)\.cpp$$)/!p')
 OBJECTS_SP		:= $(patsubst src/%.cpp,build/%.o,$(SOURCES_SP))
 INCLUDE_LIBS	:= $(INCLUDE_SR) $(INCLUDE_PP) $(INCLUDE_HN)
 
