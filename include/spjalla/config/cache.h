@@ -45,7 +45,7 @@ namespace Spjalla::Config {
 #define DEF_FORMAT(n, u) std::string format##n = getString("format."#u);
 			DEF_FORMAT(Action, action);
 			DEF_FORMAT(Bang, bang);
-			DEF_FORMAT(BangBad, bang_band);
+			DEF_FORMAT(BangBad, bang_bad);
 			DEF_FORMAT(BangGood, bang_good);
 			DEF_FORMAT(BangWarn, bang_warn);
 			DEF_FORMAT(Channel, channel);
