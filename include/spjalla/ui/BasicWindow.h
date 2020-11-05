@@ -1,14 +1,14 @@
-#ifndef SPJALLA_UI_BASIC_WINDOW_H_
-#define SPJALLA_UI_BASIC_WINDOW_H_
+#ifndef SPJALLA_UI_BASICWINDOW_H_
+#define SPJALLA_UI_BASICWINDOW_H_
 
-#include "spjalla/ui/window.h"
+#include "spjalla/ui/Window.h"
 
 namespace Spjalla::UI {
-	class basic_window: public window {
+	class BasicWindow: public Window {
 		public:
-			using window::window;
+			using Window::Window;
 
-			bool show_times() const override {
+			bool showTimes() const override {
 				return false;
 			}
 	};

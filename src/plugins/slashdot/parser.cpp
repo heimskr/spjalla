@@ -2,11 +2,11 @@
 #include <thread>
 #include <tinyxml2.h>
 
-#include "spjalla/plugins/slashdot.h"
+#include "spjalla/plugins/Slashdot.h"
 #include "lib/formicine/futil.h"
 
-namespace Spjalla::Plugins::slashdot {
-	void parser::parse(const std::string &text) {
+namespace Spjalla::Plugins::Slashdot {
+	void Parser::parse(const std::string &text) {
 		tinyxml2::XMLDocument doc;
 
 		size_t wbr_index = text.find("<wbr>");
@@ -61,16 +61,16 @@ namespace Spjalla::Plugins::slashdot {
 				continue;
 
 			try {
-				stories.emplace_back(story {
-					.title      = get_text(element->FirstChildElement("title")),
-					.url        = get_text(element->FirstChildElement("url")),
-					.author     = get_text(element->FirstChildElement("author")),
-					.department = get_text(element->FirstChildElement("department")),
-					.section    = get_text(element->FirstChildElement("section")),
-					.time       = get_text(element->FirstChildElement("time"))
+				stories.emplace_back(Story {
+					.title      = getText(element->FirstChildElement("title")),
+					.url        = getText(element->FirstChildElement("url")),
+					.author     = getText(element->FirstChildElement("author")),
+					.department = getText(element->FirstChildElement("department")),
+					.section    = getText(element->FirstChildElement("section")),
+					.time       = getText(element->FirstChildElement("time"))
 				});
 
-				story new_story = stories.back();
+				Story new_story = stories.back();
 			} catch (const std::runtime_error &err) {
 				DBG("Invalid story: " << err.what());
 				continue;
@@ -78,10 +78,10 @@ namespace Spjalla::Plugins::slashdot {
 		}
 	}
 
-	void parser::fetch() {
+	void Parser::fetch() {
 		std::vector<std::thread> threads;
 
-		for (story &story: stories) {
+		for (Story &story: stories) {
 			threads.emplace_back([&story]() {
 				DBG("Retrieving " << story.url << "...");
 				auto res = cpr::Get(cpr::Url(story.url));
@@ -122,7 +122,7 @@ namespace Spjalla::Plugins::slashdot {
 			thread.join();
 	}
 
-	std::string parser::get_text(tinyxml2::XMLElement *element) {
+	std::string Parser::getText(tinyxml2::XMLElement *element) {
 		if (!element)
 			throw std::runtime_error("Element is null");
 		return formicine::util::trim(element->GetText());

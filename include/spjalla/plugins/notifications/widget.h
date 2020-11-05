@@ -1,26 +1,26 @@
-#ifndef SPJALLA_PLUGINS_NOTIFICATIONS_WIDGET_H_
-#define SPJALLA_PLUGINS_NOTIFICATIONS_WIDGET_H_
+#ifndef SPJALLA_PLUGINS_NOTIFICATIONSWIDGET_H_
+#define SPJALLA_PLUGINS_NOTIFICATIONSWIDGET_H_
 
 #include "spjalla/ui/StatusWidget.h"
 
 #include "lib/formicine/ansi.h"
 
 namespace Spjalla::Plugins {
-	class notifications_widget: public spjalla::ui::status_widget {
+	class NotificationsWidget: public Spjalla::UI::StatusWidget {
 		protected:
 			std::string _render(const UI::Window *, bool) const override;
 
 		public:
-			ansi::color highlight_color = ansi::color::yellow;
-			bool highlight_bold = true;
+			ansi::color highlightColor = ansi::color::yellow;
+			bool highlightBold = true;
 
-			using status_widget::status_widget;
+			using StatusWidget::StatusWidget;
 
-			virtual ~notifications_widget();
+			virtual ~NotificationsWidget();
 
-			const char * get_name() const override { return "Notifications"; }
+			const char * getName() const override { return "Notifications"; }
 
-			void window_focused(UI::Window *window);
+			void windowFocused(UI::Window *window);
 	};
 }
 

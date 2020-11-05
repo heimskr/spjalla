@@ -7,7 +7,7 @@
 namespace Spjalla::Plugins {
 	class NotificationsWidget;
 
-	class NotificationsPlugin: public plugin {
+	class NotificationsPlugin: public Plugin {
 		private:
 			std::shared_ptr<NotificationsWidget> widget;
 			long gatheringSince = -1;

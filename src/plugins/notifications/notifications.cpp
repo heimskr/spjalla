@@ -1,46 +1,46 @@
 #include <unordered_map>
 
-#include "spjalla/plugins/notifications.h"
-#include "spjalla/plugins/notifications/widget.h"
+#include "spjalla/plugins/Notifications.h"
+#include "spjalla/plugins/notifications/Widget.h"
 
 #include "pingpong/core/Util.h"
 #include "pingpong/events/Event.h"
 #include "spjalla/core/Client.h"
 #include "spjalla/config/Defaults.h"
-#include "spjalla/events/notification.h"
-#include "spjalla/events/window_changed.h"
-#include "spjalla/lines/basic.h"
+#include "spjalla/events/Notification.h"
+#include "spjalla/events/WindowChanged.h"
+#include "spjalla/lines/Basic.h"
 #include "spjalla/plugins/Plugin.h"
 
 #include "lib/formicine/futil.h"
 
 namespace Spjalla::Plugins {
-	bool notifications_plugin::gathering() const {
-		return gathering_since != -1;
+	bool NotificationsPlugin::gathering() const {
+		return gatheringSince != -1;
 	}
 
-	void notifications_plugin::start_gathering() {
-		gathering_since = PingPong::Util::Seconds();
-		gathered_lines = {};
+	void NotificationsPlugin::startGathering() {
+		gatheringSince = PingPong::Util::seconds();
+		gatheredLines = {};
 		parent->getUI().log("Gathering notifications.");
 	}
 
-	void notifications_plugin::stop_gathering() {
+	void NotificationsPlugin::stopGathering() {
 		if (!gathering())
 			return;
 
-		const std::string range = ansi::bold(PingPong::Util::formatTime(PingPong::Util::fromSeconds(gathering_since),
-			"%Y/%m/%d %H:%M:%S")) + " and " + ansi::bold(PingPong::Util::formatTime(PingPong::util::now(),
+		const std::string range = ansi::bold(PingPong::Util::formatTime(PingPong::Util::fromSeconds(gatheringSince),
+			"%Y/%m/%d %H:%M:%S")) + " and " + ansi::bold(PingPong::Util::formatTime(PingPong::Util::now(),
 			"%Y/%m/%d %H:%M:%S"));
 
-		if (gathered_lines.empty()) {
+		if (gatheredLines.empty()) {
 			parent->getUI().warn("No notifications gathered between " + range + ".");
 		} else {
-			UI::Window *win = parent->getUI().get_window("gather", true, UI::WindowType::other);
-			parent->getUI().focus_window(win);
-			win->clear_lines();
-			win->add<lines::basic_line>(parent, "Notifications between " + range + ":");
-			for (std::shared_ptr<lines::line> line: gathered_lines) {
+			UI::Window *win = parent->getUI().getWindow("gather", true, UI::WindowType::Other);
+			parent->getUI().focusWindow(win);
+			win->clearLines();
+			win->add<Lines::BasicLine>(parent, "Notifications between " + range + ":");
+			for (std::shared_ptr<Lines::Line> &line: gatheredLines) {
 				// Note: since lines::line isn't constructible, we can't create a copy and set its box to this window.
 				// We have to share the old line with the window it was in if it had one.
 				if (!line->box)
@@ -48,70 +48,70 @@ namespace Spjalla::Plugins {
 				*win += line;
 			}
 
-			gathered_lines.clear();
+			gatheredLines.clear();
 		}
 
-		gathering_since = -1;
+		gatheringSince = -1;
 	}
 
-	void notifications_plugin::preinit(PluginHost *host) {
+	void NotificationsPlugin::preinit(PluginHost *host) {
 		parent = dynamic_cast<Spjalla::Client *>(host);
 		if (!parent) { DBG("Error: expected client as plugin host"); return; }
 
-		widget = std::make_shared<notifications_widget>(parent, 20);
+		widget = std::make_shared<NotificationsWidget>(parent, 20);
 
-		config::RegisterKey("appearance", "highlight_color", "red", config::validate_color,
-			[&, this](config::database &, const config::value &value) {
-				widget->highlight_color = ansi::get_color(value.string_());
-				parent->render_statusbar();
+		Config::RegisterKey("appearance", "highlight_color", "red", Config::validateColor,
+			[&, this](Config::Database &, const Config::Value &value) {
+				widget->highlightColor = ansi::get_color(value.string_());
+				parent->renderStatusbar();
 			}, "The text color for highlight notifications.");
 
-		config::RegisterKey("appearance", "highlight_bold", true, config::validateBool,
-			[&, this](config::database &, const config::value &value) {
-				widget->highlight_bold = value.bool_();
-				parent->render_statusbar();
+		Config::RegisterKey("appearance", "highlight_bold", true, Config::validateBool,
+			[&, this](Config::Database &, const Config::Value &value) {
+				widget->highlightBold = value.bool_();
+				parent->renderStatusbar();
 			}, "Whether to render highlight notifications in bold.");
 	}
 
-	void notifications_plugin::postinit(PluginHost *) {
-		parent->add_status_widget(widget);
+	void NotificationsPlugin::postinit(PluginHost *) {
+		parent->addStatusWidget(widget);
 
 		parent->add("gather", 0, 0, false, [&](PingPong::Server *, const InputLine &) {
 			if (gathering())
-				stop_gathering();
+				stopGathering();
 			else
-				start_gathering();
+				startGathering();
 		});
 
-		PingPong::Events::listen<events::notification_event>("p:notifications",
-			[=, this](events::notification_event *ev) {
-				if (gathering() && ev->line->getNotificationType() == NotificationType::highlight)
-					gathered_lines.push_back(ev->line);
+		PingPong::Events::listen<Events::NotificationEvent>("p:notifications",
+			[=, this](Events::NotificationEvent *ev) {
+				if (gathering() && ev->line->getNotificationType() == NotificationType::Highlight)
+					gatheredLines.push_back(ev->line);
 			});
 
-		PingPong::Events::listen<events::window_changed_event>("p:notifications",
-			[=, this](events::window_changed_event *ev) {
-				widget->window_focused(ev->to);
+		PingPong::Events::listen<Events::WindowChangedEvent>("p:notifications",
+			[=, this](Events::WindowChangedEvent *ev) {
+				widget->windowFocused(ev->to);
 			});
 
-		PingPong::Events::listen<events::window_notification_event>("p:notifications",
-			[=, this](events::window_notification_event *ev) {
-				if (ev->window == parent->getUI().get_active_window())
-					ev->window->highest_notification = NotificationType::none;
+		PingPong::Events::listen<Events::WindowNotificationEvent>("p:notifications",
+			[=, this](Events::WindowNotificationEvent *ev) {
+				if (ev->window == parent->getUI().getActiveWindow())
+					ev->window->highestNotification = NotificationType::None;
 				else
-					parent->render_statusbar();
+					parent->renderStatusbar();
 			});
 	}
 
-	void notifications_plugin::cleanup(PluginHost *) {
-		config::unregister("appearance", "highlight_color");
-		config::unregister("appearance", "highlight_bold");
+	void NotificationsPlugin::cleanup(PluginHost *) {
+		Config::unregister("appearance", "highlight_color");
+		Config::unregister("appearance", "highlight_bold");
 
-		PingPong::Events::unlisten<events::notification_event>("p:notifications");
-		PingPong::Events::unlisten<events::window_changed_event>("p:notifications");
-		PingPong::Events::unlisten<events::window_notification_event>("p:notifications");
-		parent->remove_status_widget(widget);
+		PingPong::Events::unlisten<Events::NotificationEvent>("p:notifications");
+		PingPong::Events::unlisten<Events::WindowChangedEvent>("p:notifications");
+		PingPong::Events::unlisten<Events::WindowNotificationEvent>("p:notifications");
+		parent->removeStatusWidget(widget);
 	}
 }
 
-spjalla::plugins::notifications_plugin ext_plugin {};
+Spjalla::Plugins::NotificationsPlugin ext_plugin {};

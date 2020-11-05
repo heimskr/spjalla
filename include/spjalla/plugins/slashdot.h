@@ -20,7 +20,7 @@ namespace Spjalla::Plugins {
 			private:
 				std::string getText(tinyxml2::XMLElement *);
 			public:
-				std::vector<story> stories {};
+				std::vector<Story> stories {};
 				void parse(const std::string &);
 				void fetch();
 		};

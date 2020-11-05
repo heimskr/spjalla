@@ -62,7 +62,7 @@ namespace Spjalla::Plugins::Logs {
 
 	void LogsPlugin::log(PingPong::LocalEvent *event) {
 		if (event->server->getParent() == &parent->getIRC())
-			log({event->serv, event->where}, *event);
+			log({event->server, event->where}, *event);
 	}
 
 	std::fstream & LogsPlugin::getStream(const LogPair &pair) {
@@ -117,7 +117,7 @@ namespace Spjalla::Plugins::Logs {
 	}
 
 	constexpr char LogsPlugin::precisionSuffix() {
-		switch (PingPong::Util::Precision) {
+		switch (PingPong::Util::precision) {
 			case 1'000'000'000L: return 'n';
 			case 1'000'000L: return 'u';
 			case 1'000L: return 'm';
@@ -165,7 +165,7 @@ namespace Spjalla::Plugins::Logs {
 			"The default number of scrollback lines to restore with /restore.");
 		Config::RegisterKey("logs", "enabled", true, Config::validateBool, {}, "Whether to enable logs.");
 
-		base = util::get_home() / DEFAULT_DATA_DIR / "logs";
+		base = Util::getHome() / DEFAULT_DATA_DIR / "logs";
 		if (!std::filesystem::exists(base)) {
 			DBG("Created log directory.");
 			std::filesystem::create_directories(base);
@@ -178,81 +178,83 @@ namespace Spjalla::Plugins::Logs {
 		parent = dynamic_cast<Spjalla::Client *>(host);
 		if (!parent) { DBG("Error: expected client as plugin host"); return; }
 
-		parent->add("clean", 0, 1, true, [this](PingPong::Server *, const InputLine &) { clean(); });
+		parent->add("clean", 0, 1, true, [this](PingPong::Server *, const InputLine &) {
+			clean();
+		});
 
-		parent->add("restore", 0, 1, true, [this](PingPong::Server *serv, const InputLine &il) {
-			restore(serv, il);
+		parent->add("restore", 0, 1, true, [this](PingPong::Server *server, const InputLine &il) {
+			restore(server, il);
 		});
 
 		PingPong::Events::listen<PingPong::JoinEvent>("p:logs", [&](PingPong::JoinEvent *event) {
-			log({event->serv, event->chan->name}, event->who->name, "join");
+			log({event->server, event->channel->name}, event->who->name, "join");
 		});
 
 
 		PingPong::Events::listen<PingPong::KickEvent>("p:logs", [&](PingPong::KickEvent *event) {
-			log({event->serv, event->chan->name}, event->who->name + " " + event->whom->name + " :" + event->content,
-				"kick");
+			log({event->server, event->channel->name}, event->who->name + " " + event->whom->name + " :" +
+				event->content, "kick");
 		});
 
 
-		PingPong::Events::listen<PingPong::mode_event>("p:logs", [&](PingPong::mode_event *event) {
+		PingPong::Events::listen<PingPong::ModeEvent>("p:logs", [&](PingPong::ModeEvent *event) {
 			// Ignore self mode changes.
-			if (event->get_name() == event->where)
+			if (event->getName() == event->where)
 				return;
 
-			const std::string extra = !event->mset.extra.empty()? " " + event->mset.extra : "";
-			log({event->serv, event->where}, event->get_name() + " " + event->server->get_nick() + " " +
-				event->mset.mode_str() + extra, "mode");
+			const std::string extra = !event->modeSet.extra.empty()? " " + event->modeSet.extra : "";
+			log({event->server, event->where}, event->getName() + " " + event->server->getNick() + " " +
+				event->modeSet.modeString() + extra, "mode");
 		});
 
 
-		PingPong::Events::listen<PingPong::nick_event>("p:logs", [&](PingPong::nick_event *event) {
+		PingPong::Events::listen<PingPong::NickEvent>("p:logs", [&](PingPong::NickEvent *event) {
 			log(event->who, event->content + " " + event->who->name, "nick");
 		});
 
 
-		PingPong::Events::listen<PingPong::notice_event>("p:logs", [&, this](PingPong::notice_event *event) {
-			if (event->server->get_parent() != &parent->getIRC())
+		PingPong::Events::listen<PingPong::NoticeEvent>("p:logs", [&, this](PingPong::NoticeEvent *event) {
+			if (event->server->getParent() != &parent->getIRC())
 				return;
 
-			lines::notice_line line = event->is_channel() || event->speaker? lines::notice_line(parent, *event) :
-				lines::notice_line(parent, event->server->id, "*", event->server->get_nick(), event->content, event->stamp,
-					{}, true);
+			Lines::NoticeLine line = event->isChannel() || event->speaker? Lines::NoticeLine(parent, *event) :
+				Lines::NoticeLine(parent, event->server->id, "*", event->server->getNick(), event->content,
+					event->stamp, {}, true);
 
 			// A '$' logfile is for messages received from the server itself.
-			const std::string where = event->is_channel()? event->where : (event->speaker? event->speaker->name : "$");
-			std::string nick = event->server->get_nick();
+			const std::string where = event->isChannel()? event->where : (event->speaker? event->speaker->name : "$");
+			std::string nick = event->server->getNick();
 			if (nick.empty())
 				nick = "!"; // A '!', in this case, represents you before your nick has been set.
 
-			log({event->serv, where}, formicine::util::ltrim(line.hat_str() + line.name) + " " + nick + " " +
-				(line.is_action()? "*" : ":") + line.trimmed(line.message), "notice");
+			log({event->server, where}, formicine::util::ltrim(line.hatString() + line.name) + " " + nick + " " +
+				(line.isAction()? "*" : ":") + line.trimmed(line.message), "notice");
 		});
 
 
 		PingPong::Events::listen<PingPong::PartEvent>("p:logs", [&](PingPong::PartEvent *event) {
-			log({event->serv, event->chan->name}, event->who->name + " :" + event->content, "part");
+			log({event->server, event->channel->name}, event->who->name + " :" + event->content, "part");
 
 			// If you parted the channel, close the channel's stream.
 			if (event->who->isSelf())
-				close({event->serv, event->chan->name});
+				close({event->server, event->channel->name});
 		});
 
 
-		PingPong::Events::listen<PingPong::privmsg_event>("p:logs", [&, this](PingPong::privmsg_event *event) {
-			if (event->server->get_parent() != &parent->getIRC()) {
-				DBG("Different parent IRCs: " << event->server->get_parent() << " vs. " << &parent->getIRC());
+		PingPong::Events::listen<PingPong::PrivmsgEvent>("p:logs", [&, this](PingPong::PrivmsgEvent *event) {
+			if (event->server->getParent() != &parent->getIRC()) {
+				DBG("Different parent IRCs: " << event->server->getParent() << " vs. " << &parent->getIRC());
 				return;
 			}
 
-			lines::privmsg_line line {parent, *event};
-			log({event->serv, event->is_channel()? event->where : event->speaker->name},
-				formicine::util::ltrim(line.hat_str() + line.name) + " " + event->server->get_nick() + " " +
-				(line.is_action()? "*" : ":") + line.trimmed(line.message), "msg");
+			Lines::PrivmsgLine line {parent, *event};
+			log({event->server, event->isChannel()? event->where : event->speaker->name},
+				formicine::util::ltrim(line.hatString() + line.name) + " " + event->server->getNick() + " " +
+				(line.isAction()? "*" : ":") + line.trimmed(line.message), "msg");
 		});
 
 
-		PingPong::Events::listen<PingPong::quit_event>("p:logs", [&](PingPong::quit_event *event) {
+		PingPong::Events::listen<PingPong::QuitEvent>("p:logs", [&](PingPong::QuitEvent *event) {
 			log(event->who, event->who->name + " :" + event->content, "quit");
 
 			// If you quit, close all logs associated with the server you quit from.
@@ -260,7 +262,7 @@ namespace Spjalla::Plugins::Logs {
 				std::vector<LogPair> to_close;
 				to_close.reserve(filemap.size());
 				for (const auto &pair: filemap) {
-					if (pair.first.first == event->serv)
+					if (pair.first.first == event->server)
 						to_close.push_back(pair.first);
 				}
 
@@ -271,34 +273,34 @@ namespace Spjalla::Plugins::Logs {
 
 
 		PingPong::Events::listen<PingPong::TopicEvent>("p:logs", [&](PingPong::TopicEvent *event) {
-			log({event->serv, event->chan->name}, event->who->name + " :" + event->content, "topic_set");
+			log({event->server, event->channel->name}, event->who->name + " :" + event->content, "topic_set");
 		});
 
 
 		PingPong::Events::listen<PingPong::TopicUpdatedEvent>("p:logs", [&](PingPong::TopicUpdatedEvent *event) {
-			log({event->serv, event->chan->name}, ":" + event->content, "topic_is");
+			log({event->server, event->channel->name}, ":" + event->content, "topic_is");
 		});
 	}
 
 	void LogsPlugin::cleanup(PluginHost *) {
-		config::unregister("logs", "autoclean");
-		config::unregister("logs", "default_restore");
-		config::unregister("logs", "enabled");
+		Config::unregister("logs", "autoclean");
+		Config::unregister("logs", "default_restore");
+		Config::unregister("logs", "enabled");
 
 		PingPong::Events::unlisten<PingPong::JoinEvent>("p:logs");
 		PingPong::Events::unlisten<PingPong::KickEvent>("p:logs");
-		PingPong::Events::unlisten<PingPong::mode_event>("p:logs");
-		PingPong::Events::unlisten<PingPong::nick_event>("p:logs");
-		PingPong::Events::unlisten<PingPong::notice_event>("p:logs");
+		PingPong::Events::unlisten<PingPong::ModeEvent>("p:logs");
+		PingPong::Events::unlisten<PingPong::NickEvent>("p:logs");
+		PingPong::Events::unlisten<PingPong::NoticeEvent>("p:logs");
 		PingPong::Events::unlisten<PingPong::PartEvent>("p:logs");
-		PingPong::Events::unlisten<PingPong::privmsg_event>("p:logs");
-		PingPong::Events::unlisten<PingPong::quit_event>("p:logs");
+		PingPong::Events::unlisten<PingPong::PrivmsgEvent>("p:logs");
+		PingPong::Events::unlisten<PingPong::QuitEvent>("p:logs");
 		PingPong::Events::unlisten<PingPong::TopicEvent>("p:logs");
 		PingPong::Events::unlisten<PingPong::TopicUpdatedEvent>("p:logs");
 
-		parent->remove_command("clean");
-		parent->remove_command("restore");
+		parent->removeCommand("clean");
+		parent->removeCommand("restore");
 	}
 }
 
-spjalla::plugins::logs::LogsPlugin ext_plugin {};
+Spjalla::Plugins::Logs::LogsPlugin ext_plugin {};

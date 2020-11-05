@@ -23,28 +23,28 @@ namespace Spjalla::Plugins {
 		std::shared_ptr<PluginHost::Pre_f<Haunted::Key>> prekey = 
 			std::make_shared<PluginHost::Pre_f<Haunted::Key>>([this](const Haunted::Key &key, bool) {
 				if (!history.empty()) {
-					if (key == Haunted::KeyType::UpArrow && 0 < command_index) {
-						parent->getUI().set_input(history[--command_index]);
-						return cancelable_result::disable;
+					if (key == Haunted::KeyType::UpArrow && 0 < commandIndex) {
+						parent->getUI().setInput(history[--commandIndex]);
+						return CancelableResult::Disable;
 					}
 
-					if (key == Haunted::KeyType::down_arrow && command_index < static_cast<int>(history.size()) - 1) {
-						parent->getUI().set_input(history[++command_index]);
-						return cancelable_result::disable;
+					if (key == Haunted::KeyType::DownArrow && commandIndex < static_cast<int>(history.size()) - 1) {
+						parent->getUI().setInput(history[++commandIndex]);
+						return CancelableResult::Disable;
 					}
 				}
 
-				return cancelable_result::pass;
+				return CancelableResult::Pass;
 			});
 
-		std::shared_ptr<PluginHost::post_function<InputLine>> postinput =
-			std::make_shared<PluginHost::post_function<InputLine>>([this](const InputLine &il) {
+		std::shared_ptr<PluginHost::Post_f<InputLine>> postinput =
+			std::make_shared<PluginHost::Post_f<InputLine>>([this](const InputLine &il) {
 				history.push_back(il.original);
 
-				if (max_length < history.size())
+				if (maxLength < history.size())
 					history.pop_front();
 
-				command_index = history.size();
+				commandIndex = history.size();
 			});
 
 		void postinit(PluginHost *host) override {
@@ -65,4 +65,4 @@ namespace Spjalla::Plugins {
 	};
 }
 
-spjalla::plugins::HistoryPlugin ext_plugin {};
+Spjalla::Plugins::HistoryPlugin ext_plugin {};

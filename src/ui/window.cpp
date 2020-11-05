@@ -14,7 +14,7 @@ namespace Spjalla::UI {
 		std::swap(left.highestNotification, right.highestNotification);
 	}
 
-	bool Window::show_times() const {
+	bool Window::showTimes() const {
 		return type != WindowType::Overlay;
 	}
 

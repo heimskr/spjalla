@@ -11,7 +11,7 @@
 namespace Spjalla::Plugins::Logs {
 	class LogsPlugin: public Plugin {
 		public:
-			using LogPair = std::pair<PingPong::server *, std::string>;
+			using LogPair = std::pair<PingPong::Server *, std::string>;
 
 		private:
 			/** Maps server-channel pairs to the filestreams where their logs are stored. */
@@ -54,10 +54,10 @@ namespace Spjalla::Plugins::Logs {
 			static std::string sanitizeFilename(const std::string &);
 
 			void clean();
-			void restore(PingPong::server *serv, const InputLine &il);
+			void restore(PingPong::Server *serv, const InputLine &il);
 
 			/** Converts a line of log text into a textline for a window. */
-			std::unique_ptr<lines::line> getLine(const LogPair &, const std::string &, bool autoclean = false);
+			std::unique_ptr<Lines::Line> getLine(const LogPair &, const std::string &, bool autoclean = false);
 
 			static constexpr char precisionSuffix();
 			static std::chrono::microseconds parseStamp(std::string);

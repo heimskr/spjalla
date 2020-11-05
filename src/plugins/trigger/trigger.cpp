@@ -1,46 +1,46 @@
 #include <unordered_map>
 
-#include "spjalla/plugins/trigger.h"
+#include "spjalla/plugins/Trigger.h"
 
-#include "pingpong/commands/kick.h"
+#include "pingpong/commands/Kick.h"
 #include "pingpong/core/Util.h"
 #include "pingpong/events/Event.h"
 #include "pingpong/events/Mode.h"
 #include "spjalla/core/Client.h"
 #include "spjalla/config/Defaults.h"
-#include "spjalla/lines/basic.h"
+#include "spjalla/lines/Basic.h"
 #include "spjalla/plugins/Plugin.h"
 
 #include "lib/formicine/futil.h"
 
 namespace Spjalla::Plugins {
-	void trigger_plugin::preinit(PluginHost *host) {
+	void TriggerPlugin::preinit(PluginHost *host) {
 		parent = dynamic_cast<Spjalla::Client *>(host);
 		if (!parent) { DBG("Error: expected client as plugin host"); return; }
 
-		config::RegisterKey("trigger", "active", false, config::validateBool,
-			[&, this](config::database &, const config::value &value) {
+		Config::RegisterKey("trigger", "active", false, Config::validateBool,
+			[&, this](Config::Database &, const Config::Value &value) {
 				active = value.bool_();
 			}, "Whether to react to +o events.");
 
-		config::RegisterKey("trigger", "reason", "Too slow! :^)", config::validate_string,
-			[&, this](config::database &, const config::value &value) {
+		Config::RegisterKey("trigger", "reason", "Too slow! :^)", Config::validateString,
+			[&, this](Config::Database &, const Config::Value &value) {
 				reason = value.string_();
 			}, "The message to use when auto-kicking someone.");
 	}
 
-	void trigger_plugin::postinit(PluginHost *) {
-		PingPong::Events::listen<PingPong::mode_event>("p:trigger", [=, this](PingPong::mode_event *ev) {
+	void TriggerPlugin::postinit(PluginHost *) {
+		PingPong::Events::listen<PingPong::ModeEvent>("p:trigger", [=, this](PingPong::ModeEvent *ev) {
 			if (!active)
 				return;
-			DBG("Mode string: " << ev->mset.mode_str() << ", name: " << ev->get_name());
-			std::vector<std::string> split = util::split(ev->line.parameters, " ", false);
+			DBG("Mode string: " << ev->modeSet.modeString() << ", name: " << ev->getName());
+			std::vector<std::string> split = Util::split(ev->line.parameters, " ", false);
 			if (split.size() < 3 || split[1] != "+oo")
 				return;
 			bool found = false;
 			std::string other;
 			for (int i = 2, l = split.size(); i < l; ++i) {
-				if (split[i] == ev->server->get_nick())
+				if (split[i] == ev->server->getNick())
 					found = true;
 				else
 					other = split[i];
@@ -50,15 +50,15 @@ namespace Spjalla::Plugins {
 				return;
 			
 			DBG("Other: " << other);
-			PingPong::kick_command(ev->serv, ev->getChannel(ev->serv), other, reason).send();
+			PingPong::KickCommand(ev->server, ev->getChannel(ev->server), other, reason).send();
 		});
 	}
 
-	void trigger_plugin::cleanup(PluginHost *) {
-		config::unregister("trigger", "active");
-		config::unregister("trigger", "reason");
-		PingPong::Events::unlisten<PingPong::mode_event>("p:trigger");
+	void TriggerPlugin::cleanup(PluginHost *) {
+		Config::unregister("trigger", "active");
+		Config::unregister("trigger", "reason");
+		PingPong::Events::unlisten<PingPong::ModeEvent>("p:trigger");
 	}
 }
 
-spjalla::plugins::trigger_plugin ext_plugin {};
+Spjalla::Plugins::TriggerPlugin ext_plugin {};

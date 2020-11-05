@@ -1,41 +1,41 @@
 #include "spjalla/core/Client.h"
-#include "spjalla/plugins/notifications/widget.h"
+#include "spjalla/plugins/notifications/Widget.h"
 
 namespace Spjalla::Plugins {
-	notifications_widget::~notifications_widget() = default;
+	NotificationsWidget::~NotificationsWidget() = default;
 
-	std::string notifications_widget::_render(const UI::Window *, bool) const {
+	std::string NotificationsWidget::_render(const UI::Window *, bool) const {
 		std::vector<std::string> indicators;
 
-		std::deque<Haunted::UI::control *> controls = parent->get_window_controls();
-		std::sort(controls.begin(), controls.end(), [](Haunted::UI::control *one, Haunted::UI::control *two) {
-			return one && two && one->get_index() < two->get_index();
+		std::deque<Haunted::UI::Control *> controls = parent->getWindowControls();
+		std::sort(controls.begin(), controls.end(), [](Haunted::UI::Control *one, Haunted::UI::Control *two) {
+			return one && two && one->getIndex() < two->getIndex();
 		});
 
-		for (Haunted::UI::control *control: controls) {
+		for (Haunted::UI::Control *control: controls) {
 			if (!control)
 				continue;
 
-			const ssize_t index = control->get_index();
+			const ssize_t index = control->getIndex();
 			if (index < 0)
 				continue;
 
 			UI::Window *window = dynamic_cast<UI::Window *>(control);
-			if (window == parent->getUI().get_active_window())
+			if (window == parent->getUI().getActiveWindow())
 				continue;
 
-			NotificationType type = window->highest_notification;
-			if (type == NotificationType::none) {
+			NotificationType type = window->highestNotification;
+			if (type == NotificationType::None) {
 				continue;
 			}
 			
 			std::string index_str = std::to_string(index + 1);
 			switch (type) {
-				case NotificationType::Info:      indicators.push_back(ansi::dim(index_str)); break;
-				case NotificationType::message:   indicators.push_back(index_str); break;
-				case NotificationType::highlight: 
-					indicators.push_back(ansi::wrap(highlight_bold? ansi::bold(index_str) : index_str,
-						highlight_color));
+				case NotificationType::Info:    indicators.push_back(ansi::dim(index_str)); break;
+				case NotificationType::Message: indicators.push_back(index_str); break;
+				case NotificationType::Highlight: 
+					indicators.push_back(ansi::wrap(highlightBold? ansi::bold(index_str) : index_str,
+						highlightColor));
 					break;
 				default: throw std::invalid_argument("Invalid notification type");
 			}
@@ -44,7 +44,7 @@ namespace Spjalla::Plugins {
 		return formicine::util::join(indicators.begin(), indicators.end(), ","_d);
 	}
 
-	void notifications_widget::window_focused(UI::Window *window) {
+	void NotificationsWidget::windowFocused(UI::Window *window) {
 		window->unnotify();
 	}
 }

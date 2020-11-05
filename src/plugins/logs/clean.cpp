@@ -1,11 +1,11 @@
 #include "spjalla/core/Client.h"
 #include "spjalla/plugins/Logs.h"
-#include "spjalla/plugins/logs/log_line.h"
+#include "spjalla/plugins/logs/LogLine.h"
 
-namespace Spjalla::Plugins::logs {
-	void logs_plugin::clean() {
-		parent->getUI().get_active_window()->remove_rows([&](const Haunted::UI::textline *line) -> bool {
-			return dynamic_cast<const log_line *>(line);
+namespace Spjalla::Plugins::Logs {
+	void LogsPlugin::clean() {
+		parent->getUI().getActiveWindow()->removeRows([&](const Haunted::UI::TextLine *line) -> bool {
+			return dynamic_cast<const LogLine *>(line);
 		});
 	}
 }

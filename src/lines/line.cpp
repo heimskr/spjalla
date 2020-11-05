@@ -47,7 +47,7 @@ namespace Spjalla::Lines {
 #endif
 
 		if (UI::Window *win = dynamic_cast<UI::Window *>(box)) {
-			if (!win->show_times())
+			if (!win->showTimes())
 				return baseContinuation;
 
 			if (win->type == UI::WindowType::Status) {
@@ -82,7 +82,7 @@ namespace Spjalla::Lines {
 		if (win->type == UI::WindowType::Status) {
 			if (PingPong::Server *server = getAssociatedServer())
 				return renderTime(parent, stamp) + "["_d + server->id + "] "_d + render(win);
-		} else if (!win->show_times()) {
+		} else if (!win->showTimes()) {
 			return render(win);
 		}
 

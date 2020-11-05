@@ -6,7 +6,7 @@
 #include "spjalla/plugins/Plugin.h"
 
 namespace Spjalla::Plugins {
-	class NickColorPlugin: public plugin {
+	class NickColorPlugin: public Plugin {
 		private:
 			std::vector<ansi::color> colorlist {};
 

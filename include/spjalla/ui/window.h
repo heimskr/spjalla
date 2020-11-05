@@ -68,7 +68,7 @@ namespace Spjalla::UI {
 				Window(nullptr, std::vector<std::string>(), window_name) {}
 
 			/** Whether lines rendered in the window should begin with a timestamp. */
-			virtual bool show_times() const;
+			virtual bool showTimes() const;
 
 			template <typename T, typename std::enable_if_t<std::is_base_of_v<Lines::Line, T>> * = nullptr>
 			Window & operator+=(const T &line) {

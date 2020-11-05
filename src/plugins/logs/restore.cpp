@@ -6,7 +6,7 @@
 #include "spjalla/util/BackwardReader.h"
 
 namespace Spjalla::Plugins::Logs {
-	void LogsPlugin::restore(PingPong::Server *serv, const InputLine &il) {
+	void LogsPlugin::restore(PingPong::Server *server, const InputLine &il) {
 		UI::Interface &ui = parent->getUI();
 		long to_restore;
 		if (!il.args.empty()) {
@@ -18,18 +18,18 @@ namespace Spjalla::Plugins::Logs {
 			to_restore = std::max(1L, parent->configs.get("logs", "default_restore").long_());
 		}
 
-		UI::Window *window = ui.get_active_window();
-		if (window->type != UI::WindowType::channel && window->type != UI::WindowType::user) {
+		UI::Window *window = ui.getActiveWindow();
+		if (window->type != UI::WindowType::Channel && window->type != UI::WindowType::User) {
 			ui.warn("/restore works only for channel windows and private message windows.");
 			return;
 		}
 
 		size_t first_stamp = static_cast<size_t>(-1);
 
-		if (!window->get_lines().empty()) {
-			lines::line *line;
-			for (const std::shared_ptr<Haunted::UI::textline> &lineptr: window->get_lines()) {
-				if ((line = dynamic_cast<lines::line *>(lineptr.get())))
+		if (!window->getLines().empty()) {
+			Lines::Line *line;
+			for (const std::shared_ptr<Haunted::UI::TextLine> &lineptr: window->getLines()) {
+				if ((line = dynamic_cast<Lines::Line *>(lineptr.get())))
 					break;
 			}
 
@@ -41,8 +41,8 @@ namespace Spjalla::Plugins::Logs {
 
 		PingPong::Util::TimeType first_time {first_stamp};
 
-		const std::string where = window->is_user()? window->user->name : window->chan->name;
-		const LogPair pair {serv, where};
+		const std::string where = window->isUser()? window->user->name : window->channel->name;
+		const LogPair pair {server, where};
 		if (filemap.count(pair) == 0) {
 			ui.log("No scrollback found for " + ansi::bold(where) + " on " + ansi::bold(server->id) + ".");
 			return;
@@ -50,7 +50,7 @@ namespace Spjalla::Plugins::Logs {
 
 		std::vector<std::string> lines {};
 
-		util::BackwardReader reader(get_path(pair).string());
+		Util::BackwardReader reader(getPath(pair).string());
 
 		// Look for the last line in the log before the top of the scrollback.
 		for (;;) {
@@ -63,7 +63,7 @@ namespace Spjalla::Plugins::Logs {
 			const std::string &line = lines.back();
 			std::string first_word = line.substr(0, line.find(' '));
 			
-			std::chrono::microseconds micros = parse_stamp(first_word);
+			std::chrono::microseconds micros = parseStamp(first_word);
 			
 			// Note: if there are messages in the unloaded scrollback that have an identical timestamp to the
 			// first loaded line, they will be skipped. This can be mitigated with higher resolution.
@@ -78,8 +78,6 @@ namespace Spjalla::Plugins::Logs {
 
 		reader.readlines(lines, to_restore - 1);
 		const bool autoclean = parent->configs.get("logs", "autoclean").bool_();
-
-		UI::Window *win = ui.get_active_window();
 		
 		for (const std::string &raw: lines) {
 			std::string first_word = formicine::util::nth_word(raw, 0, false);
@@ -87,15 +85,15 @@ namespace Spjalla::Plugins::Logs {
 			long l;
 			formicine::util::parse_long(first_word, l);
 
-			std::unique_ptr<Haunted::UI::textline> line = get_line(pair, raw, autoclean);
+			std::unique_ptr<Haunted::UI::TextLine> line = getLine(pair, raw, autoclean);
 			if (line) {
-				line->box = win;
-				line->clean(win->get_position().width);
-				win->get_lines().push_front(std::move(line));
+				line->box = window;
+				line->clean(window->getPosition().width);
+				window->getLines().push_front(std::move(line));
 			}
 		}
 
-		win->rows_dirty();
-		win->draw();
+		window->rowsDirty();
+		window->draw();
 	}
 }
