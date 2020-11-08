@@ -2,6 +2,8 @@
 #define SPJALLA_PLUGINS_COLORING_H_
 
 #include "spjalla/plugins/Plugin.h"
+#include "spjalla/core/Client.h"
+#include "spjalla/core/PluginHost.h"
 #include "haunted/ui/TextInput.h"
 
 namespace Spjalla::Plugins {
@@ -19,6 +21,17 @@ namespace Spjalla::Plugins {
 
 			void postinit(PluginHost *) override;
 			void cleanup(PluginHost  *) override;
+
+			std::shared_ptr<PluginHost::Pre_f<Haunted::Key>> prekey =
+				std::make_shared<PluginHost::Pre_f<Haunted::Key>>([this](const Haunted::Key &key, bool) {
+					if (key.isCtrl(Haunted::KeyType::b)) {
+						parent->getUI().input->insert("\x02");
+						parent->getUI().input->drawInsert();
+						return CancelableResult::Disable;
+					}
+
+					return CancelableResult::Pass;
+				});
 	};
 }
 
