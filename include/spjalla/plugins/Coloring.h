@@ -36,6 +36,12 @@ namespace Spjalla::Plugins {
 						return CancelableResult::Disable;
 					}
 
+					if (key.isCtrl(Haunted::KeyType::s)) {
+						parent->getUI().input->insert("\x1e");
+						parent->getUI().input->drawInsert();
+						return CancelableResult::Disable;
+					}
+
 					if (key.isCtrl(Haunted::KeyType::Minus) || key.isCtrl(Haunted::KeyType::Underscore)) {
 						parent->getUI().input->insert("\x1f");
 						parent->getUI().input->drawInsert();

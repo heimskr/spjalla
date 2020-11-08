@@ -18,6 +18,7 @@ namespace Spjalla::Plugins {
 			if (str == "\x02") return ansi::wrap("B", ansi::style::inverse);
 			if (str == "\x03") return ansi::wrap("C", ansi::style::inverse);
 			if (str == "\x1d") return ansi::wrap("I", ansi::style::inverse);
+			if (str == "\x1e") return ansi::wrap("S", ansi::style::inverse);
 			if (str == "\x1f") return ansi::wrap("_", ansi::style::inverse);
 			return str;
 		};
