@@ -2,10 +2,6 @@
 
 #include "spjalla/plugins/Coloring.h"
 
-#include "spjalla/core/Client.h"
-
-#include "lib/formicine/futil.h"
-
 namespace Spjalla::Plugins {
 	bool ColoringPlugin::onInterrupt() {
 		parent->getUI().input->insert("\x03");
