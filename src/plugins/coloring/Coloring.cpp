@@ -1,0 +1,33 @@
+#include <unordered_map>
+
+#include "spjalla/plugins/Coloring.h"
+
+#include "spjalla/core/Client.h"
+
+#include "lib/formicine/futil.h"
+
+namespace Spjalla::Plugins {
+	bool ColoringPlugin::onInterrupt() {
+		parent->getUI().input->insert("\x03");
+		parent->getUI().input->drawInsert();
+		return false;
+	}
+
+	void ColoringPlugin::postinit(PluginHost *host) {
+		parent = dynamic_cast<Spjalla::Client *>(host);
+		if (!parent) { DBG("Error: expected client as plugin host"); return; }
+		parent->getTerminal().onInterrupt = [this]() { return ColoringPlugin::onInterrupt(); };
+		using String      = Haunted::UI::TextInput::String;
+		render = [&](const String &str) -> String {
+			return str == "\x03"? ansi::wrap("C", ansi::style::inverse) : str;
+		};
+		parent->getUI().input->characterRenderers.emplace("p:Coloring", render);
+	}
+
+	void ColoringPlugin::cleanup(PluginHost *) {
+		parent->getTerminal().onInterrupt = {};
+		parent->getUI().input->characterRenderers.erase("p:Coloring");
+	}
+}
+
+Spjalla::Plugins::ColoringPlugin ext_plugin {};

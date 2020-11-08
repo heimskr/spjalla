@@ -125,16 +125,18 @@ namespace Spjalla {
 		}
 	}
 
-	// void Client::cleanup() {
-	// 	PluginHost::cleanup();
-	// 	commandHandlers.clear();
-	// 	heartbeatListeners.clear();
-	// 	statusWidgets.clear();
-	// 	join();
-	// 	close_plugins();
-	// 	term.join();
-	// 	formicine::perf.results();
-	// }
+	void Client::cleanup() {
+		// PluginHost::cleanup();
+		commandHandlers.clear();
+		heartbeatListeners.clear();
+		statusWidgets.clear();
+		// join();
+		// closePlugins();
+		unloadPlugins();
+		terminal.alive = false;
+		join();
+		formicine::perf.results();
+	}
 
 	PingPong::Server * Client::activeServer() {
 		UI::Window *window = ui.activeWindow;

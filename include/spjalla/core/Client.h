@@ -102,7 +102,7 @@ namespace Spjalla {
 			void join();
 
 			/** Joins threads and unloads plugins. */
-			// virtual void cleanup() override;
+			void cleanup();
 
 			/** Returns the client's UI::Interface instance. */
 			UI::Interface & getUI() { return ui; }

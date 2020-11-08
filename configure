@@ -78,7 +78,7 @@ add_both tinyxml2 curlpp
 do_all icu-uc
 
 cat >> Makefile <<"BASE"
-COMPILER		:= g++
+COMPILER		?= g++
 OFLAGS			:= -g -O0
 CFLAGS			+= -std=c++2a $(OFLAGS) -Wall -Wextra -fPIC
 CFLAGS_ORIG		:= $(CFLAGS)

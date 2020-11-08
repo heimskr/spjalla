@@ -136,6 +136,7 @@ namespace Spjalla {
 		add("quit", 0, -1, false, [&](sptr, line il) {
 			for (PingPong::Server *server: irc.serverOrder)
 				server->quit(il.body);
+			cleanup();
 		});
 
 		add("quote", 1, -1, true, [&](sptr server, line il) { server->quote(il.body); });

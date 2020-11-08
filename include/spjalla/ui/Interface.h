@@ -49,11 +49,13 @@ namespace Spjalla::UI {
 			 *  correct window can be restored when the overlay is closed. */
 			Window *beforeOverlay = nullptr;
 
+		public:
 			Haunted::UI::Boxes::SwapBox    *swappo;
 			Haunted::UI::Boxes::ExpandoBox *expando;
 			Haunted::UI::Label     *titlebar, *statusbar;
 			Haunted::UI::TextInput *input;
 
+		private:
 			size_t winCount = 0;
 
 			/** Sets up the labels, overlay and textinput. */
