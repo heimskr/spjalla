@@ -42,6 +42,7 @@
 #include "spjalla/lines/Privmsg.h"
 #include "spjalla/lines/Raw.h"
 #include "spjalla/lines/Quit.h"
+#include "spjalla/lines/ServerBasic.h"
 #include "spjalla/lines/Topic.h"
 
 namespace Spjalla {
@@ -118,6 +119,9 @@ namespace Spjalla {
 			Lines::NickChangeLine nline(this, *ev);
 			for (UI::Window *window: ui.windowsForUser(ev->who))
 				*window += nline;
+			if (ev->who->isSelf())
+				*ui.statusWindow += Lines::ServerBasicLine(this, ev->server,
+					ui.renderer("self_nick_change", {{"raw_new", ev->who->name}}));
 		});
 
 		PingPong::Events::listen<PingPong::NickInUseEvent>([&](PingPong::NickInUseEvent *ev) {

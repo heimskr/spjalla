@@ -1,5 +1,5 @@
-#ifndef SPJALLA_LINES_NICK_CHANGE_H_
-#define SPJALLA_LINES_NICK_CHANGE_H_
+#ifndef SPJALLA_LINES_NICKCHANGE_H_
+#define SPJALLA_LINES_NICKCHANGE_H_
 
 #include "pingpong/core/Defs.h"
 #include "pingpong/core/User.h"

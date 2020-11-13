@@ -282,6 +282,9 @@ namespace Spjalla::Config {
 			validateString, CACHE_STRING(formatQuit),
 			"The format string for quits. Available variables: -!-, -!!-, -!?-, reason, who.");
 
+		RegisterKey("format", "self_nick_change", "You are now known as $new$", validateString,
+			CACHE_STRING(formatSelfNickChange), "The format string for self nick changes. Available variables: new.");
+
 		RegisterKey("format", "timestamp", "%H^d:^D%M^d:^D%S", validateString, CACHE_STRING(formatTimestamp),
 			"The format string for timestamps. Uses strftime syntax. Shouldn't exceed 32 characters when rendered.");
 

@@ -77,6 +77,9 @@ namespace Spjalla::UI {
 		Strender::StrNode &nick_change = *nodes.at("nick_change");
 		insert("nick_change_new", "new", replaceNick("$raw_new$"), &nick_change);
 		insert("nick_change_old", "old", replaceNick("$raw_old$"), &nick_change);
+		insert("self_nick_change", "self_nick_change", cache->formatSelfNickChange);
+		Strender::StrNode &self_nick_change = *nodes.at("self_nick_change");
+		insert("self_nick_change_new", "new", replaceNick("$raw_new$"), &self_nick_change);
 	}
 
 	std::string Renderer::replaceNick(const std::string &varname) const {

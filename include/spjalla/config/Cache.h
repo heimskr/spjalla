@@ -69,6 +69,7 @@ namespace Spjalla::Config {
 			DEF_FORMAT(Privmsg, privmsg);
 			DEF_FORMAT(Quit, quit);
 			DEF_FORMAT(Reason, reason);
+			DEF_FORMAT(SelfNickChange, self_nick_change);
 			DEF_FORMAT(Timestamp, timestamp);
 			DEF_FORMAT(Topic, topic);
 			DEF_FORMAT(TopicIs, topic_is);
