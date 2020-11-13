@@ -48,6 +48,25 @@ namespace Spjalla::Plugins {
 						return CancelableResult::Disable;
 					}
 
+					if (key.isCtrl(Haunted::KeyType::z)) {
+#ifdef ENABLE_ICU
+						Haunted::UI::TextInput *input = parent->getUI().input;
+						using ustring = Haunted::ustring;
+						const ustring &buffer = input->getBuffer();
+						DBG("{{ \"" << buffer << "\" >> \"" << input->str() << "\"");
+						for (const std::string &piece: buffer) {
+							if (piece.size() == 1) {
+								DBG("  ['" << piece << "' (" << static_cast<int>(piece[0]) << ")]");
+							} else {
+								DBG("  ['" << piece << "']:" << piece.size());
+							}
+						}
+						DBG("}}");
+#else
+						DBG("ICU support not enabled.");
+#endif
+					}
+
 					return CancelableResult::Pass;
 				});
 	};
