@@ -10,6 +10,7 @@ massif.out.*
 mp.*
 Makefile
 /_*
+core
 
 # Prerequisites
 *.d

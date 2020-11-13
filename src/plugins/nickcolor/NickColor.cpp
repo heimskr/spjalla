@@ -62,11 +62,15 @@ namespace Spjalla::Plugins {
 				for (const std::string &name: split)
 					colorlist.push_back(ansi::get_color(name));
 			}, "A list of colors to use for nick colorization.");
+		Config::registered.at("appearance.nick_colors").apply(parent->configs,
+			parent->configs.get("appearance", "nick_colors"));
 	}
 
 	void NickColorPlugin::postinit(PluginHost *) {
 		parent->getUI().renderer["privmsg_nick"] = [this](Strender::PieceMap &pieces) -> std::string {
 			const std::string raw = pieces.at("raw_nick").render();
+			if (colorlist.empty())
+				return raw;
 			return ansi::wrap(raw, colorlist[std::hash<std::string>()(raw) % colorlist.size()]);
 		};
 	}
