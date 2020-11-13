@@ -70,17 +70,37 @@ do_all() {
 	add_dep $*
 }
 
+enable_unicorn() {
+	info "Adding Unicorn support."
+	do_all libpcre2 zlib
+	echo "DEP_LD			+= -liconv" >> Makefile
+	echo "DEP_CFLAGS		+= -Ihaunted/unicorn-lib" >> Makefile
+	echo "build/%.o: haunted/unicorn-lib/build/utf.o" >> Makefile
+	echo "OBJECTS			+= haunted/unicorn-lib/build/*.o" >> Makefile
+	echo >> Makefile
+}
+
 init_makefile
 
 check_for tinyxml2 curlpp
 add_both tinyxml2 curlpp
 
-do_all icu-uc
+# do_all icu-uc
+
+while test $# -gt 0
+do
+    case "$1" in
+        --unicorn)
+			enable_unicorn
+            ;;
+    esac
+    shift
+done
 
 cat >> Makefile <<"BASE"
 COMPILER		?= g++
 OFLAGS			:= -g -O0
-CFLAGS			+= -std=c++2a $(OFLAGS) -Wall -Wextra -fPIC
+CFLAGS			+= -std=c++2a $(OFLAGS) -Wall -Wextra -fPIC -DENABLE_UNICODE
 CFLAGS_ORIG		:= $(CFLAGS)
 INCLUDE			:= 
 LDFLAGS			+= $(strip -pthread -ldl $(DEP_LD))
@@ -131,7 +151,7 @@ INCLUDE_LIBS	:= $(INCLUDE_SR) $(INCLUDE_PP) $(INCLUDE_HN)
 SOURCES_PL		:= $(shell ls src/plugins | sed -nE '/\./!p' | sed -E 's/(.+)/src\/plugins\/\1\/\1.cpp/')
 OBJECTS_PL		:= $(addsuffix .$(SHARED_EXT),$(addprefix build/plugins/,$(shell ls src/plugins)))
 
-OBJECTS			= $(OBJECTS_SR) $(OBJECTS_PP) $(OBJECTS_HN) $(OBJECTS_SP)
+OBJECTS			+= $(OBJECTS_SR) $(OBJECTS_PP) $(OBJECTS_HN) $(OBJECTS_SP)
 
 ALLFLAGS		 = $(CPPFLAGS) $(CXXFLAGS) $(DEP_CFLAGS)
 
