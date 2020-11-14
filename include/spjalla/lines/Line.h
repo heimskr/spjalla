@@ -28,7 +28,7 @@ namespace Spjalla::Lines {
 	/** Renders a UNIX timestamp as an hours-minutes-seconds set. */
 	std::string renderTime(Client *, long stamp);
 
-	class Line: public Haunted::UI::TextLine {
+	class Line: public Haunted::UI::VectorLine {
 
 		protected:
 			/** Returns whether the server the line is associated with, if any. */

@@ -5,7 +5,7 @@
 
 namespace Spjalla::UI {
 	void swap(Window &left, Window &right) {
-		swap(static_cast<Haunted::UI::Textbox &>(left), static_cast<Haunted::UI::Textbox &>(right));
+		swap(static_cast<Haunted::UI::VectorBox &>(left), static_cast<Haunted::UI::VectorBox &>(right));
 		std::swap(left.windowName, right.windowName);
 		std::swap(left.type, right.type);
 		std::swap(left.server, right.server);
@@ -18,7 +18,7 @@ namespace Spjalla::UI {
 		return type != WindowType::Overlay;
 	}
 
-	void Window::addLine(std::shared_ptr<Haunted::UI::TextLine> line) {
+	void Window::addLine(std::shared_ptr<Haunted::UI::VectorLine> line) {
 		if (position.width != -1)
 			doScroll(line->numRows(position.width));
 		lines.push_back(line);
@@ -84,12 +84,12 @@ namespace Spjalla::UI {
 		highestNotification = NotificationType::None;
 	}
 
-	void Window::removeRows(std::function<bool(const Haunted::UI::TextLine *)> fn) {
+	void Window::removeRows(std::function<bool(const Haunted::UI::VectorLine *)> fn) {
 		auto w = formicine::perf.watch("Window::remove_rows");
-		std::list<Haunted::UI::Textbox::LinePtr> new_lines {};
+		std::vector<Haunted::UI::VectorBox::LinePtr> new_lines {};
 		int rows_removed = 0, lines_removed = 0, total_rows = 0;
 
-		for (Haunted::UI::Textbox::LinePtr &ptr : lines) {
+		for (Haunted::UI::VectorBox::LinePtr &ptr : lines) {
 			int rows = ptr->numRows(position.width);
 			total_rows += rows;
 			if (fn(ptr.get())) {

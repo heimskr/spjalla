@@ -79,14 +79,14 @@ namespace Spjalla {
 		});
 
 		add("_recalc", 0, 0, false, [&](sptr, line) {
-			for (const std::shared_ptr<Haunted::UI::TextLine> &textline: ui.activeWindow->getLines())
+			for (const auto &textline: ui.activeWindow->getLines())
 				textline->markDirty();
 			ui.activeWindow->rowsDirty();
 			ui.activeWindow->draw();
 		});
 
 		add("_lines", 0, 0, false, [&](sptr, line) {
-			for (std::shared_ptr<Haunted::UI::TextLine> textline: ui.activeWindow->getLines()) {
+			for (const auto &textline: ui.activeWindow->getLines()) {
 				DBG("Line: " << std::string(*textline));
 				DBG("   numRows_ = " << textline->numRows_);
 				DBG("   #lines_  = " << textline->lines_.size());
