@@ -17,7 +17,6 @@ check_for() {
 		pkg-config --exists "$dep" 2>/dev/null
 		if [ $? -eq 0 ]; then
 			good "Found $dep version `pkg-config --modversion "$dep"`."
-			echo
 		else
 			yikes "Couldn't find $dep."
 		fi
@@ -70,29 +69,32 @@ do_all() {
 	add_dep $*
 }
 
-enable_unicorn() {
-	info "Adding Unicorn support."
-	do_all libpcre2 zlib
-	echo "DEP_LD			+= -liconv" >> Makefile
-	echo "DEP_CFLAGS		+= -Ihaunted/unicorn-lib" >> Makefile
-	echo "build/%.o: haunted/unicorn-lib/build/utf.o" >> Makefile
-	echo "OBJECTS			+= haunted/unicorn-lib/build/*.o" >> Makefile
+enable_icu() {
+	info "Trying to add ICU support."
+	do_all icu-uc
+	echo "DEP_CFLAGS		+= -DENABLE_ICU" >> Makefile
+	echo >> Makefile
+}
+
+enable_slashdot() {
+	info "Trying to add support for Slashdot plugin dependencies."
+	check_for tinyxml2 curlpp
+	add_both tinyxml2 curlpp
+	echo "DEP_CFLAGS		+= -DENABLE_SLASHDOT" >> Makefile
 	echo >> Makefile
 }
 
 init_makefile
 
-check_for tinyxml2 curlpp
-add_both tinyxml2 curlpp
-
-# do_all icu-uc
-
 while test $# -gt 0
 do
     case "$1" in
-        --unicorn)
-			enable_unicorn
+        --icu)
+			enable_icu
             ;;
+		--slashdot)
+			enable_slashdot
+			;;
     esac
     shift
 done
@@ -100,7 +102,7 @@ done
 cat >> Makefile <<"BASE"
 COMPILER		?= g++
 OFLAGS			:= -g -O0
-CFLAGS			+= -std=c++2a $(OFLAGS) -Wall -Wextra -fPIC -DENABLE_UNICODE
+CFLAGS			+= -std=c++2a $(OFLAGS) -Wall -Wextra -fPIC
 CFLAGS_ORIG		:= $(CFLAGS)
 INCLUDE			:= 
 LDFLAGS			+= $(strip -pthread -ldl $(DEP_LD))

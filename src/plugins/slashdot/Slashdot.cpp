@@ -1,10 +1,11 @@
-#include <cpr/cpr.h>
-#include <thread>
-
 #include "spjalla/core/Client.h"
 #include "spjalla/plugins/Slashdot.h"
 #include "spjalla/ui/BasicWindow.h"
 #include "spjalla/lines/Basic.h"
+
+#ifdef ENABLE_SLASHDOT
+#include <cpr/cpr.h>
+#include <thread>
 
 namespace Spjalla::Plugins {
 	void SlashdotPlugin::postinit(PluginHost *host) {
@@ -73,5 +74,6 @@ namespace Spjalla::Plugins {
 		parent->removeCommand(".");
 	}
 }
+#endif
 
 Spjalla::Plugins::SlashdotPlugin ext_plugin {};

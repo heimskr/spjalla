@@ -1,3 +1,4 @@
+#ifdef ENABLE_SLASHDOT
 #include <cpr/cpr.h>
 #include <thread>
 #include <tinyxml2.h>
@@ -128,3 +129,4 @@ namespace Spjalla::Plugins::Slashdot {
 		return formicine::util::trim(element->GetText());
 	}
 }
+#endif
