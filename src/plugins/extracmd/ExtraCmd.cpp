@@ -23,7 +23,7 @@ namespace Spjalla::Plugins {
 			if (!parent) { DBG("Error: expected client as plugin host"); return; }
 
 			parent->add("rmraw", 0, 0, false, [this](PingPong::Server *, const InputLine &) {
-				parent->getUI().getActiveWindow()->removeRows([](const Haunted::UI::TextLine *line) -> bool {
+				parent->getUI().getActiveWindow()->removeRows([](const auto *line) -> bool {
 					return dynamic_cast<const Lines::RawLine *>(line);
 				});
 			});

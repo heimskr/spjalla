@@ -28,7 +28,7 @@ namespace Spjalla::Plugins::Logs {
 
 		if (!window->getLines().empty()) {
 			Lines::Line *line;
-			for (const std::shared_ptr<Haunted::UI::TextLine> &lineptr: window->getLines()) {
+			for (const auto &lineptr: window->getLines()) {
 				if ((line = dynamic_cast<Lines::Line *>(lineptr.get())))
 					break;
 			}
@@ -85,7 +85,7 @@ namespace Spjalla::Plugins::Logs {
 			long l;
 			formicine::util::parse_long(first_word, l);
 
-			std::unique_ptr<Haunted::UI::TextLine> line = getLine(pair, raw, autoclean);
+			auto line = getLine(pair, raw, autoclean);
 			if (line) {
 				line->box = window;
 				line->clean(window->getPosition().width);

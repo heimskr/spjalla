@@ -26,9 +26,9 @@ namespace Spjalla::UI {
 	 * Represents a type of textbox for use within a swapbox. It has a window name separate from the control ID, in
 	 * addition to other data and metadata.
 	 */
-	class Window: public Haunted::UI::VectorBox {
+	class Window: public Haunted::UI::DequeBox {
 		private:
-			void addLine(std::shared_ptr<Haunted::UI::VectorLine>);
+			void addLine(LinePtr);
 
 		public:
 			std::string windowName;
@@ -140,7 +140,7 @@ namespace Spjalla::UI {
 			void unnotify();
 
 			/** Removes rows for which a given function returns true. */
-			void removeRows(std::function<bool(const Haunted::UI::VectorLine *)>);
+			void removeRows(std::function<bool(const Haunted::UI::DequeLine *)>);
 
 			friend void swap(Window &left, Window &right);
 	};

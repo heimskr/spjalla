@@ -4,7 +4,7 @@
 
 namespace Spjalla::Plugins::Logs {
 	void LogsPlugin::clean() {
-		parent->getUI().getActiveWindow()->removeRows([&](const Haunted::UI::TextLine *line) -> bool {
+		parent->getUI().getActiveWindow()->removeRows([&](const auto *line) -> bool {
 			return dynamic_cast<const LogLine *>(line);
 		});
 	}
