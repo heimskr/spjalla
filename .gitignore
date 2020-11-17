@@ -11,6 +11,7 @@ mp.*
 Makefile
 /_*
 core
+pvs.*
 
 # Prerequisites
 *.d
