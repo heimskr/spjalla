@@ -557,7 +557,7 @@ namespace Spjalla::UI {
 	}
 
 	bool Interface::onKey(const Haunted::Key &key) {
-		Haunted::Key copy {key};
+		Haunted::Key copy = key;
 		if (!parent->beforeKey(copy))
 			return false;
 

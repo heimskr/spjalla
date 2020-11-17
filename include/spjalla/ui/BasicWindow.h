@@ -8,7 +8,7 @@ namespace Spjalla::UI {
 		public:
 			using Window::Window;
 
-			bool showTimes() const override {
+			bool shouldShowTimes() const override {
 				return false;
 			}
 	};

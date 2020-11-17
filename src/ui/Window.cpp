@@ -14,11 +14,12 @@ namespace Spjalla::UI {
 		std::swap(left.highestNotification, right.highestNotification);
 	}
 
-	bool Window::showTimes() const {
+	bool Window::shouldShowTimes() const {
 		return type != WindowType::Overlay;
 	}
 
 	void Window::addLine(std::shared_ptr<Haunted::UI::DequeLine> line) {
+		line->box = this;
 		if (position.width != -1)
 			doScroll(line->numRows(position.width));
 		lines.push_back(line);

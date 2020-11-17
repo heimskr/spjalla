@@ -19,7 +19,7 @@ namespace Spjalla::UI {
 		Overlay, // The window that replaces the sidebar (RIP) and can be summoned with a keypress.
 		Channel, // A window containing the conversation within an IRC channel.
 		User,    // A window for a private conversation with another user.
-		Other    // A window used for any purpose not covered by the other window types and when the type is unknown.
+		Other    // A window used for any purpose not covered by the other window types or when the type is unknown.
 	};
 
 	/**
@@ -68,7 +68,7 @@ namespace Spjalla::UI {
 				Window(nullptr, std::vector<std::string>(), window_name) {}
 
 			/** Whether lines rendered in the window should begin with a timestamp. */
-			virtual bool showTimes() const;
+			virtual bool shouldShowTimes() const;
 
 			template <typename T, typename std::enable_if_t<std::is_base_of_v<Lines::Line, T>> * = nullptr>
 			Window & operator+=(const T &line) {
@@ -87,6 +87,7 @@ namespace Spjalla::UI {
 			                      typename std::enable_if_t<std::is_constructible_v<Lines::Line, T>> * = nullptr>
 			Window & operator+=(std::shared_ptr<T> line) {
 				auto w = formicine::perf.watch("window::operator+=(shared_ptr<Line>)");
+
 
 				if (line->box && line->box != this)
 					line = std::make_shared<T>(*line);

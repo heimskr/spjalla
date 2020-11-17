@@ -135,10 +135,10 @@ namespace Spjalla {
 
 			if (!ev->isChannel() && !ev->speaker) {
 				UI::Window *window = in_status? ui.statusWindow : ui.activeWindow;
-				Lines::NoticeLine nl(this, ev->server->id, "*", ev->server->getNick(), ev->content, ev->stamp, {},
+				Lines::NoticeLine nline(this, ev->server->id, "*", ev->server->getNick(), ev->content, ev->stamp, {},
 					true);
-				nl.server = ev->server;
-				*window += std::move(nl);
+				nline.server = ev->server;
+				*window += std::move(nline);
 				return;
 			}
 
