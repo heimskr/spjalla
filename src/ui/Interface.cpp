@@ -304,7 +304,7 @@ namespace Spjalla::UI {
 		const std::string lower = channel->server->id + "/" + formicine::util::lower(channel->name);
 		for (Haunted::UI::Control *control: swappo->getChildren()) {
 			Window *window = dynamic_cast<Window *>(control);
-			if (formicine::util::lower(window->windowName) == lower)
+			if (window && formicine::util::lower(window->windowName) == lower)
 				return window;
 		}
 
@@ -334,7 +334,7 @@ namespace Spjalla::UI {
 		const std::string lower = user->server->id + "/" + formicine::util::lower(user->name);
 		for (Haunted::UI::Control *ctrl: swappo->getChildren()) {
 			Window *window = dynamic_cast<Window *>(ctrl);
-			if (formicine::util::lower(window->windowName) == lower)
+			if (window && formicine::util::lower(window->windowName) == lower)
 				return window;
 		}
 
