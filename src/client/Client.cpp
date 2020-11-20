@@ -79,6 +79,13 @@ namespace Spjalla {
 		add({command_name, {min_args, max_args, needs_server, handler_fn, completion_fn, suggestors}});
 	}
 
+	void Client::addBool(const std::string &command_name, int min_args, int max_args, bool needs_server,
+	                     const Commands::Command::BoolHandler_f &handler_fn,
+	                     const Completions::Completion_f &completion_fn,
+	                     const std::vector<Completions::CompletionState::Suggestor_f> &suggestors) {
+		add({command_name, {min_args, max_args, needs_server, handler_fn, completion_fn, suggestors}});
+	}
+
 	bool Client::removeCommand(const std::string &name) {
 		if (commandHandlers.count(name) == 0)
 			return false;

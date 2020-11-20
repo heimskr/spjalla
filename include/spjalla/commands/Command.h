@@ -22,21 +22,34 @@ namespace Spjalla::UI {
 
 namespace Spjalla::Commands {
 	struct Command {
-		using Handler_f = std::function<void(PingPong::Server *, const InputLine &)>;
+		// If the function returns true, Client::handleLine will stop iterating through the command handlers multimap.
+		using BoolHandler_f = std::function<bool(PingPong::Server *, const InputLine &)>;
+		using     Handler_f = std::function<void(PingPong::Server *, const InputLine &)>;
 
 		int minArgs, maxArgs;
 		bool needsServer;
-		Handler_f handler;
+		BoolHandler_f handler;
 		Completions::Completion_f completionFunction;
 		std::vector<Completions::CompletionState::Suggestor_f> suggestors;
 
 		Command() = delete;
 
-		Command(int min_arg, int max_args, bool needs_server, const Handler_f &handler_,
+		Command(int min_args, int max_args, bool needs_server, const BoolHandler_f &handler_,
 		const Completions::Completion_f &completion_fn = {},
 		const std::vector<Completions::CompletionState::Suggestor_f> &suggestors_= {}):
-			minArgs(min_arg), maxArgs(max_args), needsServer(needs_server), handler(handler_),
+			minArgs(min_args), maxArgs(max_args), needsServer(needs_server), handler(handler_),
 			completionFunction(completion_fn), suggestors(suggestors_) {}
+
+		Command(int min_args, int max_args, bool needs_server, const Handler_f &handler_,
+		const Completions::Completion_f &completion_fn = {},
+		const std::vector<Completions::CompletionState::Suggestor_f> &suggestors_= {}):
+			minArgs(min_args), maxArgs(max_args), needsServer(needs_server), completionFunction(completion_fn),
+			suggestors(suggestors_) {
+				handler = [handler_](PingPong::Server *server, const InputLine &line) {
+					handler_(server, line);
+					return false;
+				};
+			}
 	};
 
 	/** Command name, command */

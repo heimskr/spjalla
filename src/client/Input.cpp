@@ -85,19 +85,18 @@ namespace Spjalla {
 
 		for (auto it = range.first; it != range.second; ++it) {
 			auto &[min, max, needs_serv, fn, comp_fn, suggestion_fns] = it->second;
-			if (max == 0 && nargs != 0) {
+			if (max == 0 && nargs != 0)
 				ui.warn("/" + name + " doesn't accept any arguments.");
-			} else if (min == max && nargs != min) {
+			else if (min == max && nargs != min)
 				ui.warn("/" + name + " expects " + std::to_string(min) + " argument" + (min == 1? "." : "s."));
-			} else if (nargs < min) {
+			else if (nargs < min)
 				ui.warn("/" + name + " expects at least " + std::to_string(min) + " argument" + (min == 1? "." : "s."));
-			} else if (max != -1 && max < nargs) {
+			else if (max != -1 && max < nargs)
 				ui.warn("/" + name + " expects at most " + std::to_string(max) + " argument" + (min == 1? "." : "s."));
-			} else if (needs_serv && !irc.activeServer) {
+			else if (needs_serv && !irc.activeServer)
 				ui.warn("No server is selected.");
-			} else {
-				fn(activeServer(), il);
-			}
+			else if (fn(activeServer(), il))
+				break;
 		}
 
 		return true;

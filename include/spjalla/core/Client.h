@@ -83,6 +83,9 @@ namespace Spjalla {
 			void add(const std::string &, int, int, bool, const Commands::Command::Handler_f &,
 			         const Completions::Completion_f & = {},
 			         const std::vector<Completions::CompletionState::Suggestor_f> & = {});
+			void addBool(const std::string &, int, int, bool, const Commands::Command::BoolHandler_f &,
+			             const Completions::Completion_f & = {},
+			             const std::vector<Completions::CompletionState::Suggestor_f> & = {});
 
 			bool removeCommand(const std::string &);
 

@@ -133,10 +133,11 @@ namespace Spjalla {
 		add("part",    0, -1, true,  [&](sptr server, line il) { Commands::doPart(*this, server, il); });
 		add("plugin",  0, -1, false, [&](sptr,        line il) { Commands::doPlugin(*this, il);     });
 
-		add("quit", 0, -1, false, [&](sptr, line il) {
+		addBool("quit", 0, -1, false, [&](sptr, line il) -> bool {
 			for (PingPong::Server *server: irc.serverOrder)
 				server->quit(il.body);
 			cleanup();
+			return true;
 		});
 
 		add("quote", 1, -1, true, [&](sptr server, line il) { server->quote(il.body); });
