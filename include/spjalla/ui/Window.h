@@ -72,21 +72,21 @@ namespace Spjalla::UI {
 
 			template <typename T, typename std::enable_if_t<std::is_base_of_v<Lines::Line, T>> * = nullptr>
 			Window & operator+=(const T &line) {
-				auto w = formicine::perf.watch("template <line> window::operator+=");
+				auto w = formicine::perf.watch("template <line> Window::operator+=");
 				return *this += std::make_shared<T>(line);
 			}
 
 			template <typename T, typename std::enable_if_t<std::is_base_of_v<Haunted::UI::TextLine, T>> * = nullptr,
 			                      typename std::enable_if_t<!std::is_base_of_v<Lines::Line, T>> * = nullptr>
 			Window & operator+=(const T &line) {
-				auto w = formicine::perf.watch("template <!line> window::operator+=");
+				auto w = formicine::perf.watch("template <!line> Window::operator+=");
 				return *this += std::make_shared<T>(line);
 			}
 
 			template <typename T, typename std::enable_if_t<std::is_base_of_v<Lines::Line, T>> * = nullptr,
 			                      typename std::enable_if_t<std::is_constructible_v<Lines::Line, T>> * = nullptr>
 			Window & operator+=(std::shared_ptr<T> line) {
-				auto w = formicine::perf.watch("window::operator+=(shared_ptr<Line>)");
+				auto w = formicine::perf.watch("Window::operator+=(shared_ptr<Line>)");
 
 
 				if (line->box && line->box != this)
@@ -102,7 +102,7 @@ namespace Spjalla::UI {
 			template <typename T, typename std::enable_if_t<std::is_base_of_v<Lines::Line, T>> * = nullptr,
 			                      typename std::enable_if_t<!std::is_constructible_v<T>> * = nullptr>
 			Window & operator+=(std::shared_ptr<T> line) {
-				auto w = formicine::perf.watch("window::operator+=(shared_ptr<Line>)");
+				auto w = formicine::perf.watch("Window::operator+=(shared_ptr<Line>)");
 
 				addLine(line);
 
@@ -113,7 +113,7 @@ namespace Spjalla::UI {
 			template <typename T, typename std::enable_if_t<std::is_base_of_v<Haunted::UI::TextLine, T>> * = nullptr,
 			                      typename std::enable_if_t<!std::is_base_of_v<Lines::Line, T>> * = nullptr>
 			Window & operator+=(std::shared_ptr<T> line) {
-				auto w = formicine::perf.watch("window::operator+=(shared_ptr<TextLine>)");
+				auto w = formicine::perf.watch("Window::operator+=(shared_ptr<TextLine>)");
 				addLine(line);
 				return *this;
 			}
