@@ -30,7 +30,7 @@ namespace Spjalla {
 	ui(terminal, *this), completer(*this), configs({*this, false}), heartbeatPeriod(heartbeat_period) {
 		Config::registerDefaults();
 		DBG("Set up configs.");
-		terminal.keyPostlistener = [&](const Haunted::Key &k) { keyPostlistener(k); };
+		terminal.keyPostlistener = [this](const Haunted::Key &k) { keyPostlistener(k); };
 	}
 
 	Client::~Client() {
