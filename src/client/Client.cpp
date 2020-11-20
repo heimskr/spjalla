@@ -130,11 +130,8 @@ namespace Spjalla {
 		commandHandlers.clear();
 		heartbeatListeners.clear();
 		statusWidgets.clear();
-		// join();
-		// closePlugins();
 		unloadPlugins();
 		terminal.alive = false;
-		join();
 		formicine::perf.results();
 	}
 
