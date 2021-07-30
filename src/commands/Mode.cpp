@@ -17,7 +17,7 @@ namespace Spjalla::Commands {
 			return;
 		}
 
-		std::string chan_str {}, flags {}, extra {};
+		std::string chan_str, flags, extra;
 
 		// Look through all the arguments.
 		for (const std::string &arg: il.args) {
@@ -76,6 +76,5 @@ namespace Spjalla::Commands {
 		// At this point, I think it's safe to assume that you're setting channel flags. The extra parameter, if
 		// present, is what/whom you're setting the flags on.
 		PingPong::ModeCommand(chan_str, server, flags, extra).send();
-
 	}
 }

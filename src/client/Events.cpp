@@ -254,14 +254,15 @@ namespace Spjalla {
 			return;
 
 		std::list<QueuePair> &list = serverStatusQueue.at(server);
-		for (auto iter = list.begin(), end = list.end(); iter != end; ++iter) {
+		for (auto iter = list.begin(), end = list.end(); iter != end;) {
 			const PingPong::Server::Stage requested_stage = iter->first;
 			const Queue_f &fn = iter->second;
 
 			if (requested_stage == stage) {
 				fn();
 				list.erase(iter++);
-			}
+			} else
+				++iter;
 		}
 	}
 
